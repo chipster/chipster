@@ -1,5 +1,7 @@
 ##depends:none
 
+source ../installation_files/functions.bash
+
 # Fseq bff files
   cd ${TMPDIR_PATH}/
   

@@ -1,5 +1,8 @@
 ##depends:none
 
+source ../installation_files/functions.bash
+
+
 # vcftools, GPLv3
   cd ${TMPDIR_PATH}/
   wget_retry -O vcftools_0.1.11.tar.gz http://sourceforge.net/projects/vcftools/files/vcftools_0.1.11.tar.gz/download

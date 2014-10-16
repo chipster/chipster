@@ -1,5 +1,7 @@
 ##depends:none
 
+source ../installation_files/functions.bash
+
 # Bowtie, Artistic License
   cd ${TMPDIR_PATH}/
   wget_retry -nv -O bowtie-0.12.7-linux-x86_64.zip http://sourceforge.net/projects/bowtie-bio/files/bowtie/0.12.7/bowtie-0.12.7-linux-x86_64.zip/download

@@ -16,6 +16,74 @@ mode=("single")
 outputmode=("single")
 ensembl_version=("current_")
 ensembl_genomes_version=("current")
+ensembl_urls_file="$TMPDIR/ensembl_urls_${ensembl_genomes_version}"
+ensembl_urls_mysql_file="$TMPDIR/ensembl_urls_mysql_${ensembl_genomes_version}"
+
+update_ensembl_url_file ()
+{
+  url_file=$1
+  type=$2 # fasta or mysql
+  
+  if [[ ! -e $url_file ]]
+  then
+    # create a list of ftp directories
+    echo ftp://ftp.ensembl.org/pub/$ensembl_version$type/ > ensembl_list
+
+    # mysql data for bacterisa is in different format
+    if [[ "$type" != "mysql" ]]
+    then
+      for ((number=1; number<=27; number++))
+      do
+        echo ftp://ftp.ensemblgenomes.org/pub/bacteria/${ensembl_genomes_version}/$type/bacteria_"$number"_collection/ >> ensembl_list
+      done
+    fi
+
+    echo ftp://ftp.ensemblgenomes.org/pub/fungi/${ensembl_genomes_version}/$type/ >> ensembl_list
+    echo ftp://ftp.ensemblgenomes.org/pub/metazoa/${ensembl_genomes_version}/$type/  >> ensembl_list
+    echo ftp://ftp.ensemblgenomes.org/pub/plants/${ensembl_genomes_version}/$type/ >> ensembl_list
+    echo ftp://ftp.ensemblgenomes.org/pub/protists/${ensembl_genomes_version}/$type/  >> ensembl_list
+
+    # create a list of species in all directories
+    rm -f ensembl_urls
+    while read url
+    do
+      # there may be a proxy (squid) set in environment variable to make file downloads faster,
+      # but it must be disabled for directory listing, because squid converts directory listing to html
+      curl --proxy "" --silent --list-only $url > directories
+      while read directory
+      do
+        echo "$url$directory/" >> ensembl_urls
+      done < directories
+    done < ensembl_list
+
+    # remove duplicates, because some species are on multiple sites
+    cat ensembl_urls \
+      | grep -v "ensembl.org/pub/${ensembl_version}fasta/caenorhabditis_elegans" \
+      | grep -v "ensembl.org/pub/${ensembl_version}fasta/saccharomyces_cerevisiae" \
+      | grep -v "ensemblgenomes.org/pub/metazoa/${ensembl_genomes_version}/fasta/drosophila_melanogaster" \
+      > filtered_urls
+
+    cat filtered_urls > $url_file
+    if [[ "$type" == "mysql" ]]
+    then
+      cat filtered_urls | grep "_core_" > $url_file
+    else
+      cat filtered_urls > $url_file
+    fi
+  fi
+}
+
+update_ensembl_urls () 
+{
+  echo "Getting the name list"
+  update_ensembl_url_file $ensembl_urls_file "fasta"
+  update_ensembl_url_file $ensembl_urls_mysql_file "mysql"
+}
+
+clean_up ()
+{
+  rm -rf  tmp_$$/
+}
 
 while [[ $# -ge 1 ]]
 do
@@ -29,28 +97,15 @@ do
               #
               '-names')
                   echo "Retrieving the list of available species names:"
+
+                   rm -f $ensembl_urls_file
+                   rm -f $ensembl_urls_mysql_file
+
                    mkdir tmp_$$
                    cd tmp_$$
-                   echo ftp://ftp.ensembl.org/pub/${ensembl_version}fasta/ > ensembl_list
-                   # bakteerit poitettu väliaikaisesti sillä niille ei ole MySQL tiedostoja
-                   for ((number=1; number<=27; number++))
-                   do
-                     echo ftp://ftp.ensemblgenomes.org/pub/bacteria/${ensembl_genomes_version}/fasta/bacteria_"$number"_collection/ >> ensembl_list
-                   done
-                   ####
-                   echo ftp://ftp.ensemblgenomes.org/pub/fungi/${ensembl_genomes_version}/fasta/ >> ensembl_list
-                   echo ftp://ftp.ensemblgenomes.org/pub/metazoa/${ensembl_genomes_version}/fasta/  >> ensembl_list
-                   echo ftp://ftp.ensemblgenomes.org/pub/plants/${ensembl_genomes_version}/fasta/ >> ensembl_list
-                   echo ftp://ftp.ensemblgenomes.org/pub/protists/${ensembl_genomes_version}/fasta/  >> ensembl_list
-                   wget -S -o log -i ensembl_list >> /dev/null
-	
-                   ensembl_urls_file="$TMPDIR/ensembl_urls_${ensembl_genomes_version}"
-                   if [[ -e "$ensembl_urls_file" ]]
-                   then
-                     rm -rf $ensembl_urls_file
-                   fi
-                   grep Directory index.html* | grep -v "ensembl.org:21/pub/${ensembl_version}fasta/caenorhabditis_elegans" | grep -v "ensembl.org:21/pub/${ensembl_version}fasta/saccharomyces_cerevisiae" | grep -v "ensemblgenomes.org:21/pub/metazoa/${ensembl_genomes_version}/mysql/drosophila_melanogaster" | awk -F \" '{print $2}' > $TMPDIR/ensembl_urls    
+                   update_ensembl_urls
                    cd ..
+
                    cat $ensembl_urls_file |\
                      sed s/"bacillus_collection\/b_"/"bacillus_"/g | \
                      sed s/"borrelia_collection\/b_"/"borrelia_"/g | \
@@ -63,7 +118,7 @@ do
                      sed s/"streptococcus_collection\/s_"/"streptococcus_"/g |\
                      sed s/"staphylococcus_collection\/s_"/"staphylococcus_"/g |\
                    awk -F "/" '{print $(NF-1)}' | sort
-                   rm -rf  tmp_$$/
+                   clean_up
                    exit
                ;;
               '-list')
@@ -81,6 +136,8 @@ do
               '-version')
                   ensembl_version=("release-$2/")
                   ensembl_genomes_version=("release-$2")  
+                  ensembl_urls_file="$TMPDIR/ensembl_urls_${ensembl_genomes_version}"
+                  ensembl_urls_mysql_file="$TMPDIR/ensembl_urls_mysql_${ensembl_genomes_version}"
 		  echo "Using Ensembl version $ensembl_genomes_version"
                   shift
                   shift
@@ -95,6 +152,13 @@ do
                   shift
                   shift
                   outputmode=("file")
+              ;;
+              '-tmp')
+                 TMPDIR=($2)
+                 ensembl_urls_file="$TMPDIR/ensembl_urls_${ensembl_genomes_version}"
+                 ensembl_urls_mysql_file="$TMPDIR/ensembl_urls_mysql_${ensembl_genomes_version}"
+                 shift
+                 shift
               ;;
               '-help')
                  echo " ----------------------------------------------------------------------------------"
@@ -141,7 +205,7 @@ case "$seqtype" in
        echo "Retrieving sequences for all abinitio predicted peptides for $spec"
      ;;
     "gtf")
-       echo "Retrieving grf file for $spec"
+       echo "Retrieving gtf file for $spec"
      ;;
     "mysql")
        echo "Retrieving mysql files for $spec"
@@ -165,25 +229,7 @@ esac
 mkdir tmp_$$
 cd tmp_$$
 
-ensembl_urls_file="$TMPDIR/ensembl_urls_${ensembl_genomes_version}"
-
-if [[ ! -e $ensembl_urls_file ]]
-then
-  echo ftp://ftp.ensembl.org/pub/${ensembl_version}fasta/ > ensembl_list
-  for ((number=1; number<=27; number++))
-  do
-    echo ftp://ftp.ensemblgenomes.org/pub/bacteria/${ensembl_genomes_version}/fasta/bacteria_"$number"_collection/ >> ensembl_list
-  done
-  echo ftp://ftp.ensemblgenomes.org/pub/fungi/${ensembl_genomes_version}/fasta/ >> ensembl_list
-  echo ftp://ftp.ensemblgenomes.org/pub/metazoa/${ensembl_genomes_version}/fasta/  >> ensembl_list
-  echo ftp://ftp.ensemblgenomes.org/pub/plants/${ensembl_genomes_version}/fasta/ >> ensembl_list
-  echo ftp://ftp.ensemblgenomes.org/pub/protists/${ensembl_genomes_version}/fasta/  >> ensembl_list
-
-  echo "Getting the name list"
-  wget -S -o log -i ensembl_list >> /dev/null
-  grep Directory index.html* | grep -v "ensembl.org:21/pub/${ensembl_version}fasta/caenorhabditis_elegans" | grep -v "ensembl.org:21/pub/${ensembl_version}fasta/saccharomyces_cerevisiae" | grep -v "ensemblgenomes.org:21/pub/metazoa/${ensembl_genomes_version}/fasta/drosophila_melanogaster" | awk -F \" '{print $2}' > $ensembl_urls_file
-fi
-
+update_ensembl_urls
 
 if [[ $seqtype == "dna" ]]
 then
@@ -222,20 +268,7 @@ fi
 
 if [[ $seqtype == "mysql" ]]
 then
-   echo ftp://ftp.ensembl.org/pub/${ensembl_version}mysql/ > ensembl_list
-  for ((number=1; number<=27; number++))
-  do
-    echo ftp://ftp.ensemblgenomes.org/pub/bacteria/${ensembl_genomes_version}/fasta/bacteria_"$number"_collection/ >> ensembl_list
-  done
-  echo ftp://ftp.ensemblgenomes.org/pub/fungi/${ensembl_genomes_version}/mysql/ >> ensembl_list
-  echo ftp://ftp.ensemblgenomes.org/pub/metazoa/${ensembl_genomes_version}/mysql/  >> ensembl_list
-  echo ftp://ftp.ensemblgenomes.org/pub/plants/${ensembl_genomes_version}/mysql/ >> ensembl_list
-  echo ftp://ftp.ensemblgenomes.org/pub/protists/${ensembl_genomes_version}/mysql/  >> ensembl_list
-
-  echo "Getting the name list" 
-  wget -S -o log -i ensembl_list >> /dev/null
-  grep Directory index.html* | grep "_core_"  | grep -v "ensembl.org:21/pub/${ensembl_version}mysql/caenorhabditis_elegans" | grep -v "ensembl.org:21/pub/${ensembl_version}mysql/saccharomyces_cerevisiae" | grep -v "ensemblgenomes.org:21/pub/metazoa/${ensembl_genomes_version}/mysql/drosophila_melanogaster" | awk -F \" '{print $2}' > ensembl_species.txt   
-
+   cat $ensembl_urls_mysql_file > ensembl_species.txt
 fi
  
 cd ..
@@ -267,8 +300,8 @@ do
   then
     if [[ $seqtype == "mysql" ]]
     then
-      url=$(grep -i "/$species""_core" tmp_$$/ensembl_species.txt)
-      filename=$(grep -i "/$species""_core" tmp_$$/ensembl_species.txt | awk -F "/" '{print $(NF-1)}' )
+      url=$(grep -i "/$species" tmp_$$/ensembl_species.txt)
+      filename=$(grep -i "/$species" tmp_$$/ensembl_species.txt | awk -F "/" '{print $(NF-1)}' )
       mkdir "$filename"_mysql
       cd "$filename"_mysql
       wget -o log "$url""coord_system.txt.gz" >> /dev/null
@@ -278,7 +311,7 @@ do
       cd ..
       tar cvf "$filename"_mysql.tar "$filename"_mysql
       rm -rf "$filename"_mysql
-      echo "The results have been wirtten to a file:"
+      echo "The results have been written to a file:"
       echo "$filename"_mysql.tar
     else
       url=$(grep -i "/$species/" tmp_$$/ensembl_species.txt)
@@ -286,14 +319,20 @@ do
       filename=$(grep -i "/$species/" tmp_$$/ensembl_species.txt | awk -F "/" '{print $(NF)}' )
       echo
       echo "Downloading the genomic sequece of $name"
-      echo 
-      wget -o log "$url" >> /dev/null
+      echo
+
+      # resolve exact url, because possible http proxy doesn't support wildcards
+      wildcard_name=$(basename $url)
+      path=$(dirname $url)"/"
+      exact_url="$path"$(curl --proxy "" --silent --list-only $path/ | grep -E "$wildcard_name")
+
+      wget -o log "$exact_url" >> /dev/null
       gzipfile=$(ls $filename | grep -i $species)
       echo "Unzipping $gzipfile"
       if [[ $outputmode == "single" ]]
       then
       gunzip $gzipfile
-        echo "The results have been wirtten to a file:"
+        echo "The results have been written to a file:"
         echo $gzipfile | sed s/".gz"/""/g
       else
         gunzip < $gzipfile >> $outfile
@@ -315,6 +354,5 @@ do
   fi
 done
 
-
-rm -rf tmp_$$
+clean_up
 

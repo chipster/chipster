@@ -74,6 +74,7 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 	private int cleanUpTargetPercentage;
 	private int cleanUpMinimumFileAge;
 	private long minimumSpaceForAcceptUpload;
+	volatile private boolean cleanUpRunning;
 	
 	private ExecutorService longRunningTaskExecutor = Executors.newCachedThreadPool();
 
@@ -450,12 +451,19 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 				@Override
 				public void run() {
 					try {
-						long cleanUpBeginTime = System.currentTimeMillis();
-						logger.info("cache cleanup, target usable space: " + FileUtils.byteCountToDisplaySize(targetUsableSpace) + " (" + (100-cleanUpTargetPercentage) + "%)");
-						Files.makeSpaceInDirectory(cacheRoot, targetUsableSpace, cleanUpMinimumFileAge, TimeUnit.SECONDS);
-						logger.info("cache cleanup took " + (System.currentTimeMillis() - cleanUpBeginTime) + " ms, usable space now " + FileUtils.byteCountToDisplaySize(cacheRoot.getUsableSpace()));
+						if (cleanUpRunning) {
+							logger.info("cache cleanup already running, skipping this one");
+						} else {
+							cleanUpRunning = true;						
+							long cleanUpBeginTime = System.currentTimeMillis();
+							logger.info("cache cleanup, target usable space: " + FileUtils.byteCountToDisplaySize(targetUsableSpace) + " (" + (100-cleanUpTargetPercentage) + "%)");
+							Files.makeSpaceInDirectory(cacheRoot, targetUsableSpace, cleanUpMinimumFileAge, TimeUnit.SECONDS);
+							logger.info("cache cleanup took " + (System.currentTimeMillis() - cleanUpBeginTime) + " ms, usable space now " + FileUtils.byteCountToDisplaySize(cacheRoot.getUsableSpace()));
+						}
 					} catch (Exception e) {
 						logger.warn("exception while cleaning cache", e);
+					} finally {
+						cleanUpRunning = false;
 					}
 				}
 			}, "chipster-fileserver-cache-cleanup").start();
@@ -595,10 +603,16 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 				sessionId = IOUtils.getFilenameWithoutPath(url);
 			}
 					
-			removeSession(sessionId);			
+			if (metadataServer.isUsernameAllowedToRemoveSession(requestMessage.getUsername(), sessionId)) {
+
+				removeSession(sessionId);			
+				reply = new SuccessMessage(true);
+				
+			} else {
+				
+				reply = new SuccessMessage(false, "user it not allowed to remove the session");
+			}
 			
-			// reply
-			reply = new SuccessMessage(true);
 		} catch (Exception e) {
 			reply = new SuccessMessage(false, e);
 		}

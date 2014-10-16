@@ -1429,7 +1429,7 @@ public class SwingClientApplication extends ClientApplication {
 
 				exampleSessionFileChooser = populateFileChooserFromServer();
 				exampleSessionFileChooser.setSelectedFile(new File("Session name"));
-				ServerFileUtils.hideJFileChooserButtons(remoteSessionFileChooser);
+				ServerFileUtils.hideJFileChooserButtons(exampleSessionFileChooser);
 			}
 			ServerFileSystemView view = (ServerFileSystemView) exampleSessionFileChooser.getFileSystemView();
 			exampleSessionFileChooser.setCurrentDirectory(view.getExampleSessionDir());				
