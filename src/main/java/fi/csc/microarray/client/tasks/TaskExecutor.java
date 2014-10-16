@@ -191,6 +191,9 @@ public class TaskExecutor {
 						}
 						taskFinished(State.COMPLETED, null, resultMessage);
 						break;
+					case CANCELLED:
+						taskFinished(State.CANCELLED, resultMessage.getStateDetail(), resultMessage);
+						break;
 					case FAILED:
 						taskFinished(State.FAILED, resultMessage.getStateDetail(), resultMessage);
 						break;
