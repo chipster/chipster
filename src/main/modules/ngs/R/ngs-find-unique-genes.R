@@ -8,6 +8,7 @@
 # EK, 22.05.2012, fixed parameters
 # Removes duplicate ENSEMBL identifiers, converts them to unique Entrez identifiers, and adds gene annotations to the output 
 # MK, 08.05.2012, Added new genomes 
+# AMS, 17.10.2014, attribute name change in ensembl: external_gene_id -> external_gene_name
 
 # Set up testing parameters
 # species <- "Human"
@@ -46,7 +47,8 @@ if("ensembl_id" %in% colnames(ensembl_list)) {
 
 # Fetch additional gene info from BioMart database
 ensembl_annotations <- useMart("ensembl", dataset=as.character(ensembl_dataset))
-gene_annotations <- getBM(filters="ensembl_gene_id", values=ensembl_id_list, attributes=c("ensembl_gene_id","external_gene_id","description","entrezgene"), mart=ensembl_annotations)
+#gene_annotations <- getBM(filters="ensembl_gene_id", values=ensembl_id_list, attributes=c("ensembl_gene_id","external_gene_id","description","entrezgene"), mart=ensembl_annotations)
+gene_annotations <- getBM(filters="ensembl_gene_id", values=ensembl_id_list, attributes=c("ensembl_gene_id","external_gene_name","description","entrezgene"), mart=ensembl_annotations)
 
 # Keep only the ones that have a unique ensembl gene id and actually map to unique entrez id:s
 gene_annotations_na <- na.omit(gene_annotations)
