@@ -1,5 +1,6 @@
 package fi.csc.microarray.client.operation;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -326,15 +327,55 @@ public class OperationDefinition implements ExecutionItem {
 	 * 
 	 * @param data
 	 *            The dataset for which to evaluate.
+	 * @param  
 	 * @return One of the OperationDefinition.Suitability enumeration, depending
 	 *         on how suitable the operation is judged.
 	 */
-	public Suitability evaluateSuitabilityFor(Iterable<DataBean> data) {
+	@Override
+	public Suitability evaluateSuitabilityFor(Iterable<DataBean> data, List<DataBinding> bindings) {
 	       
-        // Attempt binding
-        BindingResult result = bindInputs(data);
-	    
-		return result.suitability;
+		if (bindings == null) {
+			// Attempt binding
+			BindingResult result = bindInputs(data);
+			return result.suitability;
+		} else {
+			return evaluateBindingSuitability(data, bindings);
+		}	    
+	}
+	
+	public Suitability evaluateBindingSuitability(Iterable<DataBean> datas, List<DataBinding> bindings) {
+		
+		// collect a set of bound input names
+		HashSet<String> boundInputNames = new HashSet<>();  
+		for (DataBinding binding : bindings) {
+			boundInputNames.add(binding.getName());
+		}		
+		
+		// check that all mandatory inputs are set
+		for (InputDefinition input : inputs) {
+			if (!input.isOptional()) {
+				if (!boundInputNames.contains(input.getID())) {
+					logger.debug("  no binding found for " + input.getID());
+					return Suitability.EMPTY_REQUIRED_PARAMETERS;
+				}
+			}
+		}
+		
+		// collect a set of bound datasets
+		HashSet<DataBean> boundDatas = new HashSet<>();  
+		for (DataBinding binding : bindings) {
+			boundDatas.add(binding.getData());
+		}	
+
+		// check that all selected datasets are bound
+		for (DataBean data : datas) {
+			if (!boundDatas.contains(data)) {
+				logger.debug("  concrete input " + data.getName() + " was not bound");
+				return Suitability.EMPTY_REQUIRED_PARAMETERS;
+			}
+		}		
+        
+        return Suitability.SUITABLE;
 	}
 	
 	/**
@@ -469,30 +510,24 @@ public class OperationDefinition implements ExecutionItem {
 				}
 			}
 			notProcessedInputValues.removeAll(removedValues);
-
-			// input not bound and is mandatory, so can give up
-			if (!foundBinding && !input.isOptional()) {
-				logger.debug("  no binding found for " + input.id);
-				result.suitability = Suitability.IMPOSSIBLE;
-				return result;
-			}
 		}
-		if (notProcessedInputValues.size() > 0) {
-			logger.debug("  " + notProcessedInputValues.size() + " concrete inputs were not bound");
-			result.suitability = Suitability.IMPOSSIBLE;
-			return result;
-		}
+		
 
 		// automatically bind phenodata, if needed
 		logger.debug("we have " + bindings.size() + " bindings before metadata retrieval");
 		if (!unboundMetadataDefinitions.isEmpty()) {
 
-			Iterator<DataBinding> bindingIterator = bindings.iterator();
 			LinkedList<DataBinding> phenodataBindings = new LinkedList<DataBinding>(); // need this to prevent ConcurrentModificationException
-			for (InputDefinition unboundMetadata : unboundMetadataDefinitions) {
+			
+			Iterator<DataBinding> bindingIterator = bindings.iterator();
+			Iterator<InputDefinition> unboundMetadataIterator= unboundMetadataDefinitions.iterator();
+						
+			while (bindingIterator.hasNext() && unboundMetadataIterator.hasNext()) {
+				
+				DataBean input = bindingIterator.next().getData(); // bind inputs and phenodatas in same order
+				InputDefinition unboundMetadata = unboundMetadataIterator.next();
 				
 				// locate annotation (metadata) link from input bean or one of its ancestors				
-				DataBean input = bindingIterator.next().getData(); // bind inputs and phenodatas in same order
 				DataBean metadata = LinkUtils.retrieveInherited(input, Link.ANNOTATION);
 
 				if (metadata != null) {
@@ -504,8 +539,14 @@ public class OperationDefinition implements ExecutionItem {
 				}
 			}
 			bindings.addAll(phenodataBindings);
-		}		
+		}
+		
 		logger.debug("we have " + bindings.size() + " bindings after metadata retrieval");
+		
+		if (!evaluateBindingSuitability(inputValues, bindings).isOk()) {
+			result.suitability = Suitability.IMPOSSIBLE;
+			return result;
+		}
 
 		// return successful binding result
 		result.bindings = bindings;

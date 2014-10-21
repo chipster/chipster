@@ -764,7 +764,7 @@ public class ToolPanel extends JPanel
 		
 		// Check suitability of parameters and inputs
 		List<DataBean> selectedDatas = application.getSelectionManager().getSelectedDataBeans();
-		Suitability suitability = currentOperation.evaluateSuitabilityFor(selectedDatas);
+		Suitability suitability = currentOperation.evaluateSuitabilityFor(selectedDatas, currentOperation.getBindings());
 		
 		if (suitability.isOk()) {
 			// Is runnable
@@ -774,7 +774,7 @@ public class ToolPanel extends JPanel
 			List<DataBean> datas = selectedDatas;
 			
 			for (DataBean data : datas) {
-				if (!currentOperation.evaluateSuitabilityFor(Arrays.asList(new DataBean[] { data })).isOk()) {
+				if (!currentOperation.evaluateSuitabilityFor(Arrays.asList(new DataBean[] { data }), currentOperation.getBindings()).isOk()) {
 					// Does not work with this input, so cannot run as batch
 					return Runnability.NOT_RUNNABLE;			
 				}
