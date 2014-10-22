@@ -17,12 +17,14 @@ public class JettyFileServer {
 	private Server jettyInstance;
 	private AuthorisedUrlRepository urlRepository;
 	private DerbyMetadataServer metadataServer;
+	private DiskCleanUp cacheCleanUp;
 	
-	public JettyFileServer(AuthorisedUrlRepository urlRepository, DerbyMetadataServer metadataServer) {
+	public JettyFileServer(AuthorisedUrlRepository urlRepository, DerbyMetadataServer metadataServer, DiskCleanUp cacheCleanUp) {
 		this.urlRepository = urlRepository;
 		this.metadataServer = metadataServer;
+		this.cacheCleanUp = cacheCleanUp;
 	}
-	
+
 	public void start(String resourceBase, int port, String protocol) throws Exception {
 		
 		if (DirectoryLayout.getInstance().getConfiguration().getBoolean("filebroker", "jetty-debug")) {
@@ -58,7 +60,7 @@ public class JettyFileServer {
 		ServletContextHandler root = new ServletContextHandler(jettyInstance, "/", false, false);
 		root.getInitParams().put("org.eclipse.jetty.servlet.Default.aliases", "true");
 		root.setResourceBase(resourceBase);
-		root.addServlet(new ServletHolder(new RestServlet(urlRepository.getRootUrl(), urlRepository, metadataServer)), "/*");
+		root.addServlet(new ServletHolder(new RestServlet(urlRepository.getRootUrl(), urlRepository, metadataServer, cacheCleanUp)), "/*");
 		jettyInstance.start();
 	}
 	
