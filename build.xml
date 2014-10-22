@@ -350,6 +350,8 @@
 			<tarfileset dir="${ext-src}/wrapper/fileserver/conf" prefix="chipster/fileserver/conf" />
 			<tarfileset dir="${ext-src}/wrapper/fileserver/logs" prefix="chipster/fileserver/logs" /> <!-- must exist for wrapper -->
 			<tarfileset dir="${ext-src}/wrapper/fileserver/security" prefix="chipster/fileserver/security" />
+			<tarfileset file="${data}/keystore.ks" prefix="chipster/fileserver/security" />
+			
 
 			<!-- web start -->
 			<tarfileset file="${ext-src}/wrapper/webstart/chipster-webstart-generic" filemode="755" fullpath="chipster/webstart/bin/chipster-webstart" />
@@ -365,6 +367,7 @@
 			<tarfileset file="${client-jar}" fullpath="chipster/webstart/web-root/lib/chipster-current.jar" />
 			<tarfileset file="${ext-src}/wrapper/chipster-client-config.xml" fullpath="chipster/webstart/web-root/chipster-config.xml" />
 			<tarfileset dir="${ext-src}/wrapper/webstart/security" prefix="chipster/webstart/security" />
+			<tarfileset file="${data}/keystore.ks" prefix="chipster/webstart/security" />
 
 			<tarfileset dir="${ext-src}/wrapper/webstart/conf" prefix="chipster/webstart/conf" />
 			<tarfileset dir="${ext-src}/wrapper/webstart/logs" prefix="chipster/webstart/logs" /> <!-- must exist for wrapper -->
@@ -383,6 +386,7 @@
 			<tarfileset dir="${ext-src}/wrapper/manager/conf" prefix="chipster/manager/conf" />
 			<tarfileset dir="${ext-src}/wrapper/manager/logs" prefix="chipster/manager/logs" /> <!-- must exist for wrapper -->
 			<tarfileset dir="${ext-src}/wrapper/manager/security" prefix="chipster/manager/security" />
+			<tarfileset file="${data}/keystore.ks" prefix="chipster/manager/security" />
 
 			<tarfileset dir="${ext-src}/wrapper/manager/testrunner" prefix="chipster/manager/testrunner" />
 			<tarfileset file="${dist}/admin-web.war" prefix="chipster/manager/webapps" />
@@ -403,6 +407,8 @@
 			<tarfileset file="${ext-src}/activemq/activemq" filemode="755" prefix="chipster/activemq/bin/linux-x86-32" />
 			<tarfileset file="${ext-src}/activemq/activemq" filemode="755" prefix="chipster/activemq/bin/linux-x86-64" />
 			<tarfileset file="${ext-src}/activemq/activemq.xml" prefix="chipster/activemq/conf" />
+			<tarfileset file="${data}/keystore.ks" prefix="chipster/activemq/conf" />
+
 			<tarfileset file="${ext-src}/activemq/wrapper/linux-x86-32/wrapper.conf" prefix="chipster/activemq/bin/linux-x86-32" />
 			<tarfileset file="${ext-src}/activemq/wrapper/linux-x86-64/wrapper.conf" prefix="chipster/activemq/bin/linux-x86-64" />
 			

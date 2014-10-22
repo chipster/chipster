@@ -56,9 +56,9 @@ public class ConfigTool {
 	private String[][] configs = new String[][] {
 			{"broker public host/ip", "myhost.mydomain"},
 			{"broker private host/ip", "myhost.mydomain"},
-			{"message broker protocol", "tcp"},
+			{"message broker protocol", "ssl"},
 			{"message broker port", "61616"},
-			{"file broker protocol", "http"},
+			{"file broker protocol", "https"},
 			{"file broker port", "8080"},
 			{"Web Start www-server port", "8081"},
 			{"manager www-console port", "8082"},
