@@ -364,7 +364,7 @@
 		</tool>
 	</category>
 
-	<category name="ChIP-seq and DNase-seq" color="#c0d2de">
+	<category name="ChIP, DNase, and Methyl-seq" color="#c0d2de">
 		<tool runtime="R-3.0">
 			<resource>macs2.R</resource>
 		</tool>
@@ -410,6 +410,9 @@
 		<!--<tool runtime="R-3.0">
 			<resource>ngs-find-peaks-zinba.R</resource>
 		</tool>-->
+		<tool runtime="R-3.0">
+			<resource>MEDIPS.R</resource>
+		</tool>
 	</category>
 
 	<category name="CNA-seq" color="#a49900">
@@ -438,25 +441,8 @@
 		<tool runtime="R-3.0" module="common"><resource>acgh-plot-combined-profile.R</resource></tool>
 		<tool runtime="R-3.0" module="common"><resource>acgh-expression-test.R</resource></tool>	
 		<tool runtime="R-3.0" module="common"><resource>acgh-plot-combined-expression.R</resource></tool>
-		
 	</category>
 
-<!--  	<category name="Methyl-seq" color="#83010b">
-		<tool runtime="R-3.0">
-			<resource>convertBAMtoMEDIPS.R</resource>
-		</tool>
-		<tool runtime="R-3.0">
-			<resource>combineMEDIPS.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
-			<resource>MEDIPS_one_sample.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
-			<resource>MEDIPS_two_samples.R</resource>
-		</tool>
-	</category>
--->
-	
 	<category name="Metagenomics" color="#83010b">
 		<tool runtime="R-3.0">
       		<resource>mothur-sffinfo.R</resource>
