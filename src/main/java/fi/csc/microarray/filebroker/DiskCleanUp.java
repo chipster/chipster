@@ -83,6 +83,14 @@ public class DiskCleanUp {
 			this.requestedSize = requestedSize;
 		}
 		public void run () {
+			
+			//FIXME
+			try {
+				Thread.sleep(5*60_000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			//FIXME
 
 			long cleanUpBeginTime = System.currentTimeMillis();
 			long cleanUpTargetLimit = getCleanUpTargetLimit();
