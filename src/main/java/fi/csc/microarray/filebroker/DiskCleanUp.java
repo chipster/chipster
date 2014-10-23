@@ -88,14 +88,14 @@ public class DiskCleanUp {
 			long cleanUpTargetLimit = getCleanUpTargetLimit();
 			logger.info("cache cleanup, target usable space: " + FileUtils.byteCountToDisplaySize(requestedSize + cleanUpTargetLimit) + 
 					" (" + FileUtils.byteCountToDisplaySize(requestedSize) + " + " + FileUtils.byteCountToDisplaySize(cleanUpTargetLimit) + 
-					" (" + (100-cleanUpTargetPercentage) + "%)");
+					", " + (100-cleanUpTargetPercentage) + "%)");
 			Files.makeSpaceInDirectory(root, requestedSize + cleanUpTargetLimit, cleanUpMinimumFileAge, TimeUnit.SECONDS);
 			logger.info("cache cleanup took " + (System.currentTimeMillis() - cleanUpBeginTime) + " ms, usable space now " + FileUtils.byteCountToDisplaySize(root.getUsableSpace())); 
 		}
 	}
 
 	/**
-	 * @return requestedSize is available
+	 * @return true, if there is requestedSize of free space available on the disk
 	 */
 	public boolean scheduleCleanUpIfNecessary(long requestedSize) {
 		long usableSpaceSoftLimit =  (long) ((double)root.getTotalSpace()*(double)(100-cleanUpTriggerLimitPercentage)/100);		

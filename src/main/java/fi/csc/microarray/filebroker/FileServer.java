@@ -135,7 +135,7 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
     		int cleanUpTriggerLimitPercentage = configuration.getInt("filebroker", "clean-up-trigger-limit-percentage");
     		int cleanUpTargetPercentage = configuration.getInt("filebroker", "clean-up-target-percentage");
     		int cleanUpMinimumFileAge = configuration.getInt("filebroker", "clean-up-minimum-file-age");
-    		minimumSpaceForAcceptUpload = 1024*1024*configuration.getInt("filebroker", "minimum-space-for-accept-upload");    		    		    
+    		minimumSpaceForAcceptUpload = 1024l*1024l*configuration.getInt("filebroker", "minimum-space-for-accept-upload");    		    		    
     		
     		cacheCleanUp = new DiskCleanUp(cacheRoot, cleanUpTriggerLimitPercentage, cleanUpTargetPercentage, cleanUpMinimumFileAge);
     		
@@ -436,7 +436,7 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 		
 		// request more than total, no can do
 		else {
-			logger.info("space request: " + FileUtils.byteCountToDisplaySize(size) + " usable: " + FileUtils.byteCountToDisplaySize(cacheRoot.getUsableSpace()) + 
+			logger.info("space request: " + FileUtils.byteCountToDisplaySize(size) + ", usable: " + FileUtils.byteCountToDisplaySize(cacheRoot.getUsableSpace()) + 
 			", maximum space: " + FileUtils.byteCountToDisplaySize(cacheRoot.getTotalSpace()) + 
 					", minimum usable: " + FileUtils.byteCountToDisplaySize(minimumSpaceForAcceptUpload) + 
 					" --> not possible to make enough space");
