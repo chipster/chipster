@@ -20,16 +20,19 @@ public class DiskCleanUp {
 	private int cleanUpTriggerLimitPercentage;
 	private int cleanUpTargetPercentage;
 	private int cleanUpMinimumFileAge;
+	private long minimumSpaceForAcceptUpload;
 
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 	private Future<?> lastCleanUp;
 	private Object lastCleanUpLock = new Object(); // lock mustn't be null
 
-	public DiskCleanUp(File root, int cleanUpTriggerLimitPercentage, int cleanUpTargetPercentage, int cleanUpMinimumFileAge) {
+
+	public DiskCleanUp(File root, int cleanUpTriggerLimitPercentage, int cleanUpTargetPercentage, int cleanUpMinimumFileAge, long minimumSpaceForAcceptUpload) {
 		this.root = root;
 		this.cleanUpTriggerLimitPercentage = cleanUpTriggerLimitPercentage;
 		this.cleanUpTargetPercentage = cleanUpTargetPercentage;
 		this.cleanUpMinimumFileAge = cleanUpMinimumFileAge;
+		this.minimumSpaceForAcceptUpload = minimumSpaceForAcceptUpload;
 		
 		logger.info("total space: " + FileUtils.byteCountToDisplaySize(root.getTotalSpace()));
 		logger.info("usable space: " + FileUtils.byteCountToDisplaySize(root.getUsableSpace()));
@@ -103,29 +106,81 @@ public class DiskCleanUp {
 	}
 
 	/**
-	 * @return true, if there is requestedSize of free space available on the disk
+	 * Handle space request.
+	 * 
+	 * This will start a clean up when necessary. On a soft limit, the current
+	 * request can be satisfied immediately and the clean up is only scheduled.
+	 * If a hard limit is reached, this will wait until the clean up is done.     
+	 * 
+	 * @param requestedSize
+	 * @return true if requested bytes are available
 	 */
-	public boolean scheduleCleanUpIfNecessary(long requestedSize) {
+	public boolean spaceRequest(long requestedSize) {
 		long usableSpaceSoftLimit =  (long) ((double)root.getTotalSpace()*(double)(100-cleanUpTriggerLimitPercentage)/100);		
-		logger.debug("usable space soft limit is: " + usableSpaceSoftLimit);
-			
-		boolean spaceAvailable;
+		long usableSpaceHardLimit = minimumSpaceForAcceptUpload;	
 		
-		if (root.getUsableSpace() - requestedSize >= usableSpaceSoftLimit) {
+		// deal with the weird config case of soft limit being smaller than hard limit
+		if (usableSpaceSoftLimit < usableSpaceHardLimit) {
+			usableSpaceSoftLimit = usableSpaceHardLimit;
+		}
+		
+		logger.debug("usable space soft limit is: " + usableSpaceSoftLimit);
+		logger.debug("usable space hard limit is: " + usableSpaceHardLimit);
+		
+		boolean spaceAvailable;
+			
+		long availableAfterCleanUp = getCleanUpTargetLimit() - minimumSpaceForAcceptUpload;
+		
+		if (getBytesAvailable() > usableSpaceSoftLimit) {
+			
 			// space available, clean up limit will not be reached
 			logger.debug("enough space available, no need to do anything");
 			spaceAvailable = true;
 			
-		} else {
-			// space available, clean up soft limit will be reached
+		} else if (getBytesAvailable() > requestedSize) {
+
+			// space available, but clean up soft limit will be reached
 			logger.info("space request: " + FileUtils.byteCountToDisplaySize(requestedSize) + " usable: " + FileUtils.byteCountToDisplaySize(root.getUsableSpace()) + 
 					", usable space soft limit: " + FileUtils.byteCountToDisplaySize(usableSpaceSoftLimit) + " (" + (100-cleanUpTriggerLimitPercentage) + 
 					"%) will be reached --> scheduling clean up");
-			spaceAvailable = true;
-			
+
 			// schedule clean up
 			scheduleCleanUp(requestedSize);
+			spaceAvailable = true;
+
+		} else if (availableAfterCleanUp > requestedSize){
+
+			// will run out of usable space, wait for clean up		
+			logger.info("space request: " + FileUtils.byteCountToDisplaySize(requestedSize) + " usable: " + FileUtils.byteCountToDisplaySize(root.getUsableSpace()) + 
+					", not enough space --> wait for clean up");
+
+			cleanUpAndWait(requestedSize);
+
+			logger.info("not accepting upload if less than " + FileUtils.byteCountToDisplaySize(minimumSpaceForAcceptUpload) + " usable space after upload");
+
+			// check if cleaned up enough 
+			if (getBytesAvailable() > requestedSize) {
+				logger.info("enough space after cleaning");
+				spaceAvailable = true;
+			} else {
+				logger.info("not enough space after cleaning");
+				spaceAvailable = false;
+			}			
+
+		} else {
+			// request more than total, no can do
+			logger.info("space request: " + FileUtils.byteCountToDisplaySize(requestedSize) + ", usable: " + FileUtils.byteCountToDisplaySize(root.getUsableSpace()) + 
+					", maximum space: " + FileUtils.byteCountToDisplaySize(root.getTotalSpace()) + 
+					", minimum usable: " + FileUtils.byteCountToDisplaySize(minimumSpaceForAcceptUpload) + 
+					" --> not possible to make enough space");
+
+			spaceAvailable = false;
 		}
+		
 		return spaceAvailable;
+	}
+	
+	private long getBytesAvailable() {
+		return root.getUsableSpace() - minimumSpaceForAcceptUpload;
 	}
 }

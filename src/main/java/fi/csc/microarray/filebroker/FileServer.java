@@ -67,8 +67,7 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 	private String publicPath;
 	private String host;
 	private int port;
-
-	private long minimumSpaceForAcceptUpload;	
+	
 	private DiskCleanUp cacheCleanUp;
 	
 	private ExecutorService longRunningTaskExecutor = Executors.newCachedThreadPool();
@@ -135,9 +134,9 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
     		int cleanUpTriggerLimitPercentage = configuration.getInt("filebroker", "clean-up-trigger-limit-percentage");
     		int cleanUpTargetPercentage = configuration.getInt("filebroker", "clean-up-target-percentage");
     		int cleanUpMinimumFileAge = configuration.getInt("filebroker", "clean-up-minimum-file-age");
-    		minimumSpaceForAcceptUpload = 1024l*1024l*configuration.getInt("filebroker", "minimum-space-for-accept-upload");    		    		    
+    		long minimumSpaceForAcceptUpload = 1024l*1024l*configuration.getInt("filebroker", "minimum-space-for-accept-upload");    		    		    
     		
-    		cacheCleanUp = new DiskCleanUp(cacheRoot, cleanUpTriggerLimitPercentage, cleanUpTargetPercentage, cleanUpMinimumFileAge);
+    		cacheCleanUp = new DiskCleanUp(cacheRoot, cleanUpTriggerLimitPercentage, cleanUpTargetPercentage, cleanUpMinimumFileAge, minimumSpaceForAcceptUpload);
     		
     		// boot up file server    		
     		URL hostURL = new URL(this.host);
@@ -407,43 +406,11 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 		logger.debug("disk space request for " + size + " bytes");
 		logger.debug("usable space is: " + cacheRoot.getUsableSpace());
 		
-		long usableSpaceHardLimit = minimumSpaceForAcceptUpload;		
-		logger.debug("usable space hard limit is: " + usableSpaceHardLimit);
-		
-		boolean spaceAvailable = cacheCleanUp.scheduleCleanUpIfNecessary(size); 
+		// Schedule clean up if necessary. If the space request can't be 
+		// satisfied immediately, this will wait until the clean up is done,
+		// which may take several minutes.
+		boolean spaceAvailable = cacheCleanUp.spaceRequest(size);
 				
-		if (spaceAvailable) {
-			// enough space already
-		}	
-		else if (cacheRoot.getUsableSpace() - size > 0){
-			// will run out of usable space, try to make more immediately		
-			logger.info("space request: " + FileUtils.byteCountToDisplaySize(size) + " usable: " + FileUtils.byteCountToDisplaySize(cacheRoot.getUsableSpace()) + 
-					", not enough space --> clean up immediately");
-
-			cacheCleanUp.cleanUpAndWait(size);
-			
-			logger.info("not accepting upload if less than " + FileUtils.byteCountToDisplaySize(minimumSpaceForAcceptUpload) + " usable space after upload");
-
-			// check if cleaned up enough 
-			if (cacheRoot.getUsableSpace() >= size + minimumSpaceForAcceptUpload ) {
-				logger.info("enough space after cleaning");
-				spaceAvailable = true;
-			} else {
-				logger.info("not enough space after cleaning");
-				spaceAvailable = false;
-			}
-		} 
-		
-		// request more than total, no can do
-		else {
-			logger.info("space request: " + FileUtils.byteCountToDisplaySize(size) + ", usable: " + FileUtils.byteCountToDisplaySize(cacheRoot.getUsableSpace()) + 
-			", maximum space: " + FileUtils.byteCountToDisplaySize(cacheRoot.getTotalSpace()) + 
-					", minimum usable: " + FileUtils.byteCountToDisplaySize(minimumSpaceForAcceptUpload) + 
-					" --> not possible to make enough space");
-
-			spaceAvailable = false;
-		}
-		
 		// send reply
 		BooleanMessage reply = new BooleanMessage(spaceAvailable);
 		endpoint.replyToMessage(requestMessage, reply);
