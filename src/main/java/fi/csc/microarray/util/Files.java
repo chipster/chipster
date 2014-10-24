@@ -31,35 +31,7 @@ import org.eclipse.jetty.util.IO;
  * @author Taavi Hupponen, Aleksi Kallio
  *
  */
-public class Files {
-
-	/**
-	 * Lists all files (for which isDirectory() returns false) 
-	 * under this file or directory and its subdirectories.
-	 * If called with a non-directory input, the input itself
-	 * is returned.
-	 * 
-	 * @param file directory (or file) to be recursed
-	 * 
-	 * @return list of Files
-	 */
-	public static List<File> listFilesRecursively(File file) {
-		LinkedList<File> files = new LinkedList<File>();
-		
-		if (file.isDirectory()) {
-			// dir, recurse into it and combine result lists
-			for (File subFile : file.listFiles()) {
-				files.addAll(listFilesRecursively(subFile));
-			}
-			
-		} else {
-			// file, add and return this
-			files.add(file);
-		}
-		
-		return files;		
-	}
-	
+public class Files {	
 	
 	/**
 	 * Deletes a file or a directory recursively. Deletes directory links, does not go 
@@ -321,18 +293,33 @@ public class Files {
 		}
 	}
 	
-	public static List<File> listFilesRecursivelySortByDateOldestFirst(File dir) {
-		List<File> files = listFilesRecursively(dir);
-		// we cannot sort live File objects because they can change modification date
-		TreeMap<Long, File> fileMap = new TreeMap<Long, File>();
-		for (File file : files) {
-			fileMap.put(file.lastModified(), file);
+	/**
+	 * Lists all files (for which isDirectory() returns false) 
+	 * under this file or directory and its subdirectories.
+	 * If called with a non-directory input, the input itself
+	 * is returned.
+	 * 
+	 * @param file directory (or file) to be recursed
+	 * 
+	 * @return list of Files
+	 */
+	public static List<File> listFilesRecursively(File file) {
+		LinkedList<File> files = new LinkedList<File>();
+		
+		if (file.isDirectory()) {
+			// dir, recurse into it and combine result lists
+			for (File subFile : file.listFiles()) {
+				files.addAll(listFilesRecursively(subFile));
+			}
+			
+		} else {
+			// file, add and return this
+			files.add(file);
 		}
-		List<File> sortedFiles = new LinkedList<File>();
-		sortedFiles.addAll(fileMap.values()); // values are returned in ascending order of key => smallest longs / oldest files first
-		return sortedFiles;
+		
+		return files;		
 	}
-
+	
 	/**
 	 * Try to make space usable in partition. 
 	 * @param dir
@@ -417,6 +404,18 @@ public class Files {
 			}
 		}
 	}
+	
+	public static List<File> listFilesRecursivelySortByDateOldestFirst(File dir) {
+		List<File> files = listFilesRecursively(dir);
+		// we cannot sort live File objects because they can change modification date
+		TreeMap<Long, File> fileMap = new TreeMap<Long, File>();
+		for (File file : files) {
+			fileMap.put(file.lastModified(), file);
+		}
+		List<File> sortedFiles = new LinkedList<File>();
+		sortedFiles.addAll(fileMap.values()); // values are returned in ascending order of key => smallest longs / oldest files first
+		return sortedFiles;
+	}
 
 	public static boolean partitionHasUsableSpacePercentage(File file, int percentage) {
 		return ((double)file.getUsableSpace()/(double)file.getTotalSpace())*100 >= percentage;
@@ -425,7 +424,6 @@ public class Files {
 	public static boolean partitionHasUsableSpaceBytes(File file, long bytes) {
 		return file.getUsableSpace() >= bytes;
 	}
-
 	
 	public static void main(String[] args) throws IOException {
 		new File("/home/akallio/link_session").delete();
