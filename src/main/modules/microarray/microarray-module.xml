@@ -116,14 +116,14 @@
 		<tool runtime="R-3.0" module="common"><resource>acgh-add-cytobands.R</resource></tool>
 		<tool runtime="R-3.0" module="common"><resource>acgh-count-overlapping-cnvs.R</resource></tool>
 		<tool runtime="R-3.0" module="common"><resource>acgh-plot-frequencies.R</resource></tool>
-
+		<tool runtime="R-3.0" module="common"><resource>cna-count-aberrations.R</resource></tool>
 		<tool runtime="R-3.0" module="common"><resource>acgh-cluster.R</resource></tool>
-
+		<tool runtime="R-3.0" module="common"><resource>cna-correlate.R</resource></tool>
 		<tool runtime="R-3.0" module="common"><resource>acgh-group-test.R</resource></tool>
 		<tool runtime="R-3.0" module="common"><resource>acgh-survival-test.R</resource></tool>
 		<tool runtime="R-3.0" module="common"><resource>acgh-plot-survival.R</resource></tool>
-
-
+		<tool runtime="R-3.0" module="common"><resource>cna-fuse-regions-by-column.R</resource></tool>
+		<tool runtime="R-3.0" module="common"><resource>cna-fuse-regions-manually.R</resource></tool>
 		<tool runtime="R-3.0" module="common"><resource>acgh-convert-from-probes-to-genes.R</resource></tool>
 		<tool runtime="R-3.0" module="common"><resource>acgh-pathways-go.R</resource></tool>
 		<tool runtime="R-3.0" module="common"><resource>acgh-match-probes.R</resource></tool>

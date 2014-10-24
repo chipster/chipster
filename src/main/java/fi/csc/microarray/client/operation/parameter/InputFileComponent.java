@@ -112,7 +112,6 @@ public class InputFileComponent extends JPanel {
      */
     public class InputFileComponentListener implements ItemListener {
         
-        private Object deselected;
         private Object selected;
         private List<InputFileComponent> components;
         
@@ -134,26 +133,32 @@ public class InputFileComponent extends JPanel {
          */
         public void itemStateChanged(ItemEvent e) {
             if (e.getStateChange() == ItemEvent.DESELECTED) {
-                deselected = e.getItem();
+                /* deselection happens only when the data is selected in some 
+                 * other comboBox and in this case that comboBox will set the
+                 * new data bindings
+                 */
             } else {
                 selected = e.getItem();
 
-                logger.debug("Selected input dataset: " + selected + "; previously was: " + deselected);
+                logger.debug("Selected input dataset: " + selected );
 
                 operation.clearBindings();
                 LinkedList<DataBinding> newBindings = new LinkedList<DataBinding>();
                 for (InputFileComponent component : components) {
                     // Make sure no other input control has the same value
-                    if (component.getChoiceBox().getSelectedItem().equals(selected) &&
-                        e.getSource() != component.getChoiceBox()) {
-                        component.getChoiceBox().setSelectedItem(deselected);
+                    if (component.getChoiceBox().getSelectedItem() != null 
+                    		&& component.getChoiceBox().getSelectedItem().equals(selected) 
+                    		&& e.getSource() != component.getChoiceBox()) {
+                        component.getChoiceBox().setSelectedItem(null);
                     }
                     
                     // Rebind input datasets                    
                     DataBean selectedBean = (DataBean) component.getChoiceBox().getSelectedItem();
-                    newBindings.add(new DataBinding(selectedBean,
-                                                    component.getInput().getID(),
-                                                    component.getInput().getType()));
+                    if (selectedBean != null) {
+                    	newBindings.add(new DataBinding(selectedBean,
+                    			component.getInput().getID(),
+                    			component.getInput().getType()));
+                    }
                 }
                 operation.setBindings(newBindings);
             }
