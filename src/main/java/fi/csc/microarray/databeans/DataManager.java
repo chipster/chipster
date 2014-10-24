@@ -149,6 +149,18 @@ public class DataManager {
 	private static final Logger logger = Logger.getLogger(DataManager.class);
 
 	/**
+	 * Reports session validation related problems.
+	 */
+	@SuppressWarnings("serial")
+	public static class ValidationException extends Exception {
+
+		public ValidationException(String validationDetails) {
+			// TODO Auto-generated constructor stub
+		}
+		
+	}
+
+	/**
 	 * The initial name for the root folder.
 	 */
 	public final static String ROOT_NAME = "Datasets";
@@ -663,7 +675,7 @@ public class DataManager {
 			logger.error(e,e);
 		}
 		return bean;
-	}	
+	}
 	
 	/**
 	 * Delete DataItem and its children (if any). Root folder cannot be removed.

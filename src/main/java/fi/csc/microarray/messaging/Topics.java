@@ -20,7 +20,8 @@ public interface Topics {
 		JOB_LOG_TOPIC("job-log-topic"),
 		FEEDBACK_TOPIC("feedback-topic"),
 		AUTHORISED_FEEDBACK_TOPIC("authorised-feedback-topic"),
-		AUTH_LOG_TOPIC("auth-log-topic")
+		AUTH_LOG_TOPIC("auth-log-topic"),
+		AUTHORIZED_MANAGED_REQUEST_TOPIC("authorized-managed-request-topic")
 		;
 
 		private String topicName;

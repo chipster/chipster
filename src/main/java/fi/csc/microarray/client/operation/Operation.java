@@ -58,7 +58,6 @@ public class Operation implements ExecutionItem {
 	private LinkedList<DataBinding> bindings = new LinkedList<DataBinding>();
 	private LinkedList<Parameter> parameters;
 	private ResultListener resultListener;
-	private DataFolder outputFolder;
 
 	public static interface ResultListener {
 		public void resultData(Iterable<DataBean> results);
@@ -259,15 +258,7 @@ public class Operation implements ExecutionItem {
 	public void setResultListener(ResultListener resultListener) {
 		this.resultListener = resultListener;
 	}
-
-	public DataFolder getOutputFolder() {
-		return outputFolder;
-	}
-
-	public void setOutputFolder(DataFolder outputFolder) {
-		this.outputFolder = outputFolder;
-	}
-
+	
 	public String getDisplayName() {
 		return definition.getDisplayName();
 	}
