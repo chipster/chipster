@@ -110,12 +110,16 @@ public class DiskCleanUp {
 	 * 
 	 * This will start a clean up when necessary. On a soft limit, the current
 	 * request can be satisfied immediately and the clean up is only scheduled.
-	 * If a hard limit is reached, this will wait until the clean up is done.     
+	 * If a hard limit is reached and allowWait is true, this will wait until
+	 * the clean up is done.
 	 * 
 	 * @param requestedSize
+	 * @param allowWait
+	 *            When the space request can't be satisfied immediately, should
+	 *            we wait for clean up or just return false.
 	 * @return true if requested bytes are available
 	 */
-	public boolean spaceRequest(long requestedSize) {
+	public boolean spaceRequest(long requestedSize, boolean allowWait) {
 		long usableSpaceSoftLimit =  (long) ((double)root.getTotalSpace()*(double)(100-cleanUpTriggerLimitPercentage)/100);		
 		long usableSpaceHardLimit = minimumSpaceForAcceptUpload;	
 		
@@ -154,7 +158,12 @@ public class DiskCleanUp {
 			logger.info("space request: " + FileUtils.byteCountToDisplaySize(requestedSize) + " usable: " + FileUtils.byteCountToDisplaySize(root.getUsableSpace()) + 
 					", not enough space --> wait for clean up");
 
-			cleanUpAndWait(requestedSize);
+			if (allowWait) {
+				cleanUpAndWait(requestedSize);
+			} else {
+				scheduleCleanUp(requestedSize);
+				logger.info("space request can't be satisfied, but waiting isn't allowed");
+			}
 
 			logger.info("not accepting upload if less than " + FileUtils.byteCountToDisplaySize(minimumSpaceForAcceptUpload) + " usable space after upload");
 
