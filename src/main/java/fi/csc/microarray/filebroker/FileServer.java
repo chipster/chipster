@@ -14,6 +14,7 @@ import java.util.zip.ZipException;
 
 import javax.jms.JMSException;
 
+import org.apache.activemq.DestinationDoesNotExistException;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.h2.tools.Server;
@@ -251,9 +252,6 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 			
 		} catch (Exception e) {
 			logger.error(e, e);
-			if (e.getCause() != null) {				
-				logger.error("Cased by: ", e.getCause());
-			}
 		}
 	}
 
@@ -422,6 +420,9 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 				// send reply
 				BooleanMessage reply = new BooleanMessage(spaceAvailable);			
 					endpoint.replyToMessage(requestMessage, reply);
+				} catch (DestinationDoesNotExistException e) {
+					// don't print stack trace
+					logger.error("could not reply to space request, because client gave up during the clean-up");
 				} catch (JMSException e) {
 					logger.error("could not reply to space request", e);
 				}

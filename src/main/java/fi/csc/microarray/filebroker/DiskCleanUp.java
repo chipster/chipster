@@ -96,7 +96,7 @@ public class DiskCleanUp {
 			
 			//FIXME
 			try {
-				Thread.sleep(5*60_000);
+				Thread.sleep(1*60_000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -105,8 +105,7 @@ public class DiskCleanUp {
 			long cleanUpBeginTime = System.currentTimeMillis();
 			long cleanUpTargetLimit = getCleanUpTargetUsableSpace();
 			logger.info("cache cleanup, target usable space: " + FileUtils.byteCountToDisplaySize(requestedSize + cleanUpTargetLimit) + 
-					" (" + FileUtils.byteCountToDisplaySize(requestedSize) + " + " + FileUtils.byteCountToDisplaySize(cleanUpTargetLimit) + 
-					", " + (100-cleanUpTargetPercentage) + "%)");
+					" (" + FileUtils.byteCountToDisplaySize(requestedSize) + " + " + FileUtils.byteCountToDisplaySize(cleanUpTargetLimit));
 			Files.makeSpaceInDirectory(root, requestedSize + cleanUpTargetLimit, cleanUpMinimumFileAge, TimeUnit.SECONDS);
 			logger.info("cache cleanup took " + (System.currentTimeMillis() - cleanUpBeginTime) + " ms, usable space now " + FileUtils.byteCountToDisplaySize(root.getUsableSpace())); 
 		}
@@ -153,6 +152,7 @@ public class DiskCleanUp {
 			// there isn't enough space, but waiting for cleanup should help		
 			logger.info("space request: " + FileUtils.byteCountToDisplaySize(requestedSize)
 					+ " usable: " + FileUtils.byteCountToDisplaySize(root.getUsableSpace())
+					+ " minimum usable after upload: " + FileUtils.byteCountToDisplaySize(root.getUsableSpace())
 					+ " clean up target: " + FileUtils.byteCountToDisplaySize(getCleanUpTargetUsableSpace())
 					+ ", not enough space yet --> wait for clean up");
 
@@ -163,14 +163,17 @@ public class DiskCleanUp {
 				logger.info("waiting isn't allowed");
 			}
 
-			logger.info("not accepting upload if less than " + FileUtils.byteCountToDisplaySize(minimumSpaceForAcceptUpload) + " usable space after upload");
-
 			// check if cleaned up enough 
 			if (isEnoughSpace(requestedSize)) {
-				logger.info("enough space after cleaning");
+				logger.info("Enough space after cleaning. Space request: " + FileUtils.byteCountToDisplaySize(requestedSize)
+						+ " usable: " + FileUtils.byteCountToDisplaySize(root.getUsableSpace())
+						+ " minimum usable after upload: " + FileUtils.byteCountToDisplaySize(root.getUsableSpace()));
+
 				spaceAvailable = true;
 			} else {
-				logger.info("not enough space after cleaning");
+				logger.info("Not enough space after cleaning. Space request: " + FileUtils.byteCountToDisplaySize(requestedSize)
+						+ " usable: " + FileUtils.byteCountToDisplaySize(root.getUsableSpace())
+						+ " minimum usable after upload: " + FileUtils.byteCountToDisplaySize(root.getUsableSpace()));
 				spaceAvailable = false;
 			}			
 
