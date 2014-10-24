@@ -737,9 +737,14 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 					CommandMessage requestMessage = (CommandMessage) msg;
 					CommandMessage reply = new CommandMessage();
 					
+					
 					FileServerAdminTools admin = getAdminTools();
 					
+					String sysStats = SystemMonitorUtil.getSystemStats(cacheRoot).systemStatsToString();
+					
 					String report = "";
+					report += "SYSTEM\n\n";
+					report += sysStats + "\n";
 					report += admin.getDataBaseStatusReport() + "\n";
 					report += admin.getStorageStatusReport(false) + "\n";
 
