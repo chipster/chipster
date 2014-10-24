@@ -93,14 +93,6 @@ public class DiskCleanUp {
 			this.requestedSize = requestedSize;
 		}
 		public void run () {
-			
-			//FIXME
-			try {
-				Thread.sleep(1*60_000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			//FIXME
 
 			long cleanUpBeginTime = System.currentTimeMillis();
 			long cleanUpTargetLimit = getCleanUpTargetUsableSpace();
@@ -123,9 +115,10 @@ public class DiskCleanUp {
 	 * @param allowWait
 	 *            When the space request can't be satisfied immediately, should
 	 *            we wait for clean up or just return false.
+	 * @param info Custom log message, set to null for default messages.
 	 * @return true if requested bytes are available
 	 */
-	public boolean spaceRequest(long requestedSize, boolean allowWait) {
+	public boolean spaceRequest(long requestedSize, boolean allowWait, String info) {
 				
 		boolean spaceAvailable;
 		
@@ -136,20 +129,44 @@ public class DiskCleanUp {
 			spaceAvailable = true;
 			
 		} else if (isEnoughSpace(requestedSize)) {
-
+			
 			// will reach soft limit, but not hard limit 
-			logger.info("space request: " + FileUtils.byteCountToDisplaySize(requestedSize)
-					+ ", usable: " + FileUtils.byteCountToDisplaySize(root.getUsableSpace())
-					+ ", usable space soft limit: " + FileUtils.byteCountToDisplaySize(getCleanUpSoftLimit())
-					+ " will be reached --> scheduling clean up");
+			if (info == null) {
+				logger.info("space request: " + FileUtils.byteCountToDisplaySize(requestedSize)
+						+ ", usable: " + FileUtils.byteCountToDisplaySize(root.getUsableSpace())
+						+ ", usable space soft limit: " + FileUtils.byteCountToDisplaySize(getCleanUpSoftLimit())
+						+ " will be reached --> scheduling clean up");
+			} else {
+				logger.info(info);
+			}
 
 			// schedule clean up
 			scheduleCleanUp(requestedSize);
 			spaceAvailable = true;
 
-		} else if (getCleanUpTargetUsableSpace() - minimumSpaceForAcceptUpload > requestedSize){
+		} 
+		
+		/*
+		 * On bigger installation, soft limit should be low enough that we never
+		 * have to wait for clean-up, which may take a long time (e.g. 5
+		 * minutes). Smaller installations may not have this much empty space,
+		 * but luckily clean-up is then also faster and waiting for clean-up is
+		 * a good idea.
+		 * 
+		 * We want to wait for clean-up only when it is going to free enough
+		 * space for this request, but it is difficult to know how much space
+		 * clean-up can make. We could check that requestSize is smaller than
+		 * getCleanUpTargetUsableSpace() to make sure we don't wait
+		 * unnecessarily, but then we can't upload files larger than this
+		 * clean-up target. Now we just check that requestedSize is smaller than
+		 * the total size of the disk, although clean-up most likely can't free
+		 * that much space. This will make us wait unnecessarily sometimes, but
+		 * at least it still works when we have big files on a relatively small
+		 * disk.
+		 */
+		else if (root.getTotalSpace() - minimumSpaceForAcceptUpload > requestedSize){
 
-			// there isn't enough space, but waiting for cleanup should help		
+			// there isn't enough space, but waiting for clean-up may help		
 			logger.info("space request: " + FileUtils.byteCountToDisplaySize(requestedSize)
 					+ " usable: " + FileUtils.byteCountToDisplaySize(root.getUsableSpace())
 					+ " minimum usable after upload: " + FileUtils.byteCountToDisplaySize(root.getUsableSpace())

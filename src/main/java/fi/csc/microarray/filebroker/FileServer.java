@@ -415,7 +415,7 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 				// Schedule clean up if necessary. If the space request can't be 
 				// satisfied immediately, this will wait until the clean up is done,
 				// which may take several minutes.
-				boolean spaceAvailable = cacheCleanUp.spaceRequest(size, true);
+				boolean spaceAvailable = cacheCleanUp.spaceRequest(size, true, null);
 
 				// send reply
 				BooleanMessage reply = new BooleanMessage(spaceAvailable);			

@@ -323,7 +323,7 @@ public class RestServlet extends DefaultServlet {
 		// make sure there's enough usable space left after the transfer
 		// (in case of concurrent uploads)
 		if (cacheCleanUp != null) {
-			cacheCleanUp.spaceRequest(0, false);
+			cacheCleanUp.spaceRequest(0, false, "Schedule clean up after PUT");
 		}
 
 		if (useChecksums) { 
