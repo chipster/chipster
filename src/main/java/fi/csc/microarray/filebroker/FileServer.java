@@ -251,6 +251,9 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 			
 		} catch (Exception e) {
 			logger.error(e, e);
+			if (e.getCause() != null) {				
+				logger.error("Cased by: ", e.getCause());
+			}
 		}
 	}
 
@@ -401,19 +404,29 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 		
 	}
 
-	private void handleSpaceRequest(MessagingEndpoint endpoint, CommandMessage requestMessage) throws JMSException {
-		long size = Long.parseLong(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_DISK_SPACE));
+	private void handleSpaceRequest(final MessagingEndpoint endpoint, final CommandMessage requestMessage) throws JMSException {
+		final long size = Long.parseLong(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_DISK_SPACE));
 		logger.debug("disk space request for " + size + " bytes");
 		logger.debug("usable space is: " + cacheRoot.getUsableSpace());
 		
-		// Schedule clean up if necessary. If the space request can't be 
-		// satisfied immediately, this will wait until the clean up is done,
-		// which may take several minutes.
-		boolean spaceAvailable = cacheCleanUp.spaceRequest(size, true);
-				
-		// send reply
-		BooleanMessage reply = new BooleanMessage(spaceAvailable);
-		endpoint.replyToMessage(requestMessage, reply);
+		longRunningTaskExecutor.execute(new Runnable() {
+		
+			@Override
+			public void run() {
+				try {
+				// Schedule clean up if necessary. If the space request can't be 
+				// satisfied immediately, this will wait until the clean up is done,
+				// which may take several minutes.
+				boolean spaceAvailable = cacheCleanUp.spaceRequest(size, true);
+
+				// send reply
+				BooleanMessage reply = new BooleanMessage(spaceAvailable);			
+					endpoint.replyToMessage(requestMessage, reply);
+				} catch (JMSException e) {
+					logger.error("could not reply to space request", e);
+				}
+			}
+		});
 	}
 
 
