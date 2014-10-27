@@ -156,9 +156,9 @@ public class Operation implements ExecutionItem {
 	/**
 	 * Set new input file bindings.
 	 */
-	public void setBindings(LinkedList<DataBinding> bindings) {
-	    if (bindings != null) {
-	    	this.bindings = bindings;
+	public void setBindings(List<DataBinding> currentBindings) {
+	    if (currentBindings != null) {
+	    	this.bindings = new LinkedList<>(currentBindings);
 	    } else {
 	    	this.bindings = new LinkedList<DataBinding>();	
 	    }

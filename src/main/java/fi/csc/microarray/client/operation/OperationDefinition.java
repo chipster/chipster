@@ -345,16 +345,10 @@ public class OperationDefinition implements ExecutionItem {
 	
 	public Suitability evaluateBindingSuitability(Iterable<DataBean> datas, List<DataBinding> bindings) {
 		
-		// collect a set of bound input names
-		HashSet<String> boundInputNames = new HashSet<>();  
-		for (DataBinding binding : bindings) {
-			boundInputNames.add(binding.getName());
-		}		
-		
 		// check that all mandatory inputs are set
 		for (InputDefinition input : inputs) {
 			if (!input.isOptional()) {
-				if (!boundInputNames.contains(input.getID())) {
+				if (!bindingsContainsInput(bindings, input)) {
 					logger.debug("  no binding found for " + input.getID());
 					return Suitability.EMPTY_REQUIRED_PARAMETERS;
 				}
@@ -378,6 +372,17 @@ public class OperationDefinition implements ExecutionItem {
         return Suitability.SUITABLE;
 	}
 	
+	private boolean bindingsContainsInput(List<DataBinding> bindings,
+			InputDefinition input) {
+
+		for (DataBinding binding : bindings) {
+			if (input.idMatches(binding.getName())) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	/**
 	 * Check suitability of a given parameter list. The parameter
 	 * list can also come from the Operation object that encapsulates
@@ -478,11 +483,9 @@ public class OperationDefinition implements ExecutionItem {
 		// bind by iterating over formal parameters
 		for (InputDefinition input : inputs) {
 			input.resetMulti();
-			boolean foundBinding = false;
 
 			// metadata needs not to be selected, it is fetched automatically
 			if (doBackwardsCompatibleMetadataCheck(input)) {
-				foundBinding = true; // we'll find it later on
 				unboundMetadataDefinitions.add(input);
 				continue;
 				
@@ -499,7 +502,6 @@ public class OperationDefinition implements ExecutionItem {
 					logger.debug("    bound successfully (" + value.getName() + " -> " + input.getID() + ")");
 
 					bindings.add(new DataBinding(value, input.getID(), input.getType()));
-					foundBinding = true;
 					removedValues.add(value); // mark it to be removed after iteration
 					
 					if (!input.isMulti()) {
