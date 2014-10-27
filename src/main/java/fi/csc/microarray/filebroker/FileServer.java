@@ -10,11 +10,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipException;
 
 import javax.jms.JMSException;
 
+import org.apache.activemq.DestinationDoesNotExistException;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.h2.tools.Server;
@@ -41,7 +41,6 @@ import fi.csc.microarray.messaging.message.UrlListMessage;
 import fi.csc.microarray.messaging.message.UrlMessage;
 import fi.csc.microarray.service.KeepAliveShutdownHandler;
 import fi.csc.microarray.service.ShutdownCallback;
-import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.Strings;
 import fi.csc.microarray.util.SystemMonitorUtil;
@@ -69,12 +68,8 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 	private String publicPath;
 	private String host;
 	private int port;
-
-	private int cleanUpTriggerLimitPercentage;
-	private int cleanUpTargetPercentage;
-	private int cleanUpMinimumFileAge;
-	private long minimumSpaceForAcceptUpload;
-	volatile private boolean cleanUpRunning;
+	
+	private DiskCleanUp cacheCleanUp;
 	
 	private ExecutorService longRunningTaskExecutor = Executors.newCachedThreadPool();
 
@@ -132,27 +127,28 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
     			logger.info("not starting metadata server web interface");        			
     		}
     		
+    		cacheRoot = new File(fileRepository, CACHE_PATH);
+    		storageRoot = new File(fileRepository, STORAGE_PATH);
+    		publicRoot = new File(fileRepository, publicPath);    		    		
+    		
+    		// cache clean up setup
+    		int cleanUpTriggerLimitPercentage = configuration.getInt("filebroker", "clean-up-trigger-limit-percentage");
+    		int cleanUpTargetPercentage = configuration.getInt("filebroker", "clean-up-target-percentage");
+    		int cleanUpMinimumFileAge = configuration.getInt("filebroker", "clean-up-minimum-file-age");
+    		long minimumSpaceForAcceptUpload = 1024l*1024l*configuration.getInt("filebroker", "minimum-space-for-accept-upload");    		    		    
+    		
+    		cacheCleanUp = new DiskCleanUp(cacheRoot, cleanUpTriggerLimitPercentage, cleanUpTargetPercentage, cleanUpMinimumFileAge, minimumSpaceForAcceptUpload);
+    		
     		// boot up file server    		
     		URL hostURL = new URL(this.host);
     		JettyFileServer jettyFileServer;
     		if (externalFileServer != null) {
     			jettyFileServer = externalFileServer;
     		} else {
-        		jettyFileServer = new JettyFileServer(urlRepository, metadataServer);    			
+        		jettyFileServer = new JettyFileServer(urlRepository, metadataServer, cacheCleanUp);    			
     		}
     		jettyFileServer.start(fileRepository.getPath(), port, hostURL.getProtocol());
 
-    		// cache clean up setup
-    		cacheRoot = new File(fileRepository, CACHE_PATH);
-    		publicRoot = new File(fileRepository, publicPath);
-    		
-    		cleanUpTriggerLimitPercentage = configuration.getInt("filebroker", "clean-up-trigger-limit-percentage");
-    		cleanUpTargetPercentage = configuration.getInt("filebroker", "clean-up-target-percentage");
-    		cleanUpMinimumFileAge = configuration.getInt("filebroker", "clean-up-minimum-file-age");
-    		minimumSpaceForAcceptUpload = 1024*1024*configuration.getInt("filebroker", "minimum-space-for-accept-upload");
-    		
-    		storageRoot = new File(fileRepository, STORAGE_PATH);
-    		publicRoot = new File(fileRepository, publicPath);
     		
     		// disable periodic clean up for now
 //    		int cutoff = 1000 * configuration.getInt("filebroker", "file-life-time");
@@ -191,14 +187,8 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
     		
     		// create keep-alive thread and register shutdown hook
     		KeepAliveShutdownHandler.init(this);
-
-			logger.info("total space: " + FileUtils.byteCountToDisplaySize(cacheRoot.getTotalSpace()));
-			logger.info("usable space: " + FileUtils.byteCountToDisplaySize(cacheRoot.getUsableSpace()));
-			logger.info("cache clean up will start when usable space is less than: " + FileUtils.byteCountToDisplaySize((long) ((double)cacheRoot.getTotalSpace()*(double)(100-cleanUpTriggerLimitPercentage)/100)) + " (" + (100-cleanUpTriggerLimitPercentage) + "%)");
-			logger.info("cache clean target usable space is:  " + FileUtils.byteCountToDisplaySize((long) ((double)cacheRoot.getTotalSpace()*(double)(100-cleanUpTargetPercentage)/100)) + " (" + (100-cleanUpTargetPercentage) + "%)");
-			logger.info("minimum required space after upload: " + FileUtils.byteCountToDisplaySize(minimumSpaceForAcceptUpload));
-			logger.info("will not clean up files newer than: " + (cleanUpMinimumFileAge/3600) + "h");
     		
+    		logger.info("minimum required space after upload: " + FileUtils.byteCountToDisplaySize(minimumSpaceForAcceptUpload));
     		logger.info("fileserver is up and running [" + ApplicationConstants.VERSION + "]");
     		logger.info("[mem: " + SystemMonitorUtil.getMemInfo() + "]");
 			
@@ -412,103 +402,32 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 		
 	}
 
-	private void handleSpaceRequest(MessagingEndpoint endpoint, CommandMessage requestMessage) throws JMSException {
-		long size = Long.parseLong(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_DISK_SPACE));
+	private void handleSpaceRequest(final MessagingEndpoint endpoint, final CommandMessage requestMessage) throws JMSException {
+		final long size = Long.parseLong(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_DISK_SPACE));
 		logger.debug("disk space request for " + size + " bytes");
 		logger.debug("usable space is: " + cacheRoot.getUsableSpace());
 		
-		long usableSpaceSoftLimit =  (long) ((double)cacheRoot.getTotalSpace()*(double)(100-cleanUpTriggerLimitPercentage)/100);
-		long usableSpaceHardLimit = minimumSpaceForAcceptUpload;
-		long cleanUpTargetLimit = (long) ((double)cacheRoot.getTotalSpace()*(double)(100-cleanUpTargetPercentage)/100);
+		longRunningTaskExecutor.execute(new Runnable() {
 		
-		
-		// deal with the weird config case of soft limit being smaller than hard limit
-		if (usableSpaceSoftLimit < usableSpaceHardLimit) {
-			usableSpaceSoftLimit = usableSpaceHardLimit;
-		}
-		
-		logger.debug("usable space soft limit is: " + usableSpaceSoftLimit);
-		logger.debug("usable space hard limit is: " + usableSpaceHardLimit);
-		
-		boolean spaceAvailable;
-		
-		// space available, clean up limit will not be reached
-		if (cacheRoot.getUsableSpace() - size >= usableSpaceSoftLimit) {
-			logger.debug("enough space available, no need to do anything");
-			spaceAvailable = true;
-		} 
+			@Override
+			public void run() {
+				try {
+				// Schedule clean up if necessary. If the space request can't be 
+				// satisfied immediately, this will wait until the clean up is done,
+				// which may take several minutes.
+				boolean spaceAvailable = cacheCleanUp.spaceRequest(size, true, null);
 
-		// space available, clean up soft limit will be reached, hard will not be reached
-		else if (cacheRoot.getUsableSpace() - size >= usableSpaceHardLimit) {
-			logger.info("space request: " + FileUtils.byteCountToDisplaySize(size) + " usable: " + FileUtils.byteCountToDisplaySize(cacheRoot.getUsableSpace()) + 
-					", usable space soft limit: " + FileUtils.byteCountToDisplaySize(usableSpaceSoftLimit) + " (" + (100-cleanUpTriggerLimitPercentage) + 
-					"%) will be reached --> scheduling clean up");
-			spaceAvailable = true;
-			
-			final long targetUsableSpace = size + cleanUpTargetLimit;
-			// schedule clean up
-			new Thread(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						if (cleanUpRunning) {
-							logger.info("cache cleanup already running, skipping this one");
-						} else {
-							cleanUpRunning = true;						
-							long cleanUpBeginTime = System.currentTimeMillis();
-							logger.info("cache cleanup, target usable space: " + FileUtils.byteCountToDisplaySize(targetUsableSpace) + " (" + (100-cleanUpTargetPercentage) + "%)");
-							Files.makeSpaceInDirectory(cacheRoot, targetUsableSpace, cleanUpMinimumFileAge, TimeUnit.SECONDS);
-							logger.info("cache cleanup took " + (System.currentTimeMillis() - cleanUpBeginTime) + " ms, usable space now " + FileUtils.byteCountToDisplaySize(cacheRoot.getUsableSpace()));
-						}
-					} catch (Exception e) {
-						logger.warn("exception while cleaning cache", e);
-					} finally {
-						cleanUpRunning = false;
-					}
+				// send reply
+				BooleanMessage reply = new BooleanMessage(spaceAvailable);			
+					endpoint.replyToMessage(requestMessage, reply);
+				} catch (DestinationDoesNotExistException e) {
+					// don't print stack trace
+					logger.error("could not reply to space request, because client gave up during the clean-up");
+				} catch (JMSException e) {
+					logger.error("could not reply to space request", e);
 				}
-			}, "chipster-fileserver-cache-cleanup").start();
-		} 
-		
-		// will run out of usable space, try to make more immediately
-		else if (cacheRoot.getUsableSpace() - size > 0){
-			logger.info("space request: " + FileUtils.byteCountToDisplaySize(size) + " usable: " + FileUtils.byteCountToDisplaySize(cacheRoot.getUsableSpace()) + 
-					", not enough space --> clean up immediately");
-
-			try {
-				long cleanUpBeginTime = System.currentTimeMillis();
-				logger.info("cache cleanup, target usable space: " + FileUtils.byteCountToDisplaySize((size + cleanUpTargetLimit)) + 
-						" (" + FileUtils.byteCountToDisplaySize(size) + " + " + FileUtils.byteCountToDisplaySize(cleanUpTargetLimit) + 
-						" (" + (100-cleanUpTargetPercentage) + "%)");
-				Files.makeSpaceInDirectory(cacheRoot, size + cleanUpTargetLimit, cleanUpMinimumFileAge, TimeUnit.SECONDS);
-				logger.info("cache cleanup took " + (System.currentTimeMillis() - cleanUpBeginTime) + " ms, usable space now " + FileUtils.byteCountToDisplaySize(cacheRoot.getUsableSpace()));
-			} catch (Exception e) {
-				logger.warn("exception while cleaning cache", e);
 			}
-			logger.info("not accepting upload if less than " + FileUtils.byteCountToDisplaySize(minimumSpaceForAcceptUpload) + " usable space after upload");
-
-			// check if cleaned up enough 
-			if (cacheRoot.getUsableSpace() >= size + minimumSpaceForAcceptUpload ) {
-				logger.info("enough space after cleaning");
-				spaceAvailable = true;
-			} else {
-				logger.info("not enough space after cleaning");
-				spaceAvailable = false;
-			}
-		} 
-		
-		// request more than total, no can do
-		else {
-			logger.info("space request: " + FileUtils.byteCountToDisplaySize(size) + " usable: " + FileUtils.byteCountToDisplaySize(cacheRoot.getUsableSpace()) + 
-			", maximum space: " + FileUtils.byteCountToDisplaySize(cacheRoot.getTotalSpace()) + 
-					", minimum usable: " + FileUtils.byteCountToDisplaySize(minimumSpaceForAcceptUpload) + 
-					" --> not possible to make enough space");
-
-			spaceAvailable = false;
-		}
-		
-		// send reply
-		BooleanMessage reply = new BooleanMessage(spaceAvailable);
-		endpoint.replyToMessage(requestMessage, reply);
+		});
 	}
 
 
@@ -818,9 +737,14 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 					CommandMessage requestMessage = (CommandMessage) msg;
 					CommandMessage reply = new CommandMessage();
 					
+					
 					FileServerAdminTools admin = getAdminTools();
 					
+					String sysStats = SystemMonitorUtil.getSystemStats(cacheRoot).systemStatsToString();
+					
 					String report = "";
+					report += "SYSTEM\n\n";
+					report += sysStats + "\n";
 					report += admin.getDataBaseStatusReport() + "\n";
 					report += admin.getStorageStatusReport(false) + "\n";
 
