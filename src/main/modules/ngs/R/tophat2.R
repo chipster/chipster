@@ -79,7 +79,7 @@ if (use.gtf == "yes") {
 		annotation.file <- "annotation.gtf"
 	}else{
 		# If not, we use the internal one.
-		annotation.file <- file.path(chipster.tools.path, "genomes", "gtf", paste(organism, ".gtf" ,sep="" ,collapse=""))
+		annotation.file <- file.path(chipster.tools.path, "genomes", "gtf", paste(organism, "*.gtf" ,sep="" ,collapse=""))
 	}
 	command.parameters <- paste(command.parameters, "-G", annotation.file)
 	if (no.novel.juncs == "yes") {

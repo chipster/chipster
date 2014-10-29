@@ -24,7 +24,7 @@ if(paired == "yes"){
 }
 
 # If chromosome names in BAM have chr, we make a temporary copy of gtf with chr names
-annotation.gtf <- file.path(chipster.tools.path, "genomes", "gtf", paste(organism, ".DEXSeq.gtf" ,sep="" ,collapse=""))
+annotation.gtf <- file.path(chipster.tools.path, "genomes", "dexseq", paste(organism, ".DEXSeq.gtf" ,sep="" ,collapse=""))
 
 if(chr == "chr1"){
 	source(file.path(chipster.common.path, "gtf-utils.R"))

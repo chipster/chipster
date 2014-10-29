@@ -30,7 +30,7 @@ if(any(as.vector(table(phenodata$group))<2)) {
 }
 
 # Path to the gff file
-gtf <- file.path(chipster.tools.path, "genomes", "gtf", paste(organism, ".DEXSeq.gtf" ,sep="" ,collapse=""))
+gtf <- file.path(chipster.tools.path, "genomes", "dexseq", paste(organism, ".DEXSeq.gtf" ,sep="" ,collapse=""))
 
 # Reads the data
 d<-read.table("countfile.tsv", header=TRUE, sep="\t")
