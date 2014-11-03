@@ -35,6 +35,7 @@
 # EK 8.5.2013 replaced samtools -q 1 with Bowtie --no-unal to remove unaligned reads from BAM
 # AMS 11.11.2013 Added thread support
 # AMS 04.07.2014 New genome/gtf/index locations & names
+# When updating Bowtie2 to 2.2.x, remember to change mp parameter
 
 # check out if the file is compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
@@ -108,7 +109,7 @@ bowtie.command <- paste(command.start, parameters, command.end)
 echo.command <- paste("echo '", bowtie.command , "' > bowtie2.log" )
 system(echo.command)
 system(bowtie.command)
-system ("ls -l >>  bowtie2.log")
+
 # samtools binary
 samtools.binary <- c(file.path(chipster.tools.path, "samtools", "samtools"))
 

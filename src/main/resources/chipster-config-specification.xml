@@ -269,7 +269,7 @@
 		</entry>
 
 		<entry entryKey="start-web-console" type="boolean" description="is web console enabled">
-			<value>true</value>
+			<value>false</value>
 		</entry>
 
 		<entry entryKey="web-console-port" type="int" mustBeSet="true" description="HTTP port for web console">

@@ -20,7 +20,7 @@ public class GBrowserLegend extends JPanel {
 		this.setLayout(new MigLayout());
 		this.setBackground(Color.white);
 		
-		this.add(GBrowserSettings.createTitle("Annotation track"), "wrap");	
+		this.add(GBrowserSettings.createTitle("Annotation track"), "span 2, wrap");	
 		
 		addIcon(GBrowserConstants.GB_LEGEND_GENE_ICON, "Gene");
 		addIcon(GBrowserConstants.GB_LEGEND_CDS_ICON, "Coding sequence");
@@ -29,7 +29,7 @@ public class GBrowserLegend extends JPanel {
 		addIcon(GBrowserConstants.GB_LEGEND_END_ICON, "Transcript end");
 		addIcon(GBrowserConstants.GB_LEGEND_REPEAT_ICON, "Low complexity region");
 		
-		this.add(GBrowserSettings.createTitle("Sample tracks"), "wrap");
+		this.add(GBrowserSettings.createTitle("Sample tracks"), "span 2, wrap");
 		
 		addIcon(GBrowserConstants.GB_LEGEND_READ_ICON, "Read");
 		addIcon(GBrowserConstants.GB_LEGEND_MULTIMAPPING_ICON, "Multimapping read");

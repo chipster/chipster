@@ -1,8 +1,8 @@
 # TOOL tophat2-single-end.R: "TopHat2 for single end reads" (Aligns Illumina RNA-seq reads to a genome in order to identify exon-exon splice junctions. The alignment process consists of several steps. If annotation is available as a GTF file, TopHat will extract the transcript sequences and use Bowtie to align reads to this virtual transcriptome first. Only the reads that do not fully map to the transcriptome will then be mapped on the genome. The reads that still remain unmapped are split into shorter segments, which are then aligned to the genome. Alignment results are given in a BAM file, which is automatically indexed and hence ready to be viewed in Chipster genome browser.)
 # INPUT reads1.fq: "Reads to align" TYPE GENERIC
 # INPUT OPTIONAL genes.gtf: "Optional GTF file" TYPE GENERIC
-# OUTPUT tophat.bam
-# OUTPUT tophat.bam.bai
+# OUTPUT OPTIONAL tophat.bam
+# OUTPUT OPTIONAL tophat.bam.bai
 # OUTPUT OPTIONAL junctions.bed
 # OUTPUT OPTIONAL insertions.bed
 # OUTPUT OPTIONAL deletions.bed
@@ -63,7 +63,7 @@ if (use.gtf == "yes") {
 		annotation.file <- "annotation.gtf"
 	}else{
 		# If not, we use the internal one.
-		annotation.file <- file.path(chipster.tools.path, "genomes", "gtf", paste(organism, ".gtf" ,sep="" ,collapse=""))
+		annotation.file <- file.path(chipster.tools.path, "genomes", "gtf", paste(organism, "*.gtf" ,sep="" ,collapse=""))
 	}
 	command.parameters <- paste(command.parameters, "-G", annotation.file)
 	if (no.novel.juncs == "yes") {

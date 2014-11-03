@@ -111,7 +111,7 @@ public class ToolFilterPanel extends JPanel
             public OperationFilterComparator(
                     Vector<OperationDefinition> filteredOperations,
                     LinkedList<Float> filteredOperationsWeights) {
-                this.operations = filteredOperations;
+                this.operations = new Vector<>(filteredOperations);
                 this.weights = filteredOperationsWeights;
             }
             
