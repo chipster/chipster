@@ -1,7 +1,7 @@
-# TOOL filter-cv.R: "Filter by coefficient of variation" (Filter genes by their coefficient of variation.)
+# TOOL filter-cv.R: "Filter by coefficient of variation" (Filters genes according to their coefficient of variation. Specify what percentage of the genes showing the lowest coefficient of variation should be filtered out. The default is 50%.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # OUTPUT cv-filter.tsv: cv-filter.tsv 
-# PARAMETER percentage.to.filter.out: percentage.to.filter.out TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.5 (Percentage of genes with lowest coefficient of variation to be filtered out. The default is 50%.)
+# PARAMETER percentage.to.filter.out: percentage.to.filter.out TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.5 (Percentage of genes with lowest coefficient of variation to be filtered out.)
 
 # JTT, 14.1.2008
 # IS, 16.10.2012, modified to cope with tables with gene descriptions (that typically contain 's)
