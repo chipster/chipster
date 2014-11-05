@@ -3,14 +3,15 @@
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT multtest.pdf: multtest.pdf 
 # OUTPUT globaltest-result-table.tsv: globaltest-result-table.tsv 
-# PARAMETER column: column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
-# PARAMETER pathway.or.genelist: "Pathway or genelist" TYPE [KEGG: KEGG, GO: GO, current: current] DEFAULT KEGG (Which gene list to test)
-# PARAMETER mult.test.cor: "Multiple testing method" TYPE [Holm: Holm, BH: BH, BY:BY] DEFAULT BH (Type of multiple testing correction to be used)
-# PARAMETER minimum.category.size: "Minimum category size" TYPE INTEGER FROM 1 TO 100 DEFAULT 5 (Minimum size for categories to be evaluated)
-# PARAMETER p.value.threshold: "P-value threshold" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
-# PARAMETER number.of.groups.to.visualize: "Number of groups to visualize" TYPE INTEGER FROM 1 TO 100 DEFAULT 5 (Number of most significant groups to visualize)
+# PARAMETER column: "Phenodata column describing experimental groups" TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
+# PARAMETER pathway.or.genelist: "Pathways or genelist" TYPE [KEGG: KEGG, GO: GO, current: current] DEFAULT KEGG (Which gene list to test)
+# PARAMETER OPTIONAL minimum.category.size: "Minimum pathway size" TYPE INTEGER FROM 1 TO 100 DEFAULT 5 (Minimum size for a pathway to be evaluated)
+# PARAMETER OPTIONAL number.of.groups.to.visualize: "Number of pathways to visualize" TYPE INTEGER FROM 1 TO 100 DEFAULT 5 (Number of most significant groups to visualize)
+# PARAMETER OPTIONAL p.value.threshold: "P-value threshold" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (Adjusted P-value cut-off for significant results)
+# PARAMETER OPTIONAL mult.test.cor: "Multiple testing correction method" TYPE [Holm: Holm, BH: BH, BY:BY] DEFAULT BH (Type of multiple testing correction to be used)
 
-# JTT 14.6.2006: Testing the statistical significance of several genes as a group or using KEGG or GO pathways. This only works with KEGG and GO for the whole normalized data (no pre-filtering allowed)
+
+# JTT 14.6.2006
 # MG 31.12.2009:
 # MG 03.05.2010: to exclude single gene genesets and added group labels in plots. Added more info columns in results table
 # MK 03.09.2013: updated to R.3.0 which does not support globaltest / geneplot functions

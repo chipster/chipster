@@ -7,57 +7,56 @@
 
 <h3>Description</h3>
 
-<p>Tests the statistical significance of a set of genes simultaneously, not gene by gene as is
-the usual method of analysis. </p>
+<p>Groups genes to gene sets like KEGG pathways or GO categories, and tests differential expression for a gene set rather than for individual genes using the Globaltest Bioconductor package. </p>
 
 <h3>Parameters</h3>
 
 <ul>
-<li>Gene list to test (KEGG, GO, current) [current]</li>
-<li>Use Benjamini and Hochberg's FDR (yes, no) [yes]</li>
-<li>Number of the most significant groups to visualize (4, 9, 16) [4]</li>
-<li>Width of the image (200...3200) [600]</li>
-<li>Height of the image (200...3200) [600]</li>
+<li>Phenodata column describing experimental groups [group]</li>
+<li>Pathways or gene list to test (KEGG, GO, current) [KEGG]</li>
+<li>Minimum pathway size (1-100) [5]</li>
+<li>Number of pathways to visualize (1-100) [5]</li>
+<li>Adjusted p-value cut-off (0-1) [0.05]</li>
+<li>Multiple testing correction method (BH, Holm, BY) [BH]</li>
 </ul>
 
 <h3>Details</h3>
 
-<p>This tool should be run on the normalized, unfiltered data set. Otherwise, the analysis
-will end with an error.</p>
+<p>Traditional pathway analysis approaches look for pathway enrichment in a list of differentially expressed genes, 
+which has been obtained using a statistical test beforehand. If the expression changes of the individual genes are small
+they might not be detected, and consequently the pathway they belong to is not found. Gene set tests, on the other hand, 
+have the possibility of detecting also those pathways, where a large number genes exhibit a small change. 
+The test statistics for pathway is a weighted average of test statistics for each gene.</p>
 
-<p>The test is run by using the current list of genes, so that their significance can be assessed or
-all KEGG pathways or GO groups can be tested for significance. If KEGG or GO is selected
-only the specified number of the most significant findings are visualized, while the result table will include the complete results. 
-The user can select whether or not to apply multiple testing correction, using the method of Benjamini and Hochberg, which transforms the
-p-values into false discovery rates.</p>
-
-<p>Note that gene sets consisting of only one gene are automatically removed from the analysis results.</p>
+<p>This tool should be run on normalized, unfiltered data so that pathways include all the genes. 
+You can choose to ignore pathways which contain less than a given number of genes. 
+In addition to a result table, also plots showing the contributing genes are produced for both GO and KEGG results.
+You can select for how many pathways such a plot is produced.
+You can also select which multiple testing correction to apply, the default is the Benjamini and Hochberg method, which transforms
+p-values into false discovery rates. 
+Note that in addition to testing for GO or KEGG pathways, you can also run this tool using the current list of genes as a "pathway".</p>
 
 <h3>Output</h3>
 
-<p>A table summarizing the analysis results per gene set.<p>
-
-<p> The table includes information about the size of the gene set, how many individual
-probes for that gene set were tested, the gene set representative Q statistic, the expected Q value based on an asymptotic distribution,
+<ol>
+<li>A table summarizing the analysis results per gene set.</li>
+<p>The table includes information about the size of the gene set, how many individual
+gene for that gene set were tested, the gene set representative Q statistic, the expected Q value based on an asymptotic distribution,
 the variance in the expected Q statistic, the unadjusted p-values and the ones adjusted for multiple testing. 
-If you would like to know what are the genes listed as "tested", you can run the tool "Utilities/ Extract genes from GO term" on your original data set. 
-	
+If you would like to retrieve the genes listed as "tested", you can run the tool "Utilities/ Extract genes from GO term" on the normalized data set.</p> 
+
+<li>An image illustrating the contributing genes in a barplot.</li>
+<p>This image shows which genes (or groups of genes) contribute to a given pathway to be significant. 
+The bars are p-values of the individual genes. The genes are ordered in a hierarchical clustering graph using absolute correlation as the distance measure.
+The genes marked with black branches are most significantly associated with the experimental group tested for. 
+Red bars mean a negative association (downregulation) and green bars a positive association (upregulation).
 </p>
+</ol>
 
-<p>An image illustrating the results in a barplot.</p>
-
-<p>The bars in the plot show the influence of each gene on the test statistic, which is calculated as the average of the bars.
-The solid reference line shows the expected influence, if the gene was not associated with the sample groups. The equidistant
-horizontal marks on the bars represent how far, in terms of standard deviations, from the expected influence the observed influence is.
-Red color bars signify a negative association to the groups (downregulation), whereas green bars correspond to a positive association
-(upregulation). The most significant pathway can be found in the top-left corner of the image, and the pathways are plotted according to
-decreasing significance to the right and then down.</p>
-
-<p>For further information about the geneplot please see the <a href="http://bioconductor.org/packages/2.2/bioc/vignettes/globaltest/inst/doc/GlobalTest.pdf">manual of the GlobalTest package</a> (page 19).</p>
 
 <h3>References</h3>
 
-<p>This tool uses Bioconductor package globaltest. Please cite the articles:</p>
+<p>This tool uses Bioconductor package Globaltest. Please cite the articles:</p>
 
 <p>Goeman, J. J., Oosting, J., Cleton-Jansen, A. M., Anninga, J. K., and van
 Houwelingen, J. C. (2005). Testing association of a pathway with survival
