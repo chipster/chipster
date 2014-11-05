@@ -44,6 +44,7 @@ import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
+import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.client.operation.OperationDefinition.Suitability;
 import fi.csc.microarray.client.operation.parameter.ToolParameterPanel;
 import fi.csc.microarray.client.selection.DatasetChoiceEvent;
@@ -764,7 +765,7 @@ public class ToolPanel extends JPanel
 		
 		// Check suitability of parameters and inputs
 		List<DataBean> selectedDatas = application.getSelectionManager().getSelectedDataBeans();
-		Suitability suitability = currentOperation.evaluateSuitabilityFor(selectedDatas);
+		Suitability suitability = currentOperation.evaluateSuitabilityFor(selectedDatas, currentOperation.getBindings());
 		
 		if (suitability.isOk()) {
 			// Is runnable
@@ -773,12 +774,24 @@ public class ToolPanel extends JPanel
 			// Check if it is batch runnable (run separately for each individual input)
 			List<DataBean> datas = selectedDatas;
 			
-			for (DataBean data : datas) {
-				if (!currentOperation.evaluateSuitabilityFor(Arrays.asList(new DataBean[] { data })).isOk()) {
-					// Does not work with this input, so cannot run as batch
-					return Runnability.NOT_RUNNABLE;			
+			// store current bindings so that currentOperation can be restored
+			// into its original state
+			List<DataBinding> currentBindings = currentOperation.getBindings();			
+			try {
+				for (DataBean data : datas) {
+					currentOperation.bindInputs(new DataBean[] {data});
+					if (!currentOperation.evaluateSuitabilityFor(Arrays.asList(new DataBean[] { data }), currentOperation.getBindings()).isOk()) {
+						// Does not work with this input, so cannot run as batch
+						return Runnability.NOT_RUNNABLE;			
+					}
 				}
+			} catch (MicroarrayException e) {
+				logger.error("evaluation of batch runnability encountered an error", e);
+				return Runnability.NOT_RUNNABLE;
+			} finally {
+				currentOperation.setBindings(currentBindings);
 			}
+			
 			return Runnability.RUNNABLE_AS_BATCH;
 		} else {
 			return Runnability.NOT_RUNNABLE;			

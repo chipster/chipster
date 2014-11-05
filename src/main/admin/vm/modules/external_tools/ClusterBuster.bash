@@ -1,5 +1,7 @@
 ##depends:none
 
+source ../installation_files/functions.bash
+
 # ClusterBuster, no license
   cd ${TMPDIR_PATH}/
   wget_retry -O cbust-src.tar.gz http://zlab.bu.edu/~mfrith/downloads/cbust-src.tar.gz

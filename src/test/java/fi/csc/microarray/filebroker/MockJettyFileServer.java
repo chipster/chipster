@@ -3,7 +3,7 @@ package fi.csc.microarray.filebroker;
 public class MockJettyFileServer extends JettyFileServer {
 
 	public MockJettyFileServer() {
-		super(null, null);
+		super(null, null, null);
 	}
 	
 	@Override

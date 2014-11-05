@@ -39,7 +39,7 @@
     <typedef name="fatjar.filesource" classname="net.sf.fjep.anttask.FJFileSourceType" classpath="${fjepPath}" loaderref="lib.path.loader"/>
 
 	<!-- version numbering -->
-	<property name="release-version" value="3.0.0" />
+	<property name="release-version" value="3.1.0" />
 	<property name="release-jar" value="${dist}/chipster-${release-version}.jar" />
 	<property name="release-tar" value="${dist}/chipster-${release-version}.tar.gz" />
 	<property name="release-zip" value="${dist}/chipster-${release-version}.zip" />
@@ -111,7 +111,7 @@
  		    <fatjar.jarsource file="${lib}/batik-xml.jar" relpath=""/>
 		    <fatjar.jarsource file="${lib}/h2-1.3.163.jar" relpath=""/>
 		    <fatjar.jarsource file="${lib}/snakeyaml-1.11.jar" relpath=""/>
-			<fatjar.jarsource file="${lib}/truezip-samples-7.3.4-jar-with-dependencies.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/truezip-samples-7.7.6-jar-with-dependencies.jar" relpath=""/>
 		    <fatjar.jarsource file="${lib}/jetty-ajp-8.1.5.v20120716.jar" relpath=""/>
 		    <fatjar.jarsource file="${lib}/jetty-annotations-8.1.5.v20120716.jar" relpath=""/>
 		    <fatjar.jarsource file="${lib}/jetty-client-8.1.5.v20120716.jar" relpath=""/>
@@ -350,6 +350,8 @@
 			<tarfileset dir="${ext-src}/wrapper/fileserver/conf" prefix="chipster/fileserver/conf" />
 			<tarfileset dir="${ext-src}/wrapper/fileserver/logs" prefix="chipster/fileserver/logs" /> <!-- must exist for wrapper -->
 			<tarfileset dir="${ext-src}/wrapper/fileserver/security" prefix="chipster/fileserver/security" />
+			<tarfileset file="${data}/keystore.ks" prefix="chipster/fileserver/security" />
+			
 
 			<!-- web start -->
 			<tarfileset file="${ext-src}/wrapper/webstart/chipster-webstart-generic" filemode="755" fullpath="chipster/webstart/bin/chipster-webstart" />
@@ -365,6 +367,7 @@
 			<tarfileset file="${client-jar}" fullpath="chipster/webstart/web-root/lib/chipster-current.jar" />
 			<tarfileset file="${ext-src}/wrapper/chipster-client-config.xml" fullpath="chipster/webstart/web-root/chipster-config.xml" />
 			<tarfileset dir="${ext-src}/wrapper/webstart/security" prefix="chipster/webstart/security" />
+			<tarfileset file="${data}/keystore.ks" prefix="chipster/webstart/security" />
 
 			<tarfileset dir="${ext-src}/wrapper/webstart/conf" prefix="chipster/webstart/conf" />
 			<tarfileset dir="${ext-src}/wrapper/webstart/logs" prefix="chipster/webstart/logs" /> <!-- must exist for wrapper -->
@@ -383,6 +386,7 @@
 			<tarfileset dir="${ext-src}/wrapper/manager/conf" prefix="chipster/manager/conf" />
 			<tarfileset dir="${ext-src}/wrapper/manager/logs" prefix="chipster/manager/logs" /> <!-- must exist for wrapper -->
 			<tarfileset dir="${ext-src}/wrapper/manager/security" prefix="chipster/manager/security" />
+			<tarfileset file="${data}/keystore.ks" prefix="chipster/manager/security" />
 
 			<tarfileset dir="${ext-src}/wrapper/manager/testrunner" prefix="chipster/manager/testrunner" />
 			<tarfileset file="${dist}/admin-web.war" prefix="chipster/manager/webapps" />
@@ -403,6 +407,8 @@
 			<tarfileset file="${ext-src}/activemq/activemq" filemode="755" prefix="chipster/activemq/bin/linux-x86-32" />
 			<tarfileset file="${ext-src}/activemq/activemq" filemode="755" prefix="chipster/activemq/bin/linux-x86-64" />
 			<tarfileset file="${ext-src}/activemq/activemq.xml" prefix="chipster/activemq/conf" />
+			<tarfileset file="${data}/keystore.ks" prefix="chipster/activemq/conf" />
+
 			<tarfileset file="${ext-src}/activemq/wrapper/linux-x86-32/wrapper.conf" prefix="chipster/activemq/bin/linux-x86-32" />
 			<tarfileset file="${ext-src}/activemq/wrapper/linux-x86-64/wrapper.conf" prefix="chipster/activemq/bin/linux-x86-64" />
 			

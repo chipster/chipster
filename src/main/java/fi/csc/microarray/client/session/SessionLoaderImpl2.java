@@ -74,6 +74,12 @@ public class SessionLoaderImpl2 {
 	private ZipInputStream zipStream;
 
 
+	private Integer xOffset;
+
+
+	private String sessionNotes;
+
+
 	public SessionLoaderImpl2(File sessionFile, DataManager dataManager, boolean isDatalessSession) {
 		this.sessionFile = sessionFile;
 		this.sessionId = null;
@@ -240,6 +246,16 @@ public class SessionLoaderImpl2 {
 				// set checksum from the metadata, but the checksum of the real file is calculated only 
 				// later during possible network transfers
 				dataManager.setOrVerifyChecksum(dataBean, dataType.getChecksum());
+				
+				Integer x = dataType.getLayoutX();
+				Integer y = dataType.getLayoutY();
+				
+				if (x != null && y != null) {
+					if (xOffset != null) {
+						x += xOffset;
+					}
+					dataBean.setPosition(x, y);
+				}
 			
 			} catch (Exception e) {
 				Session.getSession().getApplication().reportExceptionThreadSafely(new Exception("error while opening file " + name, e));
@@ -450,7 +466,6 @@ public class SessionLoaderImpl2 {
 					continue;
 				}
 			}
-			
 		}
 	}
 	
@@ -515,6 +530,15 @@ public class SessionLoaderImpl2 {
 		linkDataItemChildren(dataManager.getRootFolder());
 		linkDataBeans();
 		linkInputsToOperations();
+		
+		this.sessionNotes = sessionType.getNotes();
+	}
+	
+	public void setXOffset(Integer xOffset) {
+		this.xOffset = xOffset;
 	}
 
+	public String getSessionNotes() {
+		return this.sessionNotes;
+	}
 }

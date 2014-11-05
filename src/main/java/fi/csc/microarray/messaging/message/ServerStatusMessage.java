@@ -121,13 +121,19 @@ public class ServerStatusMessage extends ChipsterMessage {
 		string += "Jobs scheduled   \t" + scheduledJobs + "\n";
 		string += "Jobs running     \t" + runningJobs + " \n";
 
-		string += "Cpu %            \t" + cpuPercents +  "\t(load " + load +  ", cores " + cores +  ")\n";
-		string += "Memory %         \t" + memPercents +  "\t(" + SystemMonitorUtil.bytesToGigas(memUsed) +  " / " + SystemMonitorUtil.bytesToGigas(memTotal) + " GB)\n";
-		string += "Disk space %     \t" + diskPercents + "\t(" + SystemMonitorUtil.bytesToGigas(diskUsed) + " / " + SystemMonitorUtil.bytesToGigas(diskTotal) + " GB)\n";
+		string += systemStatsToString();
 		
 		return string;
 	}
 	
+	public String systemStatsToString() {
+		String string = "";
+		string += "Cpu %            \t" + cpuPercents +  "\t(load " + load +  ", cores " + cores +  ")\n";
+		string += "Memory %         \t" + memPercents +  "\t(" + SystemMonitorUtil.bytesToGigas(memUsed) +  " / " + SystemMonitorUtil.bytesToGigas(memTotal) + " GB)\n";
+		string += "Disk space %     \t" + diskPercents + "\t(" + SystemMonitorUtil.bytesToGigas(diskUsed) + " / " + SystemMonitorUtil.bytesToGigas(diskTotal) + " GB)\n";
+		return string;
+	}
+
 	public String toStringLine() {
 		String[] array = new String[] {				
 				"" + receivedJobs,				

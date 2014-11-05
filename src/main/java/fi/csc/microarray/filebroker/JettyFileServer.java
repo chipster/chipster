@@ -3,7 +3,7 @@ package fi.csc.microarray.filebroker;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
-import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
+import org.eclipse.jetty.server.ssl.SslSocketConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
@@ -17,12 +17,14 @@ public class JettyFileServer {
 	private Server jettyInstance;
 	private AuthorisedUrlRepository urlRepository;
 	private DerbyMetadataServer metadataServer;
+	private DiskCleanUp cacheCleanUp;
 	
-	public JettyFileServer(AuthorisedUrlRepository urlRepository, DerbyMetadataServer metadataServer) {
+	public JettyFileServer(AuthorisedUrlRepository urlRepository, DerbyMetadataServer metadataServer, DiskCleanUp cacheCleanUp) {
 		this.urlRepository = urlRepository;
 		this.metadataServer = metadataServer;
+		this.cacheCleanUp = cacheCleanUp;
 	}
-	
+
 	public void start(String resourceBase, int port, String protocol) throws Exception {
 		
 		if (DirectoryLayout.getInstance().getConfiguration().getBoolean("filebroker", "jetty-debug")) {
@@ -40,7 +42,7 @@ public class JettyFileServer {
 			
 		case "https":
 			Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
-			connector = new SslSelectChannelConnector(KeyAndTrustManager.createSslContextFactory(
+			connector = new SslSocketConnector(KeyAndTrustManager.createSslContextFactory(
 					configuration.getString("security", "keystore"),
 					configuration.getString("security", "keypass"), 
 					configuration.getString("security", "keyalias"), 
@@ -58,7 +60,7 @@ public class JettyFileServer {
 		ServletContextHandler root = new ServletContextHandler(jettyInstance, "/", false, false);
 		root.getInitParams().put("org.eclipse.jetty.servlet.Default.aliases", "true");
 		root.setResourceBase(resourceBase);
-		root.addServlet(new ServletHolder(new RestServlet(urlRepository.getRootUrl(), urlRepository, metadataServer)), "/*");
+		root.addServlet(new ServletHolder(new RestServlet(urlRepository.getRootUrl(), urlRepository, metadataServer, cacheCleanUp)), "/*");
 		jettyInstance.start();
 	}
 	

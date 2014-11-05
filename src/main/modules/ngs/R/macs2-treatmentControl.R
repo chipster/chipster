@@ -16,9 +16,9 @@
 # PARAMETER OPTIONAL keep.dup: "Keep duplicate reads" TYPE [auto, all, 1] DEFAULT auto (Procedure used to handle duplicate reads. If auto, MACS computes the maximum reads at the exact same location based on binomal distribution using 1e-5 p-value cutoff. The option All option keeps all reads, while 1 keeps only one read per site.)
 # PARAMETER OPTIONAL build.model: "Build peak model" TYPE [yes, no] DEFAULT yes (If enabled, a peak model is built from the data. Disabling model building means the shiftsize has to be guessed and set with the parameter.)
 # PARAMETER OPTIONAL bandwidth: "Bandwidth" TYPE INTEGER FROM 1 TO 1000 DEFAULT 300 (The window size for picking regions to compute fragment size when building the shifting model.)
-# PARAMETER OPTIONAL shift.size: "Shift size" TYPE INTEGER FROM 1 TO 1000 DEFAULT 100 (When model building has been switched off or when it fails, MACS will use this value as half of the fragment size to shift and extend reads.)
 # PARAMETER OPTIONAL m.fold.upper: "Upper M-fold cutoff" TYPE INTEGER FROM 1 TO 100 DEFAULT 30 (Sets the cutoff used to determine peak regions for model building. A too high value may result in not enough peaks being identified for building the model. Note that if the peak model is disabled this parameter has no effect.)
 # PARAMETER OPTIONAL m.fold.lower: "Lower M-fold cutoff" TYPE INTEGER FROM 1 TO 100 DEFAULT 10 (Sets the cutoff used to determine peak regions for model building. A too low value may result in the inclusion of many false peaks being used for building the model. Note that if the peak model is disabled this parameter has no effect.)
+# PARAMETER OPTIONAL shift.size: "Shift size" TYPE INTEGER FROM 1 TO 1000 DEFAULT 100 (When model building has been switched off or when it fails, MACS will use this value as half of the fragment size to shift and extend reads.)
 # PARAMETER OPTIONAL broad: "Call broad peaks" TYPE [yes, no] DEFAULT no (Call broad peaks by linking nearby highly enriched region.)
 
 # 26.05.2010 MG, Created

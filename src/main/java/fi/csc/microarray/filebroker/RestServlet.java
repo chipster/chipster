@@ -7,7 +7,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -27,7 +26,6 @@ import sun.net.www.protocol.http.HttpURLConnection;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.filebroker.AuthorisedUrlRepository.Authorisation;
-import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.IOUtils;
 
 /**
@@ -46,13 +44,11 @@ public class RestServlet extends DefaultServlet {
 	private String cachePath;
 	private String publicPath;
 	private String storagePath;
-	private int cleanUpTriggerLimitPercentage;
-	private int cleanUpTargetPercentage;
-	private int cleanUpMinimumFileAge;
 	
 	private String rootUrl;
 	private AuthorisedUrlRepository urlRepository;
 	private DerbyMetadataServer metadataServer;
+	private DiskCleanUp cacheCleanUp;
 
 	private boolean useChecksums;
 	
@@ -62,18 +58,17 @@ public class RestServlet extends DefaultServlet {
 	// using jetty debug logging is not very useful as it is so verbose
 	private boolean logRest = false;
 
-	public RestServlet(String rootUrl, AuthorisedUrlRepository urlRepository, DerbyMetadataServer metadataServer) {
+
+	public RestServlet(String rootUrl, AuthorisedUrlRepository urlRepository, DerbyMetadataServer metadataServer, DiskCleanUp cacheCleanUp) {
 		this.rootUrl = rootUrl;
 		this.urlRepository = urlRepository;
 		this.metadataServer = metadataServer;
+		this.cacheCleanUp = cacheCleanUp;
 		
 		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
 		cachePath = FileServer.CACHE_PATH;
 		storagePath = FileServer.STORAGE_PATH;
 		publicPath = configuration.getString("filebroker", "public-path");
-		cleanUpTriggerLimitPercentage = configuration.getInt("filebroker", "clean-up-trigger-limit-percentage");
-		cleanUpTargetPercentage = configuration.getInt("filebroker", "clean-up-target-percentage");
-		cleanUpMinimumFileAge = configuration.getInt("filebroker", "clean-up-minimum-file-age");
 		useChecksums = configuration.getBoolean("messaging", "use-checksums");
 		if (configuration.getBoolean("filebroker", "log-rest")) {
 			logRest = true;
@@ -326,26 +321,10 @@ public class RestServlet extends DefaultServlet {
 		}
 		
 		// make sure there's enough usable space left after the transfer
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-
-					File userDataDir = new File(getServletContext().getRealPath(cachePath));
-					long usableSpaceSoftLimit =  (long) ((double)userDataDir.getTotalSpace()*(double)(100-cleanUpTriggerLimitPercentage)/100);
-
-					if (userDataDir.getUsableSpace() <= usableSpaceSoftLimit) {
-						logger.info("after put, user data dir usable space soft limit " + FileUtils.byteCountToDisplaySize(usableSpaceSoftLimit) + 
-								" (" + (100-cleanUpTriggerLimitPercentage) + "%) reached, cleaning up");
-						Files.makeSpaceInDirectoryPercentage(new File(getServletContext().getRealPath(cachePath)), 100-cleanUpTargetPercentage, cleanUpMinimumFileAge, TimeUnit.SECONDS);
-						logger.info("after clean up, usable space is: " + FileUtils.byteCountToDisplaySize(new File(getServletContext().getRealPath(cachePath)).getUsableSpace()));
-					} 
-
-				} catch (Exception e) {
-					logger.warn("could not clean up space after put", e);
-				}
-			}
-		}, "chipster-fileserver-cache-cleanup").start();
+		// (in case of concurrent uploads)
+		if (cacheCleanUp != null) {
+			cacheCleanUp.spaceRequest(0, false, "Schedule clean up after PUT");
+		}
 
 		if (useChecksums) { 
 			response.setHeader(ChecksumInputStream.HTTP_CHECKSUM_KEY, checksum);

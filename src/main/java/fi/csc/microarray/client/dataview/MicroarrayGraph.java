@@ -19,6 +19,8 @@ import javax.swing.ToolTipManager;
 
 import org.apache.log4j.Logger;
 import org.jgraph.JGraph;
+import org.jgraph.event.GraphModelEvent;
+import org.jgraph.event.GraphModelListener;
 import org.jgraph.graph.CellView;
 import org.jgraph.graph.DefaultEdge;
 import org.jgraph.graph.DefaultPort;
@@ -50,7 +52,7 @@ import fi.csc.microarray.util.SwingTools;
  * @author Mikko Koski, Aleksi Kallio
  * 
  */
-public class MicroarrayGraph extends JGraph implements DataChangeListener, PropertyChangeListener {
+public class MicroarrayGraph extends JGraph implements DataChangeListener, PropertyChangeListener, GraphModelListener {
 
 	private static final Logger logger = Logger.getLogger(MicroarrayGraph.class);
 
@@ -86,6 +88,8 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 
 		// registers the graph object with the tooltip manager
 		ToolTipManager.sharedInstance().registerComponent(this);
+		
+		model.addGraphModelListener(this);
 
 		// start listening
 		application.getDataManager().addDataChangeListener(this);
@@ -104,21 +108,37 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 		if (vertexMap.containsKey(data)) {
 			throw new RuntimeException(data.getName() + " was already present in the graph");
 		}
+		
+		boolean savedPosition = data.getX() != null && data.getY() != null; 
+		
+		int x = 0;
+		int y = 0;
+		
+		if (savedPosition) {
+			x = data.getX();
+			y = data.getY();
+		}		
 
 		// create approriate type of vertex
 		GraphVertex vertex;
 		if (data.queryFeatures("/phenodata").exists()) {
 			// create a metadata vertex
-			vertex = new PhenodataVertex(0, 0, data, this);
+			vertex = new PhenodataVertex(x, y, data, this);			
 
 		} else if (data.getLinkTargets(Link.derivationalTypes()).size() == 0) {
 			// create a root vertex
-			vertex = new GraphVertex(0, 0, data, this);
+			vertex = new GraphVertex(x, y, data, this);		
 
 		} else {
 			// create a normal vertex
-			vertex = new GraphVertex(10, 10, data, this);
+			if (savedPosition) {
+				vertex = new GraphVertex(x, y, data, this);
+			} else {
+				vertex = new GraphVertex(10, 10, data, this);
+			}
 		}
+		
+		vertex.setAllowsAutoLayout(!savedPosition);
 
 		// create derivational (DERIVATION/MODIFICATION) links
 		for (Link type : Link.derivationalTypes()) {
@@ -126,7 +146,7 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 				GraphVertex parent = vertexMap.get(targetBean);
 				// Note that PARENT is the TARGET of derivational link and the
 				// child is the SOURCE
-				insertLink(vertex, parent, type);
+				insertLink(vertex, parent, type, data);
 			}
 		}
 
@@ -136,7 +156,9 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 
 		// The placement is unknown before the links are created. These stay valid only
 		// if no derivation/modification links are added.
-		layoutManager.updateLayout(vertex);
+		
+		layoutManager.updateLayout(vertex, data);
+		
 		graphPanel.autoZoom();
 		scrollCellToVisibleAnimated(vertex);
 		repaint();
@@ -546,10 +568,10 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 			throw new RuntimeException("source or target vertex not found: source " + sourceVertex + ", target " + targetVertex);
 		}
 
-		insertLink(sourceVertex, targetVertex, type);
+		insertLink(sourceVertex, targetVertex, type, source);
 	}
 
-	private void insertLink(GraphVertex sourceVertex, GraphVertex targetVertex, Link type) {
+	private void insertLink(GraphVertex sourceVertex, GraphVertex targetVertex, Link type, DataBean sourceDataBean) {
 		if (type.equals(DataBean.Link.GROUPING)) {
 
 			if (sourceVertex.getGroup() != null && targetVertex.getGroup() != null) {
@@ -571,7 +593,6 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 				sourceVertex.getGroup().addChildVertex(targetVertex);
 			} else {
 				targetVertex.getGroup().addChildVertex(sourceVertex);
-
 			}
 
 		} else if (type.equals(DataBean.Link.ANNOTATION) || type.equals(DataBean.Link.DERIVATION) || type.equals(DataBean.Link.MODIFICATION)) {
@@ -595,7 +616,7 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 			this.getGraphLayoutCache().insert(linkEdge);
 
 			if (type.equals(DataBean.Link.DERIVATION) || type.equals(DataBean.Link.MODIFICATION)) {
-				layoutManager.updateLayout(sourceVertex); // update position if this was made child of other bean
+				layoutManager.updateLayout(sourceVertex, sourceDataBean); // update position if this was made child of other bean
 				graphPanel.autoZoom();
 				scrollCellToVisibleAnimated(sourceVertex);
 				repaint();
@@ -691,5 +712,28 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 	 */
 	@Override
 	public void updateUI() {
+	}
+
+	@Override
+	public void graphChanged(GraphModelEvent e) {
+		// listen for vertex moves to store the new position in DataBean
+		for (Object o : e.getChange().getChanged()) {
+			if (o instanceof GraphVertex) {
+				GraphVertex vertex = (GraphVertex) o;
+				DataBean bean = getBean(vertex);
+				if (bean != null) {					
+					bean.setPosition(vertex.getX(), vertex.getY());
+				}
+			}
+		}
+	}
+
+	private DataBean getBean(GraphVertex vertex) {
+		for (DataBean bean : vertexMap.keySet()) {
+			if (vertexMap.get(bean) == vertex) {
+				return bean;
+			}
+		}
+		return null;
 	}
 }

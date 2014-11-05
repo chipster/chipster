@@ -91,6 +91,9 @@ public class SessionSaver {
 	private String validationErrors;
 
 
+	private String sessionNotes;
+
+
 
 	/**
 	 * Create a new instance for every session to be saved.
@@ -198,6 +201,9 @@ public class SessionSaver {
 
 		// gather meta data
 		saveMetadataRecursively(dataManager.getRootFolder(), saveData, skipLocalLocations);
+		
+		// save session notes
+		sessionType.setNotes(sessionNotes);
 	}
 
 
@@ -467,6 +473,8 @@ public class SessionSaver {
 		dataType.setDataId(bean.getId());
 		dataType.setSize(bean.getSize()); //may be null
 		dataType.setChecksum(bean.getChecksum()); //may be null				
+		dataType.setLayoutX(bean.getX()); // may be null in CLI client
+		dataType.setLayoutY(bean.getY()); // may be null in CLI client
 
 		// parent
 		if (bean.getParent() != null) {
@@ -638,7 +646,7 @@ public class SessionSaver {
 				ChecksumInputStream in = Session.getSession().getDataManager().getContentStream(entry.getKey(), DataNotAvailableHandling.EXCEPTION_ON_NA);
 				writeFile(zipOutputStream, entryName, in);
 				streamLength = in.getContentLength();
-				streamChecksum = in.verifyChecksums();
+				streamChecksum = in.getChecksum();
 				in.verifyContentLength(bean.getSize());
 				dataManager.setOrVerifyChecksum(bean, streamChecksum);
 				
@@ -729,6 +737,10 @@ public class SessionSaver {
 			}
 		}
 		
+	}
+
+	public void setSessionNotes(String sessionNotes) {
+		this.sessionNotes = sessionNotes;
 	}
 	
 //    public static void main(String args[])

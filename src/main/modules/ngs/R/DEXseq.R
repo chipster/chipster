@@ -6,7 +6,7 @@
 # OUTPUT OPTIONAL dexseq-exons.pdf: dexseq-exons.pdf
 # OUTPUT OPTIONAL dexseq-MAplot.pdf: dexseq-MAplot.pdf
 # OUTPUT OPTIONAL dexseq-dispersion-plot.pdf: dexseq-dispersion-plot.pdf
-# PARAMETER OPTIONAL organism: "Reference organism" TYPE [Arabidopsis_thaliana.TAIR10.22, Bos_taurus.UMD3.1.75, Canis_familiaris.BROADD2.67, Canis_familiaris.CanFam3.1.75, Drosophila_melanogaster.BDGP5.75, Gallus_gallus.Galgal4.75, Gasterosteus_aculeatus.BROADS1.75, Halorubrum_lacusprofundi_atcc_49239.GCA_000022205.1.22, Homo_sapiens.GRCh37.75, Homo_sapiens.NCBI36.54, Mus_musculus.GRCm38.75, Mus_musculus.NCBIM37.67, Ovis_aries.Oar_v3.1.75, Rattus_norvegicus.RGSC3.4.69, Rattus_norvegicus.Rnor_5.0.75, Schizosaccharomyces_pombe.ASM294v2.22, Sus_scrofa.Sscrofa10.2.75, Vitis_vinifera.IGGP_12x.22, Yersinia_enterocolitica_subsp_palearctica_y11.GCA_000253175.1.22] DEFAULT Homo_sapiens.GRCh37.75 (Which organism is your data from.)
+# PARAMETER OPTIONAL organism: "Reference organism" TYPE [Arabidopsis_thaliana.TAIR10.23, Bos_taurus.UMD3.1.77, Canis_familiaris.BROADD2.67, Canis_familiaris.CanFam3.1.77, Drosophila_melanogaster.BDGP5.77, Gallus_gallus.Galgal4.77, Gasterosteus_aculeatus.BROADS1.77, Halorubrum_lacusprofundi_atcc_49239.GCA_000022205.1.23, Homo_sapiens.GRCh37.75, Homo_sapiens.GRCh38.77, Homo_sapiens.NCBI36.54, Mus_musculus.GRCm38.77, Mus_musculus.NCBIM37.67, Ovis_aries.Oar_v3.1.77, Rattus_norvegicus.RGSC3.4.69, Rattus_norvegicus.Rnor_5.0.77, Schizosaccharomyces_pombe.ASM294v2.23, Sus_scrofa.Sscrofa10.2.77, Vitis_vinifera.IGGP_12x.23, Yersinia_enterocolitica_subsp_palearctica_y11.GCA_000253175.1.23] DEFAULT Homo_sapiens.GRCh38.77 (Which organism is your data from.)
 # PARAMETER pvalue: "Threshold for adjusted p-value" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (Threshold for BH adjusted p-values. If a gene has at least one exon below this p-value, all its exons will be included in the result list.)
 # PARAMETER OPTIONAL dispersion: "Common dispersion" TYPE DECIMAL FROM 0 TO 100 DEFAULT 0.1 (If dispersions can not be estimated, this common dispersion value is used for all exons. In this case no graphical output is generated.)
 
@@ -30,7 +30,7 @@ if(any(as.vector(table(phenodata$group))<2)) {
 }
 
 # Path to the gff file
-gtf <- file.path(chipster.tools.path, "genomes", "gtf", paste(organism, ".DEXSeq.gtf" ,sep="" ,collapse=""))
+gtf <- file.path(chipster.tools.path, "genomes", "dexseq", paste(organism, ".DEXSeq.gtf" ,sep="" ,collapse=""))
 
 # Reads the data
 d<-read.table("countfile.tsv", header=TRUE, sep="\t")

@@ -22,7 +22,7 @@
 	<classpathentry exported="true" kind="lib" path="ext/lib/activation.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/cron4j-1.1.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jakarta-regexp-1.5.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/activemq-all-5.10.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/activemq-all-5.10.0.jar" sourcepath="ext/lib-src/activemq-parent-5.10.0-source-release.zip"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/batik-awt-util.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/batik-dom.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/batik-svg-dom.jar"/>
@@ -37,7 +37,6 @@
 	<classpathentry exported="true" kind="lib" path="ext/lib/jgraph-5.12.2.1.jar" sourcepath="ext/lib-src/jgraph-5.12.1.0-lgpl-src.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/swingx-1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/mail.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/truezip-samples-7.3.4-jar-with-dependencies.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/commons-io-2.2.jar" sourcepath="ext/lib-src/commons-io-2.2-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-ajp-8.1.5.v20120716.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-annotations-8.1.5.v20120716.jar"/>
@@ -75,6 +74,7 @@
 	<classpathentry exported="true" kind="lib" path="ext/lib/joda-time-2.3.jar" sourcepath="ext/lib-src/joda-time-2.3-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/derby.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/commons-lang3-3.1.jar"/>
+	<classpathentry kind="lib" path="ext/lib/truezip-samples-7.7.6-jar-with-dependencies.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="ext/lib/argparse4j-0.4.3.jar" sourcepath="ext/lib-src/argparse4j-0.4.3-sources.jar"/>
 	<classpathentry kind="output" path="bin/eclipse"/>

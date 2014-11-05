@@ -156,9 +156,9 @@ public class Operation implements ExecutionItem {
 	/**
 	 * Set new input file bindings.
 	 */
-	public void setBindings(LinkedList<DataBinding> bindings) {
-	    if (bindings != null) {
-	    	this.bindings = bindings;
+	public void setBindings(List<DataBinding> currentBindings) {
+	    if (currentBindings != null) {
+	    	this.bindings = new LinkedList<>(currentBindings);
 	    } else {
 	    	this.bindings = new LinkedList<DataBinding>();	
 	    }
@@ -211,12 +211,13 @@ public class Operation implements ExecutionItem {
 	 * @return One of the OperationDefinition.Suitability enumeration, depending
 	 *         on how suitable the operation is judged.
 	 */
-	public Suitability evaluateSuitabilityFor(Iterable<DataBean> data) {
+	@Override
+	public Suitability evaluateSuitabilityFor(Iterable<DataBean> data, List<DataBinding> bindings) {
 	    
 	    // Check parameters and inputs
 	    Suitability parameterSuitability = 
 	        OperationDefinition.evaluateParameterSuitability(getParameters());
-	    Suitability inputSuitability = definition.evaluateSuitabilityFor(data);
+	    Suitability inputSuitability = definition.evaluateSuitabilityFor(data, bindings);
 	    
 	    // Return ok suitability only when both are ok
 	    if (inputSuitability.isOk()) {

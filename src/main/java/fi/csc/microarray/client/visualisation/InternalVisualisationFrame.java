@@ -26,12 +26,4 @@ public class InternalVisualisationFrame extends VisualisationFrame {
 	public void setContent(JComponent visualisationComponent) {
 		getFrameComponent().add(visualisationComponent, BorderLayout.CENTER);
 	}
-
-	@Override
-	protected void updateContextLinks() {
-		if (type == FrameType.MAIN) {
-			application.setVisualisationMethod();
-		}
-		
-	}
 }
