@@ -1,4 +1,4 @@
-# TOOL stat-geneset.R: "Gene set test" (Testing the significance of a bunch of genes as group, not separately. This tool makes a global test of gene expression, and gives the significance of the expression of a group of genes. You can use your own genelist or search for the most sigficant KEGG or GO pathways. Searching for the most significant pathways works only, if the whole dataset is used, i.e, data should not be prefiltered.)
+# TOOL stat-geneset.R: "Gene set test" (Differential expression testing for whole pathways rather than individual genes. This tool groups genes into pathways and analyses them for differential expression using the Globaltest Bioconductor package. Searching for the significant pathways works only if the whole dataset is used, i.e, data should not be filtered.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT multtest.pdf: multtest.pdf 
@@ -14,6 +14,7 @@
 # MG 31.12.2009:
 # MG 03.05.2010: to exclude single gene genesets and added group labels in plots. Added more info columns in results table
 # MK 03.09.2013: updated to R.3.0 which does not support globaltest / geneplot functions
+# EK 05.11.2014: clarified the text.
 
 #column<-"group"
 #pathway.or.genelist <-"KEGG"
