@@ -9,6 +9,7 @@ import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.io.FilenameUtils;
 import org.xml.sax.SAXException;
 
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
@@ -31,11 +32,13 @@ public class Configuration {
 
 	private static String CONFIG_SPECIFICATION_FILE = "/chipster-config-specification.xml";	
 	private static ConfigurationModule rootModule = new ConfigurationModule();
+	private URL configRootURL = null;
 
 	private List<String> configModules;	
 
 	public Configuration(URL configUrl, List<String> configModules) throws IOException, IllegalConfigurationException {
 		this(configUrl.openConnection().getInputStream(), configModules);
+		this.configRootURL = new URL(FilenameUtils.getFullPath(configUrl.toString()));
 	}
 	
 	public Configuration(File workDir, List<String> configModules) throws IOException, IllegalConfigurationException {
@@ -51,6 +54,8 @@ public class Configuration {
 		}
 		
 		initialise(new FileInputStream(configFile), configModules);
+		
+		this.configRootURL = new File(FilenameUtils.getFullPath(configFile.getPath())).toURI().toURL();
 	}
 
 	public Configuration(List<String> configModules) throws IOException, IllegalConfigurationException {
@@ -115,5 +120,8 @@ public class Configuration {
 	public ConfigurationModule getRootModule() {
 		return rootModule;
 	}
-
+	
+	public URL getConfigRootURL() {
+		return configRootURL;
+	}
 }

@@ -100,13 +100,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		this.useChecksums = DirectoryLayout.getInstance().getConfiguration().getBoolean("messaging", "use-checksums");
 
 		// Initialise keystore in case HTTPS connections are needed
-		KeyAndTrustManager.initialiseSystem(
-				DirectoryLayout.getInstance().getConfiguration().getString("security", "keystore"),
-				DirectoryLayout.getInstance().getConfiguration().getString("security", "keypass"), 
-				DirectoryLayout.getInstance().getConfiguration().getString("security", "keyalias"), 
-				DirectoryLayout.getInstance().getConfiguration().getString("security", "master-keystore")
-		);
-
+		KeyAndTrustManager.initialiseTrustStore();
 	}
 	
 	public JMSFileBrokerClient(MessagingTopic urlTopic) throws Exception {

@@ -225,7 +225,7 @@ public abstract class ClientApplication {
 			modules.plugAll(this.manager, Session.getSession());
 						
 			this.selectionManager = new DataSelectionManager(this);
-			Session.getSession().setClientApplication(this);			
+			Session.getSession().setClientApplication(this);
 			
 			// try to initialise JMS connection (or standalone services)
 			logger.debug("Initialise JMS connection.");

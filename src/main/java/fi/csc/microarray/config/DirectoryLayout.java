@@ -347,4 +347,8 @@ public class DirectoryLayout {
 			throw new IllegalStateException("directory layout has no configuration");
 		}
 	}
+	
+	public Type getType() {
+		return type;
+	}
 }

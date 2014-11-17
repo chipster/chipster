@@ -43,10 +43,8 @@ public class JettyFileServer {
 		case "https":
 			Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
 			connector = new SslSocketConnector(KeyAndTrustManager.createSslContextFactory(
-					configuration.getString("security", "keystore"),
-					configuration.getString("security", "keypass"), 
-					configuration.getString("security", "keyalias"), 
-					configuration.getString("security", "master-keystore")
+					configuration.getString("security", "filebroker-keystore"),
+					configuration.getString("security", "storepass")
 			));
 			break;
 			

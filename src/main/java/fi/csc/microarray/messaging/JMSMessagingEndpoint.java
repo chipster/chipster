@@ -4,17 +4,17 @@
  */
 package fi.csc.microarray.messaging;
 
-import java.security.SecureRandom;
+import java.io.IOException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 
 import javax.jms.Connection;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.Session;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
+import javax.net.ssl.SSLHandshakeException;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -30,6 +30,7 @@ import fi.csc.microarray.messaging.auth.AuthenticatedTopic;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.CommandMessage;
+import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.KeyAndTrustManager;
 import fi.csc.microarray.util.UrlTransferUtil;
 
@@ -116,11 +117,8 @@ public class JMSMessagingEndpoint implements MessagingEndpoint, MessagingListene
 		// setup keystore if needed
 		if ("ssl".equals(configuration.getString("messaging", "broker-protocol"))) {
 			try {
-				KeyAndTrustManager.initialiseSystem(
-						configuration.getString("security", "keystore"),
-						configuration.getString("security", "keypass"), 
-						configuration.getString("security", "keyalias"), 
-						configuration.getString("security", "master-keystore"));
+				
+				KeyAndTrustManager.initialiseTrustStore();
 			} catch (Exception e) {
 				throw new MicroarrayException("could not access SSL keystore", e);
 			}
@@ -141,8 +139,7 @@ public class JMSMessagingEndpoint implements MessagingEndpoint, MessagingListene
 		} catch (Exception e) {
 			throw new RuntimeException("reading authentication information failed: " + e.getMessage());
 		}
-		
-		
+				
 		try {
 			logger.info("connecting to " + brokerUrl);
 			String completeBrokerUrl = brokerUrl;
@@ -172,28 +169,44 @@ public class JMSMessagingEndpoint implements MessagingEndpoint, MessagingListene
 			adminTopic.setListener(this);
 			logger.debug("endpoint created succesfully");
 		} catch (JMSException e) {
+			if (e.getCause() instanceof SSLHandshakeException) {
+				try {
+					throw new MicroarrayException(
+							"Server identity cannot be verified.\n\n"
+									+ "Message broker " + brokerUrl + "\n"
+									+ "does not match certificate "
+									+ KeyAndTrustManager.getClientTrustStore(configuration, password)
+									+ ".\n"
+									+ "Certificate must be updated only in a network that "
+									+ "you trust.\nIn a trusted network, please remove the certificate file and restart Chipster.\n",
+							e);
+				} catch (NoSuchAlgorithmException | CertificateException | KeyStoreException | IOException e1) {
+					throw new MicroarrayException("could not connect to message broker at " + brokerUrl + " (" + e.getMessage() + ") and " + Exceptions.getStackTrace(e1), e);
+				}
+			}
 			throw new MicroarrayException("could not connect to message broker at " + brokerUrl + " (" + e.getMessage() + ")", e);
 		}
 	}
 
 	private ActiveMQConnectionFactory createConnectionFactory(String username, String password, String completeBrokerUrl) {
-//		ActiveMQConnectionFactory reliableConnectionFactory = new ActiveMQConnectionFactory(username, password, completeBrokerUrl);
 
-		// use dummy trust manager
 		ActiveMQSslConnectionFactory reliableConnectionFactory = new ActiveMQSslConnectionFactory();
 		
-		reliableConnectionFactory.setKeyAndTrustManagers(null, new TrustManager[] {new X509TrustManager() {
-
-			
-			public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-			}
-
-			public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-			}
-
-			public X509Certificate[] getAcceptedIssuers() {
-				return null;
-			}}}, new SecureRandom());
+		// dummy trust manager
+//		reliableConnectionFactory.setKeyAndTrustManagers(null, new TrustManager[] {new X509TrustManager() {
+//
+//			
+//			public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+//			}
+//
+//			public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+//			}
+//
+//			public X509Certificate[] getAcceptedIssuers() {
+//				return null;
+//			}}}, new SecureRandom());
+//		}
+		
 		reliableConnectionFactory.setUserName(username);
 		reliableConnectionFactory.setPassword(password);
 		reliableConnectionFactory.setBrokerURL(completeBrokerUrl);
