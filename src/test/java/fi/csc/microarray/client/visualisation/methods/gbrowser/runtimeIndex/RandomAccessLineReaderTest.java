@@ -67,7 +67,7 @@ public class RandomAccessLineReaderTest {
 			//This should produce exception, because last setPostion was incorrect
 			lineReader.readLine();
 			Assert.fail("Exception expected when last setPosition was incorrect");
-		} catch (IOException e) {
+		} catch (Exception e) {
 		}
 		
 		//This is valid position
