@@ -92,7 +92,7 @@
 		</entry>
 		
 		<entry entryKey="example-session-path" type="string" description="path to example session files'">
-			<value>example-session</value>
+			<value>example-sessions</value>
 		</entry>
 
 		<entry entryKey="public-path" type="string" description="path to public data files">

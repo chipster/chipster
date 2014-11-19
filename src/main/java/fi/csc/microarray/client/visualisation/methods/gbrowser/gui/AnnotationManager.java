@@ -31,7 +31,7 @@ import fi.csc.microarray.util.IOUtils;
  */
 public class AnnotationManager {
 	
-	private static final String ANNOTATIONS = "annotations";
+	private static final String ANNOTATIONS = "genomebrowser";
 
 	private static final Logger logger = Logger.getLogger(AnnotationManager.class);
 	
