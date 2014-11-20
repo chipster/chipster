@@ -13,6 +13,7 @@ import org.eclipse.jetty.util.IO;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
 import fi.csc.microarray.util.IOUtils;
+import fi.csc.microarray.util.KeyAndTrustManager;
 
 /**
  * Handler for data sources that are accessed directly, meaning that they do not
@@ -70,6 +71,7 @@ public class ByteDataSource extends DataSource {
 			try {
 
 				connection = (HttpURLConnection)url.openConnection();
+				KeyAndTrustManager.configureSSL(connection);
 				connection.setRequestProperty("Range", "bytes=" + filePosition + "-" + endFilePosition);
 				
 				try (InputStream in = connection.getInputStream();				
@@ -113,6 +115,7 @@ public class ByteDataSource extends DataSource {
 				HttpURLConnection connection = null;
 				try {
 					connection = (HttpURLConnection)url.openConnection();
+					KeyAndTrustManager.configureSSL(connection);
 					// connection.getContentLength() returns int, which is not enough
 					String string = connection.getHeaderField("content-length");
 					if (string == null) {

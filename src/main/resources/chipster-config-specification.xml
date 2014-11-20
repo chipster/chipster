@@ -57,6 +57,10 @@
 		<entry entryKey="storepass" type="string" description="keystore password for SSL">
 			<value>password</value>
 		</entry>
+		
+		<entry entryKey="verify-hostname" type="boolean" description="enable SSL hostname verification">
+			<value>false</value>
+		</entry>
 
 		<entry entryKey="username" type="string" mustBeSet="true" description="username for authenticating connection to broker">
 		</entry>

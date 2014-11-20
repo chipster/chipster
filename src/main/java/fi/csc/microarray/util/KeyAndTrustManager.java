@@ -1,15 +1,25 @@
 package fi.csc.microarray.util;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLConnection;
+import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManagerFactory;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
@@ -25,6 +35,10 @@ public class KeyAndTrustManager {
 	 */
 	private static final Logger logger = Logger
 			.getLogger(KeyAndTrustManager.class);
+	
+	private static boolean initialised;
+
+	private static SSLSocketFactory sslFactory;
 
 	public static String getClientTrustStore(Configuration configuration, String password)
 			throws NoSuchAlgorithmException, CertificateException,
@@ -69,30 +83,63 @@ public class KeyAndTrustManager {
 	/**
 	 * Configure system to use SSL. Sets system wide properties so that Chipster
 	 * key store is used. Initialises key store if needed.
+	 * @throws KeyManagementException 
 	 * @throws MicroarrayException 
 	 */
 	public static void initialiseTrustStore()
 			throws NoSuchAlgorithmException, CertificateException,
-			FileNotFoundException, IOException, KeyStoreException {
-		
-		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
+			FileNotFoundException, IOException, KeyStoreException, KeyManagementException {
 
-		String password = configuration.getString("security", "storepass");
-		String trustStore;
-		
-		if (DirectoryLayout.getInstance().getType() == DirectoryLayout.Type.CLIENT) {
-			trustStore = getClientTrustStore(configuration, password);
-		} else {
-			//server
-			trustStore = configuration.getString("security", "server-truststore");	
-		}
-		
-		if (trustStore != null) {
+		if (!initialised) {
 
-			// Configure trust store
-			System.setProperty("javax.net.ssl.keyStorePassword", new String(
-					password));
-			System.setProperty("javax.net.ssl.trustStore", trustStore);
+			Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
+
+			String password = configuration.getString("security", "storepass");
+			String trustStorePath;
+
+			if (DirectoryLayout.getInstance().getType() == DirectoryLayout.Type.CLIENT) {
+				trustStorePath = getClientTrustStore(configuration, password);
+			
+			} else {
+				//server
+				trustStorePath = configuration.getString("security", "server-truststore");				
+			}
+
+			if (trustStorePath != null) {					
+				// configure trust store
+				// this should be enough, but see comment about sslFactory above
+				System.setProperty("javax.net.ssl.keyStorePassword", password);
+				System.setProperty("javax.net.ssl.trustStore", trustStorePath);
+				
+				if (DirectoryLayout.getInstance().getType() == DirectoryLayout.Type.CLIENT) {
+					// init sslFactory (hides complaints about untrusted certificates
+					// when started with web-start)
+					KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+
+					try (FileInputStream inputStream = new FileInputStream(trustStorePath)) {
+						trustStore.load(inputStream, password.toCharArray());
+					}
+
+					TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+					tmf.init(trustStore);
+					SSLContext ctx = SSLContext.getInstance("TLS");
+					ctx.init(null, tmf.getTrustManagers(), null);
+					sslFactory = ctx.getSocketFactory();
+				}
+			}
+
+
+			if (!configuration.getBoolean("security", "verify-hostname")) {
+				// Accept all hostnames (do not try to match certificate hostname (CN) to observed hostname)
+				HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
+					@Override
+					public boolean verify(String hostname, SSLSession session) {
+						return true; 
+					}
+				});
+			}
+
+			initialised = true;
 		}
 	}
 
@@ -118,5 +165,20 @@ public class KeyAndTrustManager {
 		sslContextFactory.setKeyStorePassword(keyStorePassword);
 
 		return sslContextFactory;
+	}
+
+	/**
+	 * Make URLConnection to trust file broker's self-signed certificate also
+	 * when using web-start.
+	 * 
+	 * @param connection
+	 */
+	public static void configureSSL(URLConnection connection) {
+		// only in client config
+		if (sslFactory != null) {
+			if (connection instanceof HttpsURLConnection) {
+				((HttpsURLConnection)connection).setSSLSocketFactory(sslFactory);
+			}
+		}
 	}
 }
