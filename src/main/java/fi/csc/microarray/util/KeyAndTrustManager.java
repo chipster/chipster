@@ -102,7 +102,10 @@ public class KeyAndTrustManager {
 			
 			} else {
 				//server
-				trustStorePath = configuration.getString("security", "server-truststore");				
+				trustStorePath = configuration.getString("security", "server-truststore");
+				if ("".equals(trustStorePath)) {
+					trustStorePath = null;
+				}
 			}
 
 			if (trustStorePath != null) {					
