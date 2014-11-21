@@ -117,7 +117,7 @@ public class ConfigTool {
 			
 			// Check components to process
 			String[] components;
-			if ("all".equals(args[1])) {
+			if ("servers".equals(args[1])) {
 				components = componentDirsWithConfig;
 			} else {
 				components = new String[] { args[1] };
@@ -165,7 +165,7 @@ public class ConfigTool {
 				"    Set the value of entry with given name to given value. If the entry does not \n" + 
 				"    exist, it is created. Entry name follows pattern CATEGORY_NAME/ENTRY_NAME,\n" + 
 				"    such as comp/max-jobs. Component name is one of the available components, \n" + 
-				"    \"all\" to change all server components or \"client\"\n" + 
+				"    \"servers\" to change all server components or \"client\"\n" + 
 				"\n" + 
 				"  configure.sh edit [<component name> | all] remove entry-name\n" + 
 				"    Remove entry with given name completely. If the entry has default value, the\n" + 
