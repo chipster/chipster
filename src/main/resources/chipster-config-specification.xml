@@ -42,20 +42,24 @@
 
 	<configuration-module moduleId="security" description="encryption and authentication">
 
-		<entry entryKey="keystore" type="string" description="keystore file for SSL">
-			<value>${chipster_security_dir}/keystore.ks</value>
+		<entry entryKey="filebroker-keystore" type="string" description="filebroker keystore file for SSL">
+			<value>${chipster_security_dir}/filebroker.ks</value>
+		</entry>
+		
+		<entry entryKey="client-truststore" type="string" description="filename of the truststore, located on a webstart server next to configuration. Set empty string if server certificates are signed by some default Java CA. Default for self-signed certificate: client.ts">
+			<value></value>
+		</entry>
+		
+		<entry entryKey="server-truststore" type="string" description="truststore file for SSL. Default for self-signed certificate: ${chipster_security_dir}/client.ts">
+			<value></value>
 		</entry>
 
-		<entry entryKey="master-keystore" type="string" description="bundled keystore for SSL (inside JAR)">
-			<value>/keystore.ks</value>
+		<entry entryKey="storepass" type="string" description="keystore password for SSL">
+			<value>password</value>
 		</entry>
-
-		<entry entryKey="keypass" type="string" description="keystore password for SSL">
-			<value>microarray</value>
-		</entry>
-
-		<entry entryKey="keyalias" type="string" description="alias of key to be used for SSL">
-			<value>microarray</value>
+		
+		<entry entryKey="verify-hostname" type="boolean" description="enable SSL hostname verification. Default for self-signed certificate: false">
+			<value>true</value>
 		</entry>
 
 		<entry entryKey="username" type="string" mustBeSet="true" description="username for authenticating connection to broker">
@@ -92,7 +96,7 @@
 		</entry>
 		
 		<entry entryKey="example-session-path" type="string" description="path to example session files'">
-			<value>example-session</value>
+			<value>example-sessions</value>
 		</entry>
 
 		<entry entryKey="public-path" type="string" description="path to public data files">

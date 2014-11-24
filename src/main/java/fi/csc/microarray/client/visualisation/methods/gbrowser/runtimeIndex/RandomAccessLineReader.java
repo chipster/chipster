@@ -137,19 +137,15 @@ public class RandomAccessLineReader {
 	private void fillBuffer() throws IOException {
 		
 		//System.out.println("FillbufferCount: " + fillBufferCount++);
-			
-		byte[] bytes = new byte[HTTP_BUFFER_SIZE];
-		
+					
 		if (buffer == null) {
 			buffer = "";
 		}
 		
 		long refillPosition = position + buffer.length();
-		
-		//The last parameter 'retry' should be disabled, because it's much more
-		//efficient to retry downloading only after buffer runs out. 
-		int length = byteDataSource.read(refillPosition, bytes, false);
-		buffer = buffer + new String(bytes, 0, length);		
+		 
+		byte[] bytes = byteDataSource.read(refillPosition, HTTP_BUFFER_SIZE);
+		buffer = buffer + new String(bytes);		
 		
 		//System.out.println("RandomAccessLineReader.fillBuffer() Position: " + position/1024/1024 + " MB \t Length: " + buffer.lastIndexOf("\n") + " bytes");
 	}

@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.LinkedList;
 
 import fi.csc.microarray.databeans.DataManager.ContentLocation;
+import fi.csc.microarray.util.KeyAndTrustManager;
 import fi.csc.microarray.util.UrlTransferUtil;
 
 public class RemoteContentHandler implements ContentHandler {
@@ -47,6 +48,7 @@ public class RemoteContentHandler implements ContentHandler {
 	public InputStream getInputStream(ContentLocation location) throws IOException {
 		checkCompatibility(location);
 		HttpURLConnection connection = (HttpURLConnection)location.getUrl().openConnection();
+		KeyAndTrustManager.configureSSL(connection);
 		return connection.getInputStream();
 	}
 

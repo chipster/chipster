@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -20,6 +21,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 import fi.csc.microarray.util.IOUtils;
+import fi.csc.microarray.util.KeyAndTrustManager;
 
 /**
  * 
@@ -31,7 +33,7 @@ import fi.csc.microarray.util.IOUtils;
  */
 public class AnnotationManager {
 	
-	private static final String ANNOTATIONS = "annotations";
+	private static final String ANNOTATIONS = "genomebrowser";
 
 	private static final Logger logger = Logger.getLogger(AnnotationManager.class);
 	
@@ -350,8 +352,10 @@ public class AnnotationManager {
 	private void parseGenomeInfo(URL file, String species, String version) {
 			
 		try {
-			Yaml yaml = new Yaml(new Constructor(GenomeInfo.class));		
-			GenomeInfo info = (GenomeInfo) yaml.load(file.openStream());
+			Yaml yaml = new Yaml(new Constructor(GenomeInfo.class));
+			URLConnection connection = file.openConnection();
+			KeyAndTrustManager.configureSSL(connection);
+			GenomeInfo info = (GenomeInfo) yaml.load(connection.getInputStream());
 			
 			if (info != null) {
 				
@@ -577,7 +581,9 @@ public class AnnotationManager {
 		
 		InputStream in = null;
 		try {
-			in = annotation.url.openStream();
+			URLConnection connection = annotation.url.openConnection();
+			KeyAndTrustManager.configureSSL(connection);
+			in = connection.getInputStream();
 			IOUtils.copy(in, localFile);
 		} finally {
 			IOUtils.closeIfPossible(in);

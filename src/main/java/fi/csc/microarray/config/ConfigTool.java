@@ -117,7 +117,7 @@ public class ConfigTool {
 			
 			// Check components to process
 			String[] components;
-			if ("all".equals(args[1])) {
+			if ("servers".equals(args[1])) {
 				components = componentDirsWithConfig;
 			} else {
 				components = new String[] { args[1] };
@@ -164,8 +164,8 @@ public class ConfigTool {
 				"    management and installation tools.\n" + 
 				"    Set the value of entry with given name to given value. If the entry does not \n" + 
 				"    exist, it is created. Entry name follows pattern CATEGORY_NAME/ENTRY_NAME,\n" + 
-				"    such as comp/max-jobs. Component name is one of the available components or \n" + 
-				"    \"all\" to change all components.\n" + 
+				"    such as comp/max-jobs. Component name is one of the available components, \n" + 
+				"    \"servers\" to change all server components or \"client\"\n" + 
 				"\n" + 
 				"  configure.sh edit [<component name> | all] remove entry-name\n" + 
 				"    Remove entry with given name completely. If the entry has default value, the\n" + 
@@ -357,7 +357,12 @@ public class ConfigTool {
 
 			// Collect changes for each config file
 			for (String component : components) {
-				File configFile = new File(component + File.separator + DirectoryLayout.CONF_DIR + File.separator + Configuration.CONFIG_FILENAME);
+				File configFile = null;
+				if ("client".equals(component)) {
+					configFile = getClientConfigFile();
+				} else {
+					configFile = new File(component + File.separator + DirectoryLayout.CONF_DIR + File.separator + Configuration.CONFIG_FILENAME);
+				}
 				Document doc = openXmlForUpdating("Chipster", configFile, true);
 
 				String[] nameParts = entryName.split("/");
@@ -408,7 +413,7 @@ public class ConfigTool {
 				updateChipsterConfigFile(configFile, true);
 			}
 		}
-		File wsClientConfigFile = new File("webstart" + File.separator + DirectoryLayout.WEB_ROOT + File.separator + Configuration.CONFIG_FILENAME);
+		File wsClientConfigFile = getClientConfigFile();
 		if (wsClientConfigFile.exists()) {
 			updateChipsterConfigFile(wsClientConfigFile, false);
 		}
@@ -430,6 +435,10 @@ public class ConfigTool {
 		if (cliConfigFile.exists()) {
 			updateCliClientConfigFile(cliConfigFile);
 		}
+	}
+
+	private File getClientConfigFile() {
+		return new File("webstart" + File.separator + DirectoryLayout.WEB_ROOT + File.separator + Configuration.CONFIG_FILENAME);
 	}
 
 	private void updateActivemqConfigFile(File configFile) throws Exception {
