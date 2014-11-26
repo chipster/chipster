@@ -126,6 +126,7 @@ while [ -d "$BACKUPDIR_PATH" ] ; do
   BACKUPDIR_PATH=/tmp/$TIMESTAMP-$RANDOM
 done
 mkdir ${BACKUPDIR_PATH}
+chmod a+rwx ${BACKUPDIR_PATH} # both ubuntu and chipster need to be able to write here
 
 #######################################
 # VERSION SPECIFIC ENTRIES START HERE #
@@ -153,57 +154,57 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   cd ${CHIP_PATH}/
   
   # Get install package (override, if exists)
-  rm -f chipster-$LATEST_VERSION.tar.gz
-    wget http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/versions/$LATEST_VERSION/chipster-$LATEST_VERSION.tar.gz
+  sudo rm -f chipster-$LATEST_VERSION.tar.gz
+  sudo -u chipster wget http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/versions/$LATEST_VERSION/chipster-$LATEST_VERSION.tar.gz
 
   # Unpack libs
-    echo "** Updating Chipster libs: shared/libs"
-    mv shared ${BACKUPDIR_PATH}/
-    tar -C .. -xzf chipster-$LATEST_VERSION.tar.gz chipster/shared
+  echo "** Updating Chipster libs: shared/libs"
+  sudo -u mv shared ${BACKUPDIR_PATH}/
+  sudo -u chipster tar -C .. -xzf chipster-$LATEST_VERSION.tar.gz chipster/shared
 
   # Unpack webstat web-root including client jar
-    echo "** Updating Chipster web: webstart/web-root"
-    cp webstart/web-root/chipster.jnlp ${BACKUPDIR_PATH}/
-    cp webstart/web-root/chipster-config.xml ${BACKUPDIR_PATH}/
-    mv webstart/web-root ${BACKUPDIR_PATH}/
-    tar -C .. -xzf chipster-$LATEST_VERSION.tar.gz chipster/webstart/web-root
-    cp ${BACKUPDIR_PATH}/chipster.jnlp webstart/web-root/ 
-    cp ${BACKUPDIR_PATH}/chipster-config.xml webstart/web-root/ 
+  echo "** Updating Chipster web: webstart/web-root"
+  sudo -u chipster cp webstart/web-root/chipster.jnlp ${BACKUPDIR_PATH}/
+  sudo -u chipster cp webstart/web-root/chipster-config.xml ${BACKUPDIR_PATH}/
+  sudo -u chipster mv webstart/web-root ${BACKUPDIR_PATH}/
+  sudo -u chipster tar -C .. -xzf chipster-$LATEST_VERSION.tar.gz chipster/webstart/web-root
+  sudo -u chipster cp ${BACKUPDIR_PATH}/chipster.jnlp webstart/web-root/ 
+  sudo -u chipster cp ${BACKUPDIR_PATH}/chipster-config.xml webstart/web-root/ 
 
   # Copy away tool scripts in case there were important local changes
-    cp -r comp/modules ${BACKUPDIR_PATH}/
+  sudo -u chipster cp -r comp/modules ${BACKUPDIR_PATH}/
 
   # Unpack bundle tool
-    echo "** Updating Chipster genome bundle tool"
-    tar -C .. --overwrite -xzf chipster-$LATEST_VERSION.tar.gz chipster/bundle.py
+  echo "** Updating Chipster genome bundle tool"
+  sudo -u chipster tar -C .. --overwrite -xzf chipster-$LATEST_VERSION.tar.gz chipster/bundle.py
 
   # Unpack tool scripts
-    echo "** Updating Chipster tool scripts: comp/modules"
-    tar -C .. --overwrite -xzf chipster-$LATEST_VERSION.tar.gz chipster/comp/modules
+  echo "** Updating Chipster tool scripts: comp/modules"
+  sudo -u chipster tar -C .. --overwrite -xzf chipster-$LATEST_VERSION.tar.gz chipster/comp/modules
 
   # Update runtimes.xml
   echo "** Updating Chipster runtimes: comp/conf/runtimes.xml"
-  cp -r comp/conf/runtimes.xml ${BACKUPDIR_PATH}/
-  tar -C .. --overwrite -xzf chipster-$LATEST_VERSION.tar.gz chipster/comp/conf/runtimes.xml
+  sudo -u chipster cp -r comp/conf/runtimes.xml ${BACKUPDIR_PATH}/
+  sudo -u chipster tar -C .. --overwrite -xzf chipster-$LATEST_VERSION.tar.gz chipster/comp/conf/runtimes.xml
 
   # Update webapps
-  rm -rf webstart/webapps
-  tar -C .. -xzf chipster-$LATEST_VERSION.tar.gz chipster/webstart/webapps/tool-editor.war
-  rm -rf manager/webapps
-  tar -C .. -xzf chipster-$LATEST_VERSION.tar.gz chipster/manager/webapps/admin-web.war
+  sudo -u chipster rm -rf webstart/webapps
+  sudo -u chipster tar -C .. -xzf chipster-$LATEST_VERSION.tar.gz chipster/webstart/webapps/tool-editor.war
+  sudo -u chipster rm -rf manager/webapps
+  sudo -u chipster tar -C .. -xzf chipster-$LATEST_VERSION.tar.gz chipster/manager/webapps/admin-web.war
 
   # Clean up
-  rm chipster-$LATEST_VERSION.tar.gz
+  sudo -u chipster rm chipster-$LATEST_VERSION.tar.gz
 fi
 
 # Remove temp dir
-rm -rf ${TMPDIR_PATH}/
+rm -rf ${TMPDIR_PATH}
 
 # Bundle
 function update_bundles()
 {
   echo "** Updating genome bundles"
-  wget -q http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bundle/bundles.yaml -O bundles.yaml
+  sudo -u chipster wget -q http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bundle/bundles.yaml -O bundles.yaml
   python3 bundle.py update installed -q
 }
 

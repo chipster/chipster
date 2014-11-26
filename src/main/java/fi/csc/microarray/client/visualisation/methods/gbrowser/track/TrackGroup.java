@@ -1,11 +1,11 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -33,7 +33,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.ScrollGroup;
  * @author Rimvydas Naktinis, Petri Klemelä
  *
  */
-public class TrackGroup implements ActionListener {
+public class TrackGroup implements ActionListener, LayoutChild, LayoutParent {
 	
 	JPanel component = new JPanel();
     
@@ -236,7 +236,6 @@ public class TrackGroup implements ActionListener {
 	}
 
 	public void updateLayout() {
-		trackLayer.removeAll();
 		
 		if (isSettingsEnabled()) {
 			initSettingsIfNecesasry();
@@ -245,27 +244,23 @@ public class TrackGroup implements ActionListener {
 			settingsPanelInitialized = false;
 		}
 		
+		ArrayList<Track> visibleTracks = new ArrayList<>();
+		
 		for (Track track : tracks) {
-			
-			if (track.isVisible() && track.isSuitableViewLength()) {	        	
-
-				Component trackComponent = track.getComponent();	        
-				LayoutMode mode = track.getLayoutMode();
-
-				if (LayoutMode.FILL == mode) {
-					trackLayer.add(trackComponent, "grow");
-				} else {
-					trackLayer.add(trackComponent, "growx");
-				}	        	
-			}				
+				if (track.isVisible() && track.isSuitableViewLength()) {	        	
+					visibleTracks.add(track);
+				}			
 		}
+		
+		new LayoutUpdater<Track, TrackGroup>().update(visibleTracks, this);
+	
 		//component sizes may have changed
 		trackLayer.revalidate();
 		
 		updateButtons();
 	}
 
-	public JComponent getComponent() {
+	public JComponent getLayoutComponent() {
 		return component;
 	}
 	
@@ -301,5 +296,10 @@ public class TrackGroup implements ActionListener {
 
 	public void setScrollGroup(ScrollGroup scrollGroup) {
 		this.scrollGroup = scrollGroup;
+	}
+
+	@Override
+	public JComponent getLayoutContainer() {
+		return trackLayer;
 	}
 }

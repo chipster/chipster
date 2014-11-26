@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
@@ -32,6 +33,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.LayoutParent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.LayoutUpdater;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Track;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
 
@@ -42,7 +45,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
  * (e.g. Horizontal or Circular) require different drawing implementations.
  * 
  */
-public abstract class GBrowserView implements MouseListener, MouseMotionListener, MouseWheelListener { //, TooltipRequestProcessor {
+public abstract class GBrowserView implements MouseListener, MouseMotionListener, MouseWheelListener, LayoutParent { //, TooltipRequestProcessor {
 	
 	JPanel component = new JPanel() {			
 
@@ -76,7 +79,7 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 	public RegionDouble bpRegion;
 	public Region highlight;
 
-	public Collection<ScrollGroup> scrollGroups = new LinkedList<ScrollGroup>();
+	public List<ScrollGroup> scrollGroups = new LinkedList<ScrollGroup>();
 
 	private QueueManager queueManager;
 	private Point2D dragStartPoint;
@@ -313,18 +316,7 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 
 	protected void updateLayout() {
 		
-		component.removeAll();
-				
-		for (ScrollGroup group : scrollGroups) {
-			group.updateLayout();
-			
-	        LayoutMode mode = group.getLayoutMode();
-	        if (LayoutMode.FIXED == mode) {	        	
-	        	component.add(group.getComponent(), "growx, ");
-	        } else {
-	        	component.add(group.getComponent(), "grow");
-	        }		
-		}
+		new LayoutUpdater<ScrollGroup, GBrowserView>().update(scrollGroups, this);
 		
 //		printLayout();
 		
@@ -336,33 +328,34 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 	/**
 	 * Print layout settings for debugging
 	 */
-//	private void printLayout() {
-//		for (ScrollGroup group : scrollGroups) {
-//			if ("Samples".equals(group.getScrollGroupName()) || "Annotations".equals(group.getScrollGroupName())) {
-//				System.out.println(
-//						group.getScrollGroupName() + 
-//						"\tgetSize: " + group.getComponent().getHeight() +  
-//						"\tgetPreferredSize: " + group.getComponent().getPreferredSize().getHeight() + 
-//						"\tgetLayoutMode: " + group.getLayoutMode());
-//
-//				for (TrackGroup trackGroup : group.getTrackGroups()) {
-//					System.out.println(
-//							"\t" + trackGroup.getComponent().getName() + 
-//							"\tgetSize: " + trackGroup.getComponent().getSize().getHeight() + 
-//							"\tgetPreferredSize: " + trackGroup.getComponent().getPreferredSize().getHeight() + 
-//							"\tgetLayoutMode: " + trackGroup.getLayoutMode());
-//					
-//					for (Track track : trackGroup.getTracks()) {
-//						System.out.println(
-//								"\t\t" + track.getComponent().getName() + 
-//								"\tgetSize: " + track.getComponent().getSize().getHeight() + 
-//								"\tgetPreferredSize: " + track.getComponent().getPreferredSize().getHeight() + 
-//								"\tgetLayoutMode: " + track.getLayoutMode());					
-//					}
-//				}
-//			}
-//		}
-//	}
+	@SuppressWarnings("unused")
+	private void printLayout() {
+		for (ScrollGroup group : scrollGroups) {
+			if ("Samples".equals(group.getScrollGroupName()) || "Annotations".equals(group.getScrollGroupName())) {
+				System.out.println(
+						group.getScrollGroupName() + 
+						"\tgetSize: " + group.getLayoutComponent().getHeight() +  
+						"\tgetPreferredSize: " + group.getLayoutComponent().getPreferredSize().getHeight() + 
+						"\tgetLayoutMode: " + group.getLayoutMode());
+
+				for (TrackGroup trackGroup : group.getTrackGroups()) {
+					System.out.println(
+							"\t" + trackGroup.getLayoutComponent().getName() + 
+							"\tgetSize: " + trackGroup.getLayoutComponent().getSize().getHeight() + 
+							"\tgetPreferredSize: " + trackGroup.getLayoutComponent().getPreferredSize().getHeight() + 
+							"\tgetLayoutMode: " + trackGroup.getLayoutMode());
+					
+					for (Track track : trackGroup.getTracks()) {
+						System.out.println(
+								"\t\t" + track.getLayoutComponent().getName() + 
+								"\tgetSize: " + track.getLayoutComponent().getSize().getHeight() + 
+								"\tgetPreferredSize: " + track.getLayoutComponent().getPreferredSize().getHeight() + 
+								"\tgetLayoutMode: " + track.getLayoutMode());					
+					}
+				}
+			}
+		}
+	}
 
 	public RegionDouble getBpRegionDouble() {
 		return bpRegion;
@@ -439,7 +432,7 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 		}
 	}
 
-	public void mouseDragged(MouseEvent e) {	
+	public void mouseDragged(MouseEvent e) {
 		
 		if (movable && dragStartPoint != null) {
 
@@ -769,5 +762,10 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 			groups.addAll(scrollGroup.getTrackGroups());
 		}
 		return groups;
+	}
+	
+	@Override
+	public JComponent getLayoutContainer() {
+		return component;
 	}
 }
