@@ -39,7 +39,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.Data
  * Single track inside a {@link GBrowserView}. Typically multiple instances
  * are used to construct a TrackGroup what user perceives as a track. 
  */
-public abstract class Track implements DataResultListener, MouseListener {
+public abstract class Track implements DataResultListener, MouseListener, LayoutChild {
 	
 	private JComponent component = new JComponent() {
 
@@ -50,7 +50,7 @@ public abstract class Track implements DataResultListener, MouseListener {
 			
 			printTime(null);
 			
-			//super.paintComponent(g);
+//			super.paintComponent(g);
 			
 			Graphics2D g2 = (Graphics2D) g;
 			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
@@ -364,8 +364,8 @@ public abstract class Track implements DataResultListener, MouseListener {
 		this.fullHeight = maxY;
 		
 		//Repaint until the fullHeigth doesn't change
-		if (this.fullHeight != getComponent().getHeight()) {
-			getComponent().revalidate();	
+		if (this.fullHeight != getLayoutComponent().getHeight()) {
+			getLayoutComponent().revalidate();	
 		}
 	}
 
@@ -424,7 +424,7 @@ public abstract class Track implements DataResultListener, MouseListener {
 		return component.isVisible();
 	}
 
-	public JComponent getComponent() {
+	public JComponent getLayoutComponent() {
 		return component;
 	}
 
@@ -508,7 +508,7 @@ public abstract class Track implements DataResultListener, MouseListener {
 	 */
 	private int convertGraphicsCoordinateToTrack(int y) {
 		
-		int height = getComponent().getHeight();
+		int height = getLayoutComponent().getHeight();
 		
 		return height - y;
 	}
@@ -544,7 +544,7 @@ public abstract class Track implements DataResultListener, MouseListener {
 	}
 
 	public int getVisibleWidth() {
-		JScrollBar bar = getTrackGroup().getScrollGroup().getComponent().getVerticalScrollBar();
+		JScrollBar bar = getTrackGroup().getScrollGroup().getLayoutComponent().getVerticalScrollBar();
 		int width = view.getWidth();
 	
 		if (bar.isVisible()) {
@@ -552,5 +552,9 @@ public abstract class Track implements DataResultListener, MouseListener {
 		} else {
 			return width;
 		}
+	}
+	
+	public void updateLayout() {
+		// There is no child components, nothing to update
 	}
 }
