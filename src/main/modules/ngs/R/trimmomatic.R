@@ -22,6 +22,7 @@
 
 # AMS 2014.04.08
 # MK, 2014.12.05, corrected typo: avqual => avgqual. Corrected bug in initialisation of adapter.file parameter
+# AMS 2014.11.27, corrected bug: trimmomatic was always run in SE mode
 
 # Check out if the files are compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
@@ -34,7 +35,7 @@ trimmomatic.binary <- c(file.path(chipster.tools.path, "trimmomatic", "trimmomat
 
 # Parameters
 trim.params <- paste("")
-if (file.exists("reads2.fq")){
+if (file.exists("reads2.fastaq")){
 	# Paired end reads
 	trim.params <- paste(trim.params, "PE")
 	trim.params <- paste(trim.params, "-threads", chipster.threads.max)
