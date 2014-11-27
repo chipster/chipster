@@ -92,7 +92,7 @@ if [ $CURRENT_COMPARED -gt 0 ] ; then
   exit 1
 fi
 if [ $CURRENT_COMPARED -eq 0 ] ; then 
-  echo "Already at latest version, nothing needs to be updated"
+  echo "Already at the latest version, nothing needs to be updated"
   exit
 fi
 echo "Will update to version $LATEST_VERSION"
