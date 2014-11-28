@@ -1,9 +1,15 @@
 #!/bin/bash
 
 # Bootstrap script for updating Chipster installation.
-# Updates between minor versions, always to latest (e.g. 2.0.1 -> 2.0.4, if 2.0.4 was latest 2.0.x).
 # This script only downloads the actual update script, allowing the update mechanism to be updated also.
- 
+
+echo ""
+echo "Some parts of the update may need root privileges. These parts are run using sudo."
+echo "Testing permission to use sudo..."
+if [ "$(sudo whoami)" != 'root' ]; then echo 'You need sudo rights to run the update script, aborting.'; 
+exit 1; fi
+echo "Sudo ok"
+echo ""
 
 # Update file web location and name
 UPDATE_URL_PREFIX=http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/virtual_machines/updates
@@ -16,21 +22,21 @@ MAIN_UPDATE_FILE_URL=$UPDATE_URL_PREFIX/$CHIPSTER_MAJOR_VERSION/$MAIN_UPDATE_FIL
 
 # Remove old update file, if exists
 if [ -e $MAIN_UPDATE_FILE ]; then
-rm $MAIN_UPDATE_FILE
+  sudo rm $MAIN_UPDATE_FILE
 fi
 
 # Download latest update file
-wget -q $MAIN_UPDATE_FILE_URL
+sudo wget -q $MAIN_UPDATE_FILE_URL
 
 # Check if download was ok
 if [ -e $MAIN_UPDATE_FILE ]; then
 
 	# Run update
-	chmod u+x $MAIN_UPDATE_FILE
-	./$MAIN_UPDATE_FILE
+	sudo chmod a+x $MAIN_UPDATE_FILE
+	sudo -u ubuntu ./$MAIN_UPDATE_FILE
 	
 	# Clean up
-	rm $MAIN_UPDATE_FILE
+	sudo rm $MAIN_UPDATE_FILE
 	
 	exit 0
 
