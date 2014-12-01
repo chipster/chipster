@@ -159,7 +159,7 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
 
   # Unpack libs
   echo "** Updating Chipster libs: shared/libs"
-  sudo -u mv shared ${BACKUPDIR_PATH}/
+  sudo -u chipster mv shared ${BACKUPDIR_PATH}/
   sudo -u chipster tar -C .. -xzf chipster-$LATEST_VERSION.tar.gz chipster/shared
 
   # Unpack webstat web-root including client jar
