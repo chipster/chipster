@@ -94,6 +94,8 @@ public class CliClient {
 	private static final String OPT_QUIET = "quiet";
 	private static final String OPT_YAML = "yaml";
 	private static final String OPT_WORKING_COPY = "working-copy";
+	private static final String OPT_LOCAL = "local";
+	private static final String OPT_CLOUD = "cloud";
 	
 	private static final String CMD_INTERACTIVE = "interactive";
 	private static final String CMD_EXIT = "exit";
@@ -232,11 +234,11 @@ public class CliClient {
         runWorkflow.addArgument(ARG_FILE).help("run workflow of this file").required(true);
         runWorkflow.addArgument(ARG_DATASET).help("start running from this dataset").required(true);
         
-        addCommand(subparsers, CMD_OPEN_SESSION, "open zip session or cloud session", ARG_SESSION);
-        addCommand(subparsers, CMD_SAVE_SESSION, "save zip session or cloud session", ARG_SESSION);
+        addCommand(subparsers, CMD_OPEN_SESSION, "open zip session or cloud session", ARG_SESSION, OPT_CLOUD, OPT_LOCAL);
+        addCommand(subparsers, CMD_SAVE_SESSION, "save zip session or cloud session", ARG_SESSION, OPT_CLOUD, OPT_LOCAL);
         addCommand(subparsers, CMD_CLEAR_SESSION, "delete all datasets of the working copy session");
         addCommand(subparsers, CMD_LIST_SESSIONS, "list cloud sessions");
-        addCommand(subparsers, CMD_DELETE_SESSION, "delete cloud session", ARG_SESSION);
+        addCommand(subparsers, CMD_DELETE_SESSION, "delete cloud session", ARG_SESSION, OPT_CLOUD, OPT_LOCAL);
         
         addCommand(subparsers, CMD_INTERACTIVE, "enter interactive mode");
         addCommand(subparsers, CMD_EXIT, "quit interactive mode").aliases("quit");
@@ -295,7 +297,11 @@ public class CliClient {
 	}
 	
 	private boolean isBooleanOption(String option) {
-		return nameSpace.getBoolean(option);
+		Boolean value = nameSpace.getBoolean(option);
+		if (value != null) {
+			return value;
+		}
+		return false;
 	}
 	
 	private boolean isStringOption(String option) {
@@ -314,6 +320,17 @@ public class CliClient {
 			String longOption, String help) {
 				
 		return parser.addArgument(shortOption, "--" + longOption).dest(longOption).help(help);
+	}
+	
+	private Subparser addCommand(Subparsers subparsers, String command,
+			String help, String argument, String... options) {
+		
+		Subparser subparser = addCommand(subparsers, command, help);
+		subparser.addArgument(argument);
+		for (String option : options) {
+			subparser.addArgument("--" + option).dest(option).action(new StoreTrueArgumentAction());
+		}
+		return subparser;
 	}
 
 	private Subparser addCommand(Subparsers subparsers, String command,
@@ -452,7 +469,7 @@ public class CliClient {
 		
 		String sessionName = nameSpace.getString(OPT_WORKING_COPY);
 		
-		if (isLocalSession(sessionName)) {
+		if (isLocalSession(sessionName, false)) {
 			File session = new File(sessionName);
 			if (session.exists()) {
 				// dataless session
@@ -472,7 +489,7 @@ public class CliClient {
 
 	private void openSession(String sessionName) throws UserErrorException, JMSException, Exception {
 						
-		if (isLocalSession(sessionName)) {
+		if (isLocalSession(sessionName, true)) {
 			File session = new File(sessionName);
 			if (session.exists()) {
 				app.getSessionManager().loadSessionAndWait(session, null, false, false, false);
@@ -492,12 +509,17 @@ public class CliClient {
 	}
 
 	private void deleteSession(String sessionName) throws JMSException, Exception {
-		String sessionId = getSessionId(sessionName);
-		app.getSessionManager().removeRemoteSession(sessionId);
+		if (isLocalSession(sessionName, true)) {
+			File session = new File(sessionName);
+			session.delete();
+		} else {
+			String sessionId = getSessionId(sessionName);
+			app.getSessionManager().removeRemoteSession(sessionId);
+		}
 	}
 
 	private void saveWorkingCopySession(String workingCopy) throws Exception {
-		if (isLocalSession(workingCopy)) {
+		if (isLocalSession(workingCopy, false)) {
 			app.getSessionManager().saveLightweightSession(new File(workingCopy));
 		} else {
 			saveSession(workingCopy);
@@ -505,7 +527,7 @@ public class CliClient {
 	}
 	
 	private void saveSession(String workingCopy) throws Exception {
-		if (isLocalSession(workingCopy)) {
+		if (isLocalSession(workingCopy, true)) {
 			app.getSessionManager().saveSessionAndWait(false, new File(workingCopy), null);
 		} else {
 			checkCloudConfiguration();
@@ -513,7 +535,14 @@ public class CliClient {
 		}
 	}
 
-	private boolean isLocalSession(String sessionName) {
+	private boolean isLocalSession(String sessionName, boolean enableOptions) {
+		if (enableOptions) {
+			if (isBooleanOption(OPT_CLOUD)) {
+				return false;
+			} else if (isBooleanOption(OPT_LOCAL)) {
+				return true;
+			}
+		}
 		return sessionName.endsWith(".zip");
 	}
 

@@ -13,6 +13,11 @@ public class Exceptions {
 		for (StackTraceElement element : throwable.getStackTrace()) {
 			trace += (element.toString() + "\n"); 
 		}
+		
+		if (throwable.getCause() != null) {
+			trace += "Caused by: ";
+			trace += getStackTrace(throwable.getCause());
+		}
 		return trace;
 	}
 }

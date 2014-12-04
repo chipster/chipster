@@ -114,6 +114,28 @@ function info_before_260()
 }
 
 
+# Note for Chipster 3.x
+echo ""
+echo "IMPORTANT!"
+echo ""
+echo "You are running Chipster 2.x while the latest Chipster is 3.x."
+echo ""
+echo "With this update script you can only update Chipster to the latest 2.x version."
+echo ""
+echo "It is highly recommended to get the Chipster 3.0, by downloading the new virtual machine from"
+echo "http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/virtual_machines/"
+echo ""
+echo "Continue with the update?"
+select yn in "Yes" "No"; do
+    case $yn in
+        Yes ) break;;
+        No )  exit;;
+    esac
+done
+echo ""
+
+
+
 # Make sure user has sudo rights
 echo ""
 echo "Some parts of the update may need root privileges. These parts are run using sudo."

@@ -39,7 +39,7 @@
     <typedef name="fatjar.filesource" classname="net.sf.fjep.anttask.FJFileSourceType" classpath="${fjepPath}" loaderref="lib.path.loader"/>
 
 	<!-- version numbering -->
-	<property name="release-version" value="3.1.0" />
+	<property name="release-version" value="3.1.1" />
 	<property name="release-jar" value="${dist}/chipster-${release-version}.jar" />
 	<property name="release-tar" value="${dist}/chipster-${release-version}.tar.gz" />
 	<property name="release-zip" value="${dist}/chipster-${release-version}.zip" />
@@ -291,8 +291,9 @@
 			<!-- config tool -->
 			<tarfileset file="${ext-src}/wrapper/configure.sh" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/genpasswd.sh" filemode="755" prefix="chipster" />
-			<tarfileset file="${admin-src}/vm/update.sh" filemode="755" prefix="chipster/admin/vm" />
-			<tarfileset file="${admin-src}/vm/bundle.py" filemode="755" prefix="chipster/" />
+			<tarfileset file="${ext-src}/wrapper/download-tools.sh" filemode="755" prefix="chipster" />
+			<tarfileset file="${admin-src}/vm/update.sh" filemode="755" prefix="chipster" />
+			<tarfileset file="${admin-src}/bundle/bundle.py" filemode="755" prefix="chipster/" />
 			
 			<!-- auth -->
 			<tarfileset file="${ext-src}/wrapper/auth/chipster-auth-generic" filemode="755" fullpath="chipster/auth/bin/chipster-auth" />

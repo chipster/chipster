@@ -9,6 +9,7 @@ import java.net.ProxySelector;
 import java.net.SocketAddress;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.zip.Deflater;
@@ -27,7 +28,9 @@ public class UrlTransferUtil {
 	private static final int CHUNK_SIZE = 2048;
 	
 	public static InputStream downloadStream(URL url) throws JMSException, IOException {
-		return url.openStream();		
+		URLConnection connection = url.openConnection();
+		KeyAndTrustManager.configureSSL(connection);
+		return connection.getInputStream();		
 	}
 
 	
@@ -148,6 +151,7 @@ public class UrlTransferUtil {
 
 	public static HttpURLConnection prepareForUpload(URL url) throws IOException {
 		HttpURLConnection connection = (HttpURLConnection)url.openConnection(); // should use openConnection(Proxy.NO_PROXY) if it actually worked
+		KeyAndTrustManager.configureSSL(connection);
 		connection.setRequestMethod("PUT");
 		connection.setDoOutput(true);
 		return connection;
@@ -156,6 +160,7 @@ public class UrlTransferUtil {
 	public static boolean isAccessible(URL url) throws IOException {
 		// check the URL
 		HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+		KeyAndTrustManager.configureSSL(connection);
 		connection.setConnectTimeout(HTTP_TIMEOUT_MILLISECONDS);
 		connection.connect() ; 
 		return connection.getResponseCode() == HttpURLConnection.HTTP_OK;
@@ -166,6 +171,7 @@ public class UrlTransferUtil {
 		HttpURLConnection connection = null;
 		try {
 			connection = (HttpURLConnection)url.openConnection();
+			KeyAndTrustManager.configureSSL(connection);
 			String lengthString = connection.getHeaderField("content-length");
 			if (lengthString != null) {
 				return Long.parseLong(lengthString);
