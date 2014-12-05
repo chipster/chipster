@@ -104,7 +104,6 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 
 	// synchronize with this object when accessing the job maps below
 	private Object jobsLock = new Object(); 
-	private LinkedHashMap<String, AnalysisJob> receivedJobs = new LinkedHashMap<String, AnalysisJob>();
 	private LinkedHashMap<String, AnalysisJob> scheduledJobs = new LinkedHashMap<String, AnalysisJob>();
 	private LinkedHashMap<String, AnalysisJob> runningJobs = new LinkedHashMap<String, AnalysisJob>();
 	private Timer timeoutTimer;
@@ -249,19 +248,12 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 					}
 				}
 				
-				// client chose some other as, forget this job
+				// client chose some other as, forget this job if we have it as scheduled
 				else {
 					logger.debug("Removing scheduled job " + jobId);
 					synchronized(jobsLock) {
-						AnalysisJob jobToBeForgotten = receivedJobs.remove(jobId);
-						
-						// job was in the receivedQueue
-						if (jobToBeForgotten != null) {
-							receivedJobs.remove(jobToBeForgotten);
-						} 
-						
-						// job was scheduled
-						else {
+
+						if (scheduledJobs.containsKey(jobId)) {
 							scheduledJobs.remove(jobId);
 							activeJobRemoved();
 						}
@@ -318,9 +310,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	private void cancelJob(String jobId, boolean reportToClient) {
 		AnalysisJob job;
 		synchronized(jobsLock) {
-			if (receivedJobs.containsKey(jobId)) {
-				job = receivedJobs.remove(jobId);
-			} else if (scheduledJobs.containsKey(jobId)) {
+			if (scheduledJobs.containsKey(jobId)) {
 				job = scheduledJobs.remove(jobId);
 			} else {
 				job = runningJobs.get(jobId);
@@ -374,7 +364,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	private void checkStopGracefully() {
 		if (stopGracefully) {
 			synchronized(jobsLock) {
-				if (this.receivedJobs.size() == 0 && this.scheduledJobs.size() == 0 && this.runningJobs.size() == 0) {
+				if (this.scheduledJobs.size() == 0 && this.runningJobs.size() == 0) {
 					shutdown();
 					System.exit(0);
 				}
@@ -468,14 +458,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 
 
 	private void activeJobRemoved() {
-		synchronized (jobsLock) {
-			if (!receivedJobs.isEmpty() && ((runningJobs.size() + scheduledJobs.size() < maxJobs))) {
-				AnalysisJob job = receivedJobs.values().iterator().next();
-				receivedJobs.remove(job.getId());
-				scheduleJob(job);
-			}
-			this.updateStatus();
-		}
+		this.updateStatus();
 	}
 	
 	private void receiveJob(JobMessage jobMessage) {
@@ -533,17 +516,9 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 				scheduleJob(job);
 			}
 			
-			// run later
+			// no slot to run it now, ignore it
 			else {
-				
-				receivedJobs.put(job.getId(), job);
-				// try to send the ack message
-				try {
-					sendAckMessage(job);
-				} catch (Exception e) {
-					receivedJobs.remove(job.getId());
-					logger.error("Could not send ACK for job " + job.getId());
-				}
+				return;
 			}
 		}
 		updateStatus();
@@ -589,20 +564,6 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		updateStatus();
 	}
 
-	
-	
-	
-	private void sendAckMessage(AnalysisJob job) throws JMSException {
-		// create ack message
-		CommandMessage offerMessage = new CommandMessage(CommandMessage.COMMAND_ACK);
-		offerMessage.addNamedParameter(ParameterMessage.PARAMETER_AS_ID, this.id);
-		offerMessage.addNamedParameter(ParameterMessage.PARAMETER_JOB_ID, job.getId());
-
-		// try to send the message
-		sendReplyMessage(job.getInputMessage(), offerMessage);
-
-	}
-	
 	private void sendOfferMessage(AnalysisJob job) throws JMSException {
 		// create offer message
 		CommandMessage offerMessage = new CommandMessage(CommandMessage.COMMAND_OFFER);
@@ -638,8 +599,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	
 	private void updateStatus() {
 		synchronized(jobsLock) {
-			loggerStatus.info("received jobs: " + receivedJobs.size() + 
-					", scheduled jobs: " + scheduledJobs.size() + 
+			loggerStatus.info("scheduled jobs: " + scheduledJobs.size() + 
 					", running jobs: " + runningJobs.size());
 		}
 	}
@@ -678,7 +638,6 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 					scheduledJobs.remove(job.getId());
 					logger.debug("Removing old scheduled job: " + job.getId());
 					activeJobRemoved();
-					logger.debug("Jobs received: " + receivedJobs.size() + ", scheduled: " + scheduledJobs.size() + ", running: " + runningJobs.size());
 				}
 			}
 		}
@@ -715,7 +674,6 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	
 	private synchronized ArrayList<AnalysisJob> getAllJobs() {
 		ArrayList<AnalysisJob> allJobs = new ArrayList<AnalysisJob>();
-		allJobs.addAll(receivedJobs.values());
 		allJobs.addAll(scheduledJobs.values());
 		allJobs.addAll(runningJobs.values());
 		return allJobs;
@@ -737,7 +695,6 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 					if (stopGracefully) {
 						reply.setStatus("Stopping gracefully...");
 					}
-					reply.setReceivedJobs(receivedJobs.size());
 					reply.setScheduledJobs(scheduledJobs.size());
 					reply.setRunningJobs(runningJobs.size());
 					reply.setHost(getHost());
