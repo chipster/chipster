@@ -7,7 +7,7 @@
 
 # Latest version, matching tar-packages must be available 
 ##
-LATEST_VERSION=3.1.0
+LATEST_VERSION=3.1.1
 R_VERSION=3.0.2
 
 # Exit immediately if some command fails
@@ -136,6 +136,12 @@ chmod a+rwx ${BACKUPDIR_PATH} # both ubuntu and chipster need to be able to writ
 
 # 3.1.0
 compare_to_current_and_latest "3.1.0"
+if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
+  echo ""
+fi
+
+# 3.1.1
+compare_to_current_and_latest "3.1.1"
 if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   echo ""
 fi
