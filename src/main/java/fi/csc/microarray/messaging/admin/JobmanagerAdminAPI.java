@@ -5,7 +5,6 @@ import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import javax.jms.JMSException;
@@ -17,13 +16,11 @@ import com.google.gson.reflect.TypeToken;
 
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.messaging.JsonMessageListener;
 import fi.csc.microarray.messaging.SuccessMessageListener;
-import fi.csc.microarray.messaging.TempTopicMessagingListenerBase;
 import fi.csc.microarray.messaging.Topics;
-import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.JobLogMessage;
-import fi.csc.microarray.messaging.message.JsonMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
 import fi.csc.microarray.messaging.message.SuccessMessage;
 
@@ -40,8 +37,47 @@ public class JobmanagerAdminAPI extends ServerAdminAPI {
 	}
 	
 	public HashMap<String, JobsEntry> queryRunningJobs() throws JMSException, InterruptedException, MicroarrayException {
-		return new RunningJobsMessageListener().query();
-	}
+		
+		JsonMessageListener replyListener = new JsonMessageListener();
+
+		CommandMessage request = new CommandMessage(CommandMessage.COMMAND_LIST_RUNNING_JOBS);								
+		getTopic().sendReplyableMessage(request, replyListener);				
+
+		String json = replyListener.waitForReply(TIMEOUT, TimeUnit.SECONDS);
+
+		// parse json if available
+		if (json != null) {
+			HashMap<String, JobsEntry> jobs = new HashMap<>();
+
+			// define parameterized type
+			Type listType = new TypeToken<List<HashMap<String, String>>>() {}.getType();
+			List<HashMap<String, String>> mapList = new Gson().fromJson(json, listType);										
+
+			for (HashMap<String, String> map : mapList) {
+				// originally comp sent this message as JobLogMessage
+				JobLogMessage msg = new JobLogMessage();
+				msg.fromMap(map);
+
+				// convert to JobsEntry
+				JobsEntry job = new JobsEntry();
+				job.setJobId(msg.getJobId());
+				String state = msg.getState().toString();
+				if (msg.getStateDetail() != null) {
+					state += " (" + msg.getStateDetail() + ")";
+				}
+				job.setStatus(state);
+				job.setStartTime(msg.getStartTime());
+				job.setCompHost(msg.getCompHost());
+				job.setOperation(msg.getOperation());
+				job.setUsername(msg.getUsername());				
+
+				jobs.put(msg.getJobId(), job); // remove duplicates, because all comps respond same waiting jobs
+			}					
+			return jobs;
+		} else {
+			throw new MicroarrayException("no response from jobmanager about running jobs");
+		}
+	}	
 
 	public void cancelJob(String jobId) throws MicroarrayException {
 		SuccessMessageListener replyListener = new SuccessMessageListener();  
@@ -58,63 +94,4 @@ public class JobmanagerAdminAPI extends ServerAdminAPI {
 			logger.error("cancel job failed", e);
 		}
 	}
-	
-	private class RunningJobsMessageListener extends TempTopicMessagingListenerBase {
-
-		private CountDownLatch latch = new CountDownLatch(1);
-		private String json = null;
-
-		public HashMap<String, JobsEntry> query() throws JMSException, InterruptedException, MicroarrayException {
-
-			try {				
-				CommandMessage request = new CommandMessage(CommandMessage.COMMAND_LIST_RUNNING_JOBS);								
-				getTopic().sendReplyableMessage(request, this);				
-				latch.await(TIMEOUT, TimeUnit.SECONDS);
-				
-				// parse json if available
-				if (json != null) {
-					HashMap<String, JobsEntry> jobs = new HashMap<>();
-					
-					// define parameterized type
-					Type listType = new TypeToken<List<HashMap<String, String>>>() {}.getType();
-					List<HashMap<String, String>> mapList = new Gson().fromJson(json, listType);										
-					
-					for (HashMap<String, String> map : mapList) {
-						// originally comp sent this message as JobLogMessage
-						JobLogMessage msg = new JobLogMessage();
-						msg.fromMap(map);
-						
-						// convert to JobsEntry
-						JobsEntry job = new JobsEntry();
-						job.setJobId(msg.getJobId());
-						String state = msg.getState().toString();
-						if (msg.getStateDetail() != null) {
-							state += " (" + msg.getStateDetail() + ")";
-						}
-						job.setStatus(state);
-						job.setStartTime(msg.getStartTime());
-						job.setCompHost(msg.getCompHost());
-						job.setOperation(msg.getOperation());
-						job.setUsername(msg.getUsername());				
-
-						jobs.put(msg.getJobId(), job); // remove duplicates, because all comps respond same waiting jobs
-					}					
-					return jobs;
-					
-				} else {					
-					throw new MicroarrayException("no response from jobmanager about running jobs");
-				}
-			} finally {
-				this.cleanUp();
-			}	
-		}		
-
-		public void onChipsterMessage(ChipsterMessage msg) {
-			
-			if (msg instanceof JsonMessage) {
-				JsonMessage jsonMessage = (JsonMessage) msg;
-				json = jsonMessage.getJson();
-			}						
-		}
-	}	
 }
