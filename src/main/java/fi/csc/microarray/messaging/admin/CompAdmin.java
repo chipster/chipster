@@ -14,7 +14,6 @@ import javax.jms.JMSException;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.messaging.admin.CompAdminAPI.JobsListener;
 import fi.csc.microarray.messaging.admin.ServerAdminAPI.StatusReportListener;
 import fi.csc.microarray.messaging.message.ServerStatusMessage;
 
@@ -54,7 +53,8 @@ public class CompAdmin {
 		}			
 	}
 
-	private CompAdminAPI api;
+	private CompAdminAPI compAPI;
+	private JobmanagerAdminAPI jobmanagerAPI;
 
 	private void execute(LinkedList<String> args) throws Exception {
 		String config = null;
@@ -118,7 +118,7 @@ public class CompAdmin {
 		
 		initConfig(config);
 		
-		api = new CompAdminAPI();
+		compAPI = new CompAdminAPI();
 		
 		if (wait != null) {
 			this.waitTime = wait;
@@ -140,7 +140,7 @@ public class CompAdmin {
 			stopGracefully(null);
 		}
 		
-		api.clean();
+		compAPI.clean();
 	}
 
 	private void initConfig(String arg) throws MalformedURLException, IOException, IllegalConfigurationException {
@@ -187,11 +187,11 @@ public class CompAdmin {
 
 	private void stopGracefully(String compId) throws Exception {
 		if (compId == null) {
-			List<ServerStatusMessage> comps = new CompList().getComps(api, waitTime);
+			List<ServerStatusMessage> comps = new CompList().getComps(compAPI, waitTime);
 			compId = comps.get(comps.size() - 1).getHostId();
 		}
 		
-		api.stopGracefullyComp(compId);
+		compAPI.stopGracefullyComp(compId);
 	}
 
 
@@ -201,7 +201,7 @@ public class CompAdmin {
 			System.out.println(ServerStatusMessage.getStringLineHeaders());
 		}
 		
-		List<ServerStatusMessage> comps = new CompList().getComps(api, waitTime);				
+		List<ServerStatusMessage> comps = new CompList().getComps(compAPI, waitTime);				
 		
 		
 		for (ServerStatusMessage status : comps) {						
@@ -226,14 +226,9 @@ public class CompAdmin {
 	
 	class JobList {
 		private Collection<JobsEntry> jobs;
-		private Collection<JobsEntry> getJobs(CompAdminAPI api, int wait) throws Exception {
-			jobs = new ArrayList<>();			
-			api.queryRunningJobs(new JobsListener() {
-				@Override
-				public void statusUpdated(Collection<JobsEntry> collection) {					
-					jobs = collection;					
-				}
-			});
+		private Collection<JobsEntry> getJobs(JobmanagerAdminAPI jobmanagerAPI, int wait) throws Exception {
+		
+			jobs = jobmanagerAPI.queryRunningJobs().values();
 			Thread.sleep(wait * 1000);
 			return jobs;
 		}
@@ -245,7 +240,7 @@ public class CompAdmin {
 			System.out.println(JobsEntry.getToStringHeaders());
 		}
 		
-		Collection<JobsEntry> jobs = new JobList().getJobs(api, waitTime);
+		Collection<JobsEntry> jobs = new JobList().getJobs(jobmanagerAPI, waitTime);
 		
 		for (JobsEntry job : jobs) {
 			System.out.println(job.toString());						
@@ -253,6 +248,6 @@ public class CompAdmin {
 	}
 	
 	private void cancelJob(String jobId) throws MicroarrayException, IOException, IllegalConfigurationException, JMSException {
-		api.cancelJob(jobId);
+		jobmanagerAPI.cancelJob(jobId);
 	}
 }

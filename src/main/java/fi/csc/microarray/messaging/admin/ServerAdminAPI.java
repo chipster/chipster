@@ -99,12 +99,17 @@ public class ServerAdminAPI {
 
 			latch = new CountDownLatch(1);
 
-			CommandMessage request = new CommandMessage(CommandMessage.COMMAND_GET_STATUS_REPORT);
+			try {
+				CommandMessage request = new CommandMessage(CommandMessage.COMMAND_GET_STATUS_REPORT);
 
-			getTopic().sendReplyableMessage(request, this);
-			latch.await(TIMEOUT, TIMEOUT_UNIT);
+				getTopic().sendReplyableMessage(request, this);
+				latch.await(TIMEOUT, TIMEOUT_UNIT);
 
-			return report;
+				return report;
+			} finally {
+				// close temp topic
+				this.cleanUp();
+			}
 		}
 
 
@@ -155,8 +160,12 @@ public class ServerAdminAPI {
 				
 				listener.statusUpdated(statuses);
 				
-			} finally {
-				mutex.unlock();
+			} finally {			
+				try {
+					this.cleanUp();
+				} finally {
+					mutex.unlock();
+				}
 			}
 		}
 	}
