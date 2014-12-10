@@ -334,8 +334,11 @@ public abstract class ClientApplication {
 
 		@Override
 		public void continueJobs(List<OperationRecord> unifinishedJobs) {
-			for (OperationRecord job : unifinishedJobs) {
-				continueOperation(job);
+			// unfinishedJobs is null in old sessions
+			if (unifinishedJobs != null) {
+				for (OperationRecord job : unifinishedJobs) {
+					continueOperation(job);
+				}
 			}
 		}		
 	}
