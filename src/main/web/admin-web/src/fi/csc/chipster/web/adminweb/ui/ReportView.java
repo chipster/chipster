@@ -25,8 +25,10 @@ public class ReportView extends AsynchronousView implements ClickListener {
 	protected static final int UPDATE_WAIT = 5; // seconds
 	private VerticalLayout filebrokerLayout = new VerticalLayout();
 	private VerticalLayout compLayout = new VerticalLayout();
+	private VerticalLayout jobmanagerLayout = new VerticalLayout();
 	private Label filebrokerLabel;
 	private Label compLabel;
+	private Label jobmanagerLabel;
 	
 	private TabSheet tabSheet;
 	
@@ -35,6 +37,7 @@ public class ReportView extends AsynchronousView implements ClickListener {
 	private ReportDataSource dataSource;
 
 	private ChipsterAdminUI app;
+
 	
 	public ReportView(ChipsterAdminUI app) {
 		
@@ -61,14 +64,16 @@ public class ReportView extends AsynchronousView implements ClickListener {
         this.setExpandRatio(tabSheet, 1);
 		this.setSizeFull();
 		
-		filebrokerLabel = new Label("waiting for status report...", ContentMode.PREFORMATTED);
-		filebrokerLabel.addStyleName("report-text");
-		compLabel = createReportLabel("waiting for status report..."); 			
+		filebrokerLabel = createReportLabel("waiting for status report...");
+		compLabel = createReportLabel("waiting for status report...");
+		jobmanagerLabel = createReportLabel("waiting for status report...");
 		
 		filebrokerLayout.addComponent(filebrokerLabel);
 		tabSheet.addTab(filebrokerLayout, "Filebroker");
 		compLayout.addComponent(compLabel);
-		tabSheet.addTab(compLayout, "Comp");        
+		tabSheet.addTab(compLayout, "Comp");
+		jobmanagerLayout.addComponent(jobmanagerLabel);
+		tabSheet.addTab(jobmanagerLayout, "Jobmanager");
 	}
 	
 	public void updateData() {
@@ -83,6 +88,10 @@ public class ReportView extends AsynchronousView implements ClickListener {
 
 		if (tabSheet.getSelectedTab() == compLayout) {
 			updateCompData();
+		}
+		
+		if (tabSheet.getSelectedTab() == jobmanagerLayout) {
+			updateJobmanagerData();
 		}
 	}
 	
@@ -106,6 +115,18 @@ public class ReportView extends AsynchronousView implements ClickListener {
 			@Override
 			public void run() {				
 				dataSource.updateFilebrokerReport(ReportView.this);
+			}			
+		});
+		
+	}
+	
+	private void updateJobmanagerData() {
+
+		super.submitUpdate(new Runnable() {
+			
+			@Override
+			public void run() {				
+				dataSource.updateJobmanagerReport(ReportView.this);
 			}			
 		});
 		
@@ -157,6 +178,10 @@ public class ReportView extends AsynchronousView implements ClickListener {
 	}
 	
 	public VerticalLayout getCompLayout() {
+		return compLayout;
+	}
+	
+	public VerticalLayout getJobmanagerLayout() {
 		return compLayout;
 	}
 }

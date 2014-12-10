@@ -8,13 +8,13 @@ import fi.csc.microarray.messaging.message.JsonMessage;
 
 public class JsonMessageListener extends TempTopicMessagingListenerBase {
 
-	private String value = null;
+	private JsonMessage value = null;
 	private CountDownLatch latch = new CountDownLatch(1);
 
 	public void onChipsterMessage(ChipsterMessage msg) {
 		if (msg instanceof JsonMessage) {
 			JsonMessage jsonMessage = (JsonMessage) msg;
-			this.value = jsonMessage.getJson();
+			this.value = jsonMessage;
 			latch.countDown();
 		}
 	}
@@ -25,7 +25,7 @@ public class JsonMessageListener extends TempTopicMessagingListenerBase {
 	 * @return null if no reply before timeout
 	 * @throws RuntimeException if interrupted
 	 */
-	public String waitForReply(long timeout, TimeUnit unit) {
+	public JsonMessage waitForReply(long timeout, TimeUnit unit) {
 		try {
 			latch.await(timeout, unit);
 		} catch (InterruptedException e) {

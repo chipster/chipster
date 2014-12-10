@@ -1,11 +1,17 @@
 package fi.csc.microarray.messaging.message;
 
+import java.util.HashMap;
+
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 public class JsonMessage extends ChipsterMessage {
 	
 	private final static String KEY_JSON = "json";
+	public static final String KEY_STATUS_REPORT = "status-report";
 	
 	private String value;
 	
@@ -30,5 +36,16 @@ public class JsonMessage extends ChipsterMessage {
 	public void marshal(MapMessage mapMessage) throws JMSException {
 		super.marshal(mapMessage);
 		mapMessage.setString(KEY_JSON, this.value);
+	}
+
+	public void setCommnad(String command) {
+		HashMap<String, String> jsonMap = new HashMap<>();
+		jsonMap.put("command", command);		
+		this.value = new Gson().toJson(jsonMap);
+	}
+	
+	public String getValue(String key) {
+		JsonObject jobj = new Gson().fromJson(this.value, JsonObject.class);
+		return jobj.get(key).toString();
 	}
 }

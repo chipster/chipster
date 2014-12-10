@@ -50,7 +50,9 @@ public class CommandMessage extends ParameterMessage {
 	public static final String COMMAND_GET_COMP_STATUS = "get-comp-status";
 	public static final String COMMAND_STOP_GRACEFULLY_COMP = "shutdown-comp";
 
-	public static final String COMMAND_GET_JOB = "get-job";	
+	public static final String COMMAND_GET_JOB = "get-job";
+
+	public static final String COMMAND_PURGE_OLD_JOBS = "purge-old-jobs";	
 	
 	private String command;
 	

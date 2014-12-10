@@ -17,12 +17,11 @@ import com.google.gson.reflect.TypeToken;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.JsonMessageListener;
-import fi.csc.microarray.messaging.SuccessMessageListener;
 import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.JobLogMessage;
+import fi.csc.microarray.messaging.message.JsonMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
-import fi.csc.microarray.messaging.message.SuccessMessage;
 
 public class JobmanagerAdminAPI extends ServerAdminAPI {
 		
@@ -43,10 +42,11 @@ public class JobmanagerAdminAPI extends ServerAdminAPI {
 		CommandMessage request = new CommandMessage(CommandMessage.COMMAND_LIST_RUNNING_JOBS);								
 		getTopic().sendReplyableMessage(request, replyListener);				
 
-		String json = replyListener.waitForReply(TIMEOUT, TimeUnit.SECONDS);
+		JsonMessage jsonMessage = replyListener.waitForReply(TIMEOUT, TimeUnit.SECONDS);
 
 		// parse json if available
-		if (json != null) {
+		if (jsonMessage != null) {
+			String json = jsonMessage.getJson();
 			HashMap<String, JobsEntry> jobs = new HashMap<>();
 
 			// define parameterized type
@@ -79,19 +79,23 @@ public class JobmanagerAdminAPI extends ServerAdminAPI {
 		}
 	}	
 
-	public void cancelJob(String jobId) throws MicroarrayException {
-		SuccessMessageListener replyListener = new SuccessMessageListener();  
+	public void cancelJob(String jobId) throws MicroarrayException { 
 				
 		try {
 			CommandMessage removeRequestMessage = new CommandMessage(CommandMessage.COMMAND_CANCEL);
 			removeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_JOB_ID, jobId); 
-			getTopic().sendReplyableMessage(removeRequestMessage, replyListener);
-
-			SuccessMessage reply = replyListener.waitForReply(TIMEOUT, TIMEOUT_UNIT);
-			
-			checkSuccessMessage(reply, "cancel job");
+			getTopic().sendMessage(removeRequestMessage);
 		} catch (JMSException e) {
 			logger.error("cancel job failed", e);
+		}
+	}
+
+	public void purge() {
+		try {
+			CommandMessage request = new CommandMessage(CommandMessage.COMMAND_PURGE_OLD_JOBS); 
+			getTopic().sendMessage(request);
+		} catch (JMSException e) {
+			logger.error("purge old jobs failed", e);
 		}
 	}
 }

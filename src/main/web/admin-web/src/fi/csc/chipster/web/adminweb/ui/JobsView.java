@@ -117,10 +117,10 @@ public class JobsView extends AsynchronousView implements ClickListener, ValueCh
 	public void cancel(JobsEntry job) {
 		try {
 			jobmanagerAdminAPI.cancelJob(job.getJobId());
+			table.removeItem(job);
 		} catch (MicroarrayException e) {
 			Notificationutil.showFailNotification(e.getClass().getSimpleName(), e.getMessage());
 		}
-		update();
 	}
 
 	public JobsTable getEntryTable() {

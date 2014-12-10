@@ -23,6 +23,7 @@ import fi.csc.microarray.messaging.TempTopicMessagingListenerBase;
 import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.CommandMessage;
+import fi.csc.microarray.messaging.message.JsonMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
 import fi.csc.microarray.messaging.message.ServerStatusMessage;
 import fi.csc.microarray.messaging.message.SuccessMessage;
@@ -114,8 +115,13 @@ public class ServerAdminAPI {
 
 
 		public void onChipsterMessage(ChipsterMessage msg) {
-			ParameterMessage resultMessage = (ParameterMessage) msg;
-			report = resultMessage.getNamedParameter(ParameterMessage.PARAMETER_STATUS_REPORT);
+			if (msg instanceof JsonMessage) {
+				JsonMessage jsonMessage = (JsonMessage)msg;
+				report = jsonMessage.getValue(JsonMessage.KEY_STATUS_REPORT);
+			} else if (msg instanceof ParameterMessage) {
+				ParameterMessage resultMessage = (ParameterMessage) msg;
+				report = resultMessage.getNamedParameter(ParameterMessage.PARAMETER_STATUS_REPORT);
+			}
 			latch.countDown();
 		}
 	}

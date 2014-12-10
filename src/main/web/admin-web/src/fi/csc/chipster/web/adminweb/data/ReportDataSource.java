@@ -21,6 +21,7 @@ import fi.csc.chipster.web.adminweb.ui.ReportView;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.admin.CompAdminAPI;
+import fi.csc.microarray.messaging.admin.JobmanagerAdminAPI;
 import fi.csc.microarray.messaging.admin.ServerAdminAPI;
 import fi.csc.microarray.messaging.admin.ServerAdminAPI.StatusReportListener;
 import fi.csc.microarray.messaging.admin.StorageAdminAPI;
@@ -32,6 +33,7 @@ public class ReportDataSource {
 	
 	private StorageAdminAPI storageAdminAPI;
 	private CompAdminAPI compAdminAPI;
+	private JobmanagerAdminAPI jobmanagerAdminAPI;
 	
 	public void updateFilebrokerReport(final ReportView view) {
 				
@@ -70,6 +72,13 @@ public class ReportDataSource {
 		}
 		return storageAdminAPI;
 	}
+	
+	private JobmanagerAdminAPI getJobmanagerAdminAPI() throws IOException, IllegalConfigurationException, MicroarrayException, JMSException {
+		if (jobmanagerAdminAPI == null) {
+			jobmanagerAdminAPI = new JobmanagerAdminAPI();
+		}
+		return jobmanagerAdminAPI;
+	}
 
 	public void updateCompReport(final ReportView view) {
 		
@@ -79,6 +88,47 @@ public class ReportDataSource {
 		} catch (JMSException | InterruptedException | IOException | IllegalConfigurationException | MicroarrayException e) {
 			logger.error("failed to update comp status reports", e);
 		}			
+	}
+	
+	public void updateJobmanagerReport(final ReportView view) {
+		
+		String report;
+		try {						
+			
+			report = getJobmanagerAdminAPI().getStatusReport();		
+
+			if (report != null) {
+				
+				VerticalLayout layout = view.getJobmanagerLayout();
+				//Following is null if data loading in this thread
+				//was faster than UI initialisation in another thread
+				if (layout.getUI() != null) {
+					Lock labelLock = layout.getUI().getSession().getLockInstance();
+					labelLock.lock();
+					try {
+						layout.removeAllComponents();
+
+						Button purgeButton = view.createReportButton("Stop gracefully");
+
+						purgeButton.addClickListener(new PurgeClickListener(view, ReportDataSource.this));
+
+						Label reportLabel = view.createReportLabel(report);
+						layout.addComponent(reportLabel);
+						layout.addComponent(purgeButton);
+
+					} finally {
+						labelLock.unlock();
+					}
+				}
+				
+			} else {
+				Notification.show("Timeout", "Chipster jobmanager server doesn't respond", Type.ERROR_MESSAGE);
+				logger.error("timeout while waiting status report");
+			}
+			
+		} catch (JMSException | IOException | IllegalConfigurationException | MicroarrayException | InterruptedException e) {
+			logger.error("failed to update storage status report", e);
+		}		
 	}
 	
 	private CompAdminAPI getCompAdminAPI() throws IOException, IllegalConfigurationException, MicroarrayException, JMSException {
@@ -147,6 +197,27 @@ public class ReportDataSource {
 		public void buttonClick(ClickEvent event) {
 			try {
 				reportDataSource.getCompAdminAPI().stopGracefullyComp(hostId);
+			} catch (IOException | IllegalConfigurationException | MicroarrayException | JMSException e) {
+				e.printStackTrace();
+			}
+			view.updateData();
+		}
+	}
+	
+	public static class PurgeClickListener implements ClickListener {
+
+		private ReportView view;
+		private ReportDataSource reportDataSource;
+
+		public PurgeClickListener(ReportView view, ReportDataSource reportDataSource) {
+			this.view = view;
+			this.reportDataSource = reportDataSource;
+		}
+
+		@Override
+		public void buttonClick(ClickEvent event) {
+			try {
+				reportDataSource.getJobmanagerAdminAPI().purge();
 			} catch (IOException | IllegalConfigurationException | MicroarrayException | JMSException e) {
 				e.printStackTrace();
 			}
