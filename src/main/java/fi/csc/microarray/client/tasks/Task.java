@@ -100,7 +100,6 @@ public class Task {
 	private String screenOutput;
 	private String sourceCode;
 	private ArrayList<DataBean> outputs = new ArrayList<>();
-	private boolean hasBeenRetried = false;
 	private boolean hidden = false;
 	
 	private List<TaskEventListener> listeners = new LinkedList<TaskEventListener>();
@@ -238,14 +237,6 @@ public class Task {
 	
 	public void changeId() {
 		this.id = generateId();
-	}
-
-	public boolean hasBeenRetried() {
-		return hasBeenRetried;
-	}
-
-	public void setHasBeenRetried(boolean hasBeenRetried) {
-		this.hasBeenRetried = hasBeenRetried;
 	}
 
 	public long getStartTime() {

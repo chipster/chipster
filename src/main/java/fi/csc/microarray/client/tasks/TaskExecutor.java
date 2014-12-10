@@ -13,7 +13,6 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
@@ -203,30 +202,6 @@ public class TaskExecutor {
 					case TIMEOUT:
 						// Task state TIMEOUT is reserved for communications timeout
 						taskFinished(State.FAILED, resultMessage.getStateDetail(), resultMessage);
-						break;
-					case RETRY:
-						if (!pendingTask.hasBeenRetried()) {
-							logger.debug("Resending job " + pendingTask.getId());
-
-							// change the id of the task to avoid analyser
-							// servers getting confused
-							pendingTask.changeId();
-
-							try {
-								resendJobMessage(pendingTask, resultMessage.getReplyTo());
-							} catch (Exception e) {
-								logger.error("Could not resend job " + pendingTask.getId(), e);
-								pendingTask.setErrorMessage(e.toString());
-								taskFinished(State.ERROR, "Resending job failed", null);
-							}
-							pendingTask.setHasBeenRetried(true);
-
-						} else {
-							logger.error("Not resending the job message for the second time " + pendingTask.getId());
-
-							pendingTask.setErrorMessage("Resending task failed.");
-							taskFinished(State.ERROR, "Retransferring data failed", null);
-						}
 						break;
 					default:
 						break;
@@ -726,20 +701,4 @@ public class TaskExecutor {
 		}).start();
 		logger.debug("Message cancel thread started.");
 	}
-
-	private void resendJobMessage(Task task, Destination replyTo) throws Exception {
-
-		JobMessage jobMessage = new JobMessage(task.getId(), task.getOperationID(), task.getParameters());
-		
-		for (DataBean bean : task.getInputDataBeans()) {
-			manager.uploadToCacheIfNeeded(bean, null); // no progress listening on resends
-			jobMessage.addPayload(bean.getName(), bean.getId());			
-		}
-				
-		jobMessage.setReplyTo(replyTo);
-
-		logger.debug("Retry replyTo is: " + jobMessage.getReplyTo());
-		requestTopic.sendMessage(jobMessage);
-
-	}	
 }
