@@ -188,7 +188,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		}
 		
 		if (url == null) {
-			throw new FileNotFoundException("file not found: " + dataId);
+			throw new FileNotFoundException("file not found or filebroker didn't respond: " + dataId);
 		}
 		
 		InputStream payload = null;
