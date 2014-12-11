@@ -33,10 +33,10 @@ public class JobLogTable extends Table {
 	}
 	
 	class WallClockColumnGenerator implements Table.ColumnGenerator {
-
+	
 		public Component generateCell(Table source, final Object itemId,
 				Object columnId) {
-
+			
 			Property<?> prop = source.getItem(itemId).getItemProperty(columnId);
 			if (prop != null && prop.getType() != null && prop.getType().equals(Integer.class)) {
 
