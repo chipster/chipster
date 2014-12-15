@@ -54,7 +54,7 @@ import fi.csc.microarray.util.UrlTransferUtil;
 public class JMSFileBrokerClient implements FileBrokerClient {
 	
 	private static final int SPACE_REQUEST_TIMEOUT = 300; // seconds
-	private static final int QUICK_POLL_OPERATION_TIMEOUT = 5; // seconds 
+	private static final int QUICK_POLL_OPERATION_TIMEOUT = 30; // seconds
 	private static final int MOVE_FROM_CACHE_TO_STORAGE_TIMEOUT = 24; // hours 
 	
 	private static final Logger logger = Logger.getLogger(JMSFileBrokerClient.class);
