@@ -8,6 +8,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -334,7 +335,16 @@ public class ActionChooserScreen implements ActionListener, DialogCloseListener 
 		// Check if there were any custom files
 		if (importSession.hasCustomFiles()) {
 			importSession.setUseSameDescriptions(sameSettingsCheckBox.isSelected());
-			((SwingClientApplication) Session.getSession().getApplication()).openImportTool(importSession);
+			try {
+				importSession.makeLocal(new Runnable() {
+					@Override
+					public void run() {
+						((SwingClientApplication) Session.getSession().getApplication()).openImportTool(importSession);
+					}				
+				});
+			} catch (IOException e) {
+				Session.getSession().getApplication().reportException(e);
+			}
 		}
 
 		// Close the frame

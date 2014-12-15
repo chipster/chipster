@@ -1480,11 +1480,8 @@ public class SwingClientApplication extends ClientApplication {
 	 */
 	public void openImportTool(ImportSession importSession) {
 		
-		// make ImportSession compatible with import tool
-		try {
-			importSession.makeLocal();
-		} catch (IOException e) {
-			reportException(e);
+		if (!importSession.isLocal()) {
+			throw new IllegalArgumentException("only local files supported in import tool");
 		}
 		
 		// fire up import tool
