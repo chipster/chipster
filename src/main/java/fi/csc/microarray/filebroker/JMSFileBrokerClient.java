@@ -12,6 +12,7 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
@@ -21,9 +22,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.zip.InflaterInputStream;
 
 import javax.jms.JMSException;
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLSession;
 
 import org.apache.log4j.Logger;
 
@@ -56,7 +54,7 @@ import fi.csc.microarray.util.UrlTransferUtil;
 public class JMSFileBrokerClient implements FileBrokerClient {
 	
 	private static final int SPACE_REQUEST_TIMEOUT = 300; // seconds
-	private static final int QUICK_POLL_OPERATION_TIMEOUT = 5; // seconds 
+	private static final int QUICK_POLL_OPERATION_TIMEOUT = 30; // seconds
 	private static final int MOVE_FROM_CACHE_TO_STORAGE_TIMEOUT = 24; // hours 
 	
 	private static final Logger logger = Logger.getLogger(JMSFileBrokerClient.class);
@@ -69,20 +67,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	private boolean useChecksums;
 	private String overridingFilebrokerIp;
 	
-	
-	static {
-		
-		// Accept all hostnames (do not try to match certificate hostname (CN) to observed hostname)
-		HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
-			@Override
-			public boolean verify(String hostname, SSLSession session) {
-				return true; 
-			}
-		});
-	}
-	
-	
-	public JMSFileBrokerClient(MessagingTopic urlTopic, String localFilebrokerPath, String overridingFilebrokerIp) throws JMSException, NoSuchAlgorithmException, CertificateException, FileNotFoundException, KeyStoreException, IOException {
+	public JMSFileBrokerClient(MessagingTopic urlTopic, String localFilebrokerPath, String overridingFilebrokerIp) throws JMSException, NoSuchAlgorithmException, CertificateException, FileNotFoundException, KeyStoreException, IOException, KeyManagementException {
 
 		this.filebrokerTopic = urlTopic;
 		
@@ -100,13 +85,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		this.useChecksums = DirectoryLayout.getInstance().getConfiguration().getBoolean("messaging", "use-checksums");
 
 		// Initialise keystore in case HTTPS connections are needed
-		KeyAndTrustManager.initialiseSystem(
-				DirectoryLayout.getInstance().getConfiguration().getString("security", "keystore"),
-				DirectoryLayout.getInstance().getConfiguration().getString("security", "keypass"), 
-				DirectoryLayout.getInstance().getConfiguration().getString("security", "keyalias"), 
-				DirectoryLayout.getInstance().getConfiguration().getString("security", "master-keystore")
-		);
-
+		KeyAndTrustManager.initialiseTrustStore();	
 	}
 	
 	public JMSFileBrokerClient(MessagingTopic urlTopic) throws Exception {
@@ -209,7 +188,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		}
 		
 		if (url == null) {
-			throw new FileNotFoundException("file not found: " + dataId);
+			throw new FileNotFoundException("file not found or filebroker didn't respond: " + dataId);
 		}
 		
 		InputStream payload = null;
@@ -219,6 +198,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 			// make sure http cache is disabled
 			connection = url.openConnection();
 			connection.setUseCaches(false);
+			KeyAndTrustManager.configureSSL(connection);			
 			connection.connect();
 
 			// open stream
@@ -564,7 +544,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		if (url != null && overridingFilebrokerIp != null) {
 			logger.debug("overriding filebroker ip: " + overridingFilebrokerIp);
 			url = new URL(url.getProtocol(), overridingFilebrokerIp, url.getPort(), url.getFile());						
-		}
+		}		
 		return url;
 	}
 

@@ -33,7 +33,7 @@ public class DirectoryLayout {
 	public static final String SECURITY_DIR = "security";
 	public static final String MODULES_DIR = "modules";
 	public static final String CONF_DIR = "conf";
-	public static final String LOCAL_ANNOTATION_DIR = "annotations";
+	public static final String LOCAL_ANNOTATION_DIR = "genomebrowser";
 	
 	public static final String WEB_ROOT = "web-root"; // TODO in future WEB_ROOT should be configurable (not easy because needs to be understood by Jetty)
 	public static final String WEB_APPS_DIR = "webapps"; 
@@ -346,5 +346,9 @@ public class DirectoryLayout {
 		if (availableConfiguration == AvailableConfiguration.NONE) {
 			throw new IllegalStateException("directory layout has no configuration");
 		}
+	}
+	
+	public Type getType() {
+		return type;
 	}
 }

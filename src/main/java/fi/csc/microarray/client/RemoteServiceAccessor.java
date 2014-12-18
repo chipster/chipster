@@ -35,7 +35,8 @@ public class RemoteServiceAccessor implements ServiceAccessor {
 	};
 	private Collection<ToolModule> modules = null;
 
-	public void initialise(DataManager manager, AuthenticationRequestListener authenticationRequestListener) throws Exception {
+	public void initialise(DataManager manager, AuthenticationRequestListener authenticationRequestListener) throws Exception {								
+		
 		endpoint = new JMSMessagingEndpoint(nodeSupport, authenticationRequestListener);
 		this.initialise(endpoint, 
 				manager, 

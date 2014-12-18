@@ -8,6 +8,7 @@ import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
+import fi.csc.microarray.util.KeyAndTrustManager;
 
 
 /**
@@ -38,7 +39,7 @@ public class LineDataSource extends DataSource {
 			if (reader == null) {
 
 				HttpURLConnection connection = (HttpURLConnection)url.openConnection();
-
+				KeyAndTrustManager.configureSSL(connection);
 				reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 			}
 		}

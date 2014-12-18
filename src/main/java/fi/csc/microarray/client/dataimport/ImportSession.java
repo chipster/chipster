@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.SwingUtilities;
+
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dataimport.ImportItem.Action;
 import fi.csc.microarray.databeans.ContentType;
@@ -64,16 +66,16 @@ public class ImportSession {
 		return items;
 	}
 	
-	public void makeLocal() throws IOException {
+	public void makeLocal(Runnable whenReady) throws IOException {
 
-		if (source != Source.FILE) {
+		if (!isLocal()) {
 			for (ImportItem item : items) {
 				Object input = item.getInput();
 				if (!(input instanceof File)) {
 					if (input instanceof URL) {
 						URL url = (URL)input;
 						File file = ImportUtils.createTempFile(ImportUtils.URLToFilename(url), ImportUtils.getExtension(ImportUtils.URLToFilename(url)));
-						ImportUtils.getURLFileLoader().loadFileFromURL(url, file, destinationFolder, skipActionChooser);
+						ImportUtils.getURLFileLoader().loadFileFromURL(url, file, destinationFolder, whenReady);
 						item.setInput(file);
 						
 					} else {
@@ -82,7 +84,9 @@ public class ImportSession {
 				}
 			}
 			source = Source.FILE;
-		}		
+		} else {		
+			SwingUtilities.invokeLater(whenReady);
+		}
 	}
 	
 	public List<ImportItem> getImportItems() {
@@ -142,5 +146,10 @@ public class ImportSession {
 
 	public boolean isSkipActionChooser() {
 		return skipActionChooser;
+	}
+
+
+	public boolean isLocal() {
+		return this.source == Source.FILE;
 	}
 }

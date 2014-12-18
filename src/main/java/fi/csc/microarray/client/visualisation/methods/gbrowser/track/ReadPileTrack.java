@@ -334,7 +334,7 @@ public class ReadPileTrack extends Track {
 								
 				maxHeight = MAX_FULL_HEIGHT;				
 			} else {
-				maxHeight = getLayer(getComponent().getHeight());				
+				maxHeight = getLayer(getLayoutComponent().getHeight());				
 			}
 			
 			// Check if we are about to go over the edge of the drawing area

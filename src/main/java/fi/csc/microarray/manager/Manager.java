@@ -112,6 +112,12 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 		"compHost VARCHAR(500)" +
 		");";
 	
+	private static final String CREATE_JOBS_INDEXES = 
+			"create index if not exists INDEX_ADMIN_WEB_STARTTIMEDESC_ID on JOBS(STARTTIME DESC, ID);" + 
+			"create index if not exists INDEX_ADMIN_WEB_USERNAME on JOBS(USERNAME);" + 
+			"create index if not exists INDEX_ADMIN_WEB_OPERATION on JOBS(OPERATION);" + 
+			"create index if not exists INDEX_ADMIN_WEB_STATUS on JOBS(STATUS);";
+	
 	/**
 	 * Used in admin-web statistics to ignore test accounts 
 	 */
@@ -176,6 +182,7 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 
 	    // create tables if they do not exist
 	    jdbcTemplate.execute(CREATE_JOBS_TABLE);
+	    jdbcTemplate.execute(CREATE_JOBS_INDEXES);
 	    jdbcTemplate.execute(CREATE_ACCOUNTS_TABLE);
 		
 	    // schedule backups

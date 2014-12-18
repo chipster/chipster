@@ -39,6 +39,7 @@ public class JobLogFilter extends HorizontalLayout {
 		this.view = view;
 
 		searchStringField = new TextField();
+		searchStringField.setDescription("Search for values starting with this string. Question mark (?) is a wildcard for a single character and asterisk (*) for any number of characters.");  
 		searchStringField.addShortcutListener(new ShortcutListener("Search", ShortcutAction.KeyCode.ENTER, null) {
 
 			@Override
@@ -89,14 +90,16 @@ public class JobLogFilter extends HorizontalLayout {
 
 	public ContainerFilter getContainerFilter() {
 		
-		if (searchStringField.getValue() == "") {
+		String search = (String) searchStringField.getValue();
+						
+		if (search == "") {
 			containerFilter = null;
 			
 		} else if (columnToSearch.getValue().equals(JobLogContainer.START_TIME) || columnToSearch.getValue().equals(JobLogContainer.END_TIME)) {
 
 			try {
 				containerFilter = new DateContainerFilter(
-						columnToSearch.getValue(), (String) searchStringField.getValue());
+						columnToSearch.getValue(), search);
 			} catch (NumberFormatException e) {
 				Notification.show(e.getMessage(), Notification.Type.WARNING_MESSAGE);
 				containerFilter = null;
@@ -106,16 +109,25 @@ public class JobLogFilter extends HorizontalLayout {
 
 			try {
 			containerFilter = new IdContainerFilter(
-					columnToSearch.getValue(), Integer.parseInt((String) searchStringField.getValue()));
+					columnToSearch.getValue(), Integer.parseInt(search));
 			
 			} catch (NumberFormatException e) {
 				Notification.show ("Search term "+ columnToSearch.getValue() + " must be numeric", Notification.Type.WARNING_MESSAGE);
 				containerFilter = null;
 			}
 		} else {
-
+			// replace familiar wildcards with SQL LIKE wildcards
+			search = search.replace("*", "%");
+			search = search.replace("?", "_");
+			
+			/*
+			 * Index is used only when the query is case sensitive and only
+			 * prefixes are matched. Users can still override the latter
+			 * restriction by adding a wildcard in the beginning, but then the
+			 * query will resort to a full table scan.
+			 */
 			containerFilter = new StringContainerFilter(
-					columnToSearch.getValue(), (String) searchStringField.getValue(), true, false);
+					columnToSearch.getValue(), search, false, true);
 		}
 
 		return containerFilter;

@@ -6,9 +6,14 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+
+import org.eclipse.jetty.util.IO;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
 import fi.csc.microarray.util.IOUtils;
+import fi.csc.microarray.util.KeyAndTrustManager;
 
 /**
  * Handler for data sources that are accessed directly, meaning that they do not
@@ -20,7 +25,8 @@ import fi.csc.microarray.util.IOUtils;
  */
 public class ByteDataSource extends DataSource {
 
-	private RandomAccessFile raFile;
+	private FileChannel fileChannel;
+	RandomAccessFile raFile;
 
 	private Long length = null;
 
@@ -29,33 +35,32 @@ public class ByteDataSource extends DataSource {
 		
 		if (file != null) { //Initialized by super constructor if file is local
 			raFile = new RandomAccessFile(file.getPath(), "r");
+			fileChannel = raFile.getChannel();
 		}
 	}
 	
-	public int read(long filePosition, byte[] bytes) throws IOException {
-		return read(filePosition, bytes, true);
-	}
-
 	/**
-	 * Method for getting a range from the file. When using url, we might not get very long ranges
-	 * (like one megabyte or so).
+	 * Method for getting a range from the file.
 	 * 
 	 * @param filePosition
-	 * @param bytes
-	 * @param retry Set true to do another requests when server doesn't send as meny bytes as requested, false
-	 * to try just ones.  
-	 * @return
+	 * @param length
+	 * @return array of bytes
 	 * @throws IOException
 	 */
-	public int read(long filePosition, byte[] bytes, boolean retry) throws IOException {       
+	public byte[] read(long filePosition, long length) throws IOException {
 
-		if (raFile != null) {
-			raFile.seek(filePosition);
-			return raFile.read(bytes);
+		if (fileChannel != null) {
+			InputStream in = Channels.newInputStream(fileChannel.position(filePosition));
+			try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+				
+				IO.copy(in, out, length);
+
+				return out.toByteArray();
+			}
 
 		} else {
 
-			long endFilePosition = filePosition + bytes.length;
+			long endFilePosition = filePosition + length - 1;
 
 			//Make sure that we won't make requests outside the file end   	        	        	
 			if (endFilePosition > length()) {
@@ -66,31 +71,16 @@ public class ByteDataSource extends DataSource {
 			try {
 
 				connection = (HttpURLConnection)url.openConnection();
+				KeyAndTrustManager.configureSSL(connection);
 				connection.setRequestProperty("Range", "bytes=" + filePosition + "-" + endFilePosition);
-				int byteCount = connection.getInputStream().read(bytes);
-
-				if (retry) {
-
-					/* reading seems to give only the beginning of the range (e.g. 24576 bytes) if 
-					 * too big range is requested. Here we try to read again the missing part of the 
-					 * range, recursively if needed. If we didn't get any bytes, there is probably no
-					 * point to continue.
-					 */
-
-					if (byteCount < endFilePosition - filePosition && byteCount != 0) {
-
-						byte[] nextBytes = new byte[(int) (endFilePosition - filePosition - byteCount)];
-
-						int nextLength = read(filePosition + byteCount, nextBytes);
-
-						for (int i = 0; i < nextLength; i++) {
-							bytes[byteCount + i] = nextBytes[i];
-						}
-					}
+				
+				try (InputStream in = connection.getInputStream();				
+				ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+					
+					IOUtils.copy(in, out);
+					return out.toByteArray();
 				}
-
-				return byteCount;
-
+				
 			} catch (IOException e) {
 				if(e.getMessage().contains("HTTP") && e.getMessage().contains(" 416 ")) {
 					//Requested Range Not Satisfiable
@@ -101,72 +91,31 @@ public class ByteDataSource extends DataSource {
 			} finally {
 				IOUtils.disconnectIfPossible(connection);
 			}
-		}   
-		return -1;   
+		}
+		return null;   
 	}
 
 	/**
 	 * Get all bytes from the file. Obviously this shouldn't be used for huge files, because
-	 * all the data is read to the RAM. The same data can be obtained with method read(), but
-	 * it seems to have difficulties with data sizes above a megabyte. 
+	 * all the data is read to the RAM. 
 	 * 
 	 * @return
 	 */
 	public byte[] readAll() throws IOException {
 
-		if (raFile != null) {
-
-			byte[] buf = null;
-
-			raFile.seek(0);				
-			buf = new byte[(int) raFile.length()];
-			raFile.read(buf);
-
-			return buf;
-
-		} else {
-
-			HttpURLConnection connection = null;    	
-			InputStream in = null;
-			ByteArrayOutputStream out = null;
-
-			try {
-				connection = (HttpURLConnection)url.openConnection();
-
-				in = connection.getInputStream();
-				out = new ByteArrayOutputStream();
-
-				IOUtils.copy(in, out);
-
-			} finally {
-
-				if (in != null) {
-					in.close();
-				}
-
-				if (out != null) {					
-					out.close();
-				}
-
-				IOUtils.disconnectIfPossible(connection);
-			}
-
-			if (out != null) {
-				return out.toByteArray();
-			} 
-			return null;
-		}
+		return read(0, length());
 	}
 
 	public long length() throws IOException {
 		if (length == null) {
-			if (raFile != null) {
-				length = raFile.length();
+			if (fileChannel != null) {
+				length = file.length();
 
 			} else {
 				HttpURLConnection connection = null;
 				try {
 					connection = (HttpURLConnection)url.openConnection();
+					KeyAndTrustManager.configureSSL(connection);
 					// connection.getContentLength() returns int, which is not enough
 					String string = connection.getHeaderField("content-length");
 					if (string == null) {
@@ -188,6 +137,7 @@ public class ByteDataSource extends DataSource {
 			} catch (IOException e) {
 				//No problem
 			}
+			fileChannel = null;
 			raFile = null;
 		}
 	}

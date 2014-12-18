@@ -8,11 +8,15 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import net.miginfocom.swing.MigLayout;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.LayoutMode;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.LayoutChild;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.LayoutParent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.LayoutUpdater;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Track;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
 
@@ -25,7 +29,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
  * 
  * @author klemela
  */
-public class ScrollGroup {
+public class ScrollGroup implements LayoutChild, LayoutParent {
 	
 	private JScrollPane component = new JScrollPane() {
 		@Override
@@ -161,19 +165,7 @@ public class ScrollGroup {
 
 	public void updateLayout() {
 		
-		canvas.removeAll();
-		
-		for (TrackGroup group : trackGroups) {
-			group.updateLayout();
-				        
-	        LayoutMode mode = group.getLayoutMode();
-	        
-	        if (LayoutMode.FIXED == mode) {
-	        	canvas.add(group.getComponent(), "growx");
-	        } else { //LayoutMode.FILL
-	        	canvas.add(group.getComponent(), "grow");
-	        }
-		}
+		new LayoutUpdater<TrackGroup, ScrollGroup>().update(trackGroups, this);
 		
 		//scroll pane canvas size may have changed
 		canvas.revalidate();
@@ -183,7 +175,7 @@ public class ScrollGroup {
 		return canvas;
 	}
 
-	public JScrollPane getComponent() {
+	public JScrollPane getLayoutComponent() {
 		return component;
 	}
 	
@@ -193,5 +185,10 @@ public class ScrollGroup {
 	
 	public void setView(GBrowserView view) {
 		this.view = view;
+	}
+
+	@Override
+	public JComponent getLayoutContainer() {
+		return canvas;
 	}
 }
