@@ -11,7 +11,6 @@ import java.util.TreeSet;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.RectDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot.ReadScale;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
@@ -40,11 +39,7 @@ public class CoverageEstimateTrack extends ScaleTrack {
 	public Collection<Drawable> getDrawables() {
 		Collection<Drawable> drawables = getEmptyDrawCollection();
 		
-		if (view.parentPlot.getReadScale() == ReadScale.AUTO) {
-			super.setMaxValue(getMaxTotalCoverage());
-		} else {
-			super.setMaxValue(view.parentPlot.getReadScale().numReads);
-		}
+		super.updateScale();
 		
 		// don't show scale because these are only estimates (but it is still used for scaling)
 		//drawables.addAll(getScaleDrawables());		
@@ -53,7 +48,7 @@ public class CoverageEstimateTrack extends ScaleTrack {
 		return drawables;
 	}
 		
-	private int getMaxTotalCoverage() {
+	public int getMaxTotalCoverage() {
 		float max = 0;
 		
 		for (Feature feature : values) {

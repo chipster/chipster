@@ -75,6 +75,14 @@ public class GBrowserPlot implements ActionListener, Printable {
         public String toString() {
             return name;
         }
+
+		public void set(int maxTotalCoverage) {
+			if (ReadScale.AUTO == this) {
+				numReads = maxTotalCoverage;
+			} else {
+				throw new IllegalStateException("scale change alllowed only for ReadScale.AUTO");
+			}
+		}
     }    
 
 	public GBrowserPlot(GBrowser browser, boolean horizontal, Region defaultLocation) {		

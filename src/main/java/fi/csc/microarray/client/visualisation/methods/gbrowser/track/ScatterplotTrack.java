@@ -130,5 +130,5 @@ public class ScatterplotTrack extends ScaleTrack {
     	} else {
         	addDataType(column);	
     	}
-	}	    
+	}		    
 }

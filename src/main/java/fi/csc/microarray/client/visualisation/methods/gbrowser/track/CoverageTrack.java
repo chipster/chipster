@@ -7,7 +7,6 @@ import java.util.TreeSet;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot.ReadScale;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
@@ -169,11 +168,7 @@ public class CoverageTrack extends ScaleTrack {
 	public Collection<Drawable> getDrawables() {
 		Collection<Drawable> drawables = getEmptyDrawCollection();
 		
-		if (view.parentPlot.getReadScale() == ReadScale.AUTO) {
-			super.setMaxValue(getMaxTotalCoverage());
-		} else {
-			super.setMaxValue(view.parentPlot.getReadScale().numReads);
-		}
+		super.updateScale();
 		
 		drawables.addAll(super.getScaleDrawables());		
 		drawables.addAll(getCoverageDrawables());
@@ -181,7 +176,7 @@ public class CoverageTrack extends ScaleTrack {
 		return drawables;
 	}
 
-	private int getMaxTotalCoverage() {
+	public int getMaxTotalCoverage() {
 		int max = 0;
 		
 		for (Base base : coverageStorage.getTotalBases().values()) {
