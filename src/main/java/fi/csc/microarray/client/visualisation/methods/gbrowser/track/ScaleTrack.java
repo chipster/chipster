@@ -123,17 +123,6 @@ public abstract class ScaleTrack extends Track {
 		return maxY;
 	}
 
-	public void updateScale() {
-		if (view.parentPlot.getReadScale() == ReadScale.AUTO) {
-			ReadScale auto = view.parentPlot.getReadScale();
-			int maxOfThisTrack = getMaxTotalCoverage();
-			if (maxOfThisTrack > auto.numReads) {
-				auto.set(maxOfThisTrack);
-			}
-		}
-		setMaxValue(view.parentPlot.getReadScale().numReads);
-	}
-
 	/**
 	 * Return current maxValue. Subclasses can override this and calculate a 
 	 * new maxValue from the current data.
@@ -142,5 +131,25 @@ public abstract class ScaleTrack extends Track {
 	 */
 	public int getMaxTotalCoverage() {
 		return (int) maxValue;
+	}
+	
+	public void updateScale() {
+		setMaxValue(view.parentPlot.getReadScale().numReads);
+	}
+	
+	@Override
+	public void updateLayout() {
+		/*
+		 * Automatic scale must be calculated for all tracks before drawing any
+		 * of them. This is a handy place for such a job.
+		 * 
+		 * New data may arrive between this calculation and paintComponent(),
+		 * which don't fit in this scale, but it will cause a new repaint which
+		 * will fix it.
+		 */
+ 
+		if (view.parentPlot.getReadScale() == ReadScale.AUTO) {
+			view.parentPlot.getReadScale().set(getMaxTotalCoverage());
+		}		
 	}
 }

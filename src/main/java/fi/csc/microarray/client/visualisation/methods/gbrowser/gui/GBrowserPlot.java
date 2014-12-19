@@ -76,9 +76,24 @@ public class GBrowserPlot implements ActionListener, Printable {
             return name;
         }
 
+		/**
+		 * In AUTO mode, set scale if it's higher than the current scale.
+		 * 
+		 * @param maxTotalCoverage
+		 */
 		public void set(int maxTotalCoverage) {
 			if (ReadScale.AUTO == this) {
-				numReads = maxTotalCoverage;
+				if (maxTotalCoverage > numReads) {
+					numReads = maxTotalCoverage;
+				}
+			} else {
+				throw new IllegalStateException("scale change alllowed only for ReadScale.AUTO");
+			}
+		}
+
+		public void reset() {
+			if (ReadScale.AUTO == this) {
+				numReads = 0;
 			} else {
 				throw new IllegalStateException("scale change alllowed only for ReadScale.AUTO");
 			}
@@ -182,6 +197,7 @@ public class GBrowserPlot implements ActionListener, Printable {
 	}
 
 	public void redraw() {
+		ReadScale.AUTO.reset();
 		for (GBrowserView view : views) {
 			view.updateLayout();
 		}
