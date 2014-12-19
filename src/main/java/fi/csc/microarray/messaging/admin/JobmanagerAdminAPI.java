@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -56,6 +57,16 @@ public class JobmanagerAdminAPI extends ServerAdminAPI {
 			for (HashMap<String, String> map : mapList) {
 				// originally comp sent this message as JobLogMessage
 				JobLogMessage msg = new JobLogMessage();
+				
+				// remove keys with empty values (empty string can't be parsed to date) 
+				Iterator<String> iter = map.keySet().iterator();
+				while (iter.hasNext()) {
+					String key = iter.next();
+					if (map.get(key).isEmpty()) {
+						iter.remove();
+					}
+				}
+				
 				msg.fromMap(map);
 
 				// convert to JobsEntry
