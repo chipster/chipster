@@ -4,6 +4,7 @@
  */
 package fi.csc.microarray.messaging;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -124,21 +125,8 @@ public class JMSMessagingEndpoint implements MessagingEndpoint, MessagingListene
 			}
 		}
 		
-		String username;
-		String password;
-		try {
-			username = configuration.getString("security", "username");
-			if (username == null || username.trim().length() == 0) {
-				throw new IllegalArgumentException("Username was not available from configuration");
-			}
-
-			password = configuration.getString("security", "password");
-			if (password == null || password.trim().length() == 0) {
-				throw new IllegalArgumentException("Password was not available from configuration");
-			}
-		} catch (Exception e) {
-			throw new RuntimeException("reading authentication information failed: " + e.getMessage());
-		}
+		String username = getUsername(configuration);
+		String password = getPassword(configuration);
 				
 		try {
 			logger.info("connecting to " + brokerUrl);
@@ -170,15 +158,13 @@ public class JMSMessagingEndpoint implements MessagingEndpoint, MessagingListene
 			logger.debug("endpoint created succesfully");
 		} catch (JMSException e) {
 			if (e.getCause() instanceof SSLHandshakeException) {
+				
 				try {
 					throw new MicroarrayException(
-							"Server identity cannot be verified.\n\n"
-									+ "Message broker " + brokerUrl + "\n"
-									+ "does not match certificate "
-									+ KeyAndTrustManager.getClientTrustStore(configuration, password)
-									+ ".\n"
-									+ "Certificate must be updated only in a network that "
-									+ "you trust.\nIn a trusted network, please remove the certificate file and restart Chipster.\n",
+							"Server identity cannot be verified. "
+									+ "Message broker " + brokerUrl 
+									+ " does not match certificate "
+									+ getClientTruststore() + ".",
 							e);
 				} catch (NoSuchAlgorithmException | CertificateException | KeyStoreException | IOException e1) {
 					throw new MicroarrayException("could not connect to message broker at " + brokerUrl + " (" + e.getMessage() + ") and " + Exceptions.getStackTrace(e1), e);
@@ -186,6 +172,37 @@ public class JMSMessagingEndpoint implements MessagingEndpoint, MessagingListene
 			}
 			throw new MicroarrayException("could not connect to message broker at " + brokerUrl + " (" + e.getMessage() + ")", e);
 		}
+	}
+	
+	private static String getPassword(Configuration configuration) {
+
+		try {		
+			String password = configuration.getString("security", "password");
+			if (password == null || password.trim().length() == 0) {
+				throw new IllegalArgumentException("Password was not available from configuration");
+			}
+			return password;
+		} catch (Exception e) {
+			throw new RuntimeException("reading authentication information failed: " + e.getMessage());
+		}
+	}
+
+	private static String getUsername(Configuration configuration) {
+		
+		try {
+			String username = configuration.getString("security", "username");
+			if (username == null || username.trim().length() == 0) {
+				throw new IllegalArgumentException("Username was not available from configuration");
+			}
+			return username;
+		} catch (Exception e) {
+			throw new RuntimeException("reading authentication information failed: " + e.getMessage());
+		}
+	}
+
+	public static String getClientTruststore() throws NoSuchAlgorithmException, CertificateException, FileNotFoundException, KeyStoreException, IOException {
+		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();		
+		return KeyAndTrustManager.getClientTrustStore(configuration, getPassword(configuration));
 	}
 
 	private ActiveMQConnectionFactory createConnectionFactory(String username, String password, String completeBrokerUrl) {

@@ -17,6 +17,9 @@ import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,6 +31,7 @@ import java.util.Vector;
 import java.util.concurrent.TimeUnit;
 
 import javax.jms.JMSException;
+import javax.net.ssl.SSLHandshakeException;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -107,6 +111,7 @@ import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.exception.ErrorReportAsException;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.DbSession;
+import fi.csc.microarray.messaging.JMSMessagingEndpoint;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
 import fi.csc.microarray.module.basic.BasicModule.VisualisationMethods;
 import fi.csc.microarray.util.BrowserLauncher;
@@ -225,7 +230,49 @@ public class SwingClientApplication extends ClientApplication {
 					initialiseApplication(false);
 
 				} catch (Exception e) {
-					reportInitalisationErrorThreadSafely(e);
+					if (Exceptions.isCausedBy(e, SSLHandshakeException.class)) {
+						
+						String truststore = null;
+						try {
+							truststore = JMSMessagingEndpoint.getClientTruststore();
+						} catch (NoSuchAlgorithmException | CertificateException | KeyStoreException | IOException e1) {
+							reportInitalisationErrorThreadSafely(new MicroarrayException("could not read trusstore configuration", e));
+						}
+							
+						String msg;
+						PluginButton button;
+
+						if (truststore == null) {
+							msg = "Server's identity cannot be verified. Server's administrator "
+									+ "must install a proper certificate signed by CA or configure "
+									+ "the server to use self-signed certificates.";
+							button = null;
+						} else {								
+							msg = "Server's identity has changed. Click 'Close' to keep the old "
+									+ "certificate or click 'Trust next server' to update the certificate "
+									+ "when the Chipster is started for the next time. Certificate must be "
+									+ "updated only in a network that you trust.";
+							
+							final File truststoreFile = new File(truststore);
+							
+							button = new PluginButton() {
+
+								@Override
+								public void actionPerformed() {
+									truststoreFile.delete();									
+								}
+
+								@Override
+								public String getText() {
+									return "Trust next server";
+								}
+							};
+						}						
+						showDialog("Unknown server", msg, Exceptions.getStackTrace(e), Severity.ERROR, true, DetailsVisibility.DETAILS_HIDDEN, button);
+						
+					} else {				
+						reportInitalisationErrorThreadSafely(e);
+					}
 				}
 			}
 		});
