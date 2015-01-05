@@ -27,7 +27,7 @@ public class JobsView extends AsynchronousView implements ClickListener, ValueCh
 	
 	private static final Logger logger = Logger.getLogger(JobsView.class);
 	
-	public static final int WAIT_SECONDS = 1;
+	public static final int WAIT_SECONDS = 5;
 	
 	private HorizontalLayout toolbarLayout;
 
@@ -95,7 +95,7 @@ public class JobsView extends AsynchronousView implements ClickListener, ValueCh
 	
 	public void update() {
 		
-		super.submitUpdateAndWait(new Runnable() {
+		super.submitUpdate(new Runnable() {
 
 			@Override
 			public void run() {				

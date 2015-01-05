@@ -117,7 +117,7 @@ public class ServerAdminAPI {
 		public void onChipsterMessage(ChipsterMessage msg) {
 			if (msg instanceof JsonMessage) {
 				JsonMessage jsonMessage = (JsonMessage)msg;
-				report = jsonMessage.getValue(JsonMessage.KEY_STATUS_REPORT);
+				report = jsonMessage.getJson();
 			} else if (msg instanceof ParameterMessage) {
 				ParameterMessage resultMessage = (ParameterMessage) msg;
 				report = resultMessage.getNamedParameter(ParameterMessage.PARAMETER_STATUS_REPORT);

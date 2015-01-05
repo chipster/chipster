@@ -37,6 +37,7 @@ public class ServicesTable extends Table {
 								"analyser".equals(name) ||
 								"filebroker".equals(name) ||
 								"manager".equals(name) ||
+								"jobmanager".equals(name) ||
 								"client".equals(name)) {
 							return name;
 						}

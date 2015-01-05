@@ -62,7 +62,7 @@ public class JobmanagerAdminAPI extends ServerAdminAPI {
 				Iterator<String> iter = map.keySet().iterator();
 				while (iter.hasNext()) {
 					String key = iter.next();
-					if (map.get(key).isEmpty()) {
+					if (map.get(key) == null || map.get(key).isEmpty()) {
 						iter.remove();
 					}
 				}

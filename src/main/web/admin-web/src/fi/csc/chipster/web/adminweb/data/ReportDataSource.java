@@ -108,7 +108,7 @@ public class ReportDataSource {
 					try {
 						layout.removeAllComponents();
 
-						Button purgeButton = view.createReportButton("Stop gracefully");
+						Button purgeButton = view.createReportButton("Purge old jobs");
 
 						purgeButton.addClickListener(new PurgeClickListener(view, ReportDataSource.this));
 
