@@ -24,6 +24,7 @@ import fi.csc.microarray.util.Strings;
 @SuppressWarnings("serial")
 public class QuickLinkPanel extends JPanel {
 	
+	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(QuickLinkPanel.class); 
 
 	private SwingClientApplication application;
@@ -108,18 +109,7 @@ public class QuickLinkPanel extends JPanel {
 
 		c.insets.set(0, 10, 0, 0);
 		
-		boolean showExamples = false;
-		
-		try {
-			showExamples = !Session.getSession().getServiceAccessor().getFileBrokerClient().listPublicRemoteSessions().isEmpty();
-		} catch (Exception e) {
-			logger.error("error in listing of public remote sessions" + e);
-			//continue without example sessions
-		}
-		
-		if (showExamples) {
-			addLink("*** to get familiar with " + Session.getSession().getPrimaryModule().getDisplayName(), exampleLink, VisualConstants.EXAMPLE_SESSION_ICON, c, this);
-		}
+		addLink("*** to get familiar with " + Session.getSession().getPrimaryModule().getDisplayName(), exampleLink, VisualConstants.EXAMPLE_SESSION_ICON, c, this);
 	
 		String cloudSessionsString = "*** to continue working on previous sessions. You can also *** from the server.";
 		String localSessionsString = "*** to continue working on previous sessions.";

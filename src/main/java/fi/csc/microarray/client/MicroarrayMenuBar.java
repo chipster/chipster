@@ -160,6 +160,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			fileMenu.add(getSaveLocalSessionMenuItem());
 			fileMenu.addSeparator();
 			fileMenu.add(getOpenExampleSessionMenuItem());
+			fileMenu.addSeparator();
 			if (application.getSessionManager().areCloudSessionsEnabled()) {
 				fileMenu.add(getLoadSessionMenuItem(true));
 				fileMenu.add(getSaveSessionMenuItem());
@@ -794,11 +795,6 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		if (openExampleSessionMenuItem == null) {
 			openExampleSessionMenuItem = new JMenuItem();
 			openExampleSessionMenuItem.setText("Open example session");
-			try {
-				openExampleSessionMenuItem.setEnabled(!Session.getSession().getServiceAccessor().getFileBrokerClient().listPublicRemoteSessions().isEmpty());
-			} catch (JMSException e) {
-				logger.debug("unable to list example sessions", e);
-			}
 			openExampleSessionMenuItem.addActionListener(new ActionListener() {
 
 				public void actionPerformed(ActionEvent e) {

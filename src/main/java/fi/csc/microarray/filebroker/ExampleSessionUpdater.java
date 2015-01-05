@@ -49,9 +49,8 @@ public class ExampleSessionUpdater {
 		importExportTool = new ServerSessionImportExportTool(directEndpoint);
 		
 		if (!this.exampleSessionDir.exists()) {
-			if (!this.exampleSessionDir.mkdir()) {
-				throw new FileBrokerException("Creating example session directory failed: " + this.exampleSessionDir);
-			}
+			logger.info("example session directory " + this.exampleSessionDir + " doesn't exist");
+			logger.info("example session import is disabled");
 		}
 	}
 
@@ -65,66 +64,69 @@ public class ExampleSessionUpdater {
 	 * @throws SQLException
 	 * @throws Exception
 	 */
-	public void importExampleSessions() throws JMSException, SQLException, Exception {	
+	public void importExampleSessions() throws JMSException, SQLException, Exception {
 		
-		//list public server sessions
-		//map keys are file name part of the server session name (called basename), while the DbSession.getName() contains also the path 
-		List<DbSession> dbSessionList = metadataServer.listPublicSessions();    		
-		Map<String, DbSession> dbSessions = new HashMap<>();    		    		
-		for (DbSession session : dbSessionList) {
-			String basename = session.getBasename();
-			//filter out directories
-			if (basename != null) {
-				dbSessions.put(basename, session);
+		if (this.exampleSessionDir.exists()) {
+
+			//list public server sessions
+			//map keys are file name part of the server session name (called basename), while the DbSession.getName() contains also the path 
+			List<DbSession> dbSessionList = metadataServer.listPublicSessions();    		
+			Map<String, DbSession> dbSessions = new HashMap<>();    		    		
+			for (DbSession session : dbSessionList) {
+				String basename = session.getBasename();
+				//filter out directories
+				if (basename != null) {
+					dbSessions.put(basename, session);
+				}
 			}
-		}
-		//list zip file sessions
-		//map keys are zip file names without their file extension (called basename)
-		logger.debug("searching example sessions from " + exampleSessionDir);	
-		HashMap<String, File> zipSessions = new HashMap<>();
-		for (File file : exampleSessionDir.listFiles()) {
-			if (isZipSession(file)) {				
-				String basename = importExportTool.filenameToBasename(file.getName());
-				zipSessions.put(basename, file);
-			}
-		}
-		
-		//if zip was removed, remove also the server session
-		Iterator<String> dbSessionIter = dbSessions.keySet().iterator();
-		while(dbSessionIter.hasNext()) {
-			String dbSessionBasename = dbSessionIter.next();
-			if (!zipSessions.containsKey(dbSessionBasename)) {
-				logger.info("found a server session  '" + dbSessionBasename + "', but no zip session with that name. Going to remove the server session");
-				fileServer.removeSession(dbSessions.get(dbSessionBasename).getDataId());
-				dbSessionIter.remove();
-			}
-		}				
-		
-		//if a zip was added or updated, then import it						
-		for (String zipSessionBasename : zipSessions.keySet()) {
-			
-			File zipSessionFile = zipSessions.get(zipSessionBasename);
-			DbSession dbSession = dbSessions.get(zipSessionBasename);
-			boolean store = false;
-			
-			if (dbSession == null) {
-				logger.debug("found a zip session '" + zipSessionBasename + "', but there is no server session with that name");
-				store = true;
-			} else {
-				//there is a server session with same name, check timestamps
-				Timestamp dbSessionCreated = getTimestamp(dbSession.getDataId());				
-				Timestamp zipSessionModified = getTimestamp(zipSessionFile);				
-				
-				store = zipSessionModified.after(dbSessionCreated);
+			//list zip file sessions
+			//map keys are zip file names without their file extension (called basename)
+			logger.debug("searching example sessions from " + exampleSessionDir);	
+			HashMap<String, File> zipSessions = new HashMap<>();
+			for (File file : exampleSessionDir.listFiles()) {
+				if (isZipSession(file)) {				
+					String basename = importExportTool.filenameToBasename(file.getName());
+					zipSessions.put(basename, file);
+				}
 			}
 
-			if (store) {				
-				//import the zip session
-				logger.info("storing example session '" + zipSessionBasename + "'");
-				importExportTool.importSession(zipSessionFile);
-				logger.debug("example session stored");				
-			} else {
-				logger.debug("example session '" + zipSessionBasename + "' is up-to-date");
+			//if zip was removed, remove also the server session
+			Iterator<String> dbSessionIter = dbSessions.keySet().iterator();
+			while(dbSessionIter.hasNext()) {
+				String dbSessionBasename = dbSessionIter.next();
+				if (!zipSessions.containsKey(dbSessionBasename)) {
+					logger.info("found a server session  '" + dbSessionBasename + "', but no zip session with that name. Going to remove the server session");
+					fileServer.removeSession(dbSessions.get(dbSessionBasename).getDataId());
+					dbSessionIter.remove();
+				}
+			}				
+
+			//if a zip was added or updated, then import it						
+			for (String zipSessionBasename : zipSessions.keySet()) {
+
+				File zipSessionFile = zipSessions.get(zipSessionBasename);
+				DbSession dbSession = dbSessions.get(zipSessionBasename);
+				boolean store = false;
+
+				if (dbSession == null) {
+					logger.debug("found a zip session '" + zipSessionBasename + "', but there is no server session with that name");
+					store = true;
+				} else {
+					//there is a server session with same name, check timestamps
+					Timestamp dbSessionCreated = getTimestamp(dbSession.getDataId());				
+					Timestamp zipSessionModified = getTimestamp(zipSessionFile);				
+
+					store = zipSessionModified.after(dbSessionCreated);
+				}
+
+				if (store) {				
+					//import the zip session
+					logger.info("storing example session '" + zipSessionBasename + "'");
+					importExportTool.importSession(zipSessionFile);
+					logger.debug("example session stored");				
+				} else {
+					logger.debug("example session '" + zipSessionBasename + "' is up-to-date");
+				}
 			}
 		}
 	}
