@@ -231,54 +231,69 @@ public class SwingClientApplication extends ClientApplication {
 
 				} catch (Exception e) {
 					if (Exceptions.isCausedBy(e, SSLHandshakeException.class)) {
-						
-						String truststore = null;
-						try {
-							truststore = JMSMessagingEndpoint.getClientTruststore();
-						} catch (NoSuchAlgorithmException | CertificateException | KeyStoreException | IOException e1) {
-							reportInitalisationErrorThreadSafely(new MicroarrayException("could not read trusstore configuration", e));
-						}
-							
-						String msg;
-						PluginButton button;
-
-						if (truststore == null) {
-							msg = "Server's identity cannot be verified. Server's administrator "
-									+ "must install a proper certificate signed by CA or configure "
-									+ "the server to use self-signed certificates.";
-							button = null;
-						} else {								
-							msg = "Server's identity has changed. Click 'Close' to keep the old "
-									+ "certificate or click 'Trust next server' to update the certificate "
-									+ "when the Chipster is started for the next time. Certificate must be "
-									+ "updated only in a network that you trust.";
-							
-							final File truststoreFile = new File(truststore);
-							
-							button = new PluginButton() {
-
-								@Override
-								public void actionPerformed() {
-									truststoreFile.delete();									
-								}
-
-								@Override
-								public String getText() {
-									return "Trust next server";
-								}
-							};
-						}						
-						showDialog("Unknown server", msg, Exceptions.getStackTrace(e), Severity.ERROR, true, DetailsVisibility.DETAILS_HIDDEN, button);
-						
+						reportTruststoreError(e);						
 					} else {				
 						reportInitalisationErrorThreadSafely(e);
 					}
 				}
 			}
+
 		});
 		t.start();
 	}
 
+	private void reportTruststoreError(Exception e) {
+		String truststore = null;
+		try {
+			truststore = JMSMessagingEndpoint.getClientTruststore();
+		} catch (NoSuchAlgorithmException | CertificateException | KeyStoreException | IOException e1) {
+			reportInitalisationErrorThreadSafely(new MicroarrayException("could not read trusstore configuration", e));
+		}
+			
+		String title;
+		String msg;
+		PluginButton button;
+
+		if (truststore == null) {
+			title = "Server's identity cannot be verified";
+			msg = "Server's administrator "
+					+ "must install a proper certificate signed by CA or configure "
+					+ "the server to use self-signed certificates.";
+			button = null;
+		} else {
+			title = "Server's identity has changed";
+			msg = "Click 'Close' to keep the old certificate. Server's identity will be verified "
+					+ "with this certificate also next time."
+					+ "\n\n"
+					+ "Click 'Trust this server' to update the certificate. "
+					+ "Update certificate only in a network that you trust. Chipster must be "
+					+ "restarted manually after this.";
+			
+			final File truststoreFile = new File(truststore);
+			
+			button = new PluginButton() {
+
+				@Override
+				public void actionPerformed() {																		
+					truststoreFile.delete();
+					// now that the file is missing, getClientTruststore() will download it without complaints
+					try {
+						JMSMessagingEndpoint.getClientTruststore();
+					} catch (NoSuchAlgorithmException | CertificateException | KeyStoreException | IOException e) {
+						reportInitalisationErrorThreadSafely(new MicroarrayException("could not download trusstore", e));
+					}
+				}
+
+				@Override
+				public String getText() {
+					return "Trust this server";
+				}
+			};
+		}						
+		showDialog(title, msg, Exceptions.getStackTrace(e), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, button);
+		quitImmediately();		
+	}
+	
 	private void reportInitalisationErrorThreadSafely(final Exception e) {
 		SwingUtilities.invokeLater(new Runnable() {
 			
@@ -1170,13 +1185,19 @@ public class SwingClientApplication extends ClientApplication {
 	public void quitImmediately() {
 
 		// hide immediately to look more reactive...
-		childScreens.disposeAll();
-		mainFrame.setVisible(false);
+		if (childScreens != null) {
+			childScreens.disposeAll();
+		}
+		if (mainFrame != null) {
+			mainFrame.setVisible(false);
+		}
 
 		super.quit();
 
 		// this closes the application
-		mainFrame.dispose();
+		if (mainFrame != null) {
+			mainFrame.dispose();
+		}
 		System.exit(0);
 	}
 

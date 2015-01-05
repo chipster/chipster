@@ -23,7 +23,7 @@ public class Exceptions {
 	}
 
 	public static boolean isCausedBy(Throwable exception, Class<? extends Exception> type) {
-		if (type.getClass().isInstance(exception)) {
+		if (exception.getClass().isAssignableFrom(type)) {
 			return true;
 		}
 		
@@ -31,6 +31,7 @@ public class Exceptions {
 		
 		while (e.getCause() != null) {
 			e = e.getCause();
+			
 			if (e.getClass().isAssignableFrom(type)) {
 				return true;
 			}
