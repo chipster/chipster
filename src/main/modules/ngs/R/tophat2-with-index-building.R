@@ -20,7 +20,6 @@
 # PARAMETER OPTIONAL splice.mismatches: "Maximum number of mismatches allowed in the anchor" TYPE INTEGER FROM 0 TO 2 DEFAULT 0 (The maximum number of mismatches that may appear in the anchor region of a spliced alignment.)
 # PARAMETER OPTIONAL min.intron.length: "Minimum intron length" TYPE INTEGER FROM 10 TO 1000 DEFAULT 70 (TopHat2 will ignore donor-acceptor pairs closer than this many bases apart.)
 # PARAMETER OPTIONAL max.intron.length: "Maximum intron length" TYPE INTEGER FROM 1000 TO 1000000 DEFAULT 500000 (TopHat2 will ignore donor-acceptor pairs farther than this many bases apart, except when such a pair is supported by a split segment alignment of a long read.)
-# PARAMETER OPTIONAL no.discordant: "Report only concordant alignments" TYPE [yes, no] DEFAULT yes (Report only concordant mappings.) 
 # PARAMETER OPTIONAL no.mixed: "Report only paired alignments" TYPE [yes, no] DEFAULT yes (Only report read alignments if both reads in a pair can be mapped.)
 
 # EK 17.4.2012 added -G and -g options
@@ -33,7 +32,11 @@
 # AMS 3.1.2014 added transcriptome index for human
 # EK 3.1.2014 added alignment summary to output, added quality and mismatch parameter
 # AMS 22.5.2014 modified to use own genome
-# OUTPUT OPTIONAL tophat2.log
+
+# PARAMETER OPTIONAL no.discordant: "Report only concordant alignments" TYPE [yes, no] DEFAULT yes (Report only concordant mappings.) 
+
+
+
 
 # check out if the file is compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
@@ -70,9 +73,9 @@ if ( quality.format == "phred64") {
 	command.parameters <- paste(command.parameters, "--phred64-quals")
 }
 
-if (no.discordant == "yes"){
-	command.parameters <- paste(command.parameters, "--no-discordant")
-}
+#if (no.discordant == "yes"){
+#	command.parameters <- paste(command.parameters, "--no-discordant")
+#}
 
 if (no.mixed == "yes"){
 	command.parameters <- paste(command.parameters, "--no-mixed")
@@ -90,13 +93,14 @@ if (file.exists("genes.gtf")){
 
 # command ending
 #command.end <- paste(path.bowtie.index, "reads1.fq reads2.fq '")
-command.end <- paste(bowtie2.genome, "reads1.fq reads2.fq 1>> tmp.log 2>> tmp.log'")
+command.end <- paste(bowtie2.genome, "reads1.fq reads2.fq >> tophat.log'")
 
 # run tophat
 command <- paste(command.start, command.parameters, command.end)
 
-echo.command <- paste("echo '",command ,"' > tmp.log " )
+echo.command <- paste("echo '",command ,"' > tophat.log " )
 system(echo.command)
+system("echo >> tophat.log")
 #stop(paste('CHIPSTER-NOTE: ', command))
 system(command)
 
@@ -154,6 +158,7 @@ if (file.exists("insertions.u.bed")){
 	}
 }
 
-if (no.results){
-	system("mv tmp.log tophat2.log")
+if (!(file.exists("tophat-summary.txt"))){
+	#system("mv tophat_out/logs/tophat.log tophat2.log")
+	system("mv tophat.log tophat2.log")
 }

@@ -73,10 +73,13 @@ if (use.gtf == "yes") {
 }
 
 # command ending
-command.end <- paste(path.bowtie.index, "reads1.fq'")
+command.end <- paste(path.bowtie.index, "reads1.fq 2> tophat.log'")
 
 command <- paste(command.start, command.parameters, command.end)
 
+echo.command <- paste("echo '",command ,"' 2>> tophat.log " )
+system(echo.command)
+system("echo >> tophat.log")
 #stop(paste('CHIPSTER-NOTE: ', command))
 system(command)
 
@@ -129,3 +132,9 @@ if (file.exists("insertions.u.bed")){
 		write.table(sorted.bed, file="deletions.bed", sep="\t", row.names=F, col.names=F, quote=F)
 	}
 }
+
+if (!(file.exists("tophat-summary.txt"))){
+	#system("mv tophat_out/logs/tophat.log tophat2.log")
+	system("mv tophat.log tophat2.log")
+}
+
