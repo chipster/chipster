@@ -9,7 +9,7 @@
 # OUTPUT saturation.pdf: "Saturation plot"
 # OUTPUT coverage.pdf: "Coverage plot"
 # OUTPUT calibration.pdf: "Calibration plot"
-# PARAMETER genome TYPE [hg19: "human hg19"] DEFAULT hg19 (Select the genome build)
+# PARAMETER genome TYPE [hg19: "human hg19", GRCh38: "human GRCh38", mm10: "mouse mm19", rn5: "rat rn5"] DEFAULT hg19 (Select the genome build)
 # PARAMETER promoters.only: "focus on promoter regions only" TYPE [yes, no] DEFAULT no (Should the analyses be restricted to promoter regions only)
 # PARAMETER fragment.length: "fragment length" TYPE [400, 800, 1600, 2400] DEFAULT 800 (Fragment length, used for calculating local CpGs)
 # PARAMETER OPTIONAL coverage.resolution: "coverage resolution" TYPE [25, 50, 100, 200] DEFAULT 50 (Targeted data resolution, in base pairs, when the genome-wide coverage is calculated)
@@ -40,6 +40,25 @@ if (genome == "hg19") {
   pgenome <- "hg19"  
   library(BSgenome.Hsapiens.UCSC.hg19)
 }
+# Processing of the parameters
+if (genome == "GRCh38") {
+	genome <- "BSgenome.Hsapiens.NCBI.GRCh38"
+	pgenome <- "hg38"  
+	library(BSgenome.Hsapiens.NCBI.GRCh38)
+}
+# Processing of the parameters
+if (genome == "mm10") {
+	genome <- "BSgenome.Mmusculus.UCSC.mm10"
+	pgenome <- "mm10"  
+	library(BSgenome.Mmusculus.UCSC.mm10)
+}
+# Processing of the parameters
+if (genome == "rn5") {
+	genome <- "BSgenome.Rnorvegicus.UCSC.rn5"
+	pgenome <- "rn5"  
+	library(BSgenome.Rnorvegicus.UCSC.rn5)
+}
+
 
 # Load library to memory
 library(MEDIPS)
