@@ -530,9 +530,7 @@ public class SwingClientApplication extends ClientApplication {
 	
 	private String windowTitleJobPrefix = null;
 	private String windowTitleBlockingPrefix = null;
-	private JFileChooser remoteSessionFileChooser;
 	private JFileChooser localSessionFileChooser;
-	private JFileChooser exampleSessionFileChooser;
 
 	public void updateWindowTitleJobCount(Integer jobCount) {
 		windowTitleJobPrefix = jobCount > 0 ? jobCount + " tasks / " : null;
@@ -1492,23 +1490,17 @@ public class SwingClientApplication extends ClientApplication {
 	private JFileChooser getSessionFileChooser(boolean remote, boolean openExampleDir) throws MalformedURLException, JMSException, Exception {
 		
 		if (openExampleDir) {
-			if (exampleSessionFileChooser == null) {
-
-				exampleSessionFileChooser = populateFileChooserFromServer();
-				exampleSessionFileChooser.setSelectedFile(new File("Session name"));
-				ServerFileUtils.hideJFileChooserButtons(exampleSessionFileChooser);
-			}
+			JFileChooser exampleSessionFileChooser = populateFileChooserFromServer();	 		
+			exampleSessionFileChooser.setSelectedFile(new File("Session name"));
+			ServerFileUtils.hideJFileChooserButtons(exampleSessionFileChooser);			
 			ServerFileSystemView view = (ServerFileSystemView) exampleSessionFileChooser.getFileSystemView();
 			exampleSessionFileChooser.setCurrentDirectory(view.getExampleSessionDir());				
 			return exampleSessionFileChooser;
 			
 		} else if (remote) {
-			if (remoteSessionFileChooser == null) {
-				
-				remoteSessionFileChooser = populateFileChooserFromServer();
-				remoteSessionFileChooser.setSelectedFile(new File("Session name"));
-				ServerFileUtils.hideJFileChooserButtons(remoteSessionFileChooser);
-			}
+			JFileChooser remoteSessionFileChooser = populateFileChooserFromServer();
+			remoteSessionFileChooser.setSelectedFile(new File("Session name"));
+			ServerFileUtils.hideJFileChooserButtons(remoteSessionFileChooser);
 			return remoteSessionFileChooser;
 
 		} else {
