@@ -4,8 +4,8 @@
 # OUTPUT boxplot.png: boxplot.png 
 # OUTPUT densityplot.png: densityplot.png 
 # OUTPUT OPTIONAL MA-plot.png: MA-plot.png 
-# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
-# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
+# PARAMETER image.width: "Image width" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
+# PARAMETER image.height: "Image height" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
 # Quality control of Agilent chips
 # 15.1.2008 JTT

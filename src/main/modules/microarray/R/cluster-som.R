@@ -2,11 +2,11 @@
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # OUTPUT som.tsv: som.tsv 
 # OUTPUT som.pdf: som.pdf 
-# PARAMETER number.of.columns: number.of.columns TYPE INTEGER FROM 1 TO 100 DEFAULT 4 (Number of SOM grid columns)
-# PARAMETER number.of.rows: number.of.rows TYPE INTEGER FROM 1 TO 100 DEFAULT 3 (Number of SOM grid rows)
-# PARAMETER coloring.scheme: coloring.scheme TYPE [Red-Green: Red-Green, Blue-Yellow: Blue-Yellow, Black-White: Black-White] DEFAULT Blue-Yellow (Coloring scheme for the SOM map)
-# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the resampling image)
-# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the resampling image)
+# PARAMETER number.of.columns: "Number of columns" TYPE INTEGER FROM 1 TO 100 DEFAULT 4 (Number of SOM grid columns)
+# PARAMETER number.of.rows: "Number of rows" TYPE INTEGER FROM 1 TO 100 DEFAULT 3 (Number of SOM grid rows)
+# PARAMETER coloring.scheme: "Coloring scheme" TYPE [Red-Green: Red-Green, Blue-Yellow: Blue-Yellow, Black-White: Black-White] DEFAULT Blue-Yellow (Coloring scheme for the SOM map)
+# PARAMETER image.width: "Image width" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the resampling image)
+# PARAMETER image.height: "Image height" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the resampling image)
 
 
 # Self-organizing map

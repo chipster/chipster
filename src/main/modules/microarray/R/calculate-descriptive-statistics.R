@@ -2,7 +2,7 @@
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # OUTPUT descr-stats.tsv: descr-stats.tsv 
 # OUTPUT descriptives.tsv: descriptives.tsv 
-# PARAMETER calculate.descriptives.for: calculate.descriptives.for TYPE [genes: genes, chips: chips] DEFAULT genes (Descriptive statistics are calculated for...)
+# PARAMETER calculate.descriptives.for: "Calculate descriptives for" TYPE [genes: genes, chips: chips] DEFAULT genes (Descriptive statistics are calculated for...)
 
 
 # Two-group parametric and non-parametric tests

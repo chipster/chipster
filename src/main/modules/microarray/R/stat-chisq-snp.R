@@ -2,8 +2,8 @@
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT assoc.tsv: assoc.tsv 
-# PARAMETER test.for: test.for TYPE [Hardy-Weinberg: Hardy-Weinberg, association: association] DEFAULT association (What to test for)
-# PARAMETER column: column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to compare)
+# PARAMETER test.for: "Test for" TYPE [Hardy-Weinberg: Hardy-Weinberg, association: association] DEFAULT association (What to test for)
+# PARAMETER column: "Column" TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to compare)
 
 # JTT: 25.4.2008: Association analysis with normalized SNP data
 # MG, 14.10.2009: modified 

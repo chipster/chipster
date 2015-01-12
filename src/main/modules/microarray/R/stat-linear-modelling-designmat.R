@@ -5,9 +5,9 @@
 # OUTPUT limma.tsv: limma.tsv
 # OUTPUT foldchange.tsv: foldchange.tsv 
 # OUTPUT pvalues.tsv: pvalues.tsv 
-# PARAMETER technical.replication: technical.replication TYPE METACOLUMN_SEL DEFAULT EMPTY (Technical replication)
-# PARAMETER cont.string: contrasts TYPE STRING DEFAULT empty (List of contrasts to be compared separated by commas)
-# PARAMETER p.value.adjustment.method: p.value.adjustment.method TYPE [none: none, bonferroni: bonferroni, holm: holm, hochberg: hochberg, BH: BH, BY: BY] DEFAULT BH (Multiple testing correction method)
+# PARAMETER technical.replication: "Technical replication" TYPE METACOLUMN_SEL DEFAULT EMPTY (Technical replication)
+# PARAMETER cont.string: "Contrasts" TYPE STRING DEFAULT empty (List of contrasts to be compared separated by commas)
+# PARAMETER p.value.adjustment.method: "p-value adjustment method" TYPE [none: none, bonferroni: Bonferroni, holm: Holm, hochberg: Hochberg, BH: BH, BY: BY] DEFAULT BH (Multiple testing correction method)
 
 # MK, 24.06.2013 created linear Modelling using limma
  

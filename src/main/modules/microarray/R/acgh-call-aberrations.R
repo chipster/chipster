@@ -3,9 +3,9 @@
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT aberrations.tsv: aberrations.tsv
 # OUTPUT aberration-frequencies.pdf: aberration-frequencies.pdf
-# PARAMETER number.of.copy.number.states: "number of copy number states" TYPE [3: 3, 4: 4] DEFAULT 3 (Three states means calling loss vs. normal vs. gain, four states calls amplifications separately, and five also homozygous deletions.)
-# PARAMETER genome.build: "genome build" TYPE [GRCh37: GRCh37, NCBI36: NCBI36, NCBI35: NCBI35, NCBI34: NCBI34, other: other] DEFAULT GRCh37 (The genome build to use. GRCh37 = hg19, NCBI36 = hg18, NCBI35 = hg17, NCBI34 = hg16.)
-# PARAMETER column: cellularity TYPE METACOLUMN_SEL DEFAULT EMPTY (If available, phenodata column containing the cellularities (tumor cell percentages\) of the samples. If there are values larger than 1, they are assumed to be percentages and are divided by 100. Missing values are replaced by the mean value.)
+# PARAMETER number.of.copy.number.states: "Number of copy number states" TYPE [3: 3, 4: 4] DEFAULT 3 (Three states means calling loss vs. normal vs. gain, four states calls amplifications separately, and five also homozygous deletions.)
+# PARAMETER genome.build: "Genome build" TYPE [GRCh37: GRCh37, NCBI36: NCBI36, NCBI35: NCBI35, NCBI34: NCBI34, other: other] DEFAULT GRCh37 (The genome build to use. GRCh37 = hg19, NCBI36 = hg18, NCBI35 = hg17, NCBI34 = hg16.)
+# PARAMETER column: Cellularity TYPE METACOLUMN_SEL DEFAULT EMPTY (If available, phenodata column containing the cellularities (tumor cell percentages\) of the samples. If there are values larger than 1, they are assumed to be percentages and are divided by 100. Missing values are replaced by the mean value.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
 # 2014-06-27

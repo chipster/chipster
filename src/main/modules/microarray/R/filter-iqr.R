@@ -1,7 +1,7 @@
 # TOOL filter-iqr.R: "Filter by interquartile range" (Filter genes by their interquartile range.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # OUTPUT iqr-filter.tsv: iqr-filter.tsv 
-# PARAMETER iqr.threshold: iqr.threshold TYPE DECIMAL FROM 0 TO 10 DEFAULT 0.5 (Interquartile range)
+# PARAMETER iqr.threshold: "Interquartile range threshold" TYPE DECIMAL FROM 0 TO 10 DEFAULT 0.5 (Interquartile range)
 
 
 # JTT, 24.10.2007

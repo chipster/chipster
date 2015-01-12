@@ -1,9 +1,9 @@
 # TOOL filter-by-column-term.R: "Filter using a column term" (Allows the user to filter the genes on the basis of one column with textual terms, such as gene symbol, gene description or GO term.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENERIC 
 # OUTPUT column-term-filter.tsv: column-term-filter.tsv 
-# PARAMETER column: column TYPE COLUMN_SEL (Data column to filter by)
-# PARAMETER match.term: match.term TYPE STRING DEFAULT empty (String to search for)
-# PARAMETER exact.match: exact.match TYPE [yes: yes, no: no] DEFAULT yes (Should only exact matches be retained?)
+# PARAMETER column: "Column" TYPE COLUMN_SEL (Data column to filter by)
+# PARAMETER match.term: "Match term" TYPE STRING DEFAULT empty (String to search for)
+# PARAMETER exact.match: "Exact match" TYPE [yes: yes, no: no] DEFAULT yes (Should only exact matches be retained?)
 
 # Tool that allows the data to be filtered according to text terms in a column
 # MG 9.3.2010

@@ -1,7 +1,7 @@
 # TOOL cna-count-aberrations.R: "Count the number of aberrations per sample" (For each sample, counts the number of aberrations that are at least as big as the minimum size provided.)
 # INPUT regions.tsv: regions.tsv TYPE GENERIC
 # OUTPUT aberration-counts.tsv: aberration-counts.tsv
-# PARAMETER minimum.size: "minimum size" TYPE INTEGER FROM 0 DEFAULT 0 (The minimum aberration size to count, in base pairs.)
+# PARAMETER minimum.size: "Minimum size" TYPE INTEGER FROM 0 DEFAULT 0 (The minimum aberration size to count, in base pairs.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
 # 2014-03-23

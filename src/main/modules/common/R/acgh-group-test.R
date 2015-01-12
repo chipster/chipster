@@ -3,10 +3,10 @@
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT groups-test.tsv: groups-test.tsv 
 # OUTPUT groups-test.pdf: groups-test.pdf 
-# PARAMETER column: column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
-# PARAMETER test.statistic: test.statistic TYPE [Chi-square: Chi-square, Wilcoxon: Wilcoxon, KW: KW] DEFAULT Chi-square (The test to use: either Chi-square, Wilcoxon, or Kruskal-Wallis.)
-# PARAMETER number.of.permutations: number.of.permutations TYPE INTEGER DEFAULT 10000 (The number of permutations. At least 10000 recommended for final calculations.)
-# PARAMETER test.aberrations: test.aberrations TYPE [1: gains, -1: losses, 0: both] DEFAULT 0 (Whether to test only for gains or losses, or both.) 
+# PARAMETER column: Column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
+# PARAMETER test.statistic: "Test statistic" TYPE [Chi-square: Chi-square, Wilcoxon: Wilcoxon, KW: KW] DEFAULT Chi-square (The test to use: either Chi-square, Wilcoxon, or Kruskal-Wallis.)
+# PARAMETER number.of.permutations: "Number of permutations" TYPE INTEGER DEFAULT 10000 (The number of permutations. At least 10000 recommended for final calculations.)
+# PARAMETER test.aberrations: "Test aberrations" TYPE [1: gains, -1: losses, 0: both] DEFAULT 0 (Whether to test only for gains or losses, or both.) 
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
 # 2014-03-23

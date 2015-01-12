@@ -4,11 +4,11 @@
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT fold-change.tsv: fold-change.tsv 
-# PARAMETER column: column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups. Samples of which group attribute is NA are excluded from the analysis.)
-# PARAMETER geometric TYPE [yes, no] DEFAULT yes (Should the geometric or arithmetic mean be used in the calculation of average expression for the sample groups?)
-# PARAMETER scale TYPE [log2, linear] DEFAULT log2 (What scale to use for expressing the results. Log2 yields a symmetric distribution around zero with no change being equal to 0, up-regulation taking positive values and down-regulation negative values. Conversely, in linear scale 
+# PARAMETER column: Column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups. Samples of which group attribute is NA are excluded from the analysis.)
+# PARAMETER geometric: Geometric TYPE [yes, no] DEFAULT yes (Should the geometric or arithmetic mean be used in the calculation of average expression for the sample groups?)
+# PARAMETER scale: Scale TYPE [log2, linear] DEFAULT log2 (What scale to use for expressing the results. Log2 yields a symmetric distribution around zero with no change being equal to 0, up-regulation taking positive values and down-regulation negative values. Conversely, in linear scale 
 # up-regulation is represented by values greater than 1 and down-regulation values being between 0 and 1.)
-# PARAMETER order TYPE [normal, reversed] DEFAULT normal (Defines which samples to treat as the reference group. In the normal mode the group belonging
+# PARAMETER order: Order TYPE [normal, reversed] DEFAULT normal (Defines which samples to treat as the reference group. In the normal mode the group belonging
 # of the first sample is assumed to be the reference, whereas in the reversed mode the situation is reversed. Note that this is different to how
 # FC values are calculated in the various statistical testing tool, where the reference group is defined by the lower group number or alphabetical order.)
 

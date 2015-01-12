@@ -2,9 +2,9 @@
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT search.tsv: search.tsv 
-# PARAMETER search.for: search.for TYPE [rowname: rowname, symbol: symbol, description: description, Genename: Genename, ChromosomeLocation: ChromosomeLocation] DEFAULT rowname (What to search with)
-# PARAMETER query: query TYPE STRING DEFAULT empty (Query word)
-# PARAMETER mode: mode TYPE [include: include, exclude: exclude] DEFAULT include (Defines whether the found genes should be included or excluded from the resulting data table.)
+# PARAMETER search.for: "Search for" TYPE [rowname: rowname, symbol: symbol, description: description, Genename: "Gene name", ChromosomeLocation: "Chromosome Location"] DEFAULT rowname (What to search with)
+# PARAMETER query: Query TYPE STRING DEFAULT empty (Query word)
+# PARAMETER mode: Mode TYPE [include: include, exclude: exclude] DEFAULT include (Defines whether the found genes should be included or excluded from the resulting data table.)
 
 # JTT, 4.7.2006: Search genes by name, AffyID, correlation or chromosome location
 # MG, 23.2.2010: to allow option to exclude query genes or chromosomes
