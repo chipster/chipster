@@ -1,8 +1,8 @@
 # TOOL ngs-annotate-miRNA-targets.R: "Find miRNA targets" (Fetches the predicted gene targets of a list of miRNA ID:s in one of the following databases: miRanda, miRbase, miRtarget2, PicTar, TarBase or targetScan.)
 # INPUT normalized_mirna.tsv: normalized_mirna.tsv TYPE GENERIC 
 # OUTPUT mirna_targets.tsv: mirna_targets.tsv 
-# PARAMETER species: species TYPE [human: human, mouse: mouse, rat: rat] DEFAULT human (The species for which the miRNA:s have been analyzed.)
-# PARAMETER database: database TYPE [miranda: miranda, mirbase: mirbase, mirtarget2: mirtarget2, pictar: pictar, tarbase: tarbase, targetscan: targetscan] DEFAULT mirtarget2 (The database from which to search for predicted target genes.)
+# PARAMETER species: Species TYPE [human: human, mouse: mouse, rat: rat] DEFAULT human (The species for which the miRNA:s have been analyzed.)
+# PARAMETER database: Database TYPE [miranda: miRanda, mirbase: miRbase, mirtarget2: miRtarget2, pictar: PicTar, tarbase: TarBase, targetscan: targetScan] DEFAULT mirtarget2 (The database from which to search for predicted target genes.)
 
 # MG, 22.2.2010
 # IS, 13.10.2010, added rownames of miRNA-target-pairs to allow intersecting through Venn diagrams

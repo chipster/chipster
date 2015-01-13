@@ -9,14 +9,14 @@
 # OUTPUT saturation.pdf: "Saturation plot"
 # OUTPUT coverage.pdf: "Coverage plot"
 # OUTPUT calibration.pdf: "Calibration plot"
-# PARAMETER genome TYPE [hg19: "human hg19", GRCh38: "human GRCh38", mm10: "mouse mm19", rn5: "rat rn5"] DEFAULT hg19 (Select the genome build)
-# PARAMETER promoters.only: "focus on promoter regions only" TYPE [yes, no] DEFAULT no (Should the analyses be restricted to promoter regions only)
-# PARAMETER fragment.length: "fragment length" TYPE [400, 800, 1600, 2400] DEFAULT 800 (Fragment length, used for calculating local CpGs)
-# PARAMETER OPTIONAL coverage.resolution: "coverage resolution" TYPE [25, 50, 100, 200] DEFAULT 50 (Targeted data resolution, in base pairs, when the genome-wide coverage is calculated)
-# PARAMETER OPTIONAL smoothing.extension: "smoothing extension" TYPE [200, 400, 800, 1200] DEFAULT 400 (The amount of data smoothing, in base pairs, by extending the reads)
-# PARAMETER OPTIONAL promoter.upstream: "number of promoter base pairs upstream" TYPE [1000, 2000, 5000] DEFAULT 1000 (How much upstream, in base pairs, from the transcription start site does the promoter extend)
-# PARAMETER OPTIONAL promoter.downstream: "number of promoter base pairs downstream" TYPE [250, 500, 750, 1000] DEFAULT 500 (How much downstream, in base pairs, from the transcription start site does the promoter extend)
-# PARAMETER OPTIONAL save.bed: "save results also as a BED file" TYPE [yes, no] DEFAULT yes (Should the normalized data, as RPM, be saved as a BED file)
+# PARAMETER genome: "Genome" TYPE [hg19: "human hg19", GRCh38: "human GRCh38", mm10: "mouse mm19", rn5: "rat rn5"] DEFAULT hg19 (Select the genome build)
+# PARAMETER promoters.only: "Focus on promoter regions only" TYPE [yes, no] DEFAULT no (Should the analyses be restricted to promoter regions only)
+# PARAMETER fragment.length: "Fragment length" TYPE [400, 800, 1600, 2400] DEFAULT 800 (Fragment length, used for calculating local CpGs)
+# PARAMETER OPTIONAL coverage.resolution: "Coverage resolution" TYPE [25, 50, 100, 200] DEFAULT 50 (Targeted data resolution, in base pairs, when the genome-wide coverage is calculated)
+# PARAMETER OPTIONAL smoothing.extension: "Smoothing extension" TYPE [200, 400, 800, 1200] DEFAULT 400 (The amount of data smoothing, in base pairs, by extending the reads)
+# PARAMETER OPTIONAL promoter.upstream: "Number of promoter base pairs upstream" TYPE [1000, 2000, 5000] DEFAULT 1000 (How much upstream, in base pairs, from the transcription start site does the promoter extend)
+# PARAMETER OPTIONAL promoter.downstream: "Number of promoter base pairs downstream" TYPE [250, 500, 750, 1000] DEFAULT 500 (How much downstream, in base pairs, from the transcription start site does the promoter extend)
+# PARAMETER OPTIONAL save.bed: "Save results also as a BED file" TYPE [yes, no] DEFAULT yes (Should the normalized data, as RPM, be saved as a BED file)
 
 # Parameters for testing purposes only
 # genome <- "hg19"

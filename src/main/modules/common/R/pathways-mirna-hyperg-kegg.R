@@ -3,7 +3,7 @@
 # OUTPUT hyperg_kegg.tsv: hyperg_kegg.tsv 
 # PARAMETER p.value.threshold: "p-value threshold" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value threshold)
 # PARAMETER p.adjust.method: "p-adjust method" TYPE [none: none, BH: BH, BY: BY] DEFAULT BH (Method for adjusting the p-value in order to account for multiple testing)
-# PARAMETER minimum.population: " Minimum population" TYPE INTEGER FROM 1 TO 1000000 DEFAULT 10 (Minimum number of genes in in the reference list that map to a pathway)
+# PARAMETER minimum.population: "Minimum population" TYPE INTEGER FROM 1 TO 1000000 DEFAULT 10 (Minimum number of genes in in the reference list that map to a pathway)
 # PARAMETER species: "Species" TYPE [human: human, mouse: mouse, rat: rat] DEFAULT human (The species for which the miRNA:s have been analyzed)
 
 # POSSIBLE summary.feature [gene, transcript] DEFAULT gene (should the targets for the miRNA:s be transcripts or genes?)
