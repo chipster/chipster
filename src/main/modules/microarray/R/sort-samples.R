@@ -3,7 +3,7 @@
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT sort-samples.tsv: sort-samples.tsv 
 # OUTPUT phenodata-sorted.tsv: phenodata-sorted.tsv 
-# PARAMETER column: column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column specifying how to sort)
+# PARAMETER column: Column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column specifying how to sort)
 
 # JTT, 06.02.2008, Sort samples
 # MG,  16.11.2010, modified to also generate a re-ordered phenodata file to reflect the re-ordered data

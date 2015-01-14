@@ -1,9 +1,9 @@
 # TOOL delete-columns.R: "Delete columns" (Delete the specified column or columns from the data.)
 # INPUT normalized.tsv TYPE GENE_EXPRS
 # OUTPUT deleted.tsv
-# PARAMETER column1 TYPE COLUMN_SEL DEFAULT EMPTY (Data column to filter by)
-# PARAMETER column2 TYPE COLUMN_SEL DEFAULT EMPTY (Data column to filter by)
-# PARAMETER deletion.type TYPE [to-right, between] DEFAULT to-right (Delete columns to the right from column1 or between the specified columns)
+# PARAMETER column1: "Column 1" TYPE COLUMN_SEL DEFAULT EMPTY (Data column to filter by)
+# PARAMETER column2: "Column 2" TYPE COLUMN_SEL DEFAULT EMPTY (Data column to filter by)
+# PARAMETER deletion.type: "Deletion type" TYPE [to-right, between] DEFAULT to-right (Delete columns to the right from column1 or between the specified columns)
 
 # JTT 10.6.2008, Created
 # MK 20.09.2013, fix bugs if both columns have been defined and to-right type of deletion selected

@@ -2,9 +2,9 @@
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT correlate-with-phenodata.tsv: correlate-with-phenodata.tsv 
-# PARAMETER correlation.cutoff: correlation.cutoff TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.95 (Correlation cut-off for similar expression)
-# PARAMETER correlation.method: correlation.method TYPE [pearson: pearson, spearman: spearman] DEFAULT pearson (Correlation method)
-# PARAMETER column: column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column containing the data to correlate genes with)
+# PARAMETER correlation.cutoff: "Correlation cut-off" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.95 (Correlation cut-off for similar expression)
+# PARAMETER correlation.method: "Correlation method" TYPE [pearson: Pearson, spearman: Spearman] DEFAULT pearson (Correlation method)
+# PARAMETER column: "Column" TYPE METACOLUMN_SEL DEFAULT group (Phenodata column containing the data to correlate genes with)
 
 
 # Find genes that correlate with phenodata

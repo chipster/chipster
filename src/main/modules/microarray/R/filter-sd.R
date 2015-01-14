@@ -1,7 +1,7 @@
 # TOOL filter-sd.R: "Filter by standard deviation" (Filters genes according to their standard deviation. Specify what percentage of the genes showing the lowest standard deviation should be filtered out. These can be made to approximately correspond to SDs assuming normality of the data: 1SD=67%, 2SDs=95%, 3SDs=99.7%. The default is 50%.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # OUTPUT sd-filter.tsv: sd-filter.tsv 
-# PARAMETER percentage.to.filter.out: percentage.to.filter.out TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.50 (Percent of genes showing lowest standard deviation to be filtered out.)
+# PARAMETER percentage.to.filter.out: "Percentage to filter out" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.50 (Percent of genes showing lowest standard deviation to be filtered out.)
 
 # JTT, 13.7.2005
 # Heavily modified on 7.6.2006

@@ -2,11 +2,11 @@
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT knn-cross-validation.tsv: knn-cross-validation.tsv
-# PARAMETER groups: groups TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
-# PARAMETER training: training TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing training chips)
-# PARAMETER number.of.nearest.neighbors: number.of.nearest.neighbors TYPE INTEGER FROM 1 TO 1000 DEFAULT 2 (Number of nearest neighbors)
-# PARAMETER number.of.votes: number.of.votes TYPE INTEGER FROM 0 TO 1000 DEFAULT 2 (Number of votes needed to get a definite answer)
-# PARAMETER validation.type: validation.type TYPE [crossvalidate: crossvalidate, predict: predict] DEFAULT crossvalidate (Type of analysis)
+# PARAMETER groups: "Groups" TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
+# PARAMETER training: "Training" TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing training chips)
+# PARAMETER number.of.nearest.neighbors: "Number of nearest neighbors" TYPE INTEGER FROM 1 TO 1000 DEFAULT 2 (Number of nearest neighbors)
+# PARAMETER number.of.votes: "Number of votes" TYPE INTEGER FROM 0 TO 1000 DEFAULT 2 (Number of votes needed to get a definite answer)
+# PARAMETER validation.type: "Validation type" TYPE [crossvalidate: "cross-validate", predict: predict] DEFAULT crossvalidate (Type of analysis)
 
 # JTT 26.6.2006: KNN classification created
 # MK 02.07.2013: Bugs fixed, added group and traning column selection to the header section

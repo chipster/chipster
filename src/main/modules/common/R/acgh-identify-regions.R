@@ -2,7 +2,7 @@
 # INPUT aberrations.tsv: aberrations.tsv TYPE GENE_EXPRS 
 # OUTPUT regions.tsv: regions.tsv 
 # OUTPUT region-frequencies.pdf: region-frequencies.pdf 
-# PARAMETER max.info.loss: "maximum loss of information" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.01 (Maximal information loss allowed.)
+# PARAMETER max.info.loss: "Maximum loss of information" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.01 (Maximal information loss allowed.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
 # 2014-03-23

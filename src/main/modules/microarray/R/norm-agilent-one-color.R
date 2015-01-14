@@ -2,11 +2,11 @@
 # INPUT microarray{...}.tsv: microarray{...}.tsv TYPE CDNA 
 # OUTPUT normalized.tsv: normalized.tsv 
 # OUTPUT META phenodata.tsv: phenodata.tsv 
-# PARAMETER background.treatment: background.treatment TYPE [none: none, subtract: subtract, edwards: edwards, normexp: normexp] DEFAULT normexp (Background treatment method)
-# PARAMETER background.offset: background.offset TYPE [0: 0, 50: 50] DEFAULT 50 (Background offset)
-# PARAMETER normalize.chips: normalize.chips TYPE [none: none, scale: scale, scale-75: scale-75, quantile: quantile, vsn: vsn] DEFAULT quantile (Between arrays normalization method)
-# PARAMETER remove.control.probes: remove.control.probes TYPE [yes: yes, no: no] DEFAULT no (Remove control probes from the dataset)
-# PARAMETER chiptype: chiptype TYPE [empty: empty, Human-1(4100a): "Human-1 (4100a)", Human-2(4101a): "Human-2 (4101a)", Human-1A(4110b): "Human-1A (4110b)", Human-1B(4111a): "Human-1B (4111a)", Human-Whole-Genome(4112a): "Human-Whole-Genome (4112a)", Human-Whole-Genome(4851a): "Human-Whole-Genome (4851a)", Mouse(4104a): "Mouse (4104a)", Mouse(4120a): "Mouse (4120a)", Mouse(4121a): "Mouse (4121a)", Mouse(4122a): "Mouse (4122a)", Mouse-Whole-Genome(4852a): "Mouse-Whole-Genome (4852a)", Rat(4105a): "Rat (4105a)", Rat(4130a): "Rat (4130a)", Rat(4131): "Rat (4131)",  Zebrafish-1(2519f):  "Zebrafish-1 (2519f)"] DEFAULT empty ()
+# PARAMETER background.treatment: "Background treatment" TYPE [none: none, subtract: subtract, edwards: edwards, normexp: normexp] DEFAULT normexp (Background treatment method)
+# PARAMETER background.offset: "Background offset" TYPE [0: 0, 50: 50] DEFAULT 50 (Background offset)
+# PARAMETER normalize.chips: "Normalize chips" TYPE [none: none, scale: scale, scale-75: scale-75, quantile: quantile, vsn: vsn] DEFAULT quantile (Between arrays normalization method)
+# PARAMETER remove.control.probes: "Remove control probes" TYPE [yes: yes, no: no] DEFAULT no (Remove control probes from the dataset)
+# PARAMETER chiptype: "Chiptype" TYPE [empty: empty, Human-1(4100a): "Human-1 (4100a)", Human-2(4101a): "Human-2 (4101a)", Human-1A(4110b): "Human-1A (4110b)", Human-1B(4111a): "Human-1B (4111a)", Human-Whole-Genome(4112a): "Human-Whole-Genome (4112a)", Human-Whole-Genome(4851a): "Human-Whole-Genome (4851a)", Mouse(4104a): "Mouse (4104a)", Mouse(4120a): "Mouse (4120a)", Mouse(4121a): "Mouse (4121a)", Mouse(4122a): "Mouse (4122a)", Mouse-Whole-Genome(4852a): "Mouse-Whole-Genome (4852a)", Rat(4105a): "Rat (4105a)", Rat(4130a): "Rat (4130a)", Rat(4131): "Rat (4131)",  Zebrafish-1(2519f):  "Zebrafish-1 (2519f)"] DEFAULT empty ()
 
 # cDNA chip normalization
 # JTT 15.10.2007

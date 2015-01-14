@@ -2,12 +2,12 @@
 # INPUT microarray{...}.tsv: microarray{...}.tsv TYPE CDNA 
 # OUTPUT normalized.tsv: normalized.tsv 
 # OUTPUT META phenodata.tsv: phenodata.tsv 
-# PARAMETER background.treatment: background.treatment TYPE [none: none, subtract: subtract, edwards: edwards, normexp: normexp] DEFAULT normexp (Background treatment method)
-# PARAMETER background.offset: background.offset TYPE [0: 0, 50: 50] DEFAULT 50 (Background offset)
-# PARAMETER normalize.arrays: normalize.arrays TYPE [none: none, median: median, loess: loess] DEFAULT loess (Within array normalization method)
-# PARAMETER normalize.genes: normalize.genes TYPE [none: none, scale: scale, quantile: quantile, Aquantile: Aquantile, vsn: vsn] DEFAULT none (Between arrays normalization method. Notice that in the case of vsn then the red and green intensities are treated as if they were single channel data, i.e., red and green channels from the same array are treated as unpaired. This algorithm is therefore separate from the backgroundCorrection, normalizeWithinArrays, then normalizeBetweenArrays paradigm used elsewhere in the limma package.)
-# PARAMETER remove.control.probes: remove.control.probes TYPE [yes: yes, no: no] DEFAULT no (Remove control probes from the dataset)
-# PARAMETER chiptype: chiptype TYPE [empty: empty, Human-1(4100a): "Human-1 (4100a)", Human-2(4101a): "Human-2 (4101a)", Human-1A(4110b): "Human-1A (4110b)", Human-1B(4111a): "Human-1B (4111a)", Human-Whole-Genome(4112a): "Human-Whole-Genome (4112a)", Human-Whole-Genome(4851a): "Human-Whole-Genome (4851a)", Mouse(4104a): "Mouse (4104a)", Mouse(4120a): "Mouse (4120a)", Mouse(4121a): "Mouse (4121a)", Mouse(4122a): "Mouse (4122a)", Mouse-Whole-Genome(4852a): "Mouse-Whole-Genome (4852a)", Rat(4105a): "Rat (4105a)", Rat(4130a): "Rat (4130a)", Rat(4131): "Rat (4131)", FruitFly: "Fruit Fly"] DEFAULT empty ()
+# PARAMETER background.treatment: "Background treatment" TYPE [none: none, subtract: subtract, edwards: edwards, normexp: normexp] DEFAULT normexp (Background treatment method)
+# PARAMETER background.offset: "Background offset" TYPE [0: 0, 50: 50] DEFAULT 50 (Background offset)
+# PARAMETER normalize.arrays: "Normalize arrays" TYPE [none: none, median: median, loess: loess] DEFAULT loess (Within array normalization method)
+# PARAMETER normalize.genes: "Normalize genes" TYPE [none: none, scale: scale, quantile: quantile, Aquantile: Aquantile, vsn: vsn] DEFAULT none (Between arrays normalization method. Notice that in the case of vsn then the red and green intensities are treated as if they were single channel data, i.e., red and green channels from the same array are treated as unpaired. This algorithm is therefore separate from the backgroundCorrection, normalizeWithinArrays, then normalizeBetweenArrays paradigm used elsewhere in the limma package.)
+# PARAMETER remove.control.probes: "Remove control probes" TYPE [yes: yes, no: no] DEFAULT no (Remove control probes from the dataset)
+# PARAMETER chiptype: "Chiptype" TYPE [empty: empty, Human-1(4100a): "Human-1 (4100a)", Human-2(4101a): "Human-2 (4101a)", Human-1A(4110b): "Human-1A (4110b)", Human-1B(4111a): "Human-1B (4111a)", Human-Whole-Genome(4112a): "Human-Whole-Genome (4112a)", Human-Whole-Genome(4851a): "Human-Whole-Genome (4851a)", Mouse(4104a): "Mouse (4104a)", Mouse(4120a): "Mouse (4120a)", Mouse(4121a): "Mouse (4121a)", Mouse(4122a): "Mouse (4122a)", Mouse-Whole-Genome(4852a): "Mouse-Whole-Genome (4852a)", Rat(4105a): "Rat (4105a)", Rat(4130a): "Rat (4130a)", Rat(4131): "Rat (4131)", FruitFly: "Fruit Fly"] DEFAULT empty ()
 
 # cDNA chip normalization
 # JTT 9.6.2006
