@@ -167,8 +167,8 @@
 			<value>100</value>
 		</entry>
 		
-		<entry entryKey="ssl-protocol-version" type="string" description="enabled ssl protocol versions, delimited with comma">
-			<value>TLSv1.2</value>
+		<entry entryKey="ssl-protocol-version" type="string" description="enabled ssl protocol versions, delimited with a comma">
+			<value>TLSv1,TLSv1.1,TLSv1.2</value>
 		</entry>
         
 	</configuration-module>
