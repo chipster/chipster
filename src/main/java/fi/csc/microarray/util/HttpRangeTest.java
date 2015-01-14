@@ -51,7 +51,7 @@ public class HttpRangeTest {
 			break;
 			
 		case "https":			
-			connector = new SslSocketConnector(KeyAndTrustManager.createSslContextFactory("../chipster-environment/security/filebroker.ks", "password"));
+			connector = new SslSocketConnector(KeyAndTrustManager.createSslContextFactory("../chipster-environment/security/filebroker.ks", "password", new String[] {"TLSv1.2"}));
 			break;		
 		}
 		connector.setServer(jettyInstance);
