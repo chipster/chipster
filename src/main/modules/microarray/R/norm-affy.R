@@ -2,10 +2,9 @@
 # INPUT microarray{...}.cel: microarray{...}.cel TYPE AFFY 
 # OUTPUT normalized.tsv: normalized.tsv 
 # OUTPUT META phenodata.tsv: phenodata.tsv 
-# PARAMETER normalization.method: normalization.method TYPE [mas5: mas5, plier: plier, rma: rma, gcrma: gcrma, li-wong: li-wong] DEFAULT rma (Preprocessing method)
-# PARAMETER stabilize.variance: stabilize.variance TYPE [yes: yes, no: no] DEFAULT no (Variance stabilazing normalization)
-# PARAMETER custom.chiptype: custom.chiptype TYPE [empty: empty, hgu133ahsentrezg(hgu133a): hgu133ahsentrezg(hgu133a), hgu133a2hsentrezg(hgu133av2): hgu133a2hsentrezg(hgu133av2), hgu133phsentrezg(hgu133plus): hgu133phsentrezg(hgu133plus), hgu133plus2hsentrezg(hgu133plus2): hgu133plus2hsentrezg(hgu133plus2), hgu133bhsentrezg(hgu133b): hgu133bhsentrezg(hgu133b), hthgu133pluspmhsentrezg(hgu133pluspm): hthgu133pluspmhsentrezg(hgu133pluspm), hgfocushsentrezgcdf(hgfocus): hgfocushsentrezgcdf(hgfocus), hgu95av2hsentrezg(hgu95av2): hgu95av2hsentrezg(hgu95av2), hgu219hsentrezg(hgu219): hgu219hsentrezg(hgu219), moe430ammentrezg(moe430a): moe430ammentrezg(moe430a), moe430bmmentrezg(moe430b): moe430bmmentrezg(moe430b), mouse430a2mmentrezg(mouse430a2): mouse430a2mmentrezg(mouse430a2), mouse4302mmentrezg(mouse4302): mouse4302mmentrezg(mouse4302), mm74av1mmentrezg(mgu74a): mm74av1mmentrezg(mgu74a), mgu74av2mmentrezg(mgu74av2): mgu74av2mmentrezg(mgu74av2), mgu74bv2mmentrezg(mgu74bv2): mgu74bv2mmentrezg(mgu74bv2), mgu74cv2mmentrezg(mgu74cv2): mgu74cv2mmentrezg(mgu74cv2), rae230arnentrezg(rae230a): rae230arnentrezg(rae230a), rae230brnentrezg(rae230b): rae230brnentrezg(rae230b), rat2302rnentrezg(rat2302): rat2302rnentrezg(rat2302), rgu34arnentrezg(rgu34a): rgu34arnentrezg(rgu34a), rgu34brnentrezg(rgu34b): rgu34brnentrezg(rgu34b), rgu34crnentrezg(rgu34c): rgu34crnentrezg(rgu34c)] DEFAULT empty (custom chiptype)
-
+# PARAMETER normalization.method: "Normalization method" TYPE [mas5: mas5, plier: plier, rma: rma, gcrma: gcrma, li-wong: li-wong] DEFAULT rma (Preprocessing method)
+# PARAMETER stabilize.variance: "Stabilize variance" TYPE [yes: yes, no: no] DEFAULT no (Variance stabilazing normalization)
+# PARAMETER custom.chiptype: "Custom chiptype" TYPE [empty: empty, hgu133ahsentrezg(hgu133a): hgu133ahsentrezg(hgu133a), hgu133a2hsentrezg(hgu133av2): hgu133a2hsentrezg(hgu133av2), hgu133phsentrezg(hgu133plus): hgu133phsentrezg(hgu133plus), hgu133plus2hsentrezg(hgu133plus2): hgu133plus2hsentrezg(hgu133plus2), hgu133bhsentrezg(hgu133b): hgu133bhsentrezg(hgu133b), hthgu133pluspmhsentrezg(hgu133pluspm): hthgu133pluspmhsentrezg(hgu133pluspm), hgfocushsentrezg(hgfocus): hgfocushsentrezg(hgfocus), hgu95av2hsentrezg(hgu95av2): hgu95av2hsentrezg(hgu95av2), hgu219hsentrezg(hgu219): hgu219hsentrezg(hgu219), moe430ammentrezg(moe430a): moe430ammentrezg(moe430a), moe430bmmentrezg(moe430b): moe430bmmentrezg(moe430b), mouse430a2mmentrezg(mouse430a2): mouse430a2mmentrezg(mouse430a2), mouse4302mmentrezg(mouse4302): mouse4302mmentrezg(mouse4302), mm74av1mmentrezg(mgu74a): mm74av1mmentrezg(mgu74a), mgu74av2mmentrezg(mgu74av2): mgu74av2mmentrezg(mgu74av2), mgu74bv2mmentrezg(mgu74bv2): mgu74bv2mmentrezg(mgu74bv2), mgu74cv2mmentrezg(mgu74cv2): mgu74cv2mmentrezg(mgu74cv2), rae230arnentrezg(rae230a): rae230arnentrezg(rae230a), rae230brnentrezg(rae230b): rae230brnentrezg(rae230b), rat2302rnentrezg(rat2302): rat2302rnentrezg(rat2302), rgu34arnentrezg(rgu34a): rgu34arnentrezg(rgu34a), rgu34brnentrezg(rgu34b): rgu34brnentrezg(rgu34b), rgu34crnentrezg(rgu34c): rgu34crnentrezg(rgu34c)] DEFAULT empty (Custom chiptype)
 
 # JTT 08.06.2006, Created
 # JTT 29.06.2006, Changes to column naming on 
@@ -125,6 +124,7 @@ time<-c(rep("", nrow(pData(dat))))
 random<-c(rep("", nrow(pData(dat))))
 chiptype<-paste(chiptype, ".db", sep="")
 write.table(data.frame(sample=sample, chiptype=chiptype, group=group), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+
 
 # Writing out data
 a<-try(library(chiptype, character.only=T))
