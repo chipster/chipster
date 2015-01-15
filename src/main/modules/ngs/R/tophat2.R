@@ -22,6 +22,7 @@
 # PARAMETER OPTIONAL min.intron.length: "Minimum intron length" TYPE INTEGER FROM 10 TO 1000 DEFAULT 70 (TopHat2 will ignore donor-acceptor pairs closer than this many bases apart.)
 # PARAMETER OPTIONAL max.intron.length: "Maximum intron length" TYPE INTEGER FROM 1000 TO 1000000 DEFAULT 500000 (TopHat2 will ignore donor-acceptor pairs farther than this many bases apart, except when such a pair is supported by a split segment alignment of a long read.)
 # PARAMETER OPTIONAL no.mixed: "Report only paired alignments" TYPE [yes, no] DEFAULT yes (Only report read alignments if both reads in a pair can be mapped.)
+# PARAMETER OPTIONAL library.type: "Library type" TYPE [fr-unstranded: fr-unstranded, fr-firststrand: fr-firststrand, fr-secondstrand: fr-secondstrand] DEFAULT fr-unstranded (Which library type to use.)
 
 # EK 17.4.2012 added -G and -g options
 # MG 24.4.2012 added ability to use gtf files from Chipster server
@@ -35,6 +36,7 @@
 # EK 3.6.2014 rn4 commented out
 # AMS 04.07.2014 New genome/gtf/index locations & names
 # AMS 07.01.2015 Removed parameter no.discordant until tophat code fixed, return tophat2.log if tophat-summary.txt not produced
+# ML 15.01.2015 Added the library-type parameter
 
 # PARAMETER OPTIONAL no.discordant: "Report only concordant alignments" TYPE [yes, no] DEFAULT yes (Report only concordant mappings.) 
 
@@ -60,7 +62,8 @@ command.start <- paste("bash -c '", set.path, tophat.binary)
 
 # parameters
 #command.parameters <- paste("--bowtie1 -r", mate.inner.distance, "--mate-std-dev", mate.std.dev, "-a", min.anchor.length, "-m", splice.mismatches, "-i", min.intron.length, "-I", max.intron.length, "-g", max.multihits, "--library-type fr-unstranded")
-command.parameters <- paste("-p", chipster.threads.max, "-r", mate.inner.distance, "--mate-std-dev", mate.std.dev, "--read-mismatches", mismatches, "-a", min.anchor.length, "-m", splice.mismatches, "-i", min.intron.length, "-I", max.intron.length, "-g", max.multihits, "--library-type fr-unstranded")
+command.parameters <- paste("-p", chipster.threads.max, "-r", mate.inner.distance, "--mate-std-dev", mate.std.dev, "--read-mismatches", mismatches, "-a", min.anchor.length, "-m", splice.mismatches, "-i", min.intron.length, "-I", max.intron.length, "-g", max.multihits)
+
 
 if ( quality.format == "phred64") {
 	command.parameters <- paste(command.parameters, "--phred64-quals")
@@ -90,13 +93,22 @@ if (use.gtf == "yes") {
 	command.parameters <- paste(command.parameters, "--transcriptome-index", path.tophat.index)
 }
 
+# library type: fr-unstranded, fr-firststrand, fr-secondstrand
+if (library.type == "fr-unstranded") {
+	command.parameters <- paste(command.parameters, "--library-type fr-unstranded")
+}else if (library.type == "fr-firststrand") {
+	command.parameters <- paste(command.parameters, "--library-type fr-firststrand")	
+}else if (library.type == "fr-secondstrand") {	
+	command.parameters <- paste(command.parameters, "--library-type fr-secondstrand")
+}
+
 # command ending
 command.end <- paste(path.bowtie.index, "reads1.fq reads2.fq 2>> tophat.log'")
 
 # run tophat
 command <- paste(command.start, command.parameters, command.end)
 
-echo.command <- paste("echo '",command ,"' > tophat.log " )
+echo.command <- paste("echo '",command ,"' 2>> tophat.log " )
 system(echo.command)
 system("echo >> tophat.log")
 #stop(paste('CHIPSTER-NOTE: ', command))
@@ -150,6 +162,7 @@ if (file.exists("insertions.u.bed")){
 		write.table(sorted.bed, file="deletions.bed", sep="\t", row.names=F, col.names=F, quote=F)
 	}
 }
+
 if (!(file.exists("tophat-summary.txt"))){
 	#system("mv tophat_out/logs/tophat.log tophat2.log")
 	system("mv tophat.log tophat2.log")

@@ -17,7 +17,7 @@
 # PARAMETER OPTIONAL splice.mismatches: "Maximum number of mismatches allowed in the anchor" TYPE INTEGER FROM 0 TO 2 DEFAULT 0 (The maximum number of mismatches that may appear in the anchor region of a spliced alignment.)
 # PARAMETER OPTIONAL min.intron.length: "Minimum intron length" TYPE INTEGER FROM 10 TO 1000 DEFAULT 70 (TopHat2 will ignore donor-acceptor pairs closer than this many bases apart.)
 # PARAMETER OPTIONAL max.intron.length: "Maximum intron length" TYPE INTEGER FROM 1000 TO 1000000 DEFAULT 500000 (TopHat2 will ignore donor-acceptor pairs farther than this many bases apart, except when such a pair is supported by a split segment alignment of a long read.)
-
+# PARAMETER OPTIONAL library.type: "Library type" TYPE [fr-unstranded: fr-unstranded, fr-firststrand: fr-firststrand, fr-secondstrand: fr-secondstrand] DEFAULT fr-unstranded (Which library type to use.)
 
 # EK 17.4.2012 added -G and -g options
 # MG 24.4.2012 added ability to use gtf files from Chipster server
@@ -29,6 +29,7 @@
 # AMS 3.1.2014 added transcriptome index for human
 # EK 3.1.2014 added alignment summary to output, added quality and mismatch parameter
 # AMS 22.5.2014 modified to use own genome
+# ML 15.01.2015 Added the library-type parameter
 
 # OUTPUT OPTIONAL tophat2.log
 
@@ -61,7 +62,8 @@ command.start <- paste("bash -c '", set.path, tophat.binary)
 
 # parameters
 #command.parameters <- paste("--bowtie1 -r", mate.inner.distance, "--mate-std-dev", mate.std.dev, "-a", min.anchor.length, "-m", splice.mismatches, "-i", min.intron.length, "-I", max.intron.length, "-g", max.multihits, "--library-type fr-unstranded")
-command.parameters <- paste("-p", chipster.threads.max, "--read-mismatches", mismatches, "-a", min.anchor.length, "-m", splice.mismatches, "-i", min.intron.length, "-I", max.intron.length, "-g", max.multihits, "--library-type fr-unstranded")
+# command.parameters <- paste("-p", chipster.threads.max, "--read-mismatches", mismatches, "-a", min.anchor.length, "-m", splice.mismatches, "-i", min.intron.length, "-I", max.intron.length, "-g", max.multihits, "--library-type fr-unstranded")
+command.parameters <- paste("-p", chipster.threads.max, "--read-mismatches", mismatches, "-a", min.anchor.length, "-m", splice.mismatches, "-i", min.intron.length, "-I", max.intron.length, "-g", max.multihits)
 
 if ( quality.format == "phred64") {
 	command.parameters <- paste(command.parameters, "--phred64-quals")
@@ -77,6 +79,14 @@ if (file.exists("genes.gtf")){
 }
 
 
+if (library.type == "fr-unstranded") {
+	command.parameters <- paste(command.parameters, "--library-type fr-unstranded")
+}else if (library.type == "fr-firststrand") {
+	command.parameters <- paste(command.parameters, "--library-type fr-firststrand")	
+}else if (library.type == "fr-secondstrand") {	
+	command.parameters <- paste(command.parameters, "--library-type fr-secondstrand")
+}
+
 # command ending
 #command.end <- paste(path.bowtie.index, "reads1.fq reads2.fq >> tophat2.log '")
 command.end <- paste(bowtie2.genome, "reads1.fq 2>>tophat.log'")
@@ -84,7 +94,7 @@ command.end <- paste(bowtie2.genome, "reads1.fq 2>>tophat.log'")
 # run tophat
 command <- paste(command.start, command.parameters, command.end)
 
-echo.command <- paste("echo '",command ,"' > tophat.log " )
+echo.command <- paste("echo '",command ,"' 2>> tophat.log " )
 system(echo.command)
 system("echo >> tophat.log")
 #stop(paste('CHIPSTER-NOTE: ', command))
