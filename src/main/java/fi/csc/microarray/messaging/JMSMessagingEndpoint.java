@@ -31,7 +31,6 @@ import fi.csc.microarray.messaging.auth.AuthenticatedTopic;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.CommandMessage;
-import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.KeyAndTrustManager;
 import fi.csc.microarray.util.UrlTransferUtil;
 
@@ -156,21 +155,13 @@ public class JMSMessagingEndpoint implements MessagingEndpoint, MessagingListene
 			adminTopic = createTopic(Topics.Name.ADMIN_TOPIC, AccessMode.READ_WRITE); // endpoint reacts to requests from admin-topic
 			adminTopic.setListener(this);
 			logger.debug("endpoint created succesfully");
-		} catch (JMSException e) {
-			if (e.getCause() instanceof SSLHandshakeException) {
-				
-				try {
-					throw new MicroarrayException(
-							"Server identity cannot be verified. "
-									+ "Message broker " + brokerUrl 
-									+ " does not match certificate "
-									+ getClientTruststore() + ".",
-							e);
-				} catch (NoSuchAlgorithmException | CertificateException | KeyStoreException | IOException e1) {
-					throw new MicroarrayException("could not connect to message broker at " + brokerUrl + " (" + e.getMessage() + ") and " + Exceptions.getStackTrace(e1), e);
-				}
+			
+		} catch (JMSException e) {			
+			if (e.getCause() instanceof SSLHandshakeException) {								
+				throw new MicroarrayException("server identity cannot be verified or other SSL error when connecting to " + brokerUrl, e);
+			} else {
+				throw new MicroarrayException("could not connect to message broker at " + brokerUrl, e);
 			}
-			throw new MicroarrayException("could not connect to message broker at " + brokerUrl + " (" + e.getMessage() + ")", e);
 		}
 	}
 	

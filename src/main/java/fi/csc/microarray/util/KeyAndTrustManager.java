@@ -125,7 +125,7 @@ public class KeyAndTrustManager {
 
 					TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
 					tmf.init(trustStore);
-					SSLContext ctx = SSLContext.getInstance("TLS"); 
+					SSLContext ctx = SSLContext.getInstance("TLS");
 					ctx.init(null, tmf.getTrustManagers(), null);
 					sslFactory = ctx.getSocketFactory();
 				}
