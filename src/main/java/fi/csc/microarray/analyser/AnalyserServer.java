@@ -518,6 +518,8 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 			
 			// no slot to run it now, ignore it
 			else {
+				ResultMessage resultMessage = new ResultMessage(jobMessage.getAnalysisId(), JobState.COMP_BUSY, "", "", "", jobMessage.getReplyTo());
+				sendReplyMessage(jobMessage, resultMessage);
 				return;
 			}
 		}
