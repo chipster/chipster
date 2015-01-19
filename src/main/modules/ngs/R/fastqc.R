@@ -41,7 +41,7 @@ basics <- read.table("xx00", header=FALSE, skip=3, sep = "\t")
 textplot(summary, show.rownames=FALSE, show.colnames=FALSE, halign="center", valign="top", cex=0.80)
 title("Summary")
 textplot(basics, show.rownames=FALSE, show.colnames=FALSE, halign="center", valign="top", cex=0.80)
-title("Basic statisticss")
+title("Basic statistics")
 
 #page 2
 plot.new()
