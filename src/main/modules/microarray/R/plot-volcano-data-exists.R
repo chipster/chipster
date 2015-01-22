@@ -38,7 +38,7 @@ dot_colors[pvalues <= p.value.threshold] <- 2
 
 # Plotting
 pdf(file="volcanoP.pdf", width=w/72, height=h/72)
-plot(expression, -log10(pvalues), xlim=c(-max(expression), max(expression)), main="Volcano plot", pch=19, col=dot_colors, xlab="log2 (fold change)", ylab="-log10 (p)")
+plot(expression, -log10(pvalues), xlim=c(-max(abs(expression)), max(abs(expression))), main="Volcano plot", pch=19, col=dot_colors, xlab="log2 (fold change)", ylab="-log10 (p)")
 abline(h=-log10(p.value.threshold), lty=2)
 dev.off()
 
