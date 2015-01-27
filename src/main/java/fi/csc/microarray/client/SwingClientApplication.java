@@ -230,7 +230,7 @@ public class SwingClientApplication extends ClientApplication {
 					initialiseApplication(false);
 
 				} catch (Exception e) {
-					if (Exceptions.isCausedBy(e, SSLHandshakeException.class)) {
+					if (Exceptions.isCausedBy(e, new SSLHandshakeException(""))) {
 						reportTruststoreError(e);						
 					} else {				
 						reportInitalisationErrorThreadSafely(e);
