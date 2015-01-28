@@ -4,7 +4,7 @@
 # OUTPUT META phenodata.tsv: phenodata.tsv 
 # PARAMETER background.treatment: "Background treatment" TYPE [none: none, subtract: subtract, edwards: edwards, normexp: normexp] DEFAULT normexp (Background treatment method)
 # PARAMETER background.offset: "Background offset" TYPE [0: 0, 50: 50] DEFAULT 50 (Background offset)
-# PARAMETER normalize.arrays: "Normalize arrays TYPE [none: none, median: median, loess: loess] DEFAULT loess (Within array normalization method)
+# PARAMETER normalize.arrays: "Normalize arrays" TYPE [none: none, median: median, loess: loess] DEFAULT loess (Within array normalization method)
 # PARAMETER normalize.genes: "Normalize genes" TYPE [none: none, scale: scale, quantile: quantile, Aquantile: Aquantile, vsn: vsn] DEFAULT none (Between arrays normalization method)
 
 
