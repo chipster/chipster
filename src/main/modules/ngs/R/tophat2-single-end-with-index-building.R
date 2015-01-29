@@ -5,8 +5,6 @@
 # OUTPUT OPTIONAL tophat.bam
 # OUTPUT OPTIONAL tophat.bam.bai
 # OUTPUT OPTIONAL junctions.bed
-# OUTPUT OPTIONAL insertions.bed
-# OUTPUT OPTIONAL deletions.bed
 # OUTPUT OPTIONAL tophat-summary.txt
 # OUTPUT OPTIONAL tophat2.log
 # PARAMETER OPTIONAL no.novel.juncs: "When GTF file is used, ignore novel junctions" TYPE [yes, no] DEFAULT no (Only look for reads across junctions indicated in the supplied GTF file.)
@@ -30,6 +28,7 @@
 # EK 3.1.2014 added alignment summary to output, added quality and mismatch parameter
 # AMS 22.5.2014 modified to use own genome
 # ML 15.01.2015 Added the library-type parameter
+# AMS 29.01.2015 Removed optional outputs deletions.bed and insertions.bed
 
 # OUTPUT OPTIONAL tophat2.log
 
@@ -140,7 +139,7 @@ if (file.exists("insertions.u.bed")){
 	}
 }
 
-if (file.exists("insertions.u.bed")){
+if (file.exists("deletions.u.bed")){
 	size <- file.info("deletions.u.bed")$size
 	if (size > 100){
 		bed <- read.table(file="deletions.u.bed", skip=1, sep="\t")
