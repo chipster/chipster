@@ -1,4 +1,4 @@
-# TOOL deseq2-pca-heatmap.R: "RNA-seq experiment level QC with DESeq2" (Given a table of read counts for an experiment, this tool creates PCA and heatmap plots for the samples using the DESeq2 Bioconductor package. You can create the input count table and phenodata file using the tool \"Utilities - Define NGS experiment\".)
+# TOOL deseq2-pca-heatmap.R: "RNA-seq experiment level quality with DESeq2" (Given a table of read counts for an experiment, this tool creates PCA and heatmap plots for the samples using the DESeq2 Bioconductor package. You can create the input count table and phenodata file using the tool \"Utilities - Define NGS experiment\".)
 # INPUT data.tsv TYPE GENERIC
 # INPUT phenodata.tsv TYPE GENERIC
 # OUTPUT OPTIONAL pca-deseq2.pdf
