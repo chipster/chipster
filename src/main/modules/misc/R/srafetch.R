@@ -3,7 +3,7 @@
 # OUTPUT OPTIONAL sra_reads_1.fastq
 # OUTPUT OPTIONAL sra_reads_2.fastq
 # PARAMETER entry_id: "Name or SRR ID of the SRA entry" TYPE STRING DEFAULT "entry" (Give the SRR id of the SRA entry to be retrieved. For example: SRR000021) 
-# PARAMETER dump: "Sequences to dump" TYPE [all: "All", aligned: "Only aligned sequences", unaligned: "Only unaligned sequences"  ] DEFAULT all (Define the reads to be retrieved form the SRA entry)
+# PARAMETER dump: "Sequences to dump" TYPE [all: "All", aligned: "Only aligned sequences", unaligned: "Only unaligned sequences"  ] DEFAULT all (Define the reads to be retrieved from the SRA entry)
 
 # KM 8.11. 2014
 

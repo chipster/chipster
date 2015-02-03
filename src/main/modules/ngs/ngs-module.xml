@@ -62,6 +62,8 @@
 		</tool>
 		<tool runtime="R-3.0" module="common"><resource>select_columns.R</resource>
 		</tool>
+		<tool runtime="R-3.0" module="common"><resource>sort_and_select_columns.R</resource>
+		</tool>
 		<tool runtime="R-3.0">
 			<resource>process-preprocessed-counts.R</resource>
 		</tool>
