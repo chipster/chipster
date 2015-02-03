@@ -1,7 +1,7 @@
-# TOOL deseq2-pca-heatmap.R: "Experiment level QC for RNA-seq data" (Given a table of read counts for an experiment, this tool creates PCA and heatmap plots for the samples using the DESeq2 Bioconductor package. You can create the input count table and phenodata file using the tool \"Utilities - Define NGS experiment\".)
+# TOOL deseq2-pca-heatmap.R: "RNA-seq experiment level QC with DESeq2" (Given a table of read counts for an experiment, this tool creates PCA and heatmap plots for the samples using the DESeq2 Bioconductor package. You can create the input count table and phenodata file using the tool \"Utilities - Define NGS experiment\".)
 # INPUT data.tsv TYPE GENERIC
 # INPUT phenodata.tsv TYPE GENERIC
-# OUTPUT OPTIONAL pca-deseq2.bed
+# OUTPUT OPTIONAL pca-deseq2.pdf
 # OUTPUT OPTIONAL heatmap-deseq2.pdf
 # PARAMETER column: "Column describing groups" TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the experimental groups.)
 
@@ -23,9 +23,8 @@ condition <- as.character (phenodata[,pmatch(column,colnames(phenodata))])
 # Create a DESeqDataSet object
 dds <- DESeqDataSetFromMatrix(countData=dat2, colData=data.frame(condition), design = ~ condition)
 
-# Calculate size factors and dispersion values
-dds <- estimateSizeFactors(dds) 
-dds <- estimateDispersions(dds)	
+# Calculate size factors 
+dds <- estimateSizeFactors(dds)	
 
 # Perform transformation
 vst<-varianceStabilizingTransformation(dds)
