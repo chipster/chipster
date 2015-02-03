@@ -12,6 +12,9 @@
 		</tool>
 		<tool runtime="R-3.0">
 			<resource>rseqc.R</resource>
+		</tool>
+		<tool runtime="R-3.1.2">
+			<resource>deseq2-pca-heatmap.R</resource>
 		</tool>		
 	</category>
 	
