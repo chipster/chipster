@@ -73,9 +73,9 @@ public class StatusBar {
 			statusLabel.setText(labelText);
 			statusLabel.setBorder(jobStatusIndicator.getBorder());
 
-			jobListButton = new JButton("View job status");
+			jobListButton = new JButton("View jobs");
 			jobListButton.setName("jobListButton");
-			jobListButton.setToolTipText("View tasks");
+			jobListButton.setToolTipText("View jobs");
 
 			jobListButton.addMouseListener(new MouseListener() {
 
@@ -170,16 +170,16 @@ public class StatusBar {
 
 		// update progress bar state
 		if (taskCount == 0) {
-			setProgressBar("0 tasks running", false, 0);
+			setProgressBar("0 jobs running", false, 0);
 		} else {
 			if (taskCount == 1) {
 				if (completion != -1) {
 					setProgressBar("Transferring data", false, completion);
 				} else {
-					setProgressBar(taskCount + " task running", true, 0);
+					setProgressBar(taskCount + " job running", true, 0);
 				}
 			} else {
-				setProgressBar(taskCount + " tasks running", true, 0);
+				setProgressBar(taskCount + " jobs running", true, 0);
 			}
 			
 		}		
