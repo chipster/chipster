@@ -104,6 +104,30 @@
 	</runtime>
 	
 	<runtime>
+		<name>R-3.1.2</name>
+		<handler>
+			<class>fi.csc.microarray.analyser.r.RAnalysisHandler</class> 
+			<parameter>
+				<name>command</name>
+				<value>/opt/chipster/tools/R-3.1.2/bin/R</value>
+			</parameter>
+			<parameter>
+				<name>commandParameters</name>
+				<value>--vanilla --quiet</value>
+			</parameter>
+			<parameter>
+				<name>toolPath</name>
+				<value>/R-3.1.2</value>
+			</parameter>
+			<parameter>
+				<name>externalToolPath</name>
+				<value>/opt/chipster/tools</value>
+			</parameter>
+		</handler>
+	</runtime>
+	
+	
+	<runtime>
         <name>java</name>
         <handler>
             <class>fi.csc.microarray.analyser.java.JavaAnalysisHandler</class> 
