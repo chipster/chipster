@@ -145,6 +145,9 @@ compare_to_current_and_latest "3.2.0"
 if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   echo "enable importing of example sessions"
   cd /opt/chipster; sudo bash configure.sh edit fileserver set filebroker/example-session-path example-sessions
+  
+  #fix a missing symlink (in 3.1.1 root image)
+  sudo ln -sf /opt/chipster/genomes/genomebrowser /opt/chipster/fileserver/file-root/public/genomebrowser
 fi
 
 #####################################

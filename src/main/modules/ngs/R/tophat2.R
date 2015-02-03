@@ -5,8 +5,6 @@
 # OUTPUT OPTIONAL tophat.bam
 # OUTPUT OPTIONAL tophat.bam.bai
 # OUTPUT OPTIONAL junctions.bed
-# OUTPUT OPTIONAL insertions.bed
-# OUTPUT OPTIONAL deletions.bed
 # OUTPUT OPTIONAL tophat-summary.txt
 # OUTPUT OPTIONAL tophat2.log
 # PARAMETER organism: "Genome or transcriptome" TYPE [Arabidopsis_thaliana.TAIR10.23, Bos_taurus.UMD3.1, Canis_familiaris.CanFam3.1, Drosophila_melanogaster.BDGP5, Gallus_gallus.Galgal4, Gasterosteus_aculeatus.BROADS1, Halorubrum_lacusprofundi_atcc_49239.GCA_000022205.1.23, Homo_sapiens.GRCh37.75, Homo_sapiens.GRCh38, Mus_musculus.GRCm38, Ovis_aries.Oar_v3.1, Rattus_norvegicus.Rnor_5.0, Schizosaccharomyces_pombe.ASM294v2.23, Sus_scrofa.Sscrofa10.2, Vitis_vinifera.IGGP_12x.23, Yersinia_enterocolitica_subsp_palearctica_y11.GCA_000253175.1.23] DEFAULT Homo_sapiens.GRCh38 (Genome or transcriptome that you would like to align your reads against.)
@@ -37,6 +35,7 @@
 # AMS 04.07.2014 New genome/gtf/index locations & names
 # AMS 07.01.2015 Removed parameter no.discordant until tophat code fixed, return tophat2.log if tophat-summary.txt not produced
 # ML 15.01.2015 Added the library-type parameter
+# AMS 29.01.2015 Removed optional outputs deletions.bed and insertions.bed
 
 # PARAMETER OPTIONAL no.discordant: "Report only concordant alignments" TYPE [yes, no] DEFAULT yes (Report only concordant mappings.) 
 
@@ -153,7 +152,7 @@ if (file.exists("insertions.u.bed")){
 	}
 }
 
-if (file.exists("insertions.u.bed")){
+if (file.exists("deletions.u.bed")){
 	size <- file.info("deletions.u.bed")$size
 	if (size > 100){
 		bed <- read.table(file="deletions.u.bed", skip=1, sep="\t")

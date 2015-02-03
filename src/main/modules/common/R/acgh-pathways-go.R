@@ -4,7 +4,7 @@
 # OUTPUT hypergeo-go.html: hypergeo-go.html 
 # PARAMETER aberrations: Aberrations TYPE [all_aberrations: "all aberrations", losses_and_deletions: "losses and deletions", deletions: deletions, losses: losses, gains: gains, amplifications: amplifications, gains_and_amplifications: "gains and amplifications"] DEFAULT all_aberrations (Whether to test enrichment of GO terms in frequently lost, gained or amplified genes.)
 # PARAMETER frequency.threshold: "Frequency threshold" TYPE DECIMAL DEFAULT 0.5 (The minimum proportion of samples containing the particular type of aberration.)
-# PARAMETER ontology: Ontology TYPE [all: all, biological_process: "biological process", molecular_function: "molecular"function", cellular_component: "cellular component"] DEFAULT biological_process (The ontology to be analyzed.)
+# PARAMETER ontology: Ontology TYPE [all: all, biological_process: "biological process", molecular_function: "molecular function", cellular_component: "cellular component"] DEFAULT biological_process (The ontology to be analyzed.)
 # PARAMETER p.value.threshold: "p-value threshold" TYPE DECIMAL DEFAULT 0.05 (P-value threshold.)
 # PARAMETER minimum.population: "Minimum population" TYPE INTEGER FROM 1 TO 1000000 DEFAULT 2 (Minimum number of genes required to be in a pathway.)
 # PARAMETER conditional.testing: "Conditional testing" TYPE [yes: yes, no: no] DEFAULT yes (Conditional testing means that when a significant GO term is found, i.e. p-value is smaller than the specified thershold, that GO term is removed when testing the significance of its parent.)

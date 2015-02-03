@@ -1,5 +1,11 @@
 package fi.csc.microarray.util;
 
+import java.io.IOException;
+
+import javax.net.ssl.SSLHandshakeException;
+
+import fi.csc.microarray.exception.MicroarrayException;
+
 
 public class Exceptions {
 
@@ -22,8 +28,20 @@ public class Exceptions {
 		return trace;
 	}
 
-	public static boolean isCausedBy(Throwable exception, Class<? extends Exception> type) {
-		if (exception.getClass().isAssignableFrom(type)) {
+	/**
+	 * Check if this exception or any of its causes is a instance of the given
+	 * type.
+	 * 
+	 * Type must be given as an object (i.e. new IOException("")), because
+	 * that's what the class.isInstance() expects.
+	 * 
+	 * @param exception
+	 * @param type
+	 * @return
+	 */
+	public static boolean isCausedBy(Throwable exception, Object type) {
+		
+		if (type.getClass().isInstance(exception)) {
 			return true;
 		}
 		
@@ -32,10 +50,19 @@ public class Exceptions {
 		while (e.getCause() != null) {
 			e = e.getCause();
 			
-			if (e.getClass().isAssignableFrom(type)) {
+			if (type.getClass().isInstance(e)) {
 				return true;
 			}
 		}
 		return false;
+	}
+	
+	public static void main(String args[]) throws InstantiationException, IllegalAccessException {
+		
+		System.out.println(isCausedBy(new MicroarrayException(new Exception()), new SSLHandshakeException("")));
+		System.out.println(isCausedBy(new MicroarrayException(new SSLHandshakeException("")), new SSLHandshakeException("")));
+		
+		System.out.println(isCausedBy(new MicroarrayException(""), new SSLHandshakeException("")));
+		System.out.println(isCausedBy(new SSLHandshakeException(""), new IOException("")));			
 	}
 }
