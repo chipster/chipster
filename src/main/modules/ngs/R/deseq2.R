@@ -14,7 +14,7 @@
 
 # MK 15.04.2014, added the possibility to use DESeq2 in dea-deseq.R 
 # AMS 17.06.2014, split the DESeq2 part to a separate tool
-# EK 1.7.2014, clarified the script before moving the it to production and fixed the bug that disabled DESeq2's automatic independent filtering 
+# EK 1.7.2014, clarified the script before moving it to production, and fixed a bug that disabled DESeq2's automatic independent filtering 
 
 
 #column <-"group"
@@ -22,21 +22,20 @@
 #dispersion_estimate<-"parametric"
 #p.value.cutoff<-0.05
 
-# Loads the correct library
+# Loads the library
 source(file.path(chipster.common.path, "bed-utils.R"))
 library(DESeq2)
 
-# Loads the counts data and extract expression values
-file <- c("data.tsv")
-dat <- read.table(file, header=T, sep="\t", row.names=1)
+# Loads the counts data and extract expression value columns
+dat <- read.table("data.tsv", header=T, sep="\t", row.names=1)
 dat2 <- dat[,grep("chip", names(dat))]
 
-# Get the experimental group information from the relevant phenodata column
+# Get the experimental group information from phenodata
 phenodata <- read.table("phenodata.tsv", header=T, sep="\t")
 groups <- as.character (phenodata[,pmatch(column,colnames(phenodata))])
 group_levels <- levels(as.factor(groups))
 
-# Read additional experimental factors from phenodata and construct design matrix from this information
+# Read the additional experimental factor from phenodata and construct a design matrix from this information
 exp_factor <- NULL
 if(ad_factor != "EMPTY") {
 	exp_factor <- as.character (phenodata[,pmatch(ad_factor,colnames(phenodata))])
@@ -44,84 +43,84 @@ if(ad_factor != "EMPTY") {
 	rownames(design) <- colnames(dat2)
 }
 
-# Create a DESeqDataSet object from the counts file
+# Create a DESeqDataSet object
 if (ad_factor == "EMPTY") {
-	counts_data <- DESeqDataSetFromMatrix(countData=dat2, colData=data.frame(condition=groups), design = ~ condition)
+	dds <- DESeqDataSetFromMatrix(countData=dat2, colData=data.frame(condition=groups), design = ~ condition)
 } else if (ad_factor != "EMPTY") {
-	counts_data <- DESeqDataSetFromMatrix(countData=dat2, colData=design, design = ~ exp_factor + condition)
+	dds <- DESeqDataSetFromMatrix(countData=dat2, colData=design, design = ~ exp_factor + condition)
 }
 
-# Calculate size factors based on estimated library size
-counts_data <- estimateSizeFactors(counts_data)
+# Calculate size factors
+dds <- estimateSizeFactors(dds)
 
 # Estimate dispersion values for each gene. Use fitType to control for parametric or local fit. 
-counts_data <- estimateDispersions(counts_data, fitType=dispersion_estimate)	
+dds <- estimateDispersions(dds, fitType=dispersion_estimate)	
 
 # Vector / variable that holds comparison names
 results_name <- NULL 
 
 # Calculate statistic for differential expression, merge with original data table, keep significant DEGs, remove NAs and sort by FDR. If there are more than 2 groups, get pairwise results for each comparison.
 if (length(unique(groups)) == 2) {
-	results_table <- results(nbinomWaldTest(counts_data))
-	significant_table <- cbind(dat, results_table)[results_table$padj <= p.value.cutoff, ]
-	significant_table <- significant_table[! (is.na(significant_table$padj)), ]
-	significant_table <- significant_table[ order(significant_table$padj), ]
+	res <- results(nbinomWaldTest(dds))
+	sig <- cbind(dat, res)[res$padj <= p.value.cutoff, ]
+	sig <- sig[! (is.na(sig$padj)), ]
+	sig <- sig[ order(sig$padj), ]
 } else if (length(unique(groups)) > 2){
-	test_results <- nbinomWaldTest(counts_data)
-	results_table <- NULL
+	test_results <- nbinomWaldTest(dds)
+	res <- NULL
 	for (i in levels(colData(test_results)$condition)[-(length(levels(colData(test_results)$condition)))]) {
 		for (j in levels(colData(test_results)$condition)[-(1:i)]) {
 			pairwise_results <- as.data.frame(results(test_results, contrast=c("condition",i,j)))
-			if(is.null(results_table)) results_table <- pairwise_results else  results_table <- cbind(results_table, pairwise_results)
+			if(is.null(res)) res <- pairwise_results else  res <- cbind(res, pairwise_results)
 			results_name <- c(results_name, paste(i,"_vs_", j, sep=""))
 		}
 	}
-	colnames(results_table) <- paste(colnames(results_table), rep(results_name,each=6), sep=".")
-	min_padj <- apply(results_table[, grep("padj", colnames(results_table))], 1, min)
-	significant_table <- cbind(dat, results_table, min_padj=min_padj)
-	significant_table <- significant_table[ (significant_table$min_padj <=  p.value.cutoff), ]
-	significant_table <- significant_table[! (is.na(significant_table$min_padj)), ]
-	significant_table <- significant_table[ order(significant_table$min_padj), ] 
-	significant_table <- significant_table[, -grep("min_padj", colnames(significant_table))]
+	colnames(res) <- paste(colnames(res), rep(results_name,each=6), sep=".")
+	min_padj <- apply(res[, grep("padj", colnames(res))], 1, min)
+	sig <- cbind(dat, res, min_padj=min_padj)
+	sig <- sig[ (sig$min_padj <=  p.value.cutoff), ]
+	sig <- sig[! (is.na(sig$min_padj)), ]
+	sig <- sig[ order(sig$min_padj), ] 
+	sig <- sig[, -grep("min_padj", colnames(sig))]
 } 
 
 
 # Output significant DEGs
-if (dim(significant_table)[1] > 0) {
+if (dim(sig)[1] > 0) {
 	ndat <- ncol(dat)
-	nmax <- ncol(significant_table)
-	write.table(cbind(significant_table[,1:ndat], round(significant_table[, (ndat+1):(nmax-2)], digits=2), format(significant_table[, (nmax-1):nmax], digits=4, scientific=T)), file="de-list-deseq2.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+	nmax <- ncol(sig)
+	write.table(cbind(sig[,1:ndat], round(sig[, (ndat+1):(nmax-2)], digits=2), format(sig[, (nmax-1):nmax], digits=4, scientific=T)), file="de-list-deseq2.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 }
 
 #Create a template output table for plotting. If having N genes and 3 comparisons, this conversion results in a data matrix that has Nx3 rows 
 output_table <- NULL
-colnames(results_table) <- gsub("\\..*$", "", colnames(results_table))
-for(i in grep("baseMean$", colnames(results_table))) {
-	col_size <- grep("padj", colnames(results_table))[1] - grep("baseMean", colnames(results_table))[1]
-	output_table <- rbind(output_table, cbind(dat, results_table[, (i:(i+col_size))]))
+colnames(res) <- gsub("\\..*$", "", colnames(res))
+for(i in grep("baseMean$", colnames(res))) {
+	col_size <- grep("padj", colnames(res))[1] - grep("baseMean", colnames(res))[1]
+	output_table <- rbind(output_table, cbind(dat, res[, (i:(i+col_size))]))
 }
-rownames(output_table) <- make.names(rep(rownames(results_table), length(grep("baseMean$", colnames(results_table)))), unique=T)
+rownames(output_table) <- make.names(rep(rownames(res), length(grep("baseMean$", colnames(res)))), unique=T)
 
 # If genomic coordinates are present, output a sorted BED file for genome browser visualization and region matching tools
 if("chr" %in% colnames(dat)) {
-	if (dim(significant_table)[1] > 0) {
-		bed_output <- output_table[,c("chr","start","end")]
+	if (dim(sig)[1] > 0) {
+		bed <- output_table[,c("chr","start","end")]
 		if(is.null(results_name)) {
-			gene_names <- rownames(results_table)
+			gene_names <- rownames(res)
 		} else {
-			gene_names <- paste(rep(results_name, each=nrow(results_table)), rownames(results_table), sep="")	
+			gene_names <- paste(rep(results_name, each=nrow(res)), rownames(res), sep="")	
 		}
-		bed_output <- cbind(bed_output, name=gene_names)							#name
-		bed_output <- cbind(bed_output, score=output_table[, "log2FoldChange"])		#score
-		bed_output <- bed_output[(output_table$padj <= p.value.cutoff & (! (is.na(output_table$padj)))), ]
-		bed_output <- sort.bed(bed_output)
-		write.table(bed_output, file="de-list-deseq2.bed", sep="\t", row.names=F, col.names=F, quote=F)
+		bed <- cbind(bed, name=gene_names)							#name
+		bed <- cbind(bed, score=output_table[, "log2FoldChange"])		#score
+		bed <- bed[(output_table$padj <= p.value.cutoff & (! (is.na(output_table$padj)))), ]
+		bed <- sort.bed(bed)
+		write.table(bed, file="de-list-deseq2.bed", sep="\t", row.names=F, col.names=F, quote=F)
 	}
 }
 
 # Make dispersion plot
 pdf(file="dispersion-plot-deseq2.pdf")
-plotDispEsts(counts_data, main="Dispersion plot", cex=0.2)
+plotDispEsts(dds, main="Dispersion plot", cex=0.2)
 legend(x="topright", legend="fitted dispersion", col="red", cex=1, pch="-")
 dev.off()
 
