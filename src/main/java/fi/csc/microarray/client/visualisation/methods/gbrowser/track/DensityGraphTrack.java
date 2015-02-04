@@ -51,36 +51,11 @@ public class DensityGraphTrack extends Track {
         // draw a black rectangle as the background
         drawables.add(new RectDrawable(new Rectangle(0, 0,
         		getView().getWidth(), this.getTrackHeight()), BACKGROUND, BACKGROUND));
-
-        float maxValue = 1L;
         
-        boolean isAverage = coverageStorage.isAverage(view.getBpRegion());
+        boolean isAverage = isAverage();
         
         Iterator<Entry<Region, Float>> averageIter = null;
-        Iterator<Entry<BpCoord, Base>> baseIter = null;
-        
-        if (view.parentPlot.getReadScale() == ReadScale.AUTO) {
-        	if (isAverage) {
-        		averageIter = coverageStorage.getTotalAverageCoverage().entrySet().iterator();
-        	} else {
-        		baseIter = coverageStorage.getTotalBases().entrySet().iterator();
-        	}
-
-        	while ((isAverage && averageIter.hasNext()) || (!isAverage && baseIter.hasNext())) {
-
-        		Float value = null;        	        	
-
-        		if (isAverage) {
-        			Entry<Region, Float> entry = averageIter.next();        	
-        			value = entry.getValue();
-        		} else {
-        			Entry<BpCoord, Base> entry =  baseIter.next();
-        			value = (float) entry.getValue().getCoverage();
-        		}
-
-        		maxValue = Math.max(maxValue, value);
-        	}
-        }
+        Iterator<Entry<BpCoord, Base>> baseIter = null;       
         
         if (isAverage) {
         	averageIter = coverageStorage.getTotalAverageCoverage().entrySet().iterator();
@@ -118,11 +93,8 @@ public class DensityGraphTrack extends Track {
         	// choose lightness
         	Color c;
         	float lightness;
-        	if (view.parentPlot.getReadScale() == ReadScale.AUTO) {
-        		lightness = value/(float)maxValue; 
-        	} else {
-        		lightness = Math.min(value/(float)view.parentPlot.getReadScale().numReads, 1f);
-        	}
+        	
+        	lightness = Math.min(value/(float)view.parentPlot.getReadScale().numReads, 1f);
 
         	c = Color.getHSBColor(hue, 0, 1-lightness);
 
@@ -169,4 +141,53 @@ public class DensityGraphTrack extends Track {
     public String getTrackName() {
     	return "DensityGraphTrack";
     }
+    
+	@Override
+	public void updateLayout() {
+		/*
+		 * Automatic scale must be calculated for all tracks before drawing any
+		 * of them. This is a handy place for such a job.
+		 * 
+		 * New data may arrive between this calculation and paintComponent(),
+		 * which don't fit in this scale, but it will cause a new repaint which
+		 * will fix it.
+		 */
+ 
+		if (view.parentPlot.getReadScale() == ReadScale.AUTO) {
+			view.parentPlot.getReadScale().set(getMaxTotalCoverage());
+		}		
+	}
+
+	private int getMaxTotalCoverage() {
+		
+		float maxValue = 1L;
+		
+		boolean isAverage = isAverage();
+		
+        Iterator<Entry<Region, Float>> averageIter = null;
+        Iterator<Entry<BpCoord, Base>> baseIter = null;
+        
+        if (isAverage) {
+        	averageIter = coverageStorage.getTotalAverageCoverage().entrySet().iterator();
+        } else {
+        	baseIter = coverageStorage.getTotalBases().entrySet().iterator();
+        }
+
+        while ((isAverage && averageIter.hasNext()) || (!isAverage && baseIter.hasNext())) {
+
+        	Float value = null;        	        	
+
+        	if (isAverage) {
+        		Entry<Region, Float> entry = averageIter.next();        	
+        		value = entry.getValue();
+        	} else {
+        		Entry<BpCoord, Base> entry =  baseIter.next();
+        		value = (float) entry.getValue().getCoverage();
+        	}
+
+        	maxValue = Math.max(maxValue, value);
+        }
+        
+        return (int) maxValue;
+	}
 }

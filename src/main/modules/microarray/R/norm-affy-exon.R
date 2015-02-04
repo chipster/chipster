@@ -2,8 +2,8 @@
 # INPUT microarray{...}.cel: microarray{...}.cel TYPE AFFY 
 # OUTPUT normalized.tsv: normalized.tsv 
 # OUTPUT META phenodata.tsv: phenodata.tsv 
-# PARAMETER chiptype: chiptype TYPE [empty: empty, human: human, human-hta20: human-hta20, mouse: mouse, rat: rat] DEFAULT empty (Chiptype)
-# PARAMETER summary.feature: summary.feature TYPE [gene: gene, exon: exon] DEFAULT gene (Output summary type)
+# PARAMETER chiptype: "Chiptype" TYPE [empty: empty, human: human, human-hta20: human-hta20, mouse: mouse, rat: rat] DEFAULT empty (Chiptype)
+# PARAMETER summary.feature: "Summary feature" TYPE [gene: gene, exon: exon] DEFAULT gene (Output summary type)
 
 # JTT 08.06.2006: Created
 # JTT 29.06.2006: Changes to column naming on 

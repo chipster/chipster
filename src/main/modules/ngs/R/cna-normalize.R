@@ -2,8 +2,8 @@
 # INPUT corrected-counts.tsv: corrected-counts.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT normalized-counts.tsv: normalized.tsv
-# PARAMETER method: method TYPE [median: median, mode: mode, none: none] DEFAULT median (Normalization method.)
-# PARAMETER smoothOutliers: "smooth outliers" TYPE [TRUE: yes, FALSE: no] DEFAULT TRUE (Whether to smooth outliers, which is recommended before segmentation.)
+# PARAMETER method: Method TYPE [median: median, mode: mode, none: none] DEFAULT median (Normalization method.)
+# PARAMETER smoothOutliers: "Smooth outliers" TYPE [TRUE: yes, FALSE: no] DEFAULT TRUE (Whether to smooth outliers, which is recommended before segmentation.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
 # 2014-03-22

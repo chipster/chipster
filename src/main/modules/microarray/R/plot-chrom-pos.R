@@ -3,8 +3,8 @@
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT chromloc.pdf: chromloc.pdf 
 # PARAMETER chip.to.plot: "Column to plot" TYPE COLUMN_SEL DEFAULT EMPTY (Column that contains the expression values. Data is mean centered)
-# PARAMETER image.width: "Image width" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
-# PARAMETER image.height: "Image height" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
+# PARAMETER OPTIONAL image.width: "Image width" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
+# PARAMETER OPTIONAL image.height: "Image height" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
 # PARAMETER chip.to.plot: chip.to.plot TYPE INTEGER FROM 1 TO 1000 DEFAULT 1 (Which columns to plot)
 

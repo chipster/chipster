@@ -17,6 +17,9 @@ import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,6 +31,7 @@ import java.util.Vector;
 import java.util.concurrent.TimeUnit;
 
 import javax.jms.JMSException;
+import javax.net.ssl.SSLHandshakeException;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -107,6 +111,7 @@ import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.exception.ErrorReportAsException;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.DbSession;
+import fi.csc.microarray.messaging.JMSMessagingEndpoint;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
 import fi.csc.microarray.module.basic.BasicModule.VisualisationMethods;
 import fi.csc.microarray.util.BrowserLauncher;
@@ -225,13 +230,70 @@ public class SwingClientApplication extends ClientApplication {
 					initialiseApplication(false);
 
 				} catch (Exception e) {
-					reportInitalisationErrorThreadSafely(e);
+					if (Exceptions.isCausedBy(e, new SSLHandshakeException(""))) {
+						reportTruststoreError(e);						
+					} else {				
+						reportInitalisationErrorThreadSafely(e);
+					}
 				}
 			}
+
 		});
 		t.start();
 	}
 
+	private void reportTruststoreError(Exception e) {
+		String truststore = null;
+		try {
+			truststore = JMSMessagingEndpoint.getClientTruststore();
+		} catch (NoSuchAlgorithmException | CertificateException | KeyStoreException | IOException e1) {
+			reportInitalisationErrorThreadSafely(new MicroarrayException("could not read trusstore configuration", e));
+		}
+			
+		String title;
+		String msg;
+		PluginButton button;
+
+		if (truststore == null) {
+			title = "Server's identity cannot be verified";
+			msg = "Server's administrator "
+					+ "must install a proper certificate signed by CA or configure "
+					+ "the server to use self-signed certificates.";
+			button = null;
+		} else {
+			title = "Server's identity has changed";
+			msg = "Click 'Close' to keep the old certificate. Server's identity will be verified "
+					+ "with this certificate also next time."
+					+ "\n\n"
+					+ "Click 'Trust this server' to update the certificate. "
+					+ "Update certificate only in a network that you trust. Chipster must be "
+					+ "restarted manually after this.";
+			
+			final File truststoreFile = new File(truststore);
+			
+			button = new PluginButton() {
+
+				@Override
+				public void actionPerformed() {																		
+					truststoreFile.delete();
+					// now that the file is missing, getClientTruststore() will download it without complaints
+					try {
+						JMSMessagingEndpoint.getClientTruststore();
+					} catch (NoSuchAlgorithmException | CertificateException | KeyStoreException | IOException e) {
+						reportInitalisationErrorThreadSafely(new MicroarrayException("could not download trusstore", e));
+					}
+				}
+
+				@Override
+				public String getText() {
+					return "Trust this server";
+				}
+			};
+		}						
+		showDialog(title, msg, Exceptions.getStackTrace(e), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, button);
+		quitImmediately();		
+	}
+	
 	private void reportInitalisationErrorThreadSafely(final Exception e) {
 		SwingUtilities.invokeLater(new Runnable() {
 			
@@ -468,9 +530,7 @@ public class SwingClientApplication extends ClientApplication {
 	
 	private String windowTitleJobPrefix = null;
 	private String windowTitleBlockingPrefix = null;
-	private JFileChooser remoteSessionFileChooser;
 	private JFileChooser localSessionFileChooser;
-	private JFileChooser exampleSessionFileChooser;
 
 	public void updateWindowTitleJobCount(Integer jobCount) {
 		windowTitleJobPrefix = jobCount > 0 ? jobCount + " tasks / " : null;
@@ -1123,13 +1183,19 @@ public class SwingClientApplication extends ClientApplication {
 	public void quitImmediately() {
 
 		// hide immediately to look more reactive...
-		childScreens.disposeAll();
-		mainFrame.setVisible(false);
+		if (childScreens != null) {
+			childScreens.disposeAll();
+		}
+		if (mainFrame != null) {
+			mainFrame.setVisible(false);
+		}
 
 		super.quit();
 
 		// this closes the application
-		mainFrame.dispose();
+		if (mainFrame != null) {
+			mainFrame.dispose();
+		}
 		System.exit(0);
 	}
 
@@ -1424,23 +1490,17 @@ public class SwingClientApplication extends ClientApplication {
 	private JFileChooser getSessionFileChooser(boolean remote, boolean openExampleDir) throws MalformedURLException, JMSException, Exception {
 		
 		if (openExampleDir) {
-			if (exampleSessionFileChooser == null) {
-
-				exampleSessionFileChooser = populateFileChooserFromServer();
-				exampleSessionFileChooser.setSelectedFile(new File("Session name"));
-				ServerFileUtils.hideJFileChooserButtons(exampleSessionFileChooser);
-			}
+			JFileChooser exampleSessionFileChooser = populateFileChooserFromServer();	 		
+			exampleSessionFileChooser.setSelectedFile(new File("Session name"));
+			ServerFileUtils.hideJFileChooserButtons(exampleSessionFileChooser);			
 			ServerFileSystemView view = (ServerFileSystemView) exampleSessionFileChooser.getFileSystemView();
 			exampleSessionFileChooser.setCurrentDirectory(view.getExampleSessionDir());				
 			return exampleSessionFileChooser;
 			
 		} else if (remote) {
-			if (remoteSessionFileChooser == null) {
-				
-				remoteSessionFileChooser = populateFileChooserFromServer();
-				remoteSessionFileChooser.setSelectedFile(new File("Session name"));
-				ServerFileUtils.hideJFileChooserButtons(remoteSessionFileChooser);
-			}
+			JFileChooser remoteSessionFileChooser = populateFileChooserFromServer();
+			remoteSessionFileChooser.setSelectedFile(new File("Session name"));
+			ServerFileUtils.hideJFileChooserButtons(remoteSessionFileChooser);
 			return remoteSessionFileChooser;
 
 		} else {

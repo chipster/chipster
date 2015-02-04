@@ -2,9 +2,9 @@
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # OUTPUT kmeans.tsv: kmeans.tsv 
 # OUTPUT kmeans.pdf: kmeans.pdf 
-# PARAMETER number.of.clusters: number.of.clusters TYPE INTEGER FROM 2 TO 100000 DEFAULT 5 (Number of clusters)
-# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the resampling image)
-# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the resampling image)
+# PARAMETER number.of.clusters: "Number of clusters" TYPE INTEGER FROM 2 TO 100000 DEFAULT 5 (Number of clusters)
+# PARAMETER image.width: "Image width" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the resampling image)
+# PARAMETER image.height: "Image height" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the resampling image)
 
 
 # K-means clustering

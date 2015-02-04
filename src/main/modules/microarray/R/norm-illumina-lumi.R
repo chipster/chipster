@@ -2,11 +2,11 @@
 # INPUT chip.tsv: chip.tsv TYPE GENERIC 
 # OUTPUT normalized.tsv: normalized.tsv 
 # OUTPUT META phenodata.tsv: phenodata.tsv 
-# PARAMETER probe.identifier: probe.identifier TYPE [Probe_ID: Probe_ID, Array_Address_ID: Array_Address_ID] DEFAULT Probe_ID (What type of identifiers you do have)
-# PARAMETER transformation: transformation TYPE [none: none, vst: vst, log2: log2] DEFAULT log2 (How to transform the data)
-# PARAMETER background.correction: background.correction TYPE [none: none, bgAdjust.affy: bgAdjust.affy] DEFAULT none (Should background adjustment be applied)
-# PARAMETER normalize.chips: normalize.chips TYPE [none: none, rsn: rsn, loess: loess, quantile: quantile, vsn: vsn] DEFAULT quantile (Between arrays normalization method)
-# PARAMETER chiptype: chiptype TYPE [empty: empty, Human: Human, Mouse: Mouse, Rat: Rat] DEFAULT empty ()
+# PARAMETER probe.identifier: "Probe identifier" TYPE [Probe_ID: Probe_ID, Array_Address_ID: Array_Address_ID] DEFAULT Probe_ID (What type of identifiers you do have)
+# PARAMETER transformation: "Transformation" TYPE [none: none, vst: vst, log2: log2] DEFAULT log2 (How to transform the data)
+# PARAMETER background.correction: "Background correction" TYPE [none: none, bgAdjust.affy: bgAdjust.affy] DEFAULT none (Should background adjustment be applied)
+# PARAMETER normalize.chips: "Normalize chips" TYPE [none: none, rsn: rsn, loess: loess, quantile: quantile, vsn: vsn] DEFAULT quantile (Between arrays normalization method)
+# PARAMETER chiptype: "Chiptype" TYPE [empty: empty, Human: Human, Mouse: Mouse, Rat: Rat] DEFAULT empty ()
 
 # Illumina data preprocessing and normalization for BeadSummaryData that
 # uses Array_Address_Id instead of Probe_Id 

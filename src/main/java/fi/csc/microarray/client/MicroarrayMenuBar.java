@@ -161,6 +161,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			fileMenu.addSeparator();
 			fileMenu.add(getOpenExampleSessionMenuItem());
 			if (application.getSessionManager().areCloudSessionsEnabled()) {
+				fileMenu.addSeparator();
 				fileMenu.add(getLoadSessionMenuItem(true));
 				fileMenu.add(getSaveSessionMenuItem());
 				fileMenu.add(getManageSessionsMenuItem());
@@ -263,8 +264,9 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
 						File workflow = application.openWorkflow(false);
-						addRecentWorkflow(workflow.getName(), Files.toUrl(workflow));
-
+						if (workflow != null) {
+							addRecentWorkflow(workflow.getName(), Files.toUrl(workflow));
+						}
 					} catch (Exception me) {
 						application.reportException(me);
 					}
@@ -504,7 +506,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem getTaskListMenuItem() {
 		if (taskListMenuItem == null) {
 			taskListMenuItem = new JMenuItem();
-			taskListMenuItem.setText("Tasks...");
+			taskListMenuItem.setText("Jobs...");
 			taskListMenuItem.setAccelerator(KeyStroke.getKeyStroke('T', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
 			taskListMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -794,11 +796,6 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		if (openExampleSessionMenuItem == null) {
 			openExampleSessionMenuItem = new JMenuItem();
 			openExampleSessionMenuItem.setText("Open example session");
-			try {
-				openExampleSessionMenuItem.setEnabled(!Session.getSession().getServiceAccessor().getFileBrokerClient().listPublicRemoteSessions().isEmpty());
-			} catch (JMSException e) {
-				logger.debug("unable to list example sessions", e);
-			}
 			openExampleSessionMenuItem.addActionListener(new ActionListener() {
 
 				public void actionPerformed(ActionEvent e) {

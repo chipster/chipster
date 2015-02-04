@@ -1,10 +1,10 @@
 # TOOL import-soft2.R: "Import from GEO" (Import a data set directly from GEO. Be sure to specify the chiptype as an Affymetrix chip name, or either Illumina or cDNA.)
 # OUTPUT normalized.tsv: normalized.tsv 
 # OUTPUT META phenodata.tsv: phenodata.tsv 
-# PARAMETER GDS.name: accession TYPE STRING DEFAULT GSE (GDS or GSE number of the experiment.)
-# PARAMETER platform: platform TYPE STRING DEFAULT GPL (In case the series contains multiple platforms, specify the accession of the platform to import. If there is just one, this platform is ignored.)
+# PARAMETER GDS.name: Accession TYPE STRING DEFAULT GSE (GDS or GSE number of the experiment.)
+# PARAMETER platform: Platform TYPE STRING DEFAULT GPL (In case the series contains multiple platforms, specify the accession of the platform to import. If there is just one, this platform is ignored.)
 # PARAMETER chiptype: "Affymetrix/Illumina chiptype" TYPE STRING DEFAULT other (If the microarray platform used is an Affymetrix one, the name of the Bioconductor annotation package. For Illumina arrays, fill in Illumina. For everything else, either cDNA or other.)
-# PARAMETER matrix: "matrix number" TYPE INTEGER FROM 1 TO 100 DEFAULT 1 (The rank number of softmatrix to retrieve. Please note that most GEO-entries include only one softmatrix)
+# PARAMETER matrix: "Matrix number" TYPE INTEGER FROM 1 TO 100 DEFAULT 1 (The rank number of softmatrix to retrieve. Please note that most GEO-entries include only one softmatrix)
 
 # JTT 09.08.2007
 # IS: 03.18.2013: Ilari Scheinin <firstname.lastname@gmail.com>
