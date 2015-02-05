@@ -59,9 +59,18 @@ echo.command <- paste("echo '",command.full,"' > edirect.log" )
 system(echo.command)
 system(command.full)
 
-command.full <- paste("cat query.xml | ", xtract.path, " -pattern ENTREZ_DIRECT -element Count" )
+#command.full <- paste("cat query.xml | ", xtract.path, " -pattern ENTREZ_DIRECT -element Count" )
+command.full <- paste('grep "<Count>" query.xml | awk -F "[<,>]"', "'{print $3}'| head -1")
 echo.command <- paste("echo '",command.full,"' >> edirect.log" )
 system(echo.command)
+str.hits <- system(command.full, intern = TRUE )
+num.hits <- as.integer(str.hits)
+echo.command <- paste("echo num.hits'", num.hits,"' >> edirect.log" )
+
+if (num.hits > 10000){
+stop(paste('CHIPSTER-NOTE: Too many hit sequences. Maximun 10000 sequeces can be retrieved, but your query would retrieve', num.hits ))
+}
+system("ls -l >> edirect.log")
 
 
 
