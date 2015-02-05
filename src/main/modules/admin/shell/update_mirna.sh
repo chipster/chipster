@@ -10,6 +10,7 @@ then
 fi
 
 species=$1
+index_path=$2
 
 INDEX_BOWTIE=(1)
 INDEX_BOWTIE2=(1)
@@ -21,7 +22,7 @@ species_name=$(echo $species | tr " " "_")
 
 chipster_path=(/opt/chipster)
 tools_path=($chipster_path/tools)
-index_path=($tools_path/genomes/indexes)
+#index_path=($tools_path/genomes/indexes)
 
 cd $tools_path/genomes/fasta
 

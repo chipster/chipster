@@ -1,11 +1,11 @@
-# TOOL srafetch.R: "Retrieve data in fastq format from SRA database" (Tool to retrieve reads from SRA databases based on the entry ID or name)
+# TOOL srafetch.R: "Retrieve reads from SRA database" (Retrieve reads in FASTQ format from SRA databases based on the entry ID or name)
 # OUTPUT OPTIONAL srafetch.log
 # OUTPUT OPTIONAL sra_reads_1.fastq
 # OUTPUT OPTIONAL sra_reads_2.fastq
-# PARAMETER entry_id: "Name or SRR ID of the SRA entry" TYPE STRING DEFAULT "entry" (Give the SRR id of the SRA entry to be retrieved) 
-# PARAMETER dump: "Sequences to dump" TYPE [all: "All", aligned: "Dump only aligned sequences", unaligned: "Dump only unaligned sequences"  ] DEFAULT all (Define the reads you want to retrieve you want to get only the aligned reads)
+# PARAMETER entry_id: "Name or SRR ID of the SRA entry" TYPE STRING DEFAULT "entry" (Give the SRR id of the SRA entry to be retrieved. For example: SRR000021) 
+# PARAMETER dump: "Sequences to dump" TYPE [all: "All", aligned: "Only aligned sequences", unaligned: "Only unaligned sequences"  ] DEFAULT all (Define the reads to be retrieved from the SRA entry)
 
-# KM 8.11. 2013
+# KM 8.11. 2014
 
 dump.par<-(" ")
 

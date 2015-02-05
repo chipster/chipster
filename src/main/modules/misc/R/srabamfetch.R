@@ -1,13 +1,13 @@
-# TOOL srabamfetch.R: "Retrieve data in bam format from SRA database" (Tool to retrieve alignments from SRA databases based on the entry ID or name)
+# TOOL srabamfetch.R: "Retrieve read alignments from SRA database" (Tool to retrieve alignments in BAM format from SRA databases based on the entry ID or name)
 # OUTPUT OPTIONAL srafetch.log
 # OUTPUT OPTIONAL sra_aln.bam
 # OUTPUT OPTIONAL sra_aln.bam.bai
-# PARAMETER entry_id: "Name or SRR ID of the SRA entry" TYPE STRING DEFAULT "entry" (Give the SRR id of the SRA entry to be retrieved) 
+# PARAMETER entry_id: "SRR ID of the SRA entry" TYPE STRING DEFAULT "entry" (Give the SRR id of the SRA entry to be retrieved. For example: SRR000021) 
 # PARAMETER unaligned: "Output unaligned reads" TYPE [no: "No", yes: "Yes"] DEFAULT no (Output unaligned reads along with aligned reads)
 # PARAMETER primary: "Output only primary alignments" TYPE [no: "No", yes: "Yes"] DEFAULT no ( Output only primary alignments)
 
 
-# KM 8.11. 2013
+# KM 8.11. 2014
 
 dump.par<-(" ")
 
