@@ -23,8 +23,9 @@ condition <- as.character (phenodata[,pmatch(column,colnames(phenodata))])
 # Create a DESeqDataSet object
 dds <- DESeqDataSetFromMatrix(countData=dat2, colData=data.frame(condition), design = ~ condition)
 
-# Calculate size factors 
-dds <- estimateSizeFactors(dds)	
+# Calculate size factors and estimate dispersions
+dds <- estimateSizeFactors(dds)
+dds <- estimateDispersions(dds)
 
 # Perform transformation
 vst<-varianceStabilizingTransformation(dds)
