@@ -10,7 +10,7 @@
 # OUTPUT OPTIONAL control.bed: "Enrichment data for control"
 # OUTPUT OPTIONAL input.bed: "Enrichment data for input"
 # PARAMETER chr: "Chromosome names in my BAM file look like" TYPE [chr1, 1] DEFAULT 1 (Chromosome names must match in the BAM file and in the reference annotation. Check your BAM and choose accordingly.)
-# PARAMETER genome: "Genome" TYPE [hg19: "human hg19", GRCh38: "human GRCh38", mm10: "mouse mm10", rn5: "rat rn5"] DEFAULT hg19 (Select the genome build)
+# PARAMETER genome: "Genome" TYPE [hg19: "human hg19", GRCh38: "human GRCh38", mm10: "mouse mm10", rn5: "rat rn5"] DEFAULT GRCh38 (Select the genome build)
 # PARAMETER promoters.only: "Focus on promoter regions only" TYPE [yes, no] DEFAULT no (Should the analyses be restricted to promoter regions only)
 # PARAMETER fragment.length: "Fragment length" TYPE [400, 800, 1600, 2400] DEFAULT 800 (Fragment length, used for calculating local CpGs)
 # PARAMETER OPTIONAL coverage.resolution: "Coverage resolution" TYPE [25, 50, 100, 200] DEFAULT 50 (Targeted data resolution, in base pairs, when the genome-wide coverage is calculated)
