@@ -3,10 +3,10 @@
 # OUTPUT size.pdf: size.pdf 
 # OUTPUT power.pdf: power.pdf 
 # OUTPUT delta.pdf: delta.pdf 
-# PARAMETER effect.size: effect.size TYPE DECIMAL FROM 0 TO 100 DEFAULT 2 (Fold change)
-# PARAMETER alpha: alpha TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 ()
-# PARAMETER beeta: beeta TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.8 ()
-# PARAMETER group.size: group.size TYPE INTEGER FROM 1 TO 1000 DEFAULT 4 (Sample size)
+# PARAMETER effect.size: "Effect size" TYPE DECIMAL FROM 0 TO 100 DEFAULT 2 (Fold change)
+# PARAMETER alpha: "alpha" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 ()
+# PARAMETER beeta: "beta" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.8 ()
+# PARAMETER group.size: "Group size" TYPE INTEGER FROM 1 TO 1000 DEFAULT 4 (Sample size)
 
 
 # JTT 15.12.2006

@@ -2,12 +2,12 @@
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT heatmap.pdf: heatmap.pdf 
-# PARAMETER coloring.scheme: coloring.scheme TYPE [Green-Red: Green-Red, Blue-Yellow: Blue-Yellow, Black-White: Black-White] DEFAULT Blue-Yellow (Coloring scheme for the SOM map)
-# PARAMETER cluster.samples.only: cluster.samples.only TYPE [yes: yes, no: no] DEFAULT no (Disables clustering on the genes. This option is convenient if you want to retain a predefined gene order or make a sample clustering heatmap with more than 10000 genes)
-# PARAMETER hm.scale: hm.scale TYPE [default: default, none: none, row: row, column: column] DEFAULT default (Indicating if the values should be centered and scaled in either the row direction or the column direction, or none.)
-# PARAMETER distance: distance TYPE [euclidean: euclidean, maximum: maximum, manhattan: manhattan, canberra: canberra, binary: binary, pearson: pearson, spearman: spearman, kendall: kendall] DEFAULT pearson (The correlation distance measure to be used for clustering.)
-# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
-# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
+# PARAMETER OPTIONAL coloring.scheme: "Coloring scheme" TYPE [Green-Red: Green-Red, Blue-Yellow: Blue-Yellow, Black-White: Black-White] DEFAULT Blue-Yellow (Coloring scheme for the SOM map)
+# PARAMETER OPTIONAL cluster.samples.only: "Cluster samples only" TYPE [yes: yes, no: no] DEFAULT no (Disables clustering on the genes. This option is convenient if you want to retain a predefined gene order or make a sample clustering heatmap with more than 10000 genes)
+# PARAMETER OPTIONAL hm.scale: "Scale" TYPE [default: default, none: none, row: row, column: column] DEFAULT default (Indicating if the values should be centered and scaled in either the row direction or the column direction, or none.)
+# PARAMETER OPTIONAL distance: "Distance" TYPE [euclidean: euclidean, maximum: maximum, manhattan: manhattan, canberra: canberra, binary: binary, pearson: pearson, spearman: spearman, kendall: kendall] DEFAULT pearson (The correlation distance measure to be used for clustering.)
+# PARAMETER OPTIONAL image.width: "Image width" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
+# PARAMETER OPTIONAL image.height: "Image height" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
 
 # JTT 3.10.2007: Heatmap

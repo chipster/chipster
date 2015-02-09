@@ -2,9 +2,9 @@
 # INPUT microarray{...}.tsv: microarray{...}.tsv TYPE CDNA 
 # OUTPUT normalized.tsv: normalized.tsv 
 # OUTPUT META phenodata.tsv: phenodata.tsv 
-# PARAMETER chiptype: chiptype TYPE STRING DEFAULT empty ()
-# PARAMETER keep.annotations: keep.annotations TYPE [yes: yes, no: no] DEFAULT no (Keep or discard annotation column after preprocessing. Please note that gene symbol information associated with the given chiptype will be replaced by data-specific annotations by setting this parameter to "yes")
-# PARAMETER keep.flags: keep.flags TYPE [yes: yes, no: no] DEFAULT no (Keep or discard flag-columns after preprocessing. Please note that flag columns must have been named as "flag")
+# PARAMETER chiptype: "Chiptype" TYPE STRING DEFAULT empty ()
+# PARAMETER keep.annotations: "Keep annotations" TYPE [yes: yes, no: no] DEFAULT no (Keep or discard annotation column after preprocessing. Please note that gene symbol information associated with the given chiptype will be replaced by data-specific annotations by setting this parameter to "yes")
+# PARAMETER keep.flags: "Keep flags" TYPE [yes: yes, no: no] DEFAULT no (Keep or discard flag-columns after preprocessing. Please note that flag columns must have been named as "flag")
 
 # Process prenormalized affy
 # MG 6.4.2010

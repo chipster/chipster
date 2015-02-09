@@ -2,9 +2,9 @@
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT hypergeo.html: hypergeo.html 
-# PARAMETER p.value.threshold: p.value.threshold TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value threshold)
-# PARAMETER over.or.under.representation: over.or.under.representation TYPE [over: over, under: under] DEFAULT over (Should over- or under-represented classes be seeked?)
-# PARAMETER which.ontology: which.ontology TYPE [KEGG: KEGG, PFAM: PFAM] DEFAULT KEGG (Which ontology to use in the test?)
+# PARAMETER p.value.threshold: "p-value threshold" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value threshold)
+# PARAMETER over.or.under.representation: "Over- or underrepresentation" TYPE [over: over, under: under] DEFAULT over (Should over- or under-represented classes be seeked?)
+# PARAMETER which.ontology: "Which ontology" TYPE [KEGG: KEGG, PFAM: PFAM] DEFAULT KEGG (Which ontology to use in the test?)
 
 # Hypergeometrix test of gene enrichment to term categories
 # Dario Greco 7.1.2007

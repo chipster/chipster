@@ -110,7 +110,7 @@ public class KeyAndTrustManager {
 
 			if (trustStorePath != null) {					
 				// configure trust store
-				// this should be enough, but see comment about sslFactory above
+				// this should be enough, but see comment about sslFactory below
 				System.setProperty("javax.net.ssl.keyStorePassword", password);
 				System.setProperty("javax.net.ssl.trustStore", trustStorePath);
 				
@@ -149,6 +149,7 @@ public class KeyAndTrustManager {
 	/**
 	 * Return SslContextFactory with keystore initialised from Chipster
 	 * configuration. To be used on the server side.
+	 * @param protocols 
 	 * 
 	 * @return SslContextFactory instance
 	 * @throws IOException
@@ -159,14 +160,15 @@ public class KeyAndTrustManager {
 	 * @throws MicroarrayException 
 	 */
 	public static SslContextFactory createSslContextFactory(String keyStore,
-			String keyStorePassword)
+			String keyStorePassword, String[] protocols)
 			throws NoSuchAlgorithmException, CertificateException,
 			FileNotFoundException, KeyStoreException, IOException {
 
 		// Initialise SslContextFactory to use the keystore
 		SslContextFactory sslContextFactory = new SslContextFactory(keyStore);
-		sslContextFactory.setKeyStorePassword(keyStorePassword);
-
+		sslContextFactory.setKeyStorePassword(keyStorePassword);		
+		sslContextFactory.setIncludeProtocols(protocols);		
+				
 		return sslContextFactory;
 	}
 

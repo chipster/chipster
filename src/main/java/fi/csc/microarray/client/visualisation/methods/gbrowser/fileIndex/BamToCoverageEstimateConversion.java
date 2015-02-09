@@ -173,10 +173,10 @@ public class BamToCoverageEstimateConversion extends DataThread {
 			iterator = dataSource.query(from.chr, (int) start, (int) end);
 		
 		} catch (RuntimeException e) {
-			throw new GBrowserException("Error in data query. Ususally this happens when a wrong index file is selected.", e);
+			throw new GBrowserException("Error in data query. Usually this happens when a wrong index file is selected.", e);
 		} catch (OutOfMemoryError e) {
 			//Not a real outOfMemory, picard just tried to create an arbitrarily large buffer 
-			throw new GBrowserException("Error in data query. Ususally this happens when a wrong index file is selected. " + e.getMessage());
+			throw new GBrowserException("Error in data query. Usually this happens when a wrong index file is selected. " + e.getMessage());
 		}
 
 		// Count reads in this sample area

@@ -2,9 +2,9 @@
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT idiogram.pdf: idiogram.pdf 
-# PARAMETER chip.to.plot: chip.to.plot TYPE INTEGER FROM 1 TO 1000 DEFAULT 1 (Which chip to plot)
-# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
-# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
+# PARAMETER chip.to.plot: "Chip to plot" TYPE INTEGER FROM 1 TO 1000 DEFAULT 1 (Which chip to plot)
+# PARAMETER OPTIONAL image.width: "Image width" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
+# PARAMETER OPTIONAL image.height: "Image height" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
 # DG: 16.10.2006
 # JTT: 22.11.2006

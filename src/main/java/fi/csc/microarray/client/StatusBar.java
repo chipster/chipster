@@ -1,6 +1,7 @@
 package fi.csc.microarray.client;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -17,7 +18,6 @@ import javax.swing.JProgressBar;
 import javax.swing.Timer;
 
 import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.util.SystemMonitorUtil;
 
 public class StatusBar {
@@ -73,9 +73,9 @@ public class StatusBar {
 			statusLabel.setText(labelText);
 			statusLabel.setBorder(jobStatusIndicator.getBorder());
 
-			jobListButton = new JButton(VisualConstants.getIcon(VisualConstants.ARROW_UP_ICON));
+			jobListButton = new JButton("View jobs");
 			jobListButton.setName("jobListButton");
-			jobListButton.setToolTipText("View tasks");
+			jobListButton.setToolTipText("View jobs");
 
 			jobListButton.addMouseListener(new MouseListener() {
 
@@ -112,6 +112,7 @@ public class StatusBar {
 			statusPanel.add(jobStatusIndicator, c);
 			c.insets.set(0, 0, 0, 0);
 			c.gridx = 3;
+			memoryIndicator.setPreferredSize(new Dimension(200, 20));
 			statusPanel.add(memoryIndicator, c);
 		}
 		return statusPanel;
@@ -131,7 +132,6 @@ public class StatusBar {
 		if (wasVisible && wasShowing && wasNotIconified && closeIfVisible) {
 			// hide
 			application.getTaskListScreen().getFrame().setVisible(false);
-			jobListButton.setIcon(VisualConstants.getIcon(VisualConstants.ARROW_UP_ICON));
 			jobListButton.setToolTipText("View Task manager");
 		} else {
 			// show
@@ -141,7 +141,6 @@ public class StatusBar {
 			application.getTaskListScreen().getFrame().setFocusable(true);
 			application.getTaskListScreen().getFrame().requestFocus();
 			application.getTaskListScreen().getFrame().toFront();
-			jobListButton.setIcon(VisualConstants.getIcon(VisualConstants.ARROW_DOWN_ICON));
 			jobListButton.setToolTipText("Hide Task manager");
 		}
 	}
@@ -171,16 +170,16 @@ public class StatusBar {
 
 		// update progress bar state
 		if (taskCount == 0) {
-			setProgressBar("Ready", false, 0);
+			setProgressBar("0 jobs running", false, 0);
 		} else {
 			if (taskCount == 1) {
 				if (completion != -1) {
 					setProgressBar("Transferring data", false, completion);
 				} else {
-					setProgressBar(taskCount + " task running", true, 0);
+					setProgressBar(taskCount + " job running", true, 0);
 				}
 			} else {
-				setProgressBar(taskCount + " tasks running", true, 0);
+				setProgressBar(taskCount + " jobs running", true, 0);
 			}
 			
 		}		
@@ -243,7 +242,7 @@ public class StatusBar {
 	}
 
 	public void updateMemoryIndicator() {
-		memoryIndicator.setString(SystemMonitorUtil.getMemInfo());
+		memoryIndicator.setString("Used memory " + SystemMonitorUtil.getMemInfo());
 		memoryIndicator.setValue((int) (((float) SystemMonitorUtil.getUsed()) / ((float) Runtime.getRuntime().maxMemory()) * 100f));
 	}
 

@@ -8,6 +8,7 @@ import java.util.List;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.TextDrawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot.ReadScale;
 import fi.csc.microarray.util.ScaleUtil;
 
 public abstract class ScaleTrack extends Track {
@@ -120,5 +121,35 @@ public abstract class ScaleTrack extends Track {
 		}
 
 		return maxY;
+	}
+
+	/**
+	 * Return current maxValue. Subclasses can override this and calculate a 
+	 * new maxValue from the current data.
+	 * 
+	 * @return
+	 */
+	public int getMaxTotalCoverage() {
+		return (int) maxValue;
+	}
+	
+	public void updateScale() {
+		setMaxValue(view.parentPlot.getReadScale().numReads);
+	}
+	
+	@Override
+	public void updateLayout() {
+		/*
+		 * Automatic scale must be calculated for all tracks before drawing any
+		 * of them. This is a handy place for such a job.
+		 * 
+		 * New data may arrive between this calculation and paintComponent(),
+		 * which don't fit in this scale, but it will cause a new repaint which
+		 * will fix it.
+		 */
+ 
+		if (view.parentPlot.getReadScale() == ReadScale.AUTO) {
+			view.parentPlot.getReadScale().set(getMaxTotalCoverage());
+		}		
 	}
 }

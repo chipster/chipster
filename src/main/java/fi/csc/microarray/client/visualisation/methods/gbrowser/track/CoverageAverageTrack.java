@@ -9,7 +9,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.RectDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot.ReadScale;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
@@ -109,11 +108,7 @@ public class CoverageAverageTrack extends ScaleTrack {
 	public Collection<Drawable> getDrawables() {
 		Collection<Drawable> drawables = getEmptyDrawCollection();
 		
-		if (view.parentPlot.getReadScale() == ReadScale.AUTO) {
-			super.setMaxValue(getMaxTotalCoverage());
-		} else {
-			super.setMaxValue(view.parentPlot.getReadScale().numReads);
-		}
+		super.updateScale();
 		
 		drawables.addAll(getScaleDrawables());		
 		drawables.addAll(getAverageDrawables());
@@ -139,7 +134,7 @@ public class CoverageAverageTrack extends ScaleTrack {
 		return drawables;
 	}
 
-	private int getMaxTotalCoverage() {
+	public int getMaxTotalCoverage() {
 		float max = 0;
 		
 		for (Float coverage : coverageStorage.getTotalAverageCoverage().values()) {

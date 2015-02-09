@@ -76,7 +76,6 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 	private int metadataPort;
 	
 	private ExampleSessionUpdater exampleSessionUpdater;
-	private List<FileServerListener> listeners = new LinkedList<FileServerListener>();
 
 	private long defaultUserQuota;
 
@@ -171,18 +170,19 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
     		MessagingTopic filebrokerAdminTopic = jmsEndpoint.createTopic(Topics.Name.FILEBROKER_ADMIN_TOPIC, AccessMode.READ);
     		filebrokerAdminTopic.setListener(new FilebrokerAdminMessageListener());
     		
-    		// Load new zip example sessions and store as server sessions. 
-    		// ManagerClient is not really needed in this, but must be initialized to avoid NullPointerException.
-    		File exampleSessionDir = new File(fileRepository, exampleSessionPath);
-    		this.exampleSessionUpdater = new ExampleSessionUpdater(this, metadataServer, exampleSessionDir);
-    		
-    		try {
-    			this.exampleSessionUpdater.importExampleSessions();
-    		} catch(ZipException e) {
-    			//import failed because of the broken zip file. Probably something interrupted the session export
-    			//and the situation needs to be resolved manually
-    			logger.error("example session import failed", e);
-    			throw e;
+    		// load new zip example sessions and store as server sessions
+    		if (exampleSessionPath != null && !exampleSessionPath.isEmpty()) {
+    			File exampleSessionDir = new File(fileRepository, exampleSessionPath);
+    			this.exampleSessionUpdater = new ExampleSessionUpdater(this, metadataServer, exampleSessionDir);
+
+    			try {
+    				this.exampleSessionUpdater.importExampleSessions();
+    			} catch(ZipException e) {
+    				//import failed because of the broken zip file. Probably something interrupted the session export
+    				//and the situation needs to be resolved manually
+    				logger.error("example session import failed", e);
+    				throw e;
+    			}
     		}
     		
     		// create keep-alive thread and register shutdown hook
@@ -477,8 +477,6 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 		}
 		
 		endpoint.replyToMessage(requestMessage, reply);
-		
-		dispatch(new FileServerListener.AfterStoreSessionReply(username, name, sessionId, fileIds, endpoint));
 	}
 
 	private void storeSession(String username, String name, String sessionId, List<String> fileIds) throws SQLException {
@@ -511,8 +509,6 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 
 		// parse request
 		String sessionId = requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID);
-		
-		dispatch(new FileServerListener.BeforeRemoveSession(sessionId, requestMessage.getUsername(), endpoint));
 		
 		SuccessMessage reply;
 		try {
@@ -759,27 +755,6 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 
 		private FileServerAdminTools getAdminTools() {
 			return new FileServerAdminTools(metadataServer, cacheRoot, storageRoot, false);
-		}
-	}
-	
-	/**
-	 * Add a local listener for FileServer events.
-	 * 
-	 * @param listener
-	 */
-	public void addListener(FileServerListener listener) {
-		listeners.add(listener);
-	}
-	
-	/**
-	 * Send a FileServer event to all registered listeners.
-	 * 
-	 * @param event
-	 */
-	private void dispatch(FileServerListener.Event event) {
-
-		for (FileServerListener listener : listeners) {
-			listener.listen(event);
 		}
 	}
 }

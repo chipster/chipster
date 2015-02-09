@@ -2,10 +2,10 @@
 # INPUT survival-test.tsv: survival-test.tsv TYPE GENE_EXPRS
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT survival.pdf: survival.pdf
-# PARAMETER survival: survival TYPE METACOLUMN_SEL DEFAULT survival (Phenodata column with survival data)
-# PARAMETER status: status TYPE METACOLUMN_SEL DEFAULT status (Phenodata column with patient status: alive=0, dead=1)
-# PARAMETER aberrations: aberrations TYPE [gains: gains, losses: losses, both: both] DEFAULT both (Whether to test only for gains or losses, or both.) 
-# PARAMETER confidence.intervals: "plot confidence intervals" TYPE [yes: yes, no: no] DEFAULT no (Whether to plot the confidence intervals.) 
+# PARAMETER survival: Survival TYPE METACOLUMN_SEL DEFAULT survival (Phenodata column with survival data)
+# PARAMETER status: Status TYPE METACOLUMN_SEL DEFAULT status (Phenodata column with patient status: alive=0, dead=1)
+# PARAMETER aberrations: Aberrations TYPE [gains: gains, losses: losses, both: both] DEFAULT both (Whether to test only for gains or losses, or both.) 
+# PARAMETER confidence.intervals: "Plot confidence intervals" TYPE [yes: yes, no: no] DEFAULT no (Whether to plot the confidence intervals.) 
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
 # 2014-03-24

@@ -101,7 +101,12 @@ public class ServerFileSystemView extends FileSystemView {
 				}
 			}
 		}
-		return null;
+		/*
+		 * Create a example session folder, if there aren't any example sessions. Otherwise we can't open it in JFileChooser. 
+		 */
+		ServerFile file = new ServerFile(rootFile, DerbyMetadataServer.DEFAULT_EXAMPLE_SESSION_FOLDER + "/");
+		rootFile.addChild(file);
+		return file;
 	}
 	
     /* 

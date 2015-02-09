@@ -9,13 +9,13 @@
 # PARAMETER other.start: "First experimental column for maSigPro" TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata should include columns that give the assignment of arrays to experimental groups. There should be as many columns as experimental groups and these columns should reside side by side. Set this parameter to the first such column)
 # PARAMETER other.end: "Last experimental column for maSigPro" TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata should include columns that give the assignment of arrays to experimental groups. Set this column to the last experimental columns)
 # PARAMETER k.for.maSigPro: "k for maSigPro" TYPE DECIMAL FROM 0 TO 1000 DEFAULT 9 (maSigPro see.genes k=9)
-# PARAMETER degree.for.maSigPro: "degree for maSigPro" TYPE DECIMAL FROM 0 TO 1000 DEFAULT 2 (maSigPro make.design.matrix degree=2)
+# PARAMETER degree.for.maSigPro: "Degree for maSigPro" TYPE DECIMAL FROM 0 TO 1000 DEFAULT 2 (maSigPro make.design.matrix degree=2)
 # PARAMETER rsq.for.maSigPro: "rsq for maSigPro" TYPE DECIMAL FROM 0 TO 10 DEFAULT 0.7 (maSigPro get.siggenes rsq=0.7)
 # PARAMETER SD.for.ICA: "SD for ICA" TYPE DECIMAL FROM 0 TO 10 DEFAULT 2.0 (Standard deviation for ICA)
 # PARAMETER OPTIONAL p.value.threshold: "p-value threshold" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
 # PARAMETER OPTIONAL p.value.adjustment.method: "p-value adjustment method" TYPE [none: none, Bonferroni: Bonferroni, Holm: Holm, Hochberg: Hochberg, BH: BH, BY: BY] DEFAULT BH (Multiple testing correction method)
-# PARAMETER OPTIONAL image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
-# PARAMETER OPTIONAL image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
+# PARAMETER OPTIONAL image.width: "Image width" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
+# PARAMETER OPTIONAL image.height: "Image height" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
 # JTT 21.7.2006: Analysis methods for timeseries
 # OH 10.10.2012: added maSigPro as alternative time series analysis, parameter added: k.for.maSigPro

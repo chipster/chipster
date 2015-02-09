@@ -1,9 +1,9 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html lang="en"><head><title>Chipster manual</title></head><body>
 
-<h2>Automating your analyses with workflows</h2>
+<h2>Automating your data analysis with workflows</h2>
 
-<p>Microarray data analysis typically involves several analysis steps. 
+<p>Data analysis typically involves several analysis steps. 
 Once a suitable combination has been found and analysis completed, it is often desirable to save the steps taken as an automatic workflow.
 Reusing workflows serves many purposes. Firstly, it saves time as multi-step analysis can be executed with just one mouse click.
 Sharing workflows within a research group brings consistency to analysis and provides an easy way for bioinformaticians to help biologists. 
@@ -13,8 +13,9 @@ In addition to supporting user-made workflows, Chipster also includes some <a hr
 <h3>User-made workflows</h3>
 Chipster keeps track of the analysis steps taken, and displays them visually in the Workflow-panel.
 You can experiment with different methods and parameters, and prune the resulting workflow by simply deleting the unwanted steps. 
-When a satisfactory analysis pipeline is ready, you simply click on the beginning point of it (typically the normalized data) and save the workflow by selecting Workflow->Save starting from selected. You can save the workflow file anywhere you like and change its name, but the ending has to be .bsh.
-The workflow is saved as a file, which contains instructions to run certain analysis tools with the selected parameter settings in a certain order.</p>
+When a satisfactory analysis pipeline is ready, you simply click on the beginning point of it and save the workflow by selecting Workflow->Save starting from selected. You can save the workflow file anywhere you like and change its name, but the ending has to be .bsh.
+The workflow is saved as a file, which contains instructions to run certain analysis tools with the selected parameter settings in a certain order. 
+Note that you can also run a workflow for several identical input files such as FASTQ or BAM at the same time: Simply select all the input files, and the option "Run recent for each".</p>
 <img src="workflow.jpg">
 
 <p>If you would like to apply the same workflow to another normalized dataset, select Workflow->Open and run or Workflow->Run recent. You can also share a workflow with others by simply giving them a copy of your workflow file.</p>

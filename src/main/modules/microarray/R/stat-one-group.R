@@ -1,11 +1,11 @@
 # TOOL stat-one-group.R: "One sample tests" (Tests whether genes are differentially expressed, i.e., whether their expression is significantly different from the expected.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # OUTPUT one-sample.tsv: one-sample.tsv 
-# PARAMETER test: test TYPE [t-test: t-test, Wilcoxon: Wilcoxon] DEFAULT t-test (Test type)
-# PARAMETER scale.to.same.mean: scale.to.same.mean TYPE [yes: yes, no: no] DEFAULT yes (Scale the data to the same mean before filtering)
-# PARAMETER p.value.adjustment.method: p.value.adjustment.method TYPE [none: none, Bonferroni: Bonferroni, Holm: Holm, Hochberg: Hochberg, BH: BH, BY: BY] DEFAULT BH (Multiple testing correction method)
-# PARAMETER p.value.threshold: p.value.threshold TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
-# PARAMETER assumed.mean: assumed.mean TYPE DECIMAL FROM -100000 TO 100000 DEFAULT 0 (Assumed mean of the data)
+# PARAMETER test: "Test" TYPE [t-test: t-test, Wilcoxon: Wilcoxon] DEFAULT t-test (Test type)
+# PARAMETER scale.to.same.mean: "Scale to same mean" TYPE [yes: yes, no: no] DEFAULT yes (Scale the data to the same mean before filtering)
+# PARAMETER p.value.adjustment.method: "p-value adjustment method" TYPE [none: none, Bonferroni: Bonferroni, Holm: Holm, Hochberg: Hochberg, BH: BH, BY: BY] DEFAULT BH (Multiple testing correction method)
+# PARAMETER p.value.threshold: "p-value threshold" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
+# PARAMETER assumed.mean: "Assumed mean" TYPE DECIMAL FROM -100000 TO 100000 DEFAULT 0 (Assumed mean of the data)
 
 
 # One-sample parametric and non-parametric tests

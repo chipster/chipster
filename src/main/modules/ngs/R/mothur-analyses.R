@@ -3,7 +3,7 @@
 # INPUT phenodata.tsv: "Phenodata" TYPE GENERIC
 # OUTPUT rank-abundance_rarefaction_RDA.pdf: rank-abundance_rarefaction_RDA.pdf
 # OUTPUT OPTIONAL stat-results.txt: stat-results.txt
-# PARAMETER decostandm: "Method for standardizing species abundance values" TYPE [total: total, normalize: normalize, pa: pa, chi.square: chi.square, hellinger: hellinger, log: log] DEFAULT hellinger (Method for standardizing species abundance values before running the RDA and statistical analyses.)
+# PARAMETER decostandm: "Method for standardizing species abundance values" TYPE [total: total, normalize: normalize, pa: pa, chi.square: chi-square, hellinger: Hellinger, log: log] DEFAULT hellinger (Method for standardizing species abundance values before running the RDA and statistical analyses.)
 
 
 

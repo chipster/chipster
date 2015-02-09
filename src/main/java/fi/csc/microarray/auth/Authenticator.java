@@ -216,7 +216,7 @@ public class Authenticator extends NodeBase implements ShutdownCallback {
 					String username = (String)session.getParameter(KEY_USERNAME);
 					
 					if (username == null || username.equals("")) {
-						logger.error("not routing a message with null or empty username");
+						logger.warn("not routing a message with null or empty username");
 						Session sessionToBeRemoved = sessionPool.getSession(messageToBeRouted.getSessionID()); 
 						if (sessionToBeRemoved != null) {
 							sessionPool.removeSession(sessionToBeRemoved);	
@@ -224,12 +224,10 @@ public class Authenticator extends NodeBase implements ShutdownCallback {
 						return;
 					}
 					
-					securityLogger.info("message " + messageToBeRouted.getMessageID() + " was allowed");
 					messageLogger.info(messageToBeRouted);
 					
 					messageToBeRouted.setUsername(username);
 					routeTo.sendMessage(messageToBeRouted);
-					securityLogger.info("routing message " + messageToBeRouted.getMessageID() + " to authorised topic");
 				}
 				
 			} catch (JMSException e) {

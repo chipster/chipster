@@ -50,13 +50,17 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 	public void init() {
 		
 		//dataSourceWrapper has to be initialized here because of the transactionListener, so lets init everything else 
-		//here as well (and not in the constructor like elsewhere)
+		//here as well (and not in the constructor like elsewhere)		
+		
+		// do this before data source is attached to avoid one data update
+		setSizeFull();
 		
 		try {
 			dataSource = new JobLogContainer(this);			
 //			dataSource.init();
 			
 			table = new JobLogTable(this);		
+			
 			table.setContainerDataSource(dataSource);					
 			
 		} catch (GenericJDBCException e) {
@@ -64,16 +68,15 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 			return;
 		}
 		
-		table.setSortContainerPropertyId(JobLogContainer.START_TIME);
-		table.setSortAscending(false);		
-
 		table.setVisibleColumns(JobLogContainer.NATURAL_COL_ORDER);
 		table.setColumnHeaders(JobLogContainer.COL_HEADERS_ENGLISH);
+		
+		table.setSortAscending(false);
+		table.setSortContainerPropertyId(JobLogContainer.START_TIME);
 		
 		this.addComponent(getToolbar());
 		this.addComponent(table);
 
-		setSizeFull();
 		this.setExpandRatio(table, 1);
 	}
 
@@ -110,7 +113,12 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 				}
 			});
 			
-			ignoreTestAccounts = new CheckBox("Ignore test accounts", true);
+			/*
+			 * Don't filter test accounts by default. Current way of filtering
+			 * strings is slow, because H2 doesn't use index for these SQL
+			 * queries (WHERE NOT username = '').
+			 */
+			ignoreTestAccounts = new CheckBox("Ignore test accounts", false);
 			ignoreTestAccounts.addStyleName("toolbar-component");
 			toolbarLayout.addComponent(ignoreTestAccounts);
 			dataSource.setIgnoreTestAccounts(ignoreTestAccounts.getValue());

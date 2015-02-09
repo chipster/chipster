@@ -130,5 +130,10 @@ public class ScatterplotTrack extends ScaleTrack {
     	} else {
         	addDataType(column);	
     	}
-	}	    
+	}
+    
+	@Override
+	public void updateLayout() {
+		// shared auto scaling makes sense only between read tracks
+	}
 }

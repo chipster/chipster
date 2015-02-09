@@ -3,13 +3,13 @@
 # OUTPUT hyperg_go.tsv: hyperg_go.tsv 
 # OUTPUT hyperg_go.html: hyperg_go.html
 # PARAMETER species: Organism TYPE [human: human, mouse: mouse, rat: rat] DEFAULT human (From which organism does the data come from)
-# PARAMETER OPTIONAL ontology: "GO ontology to be tested" TYPE [all: all, biological_process: biological_process, molecular_function: molecular_function, cellular_component: cellular_component] DEFAULT biological_process (The ontology to be analyzed.)
-# PARAMETER OPTIONAL p.value.threshold: "P-value threshold" TYPE DECIMAL DEFAULT 0.05 (P-value threshold.)
+# PARAMETER OPTIONAL ontology: "GO ontology to be tested" TYPE [all: all, biological_process: "biological process", molecular_function: "molecular function", cellular_component: "cellular component"] DEFAULT biological_process (The ontology to be analyzed.)
+# PARAMETER OPTIONAL p.value.threshold: "p-value threshold" TYPE DECIMAL DEFAULT 0.05 (P-value threshold.)
 # PARAMETER OPTIONAL minimum.population: "Minimum population" TYPE INTEGER FROM 1 TO 1000000 DEFAULT 5 (Minimum number of genes required to be in a pathway.)
 # PARAMETER OPTIONAL conditional.testing: "Use conditional testing" TYPE [yes: yes, no: no] DEFAULT yes (Conditional testing means that when a significant GO term is found, i.e. p-value is smaller than the specified threshold, that GO term is removed when testing the significance of its parent.)
-# PARAMETER OPTIONAL p.adjust.method: "P-value adjustment method" TYPE [none: none, BH: BH, BY: BY] DEFAULT none (Method for adjusting the p-value in order to account for multiple testing. Because of the structure of GO, multiple testing is theoretically problematic, and using conditional.testing is a generally the preferred method. The correction can only be applied when no conditional.testing is performed.)
-# PARAMETER OPTIONAL over.or.under.representation: "Over or underrepresentation" TYPE [over: over, under: under] DEFAULT over (Should over or under-represented classes be seeked?)
-# PARAMETER OPTIONAL database: "Database for human miRNA targets" TYPE [PicTar: PicTar, TargetScan: TargetScan, both: both] DEFAULT both (For human data this parameter defines whether to fetch predicted gene targets from either PicTar or TargetScan database, or whether to restrict the enrichment analysis to those targets that are common to both databases. To last option is recommended to minimize the occurrence of false positives.)
+# PARAMETER OPTIONAL p.adjust.method: "p-value adjustment method" TYPE [none: none, BH: BH, BY: BY] DEFAULT none (Method for adjusting the p-value in order to account for multiple testing. Because of the structure of GO, multiple testing is theoretically problematic, and using conditional.testing is a generally the preferred method. The correction can only be applied when no conditional.testing is performed.)
+# PARAMETER OPTIONAL over.or.under.representation: "Over- or underrepresentation" TYPE [over: over, under: under] DEFAULT over (Should over or under-represented classes be seeked?)
+# PARAMETER OPTIONAL database: "Database for human miRNA targets" TYPE [PicTar: PicTar, TargetScan: TargetScan, both: both] DEFAULT both (For human data this parameter defines whether to fetch predicted gene targets from either PicTar or TargetScan database, or whether to restrict the enrichment analysis to those targets that are common to both databases. The last option is recommended to minimize false positives.)
 
 # miRNA hypergeometric test for GO
 # MG, 4.11.2009
