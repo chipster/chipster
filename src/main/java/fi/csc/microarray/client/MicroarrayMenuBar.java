@@ -506,7 +506,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem getTaskListMenuItem() {
 		if (taskListMenuItem == null) {
 			taskListMenuItem = new JMenuItem();
-			taskListMenuItem.setText("Tasks...");
+			taskListMenuItem.setText("Jobs...");
 			taskListMenuItem.setAccelerator(KeyStroke.getKeyStroke('T', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
 			taskListMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
