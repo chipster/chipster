@@ -11,6 +11,7 @@
 library(DESeq2)
 library(gplots)
 library(RColorBrewer)
+library(ggplot2)
 
 # Load the count table and extract expression value columns
 dat <- read.table("data.tsv", header=T, sep="\t", row.names=1)
@@ -32,8 +33,15 @@ vst<-varianceStabilizingTransformation(dds)
 vstmat<-assay(vst)
 
 # Make PCA plot as pdf
+# plotPCA(vst,intgroup="condition")
+
+data <- plotPCA(vst, intgroup=c("condition"), returnData=TRUE)
+percentVar <- round(100 * attr(data, "percentVar"))
 pdf(file="pca-deseq2.pdf")
-plotPCA(vst,intgroup="condition")
+ggplot(data, aes(PC1, PC2, color=condition)) +
+		geom_point(size=6,shape=0) +
+		xlab(paste0("PC1: ",percentVar[1],"% variance")) +
+		ylab(paste0("PC2: ",percentVar[2],"% variance"))
 dev.off()
 
 # Make a distance matrix and name samples accroding to the phenodata description column
