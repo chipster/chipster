@@ -1,4 +1,4 @@
-# TOOL deseq2-pca-heatmap.R: "PCA and heatmap of samples" (Creates PCA and heatmap plots for samples using the DESeq2 Bioconductor package. Visualizing similarities and dissimilarities between samples can help you to perform experiment level quality control. This tool takes as input a table of raw counts. The count table has to be associated with a phenodata file describing the experimental groups. You can create the count table and phenodata file using the tool \"Utilities - Define NGS experiment\".)
+# TOOL deseq2-pca-heatmap.R: "PCA and heatmap of samples with DESeq2" (Creates PCA and heatmap plots for samples using the DESeq2 Bioconductor package. Visualizing similarities and dissimilarities between samples can help you to perform experiment level quality control. This tool takes as input a table of raw counts. The count table has to be associated with a phenodata file describing the experimental groups. You can create the count table and phenodata file using the tool \"Utilities - Define NGS experiment\".)
 # INPUT data.tsv: "Count table" TYPE GENERIC
 # INPUT phenodata.tsv: "Phenodata file" TYPE GENERIC
 # OUTPUT OPTIONAL pca-deseq2.pdf
