@@ -3,7 +3,7 @@
 # INPUT aberrations.tsv: aberrations.tsv TYPE GENE_EXPRS 
 # OUTPUT fused-regions.tsv: regions.tsv 
 # OUTPUT fused-region-frequencies.pdf: region-frequencies.pdf 
-# PARAMETER position: position TYPE STRING (Chromosomal region to fuse. Must contain three values that are separated by tabs, hyphens, colons or two dots (e.g. X:100-200 or 7:600..700\).)
+# PARAMETER position: Position TYPE STRING (Chromosomal region to fuse. Must contain three values that are separated by tabs, hyphens, colons or two dots (e.g. X:100-200 or 7:600..700\).)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
 # 2014-06-27

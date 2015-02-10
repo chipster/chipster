@@ -54,7 +54,7 @@ public class TaskManagerScreen extends ScreenBase implements ActionListener, Lis
 	private SwingClientApplication application = (SwingClientApplication)Session.getSession().getApplication();
 
 	private Dimension BUTTON_SIZE = new Dimension(120,22);
-	private JFrame frame = new JFrame("Tasks");
+	private JFrame frame = new JFrame("Jobs");
 
 	private JTextArea detailsTextArea = new JTextArea();
 	private JScrollPane detailsScroller;
@@ -334,7 +334,7 @@ public class TaskManagerScreen extends ScreenBase implements ActionListener, Lis
 			
 			LinkModelAction<LinkModel> linkAction = new LinkModelAction<LinkModel>() {
 				public void actionPerformed(ActionEvent e) {
-					logger.debug("Canceling task: " + tasks.get(table.convertRowIndexToModel(
+					logger.debug("Cancelling job: " + tasks.get(table.convertRowIndexToModel(
 							table.getSelectedRow())));
 					taskExecutor.kill(tasks.get(table.convertRowIndexToModel(
 							table.getSelectedRow())));
@@ -387,7 +387,7 @@ public class TaskManagerScreen extends ScreenBase implements ActionListener, Lis
 		logger.debug("Refreshing tasks in Task manager");
 		for(Task task : taskExecutor.getTasks(true, false)) {
 			if(!tasks.contains(task)){
-				logger.debug("\tNew task added: " + task.getName());
+				logger.debug("\tNew job added: " + task.getName());
 				tasks.add(task);
 			}
 		}

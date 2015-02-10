@@ -2,9 +2,9 @@
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # OUTPUT qt.tsv: qt.tsv 
 # OUTPUT qt.pdf: qt.pdf 
-# PARAMETER radius.for.similarity: radius.for.similarity TYPE DECIMAL FROM 0 TO 1000 DEFAULT 20 (A radius for similar genes)
-# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the resampling image)
-# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the resampling image)
+# PARAMETER radius.for.similarity: "Radius for similarity" TYPE DECIMAL FROM 0 TO 1000 DEFAULT 20 (A radius for similar genes)
+# PARAMETER image.width: "Image width" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the resampling image)
+# PARAMETER image.height: "Image height" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the resampling image)
 
 
 # K-means clustering

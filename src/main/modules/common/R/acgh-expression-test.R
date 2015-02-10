@@ -2,9 +2,9 @@
 # INPUT matched-cn-and-expression.tsv: matched-cn-and-expression.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT cn-induced-expression.tsv: cn-induced-expression.tsv 
-# PARAMETER test.statistic: test.statistic TYPE [wcvm: wcvm, wmw: wmw] DEFAULT wcvm (The test statistic to use.)
-# PARAMETER analysis.type: analysis.type TYPE [univariate: univariate, regional: regional] DEFAULT univariate (The type of the analysis.)
-# PARAMETER number.of.permutations: number.of.permutations TYPE INTEGER DEFAULT 10000 (The number of permutations used for the p-value calculation.)
+# PARAMETER test.statistic: "Test statistic" TYPE [wcvm: wcvm, wmw: wmw] DEFAULT wcvm (The test statistic to use.)
+# PARAMETER analysis.type: "Analysis type" TYPE [univariate: univariate, regional: regional] DEFAULT univariate (The type of the analysis.)
+# PARAMETER number.of.permutations: "Number of permutations" TYPE INTEGER DEFAULT 10000 (The number of permutations used for the p-value calculation.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
 # 2014-03-23

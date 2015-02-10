@@ -3,7 +3,7 @@
 # OUTPUT correlations.pdf: correlations.pdf
 # OUTPUT correlations-scaled.pdf: correlations-scaled.pdf
 # OUTPUT correlations.tsv: correlations.tsv
-# PARAMETER genome.build: "genome build" TYPE [GRCh37: GRCh37, NCBI36: NCBI36, NCBI35: NCBI35, NCBI34: NCBI34] DEFAULT GRCh37 (The genome build to use. GRCh37 = hg19, NCBI36 = hg18, NCBI35 = hg17, NCBI34 = hg16.)
+# PARAMETER genome.build: "Genome build" TYPE [GRCh37: GRCh37, NCBI36: NCBI36, NCBI35: NCBI35, NCBI34: NCBI34] DEFAULT GRCh37 (The genome build to use. GRCh37 = hg19, NCBI36 = hg18, NCBI35 = hg17, NCBI34 = hg16.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
 # 2014-03-25

@@ -2,10 +2,10 @@
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT multiple-sample.tsv: multiple-sample.tsv 
-# PARAMETER column: column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
-# PARAMETER test: test TYPE [empiricalBayes: empiricalBayes, ANOVA: ANOVA, Kruskal-Wallis: Kruskal-Wallis] DEFAULT empiricalBayes (Test type)
-# PARAMETER p.value.adjustment.method: p.value.adjustment.method TYPE [none: none, Bonferroni: Bonferroni, Holm: Holm, Hochberg: Hochberg, BH: BH, BY: BY] DEFAULT BH (Multiple testing correction method)
-# PARAMETER p.value.threshold: p.value.threshold TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
+# PARAMETER column: "Column" TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
+# PARAMETER test: "Test" TYPE [empiricalBayes: "empirical Bayes", ANOVA: ANOVA, Kruskal-Wallis: Kruskal-Wallis] DEFAULT empiricalBayes (Test type)
+# PARAMETER p.value.adjustment.method: "p-value adjustment method" TYPE [none: none, Bonferroni: Bonferroni, Holm: Holm, Hochberg: Hochberg, BH: BH, BY: BY] DEFAULT BH (Multiple testing correction method)
+# PARAMETER p.value.threshold: "p-value threshold" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
 
 # column<-"group"
 # test<-"empiricalBayes"

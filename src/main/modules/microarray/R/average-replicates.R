@@ -3,8 +3,8 @@
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT average-replicates.tsv: average-replicates.tsv 
 # OUTPUT META phenodata-average.tsv: phenodata.tsv 
-# PARAMETER column: column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to average.)
-# PARAMETER averaging: averaging TYPE [mean: mean, median: median] DEFAULT mean (Averaging using the mean or median.)
+# PARAMETER column: Column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to average.)
+# PARAMETER averaging: Averaging TYPE [mean: mean, median: median] DEFAULT mean (Averaging using the mean or median.)
 
 # Average replicate chips
 # JTT 30.7.2007

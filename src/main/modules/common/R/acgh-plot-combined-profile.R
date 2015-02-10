@@ -2,8 +2,8 @@
 # INPUT matched-cn-and-expression.tsv: matched-cn-and-expression.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT matched-cn-and-expression-profile.pdf: matched-cn-and-expression-profile.pdf 
-# PARAMETER samples: samples TYPE STRING DEFAULT 1 (The numbers of the samples to be plotted, separated by commas. Ranges are also supported (e.g. 1,3,7-10\).)
-# PARAMETER chromosome: chromosome TYPE INTEGER DEFAULT 0 (The chromosome to plot. Use 0 for all.)
+# PARAMETER samples: Samples TYPE STRING DEFAULT 1 (The numbers of the samples to be plotted, separated by commas. Ranges are also supported (e.g. 1,3,7-10\).)
+# PARAMETER chromosome: Chromosome TYPE INTEGER DEFAULT 0 (The chromosome to plot. Use 0 for all.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
 # 2014-03-25

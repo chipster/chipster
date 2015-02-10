@@ -1,7 +1,7 @@
 # TOOL acgh-fetch-probe-positions-from-geo.R: "Fetch probe positions from GEO" (Fetches microarray probe positions from the GEO database.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS
 # OUTPUT probe-positions.tsv: probe-positions.tsv
-# PARAMETER platform: platform TYPE STRING DEFAULT GPL (The accession of the platform.)
+# PARAMETER platform: Platform TYPE STRING DEFAULT GPL (The accession of the platform.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
 # 2014-03-22

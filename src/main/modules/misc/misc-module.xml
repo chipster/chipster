@@ -9,6 +9,9 @@
 
 
 	<category name="Data retrieval" color="#e7df70">
+       <tool runtime="R-3.0"><resource>edirect_fetch.R</resource></tool>
+	   <tool runtime="R-3.0"><resource>srafetch.R</resource></tool>
+	   <tool runtime="R-3.0"><resource>srabamfetch.R</resource></tool>
        <tool runtime="R-3.0"><resource>ensemblfetch.R</resource></tool>
 	   <tool runtime="R-3.0"><resource>dbfetch.R</resource></tool>
 	   <tool runtime="R-3.0"><resource>dbfetch_list.R</resource></tool>
@@ -80,10 +83,11 @@
    	    <tool runtime="R-3.0"><resource>fdrawgram.R</resource></tool>
    	    <tool runtime="R-3.0"><resource>fdnaml.R</resource></tool>
 	</category>
-	<category name="Other tools" color="#629a9b">
+	<category name="Utilities" color="#629a9b">
 	    <tool runtime="R-3.0"><resource>taxonomy_tool.R</resource></tool>
     	<tool runtime="R-3.0"><resource>emboss_files.R</resource></tool>
 	    <tool runtime="R-3.0" module="common"><resource>select_columns.R</resource></tool> 
+	    <tool runtime="R-3.0"><resource>sort_and_select_columns.R</resource></tool>
 	    <tool runtime="R-3.0"><resource>concatenate.R</resource></tool>
 	</category>
 	

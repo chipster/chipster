@@ -71,7 +71,6 @@
 		<entry entryKey="guest-username" type="string" description="username for the guest accout which is not allowed to run tasks">
 			<value>guest</value>
 		</entry>
-
 	
 	</configuration-module>
 
@@ -96,7 +95,7 @@
 		</entry>
 		
 		<entry entryKey="example-session-path" type="string" description="path to example session files'">
-			<value>example-sessions</value>
+			<value></value>
 		</entry>
 
 		<entry entryKey="public-path" type="string" description="path to public data files">
@@ -166,6 +165,10 @@
 
         <entry entryKey="metadata-backup-keep-count" type="int" description="max number of backups to keep, the oldest are deleted first, use -1 to keep all backups">
 			<value>100</value>
+		</entry>
+		
+		<entry entryKey="ssl-protocol-version" type="string" description="enabled ssl protocol versions, delimited with a comma">
+			<value>TLSv1,TLSv1.1,TLSv1.2</value>
 		</entry>
         
 	</configuration-module>

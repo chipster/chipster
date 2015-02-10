@@ -1,8 +1,8 @@
 # TOOL acgh-convert-from-probes-to-genes.R: "Detect genes from called copy number data" (Using the chromosomal locations of the data points of a copy number data set, convert the data from probe/bin-based to gene-based. The probes/bins from which the copy number call for a given gene are determined as follows. If there are probes/bins overlapping with the position of the gene, they are used. In case of no overlaps, the last preceding and first tailing probe/bin are used.)
 # INPUT aberrations.tsv: aberrations.tsv TYPE GENE_EXPRS 
 # OUTPUT gene-aberrations.tsv: gene-aberrations.tsv 
-# PARAMETER method.for.calls: "method for calls" TYPE [majority: majority, unambiguous: unambiguous] DEFAULT majority (The method majority means that if more than 50% of these probes/bins give an aberrated signal, that call is used for the gene. The unambiguous method requires that all of the probes/bins have the same call, otherwise the gene will be labeled as normal.)
-# PARAMETER method.for.others: "method for others" TYPE [mean: mean, median: median] DEFAULT mean (Whether to use the mean or the median for calculating other data than copy number calls.)
+# PARAMETER method.for.calls: "Method for calls" TYPE [majority: majority, unambiguous: unambiguous] DEFAULT majority (The method majority means that if more than 50% of these probes/bins give an aberrated signal, that call is used for the gene. The unambiguous method requires that all of the probes/bins have the same call, otherwise the gene will be labeled as normal.)
+# PARAMETER method.for.others: "Method for others" TYPE [mean: mean, median: median] DEFAULT mean (Whether to use the mean or the median for calculating other data than copy number calls.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
 # 2014-03-24

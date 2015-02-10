@@ -1,9 +1,9 @@
 # TOOL sampling.R: "Random sampling" (Generates a random sample of the data.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # OUTPUT sample.tsv: sample.tsv 
-# PARAMETER what.to.sample: what.to.sample TYPE [genes: genes, chips: chips] DEFAULT genes (Sample genes or chips)
-# PARAMETER sample.size: sample.size TYPE DECIMAL FROM 0 TO 100 DEFAULT 10 (Percentage of the data to sample)
-# PARAMETER replacement: replacement TYPE [yes: yes, no: no] DEFAULT no (Sampling with or without replacement)
+# PARAMETER what.to.sample: "What to sample" TYPE [genes: genes, chips: chips] DEFAULT genes (Sample genes or chips)
+# PARAMETER sample.size: "Sample size" TYPE DECIMAL FROM 0 TO 100 DEFAULT 10 (Percentage of the data to sample)
+# PARAMETER replacement: Replacement TYPE [yes: yes, no: no] DEFAULT no (Sampling with or without replacement)
 
 # JTT: 20.10.2008, Random sampling
 # MK: 31.10.2013, sampling with replacement option added

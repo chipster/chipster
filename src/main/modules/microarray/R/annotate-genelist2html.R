@@ -3,8 +3,8 @@
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT annotations.html: annotations.html 
 # OUTPUT annotations.tsv: annotations.tsv 
-# PARAMETER expression.column: expression.column TYPE COLUMN_SEL DEFAULT EMPTY (Column that contains the expression values)
-# PARAMETER p.value.column: p.value.column TYPE COLUMN_SEL DEFAULT EMPTY (Column that contains the p-values)
+# PARAMETER expression.column: "Expression column" TYPE COLUMN_SEL DEFAULT EMPTY (Column that contains the expression values)
+# PARAMETER p.value.column: "p-value column" TYPE COLUMN_SEL DEFAULT EMPTY (Column that contains the p-values)
 
 
 # Creates an HTML file of Affymetrix genelist annotations

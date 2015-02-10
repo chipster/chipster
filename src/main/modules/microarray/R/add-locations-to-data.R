@@ -2,8 +2,8 @@
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT data-with-locations.tsv: data-with-locations.tsv 
-# PARAMETER annotate_with: "annotate using" TYPE [probe_id: "probe ID", gene_symbol: "gene symbols"] DEFAULT gene_symbol (Should the probe identifiers be used to fetch the location of the corresponding gene targets or should gene symbols be used directly, if available.)
-# PARAMETER species: species TYPE [human: human, mouse: mouse, rat: rat] DEFAULT human (The species needs to be specified in order to map genes to the genomic coordinates.)
+# PARAMETER annotate_with: "Annotate using" TYPE [probe_id: "probe ID", gene_symbol: "gene symbols"] DEFAULT gene_symbol (Should the probe identifiers be used to fetch the location of the corresponding gene targets or should gene symbols be used directly, if available.)
+# PARAMETER species: Species TYPE [human: human, mouse: mouse, rat: rat] DEFAULT human (The species needs to be specified in order to map genes to the genomic coordinates.)
 
 # MG 16.03.2012
 # IS  9.6.2013 Fixed sort order and changed output column name from 'chr' to 'chromosome' to be compatible with copy number scripts.

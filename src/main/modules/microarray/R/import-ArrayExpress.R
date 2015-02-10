@@ -1,8 +1,8 @@
 # TOOL import-ArrayExpress.R: "Import from ArrayExpress" (Import Affymetrix raw data directly from ArrayExpress, and normalise it using the RMA algorithm.)
 # OUTPUT normalized.tsv: normalized.tsv 
 # OUTPUT META phenodata.tsv: phenodata.tsv 
-# PARAMETER accession: accession TYPE STRING DEFAULT E-MEXP-1422 (Accession number of the experiment.)
-# PARAMETER platform: platform TYPE STRING DEFAULT EMPTY (In case the series contains multiple platforms, specify the accession of the platform to import. If there is just one, this platform is ignored.)
+# PARAMETER accession: Accession TYPE STRING DEFAULT E-MEXP-1422 (Accession number of the experiment.)
+# PARAMETER platform: Platform TYPE STRING DEFAULT EMPTY (In case the series contains multiple platforms, specify the accession of the platform to import. If there is just one, this platform is ignored.)
 
 # JTT: 13.1.2010
 # MG: 30.4.2010, add detection calls and remove offending characters

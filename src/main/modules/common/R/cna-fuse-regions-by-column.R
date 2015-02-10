@@ -3,9 +3,9 @@
 # INPUT aberrations.tsv: aberrations.tsv TYPE GENE_EXPRS 
 # OUTPUT fused-regions.tsv: regions.tsv 
 # OUTPUT fused-region-frequencies.pdf: region-frequencies.pdf 
-# PARAMETER column: column TYPE COLUMN_SEL DEFAULT pvalue (Data column to use)
-# PARAMETER criteria: is TYPE [smaller: "smaller than", smaller-equal: "smaller than or equal to", equal: "equal to", larger-equal: "larger than or equal to", larger: "larger than", not-equal: "not equal to", within: within, outside: outside] DEFAULT smaller (Whether to match regions where column values that are smaller, larger, or equal compared to the cutoff. Use within and outside for symmetrical comparisons around zero.)
-# PARAMETER cutoff: cutoff TYPE DECIMAL DEFAULT 0.05 (Cutoff for matching.)
+# PARAMETER column: Column TYPE COLUMN_SEL DEFAULT pvalue (Data column to use)
+# PARAMETER criteria: Is TYPE [smaller: "smaller than", smaller-equal: "smaller than or equal to", equal: "equal to", larger-equal: "larger than or equal to", larger: "larger than", not-equal: "not equal to", within: within, outside: outside] DEFAULT smaller (Whether to match regions where column values that are smaller, larger, or equal compared to the cutoff. Use within and outside for symmetrical comparisons around zero.)
+# PARAMETER cutoff: "Cut-off" TYPE DECIMAL DEFAULT 0.05 (Cutoff for matching.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
 # 2014-06-27
