@@ -172,10 +172,6 @@ public abstract class AnalysisJob implements Runnable {
 	}
 	
 	public synchronized void updateState(JobState newState, String stateDetail) {
-
-		if (getState() == JobState.CANCELLED) {
-			return;
-		}
 		
 		// update state
 		this.state = newState;
@@ -190,7 +186,8 @@ public abstract class AnalysisJob implements Runnable {
 	 */
 	public synchronized void updateStateDetailToClient(String newStateDetail) {
 
-		if (this.state.equals(JobState.CANCELLED)) {
+		// job may continue for some time before it checks if it's cancelled
+		if (getState() == JobState.CANCELLED) {
 			return;
 		}
 
@@ -213,7 +210,8 @@ public abstract class AnalysisJob implements Runnable {
 	}
 
 	public synchronized void updateStateToClient(JobState newState, String stateDetail, boolean isHeartbeat) {
-
+		
+		// job may continue for some time before it checks if it's cancelled
 		if (getState() == JobState.CANCELLED) {
 			return;
 		}
