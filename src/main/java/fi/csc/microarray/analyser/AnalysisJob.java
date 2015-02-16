@@ -172,6 +172,11 @@ public abstract class AnalysisJob implements Runnable {
 	}
 	
 	public synchronized void updateState(JobState newState, String stateDetail) {
+
+		// don't allow new state changes, if this is cancelled already
+		if (getState() == JobState.CANCELLED) {
+			return;
+		}
 		
 		// update state
 		this.state = newState;
@@ -240,6 +245,7 @@ public abstract class AnalysisJob implements Runnable {
 	public void cancel() {
 		logger.debug("Canceling job " + getId());
 		this.toBeCanceled = true;
+		updateState(JobState.CANCELLED, "");
 		cancelRequested();
 	}
 	
@@ -254,8 +260,7 @@ public abstract class AnalysisJob implements Runnable {
 	 * @throws JobCancelledException
 	 */
 	protected void cancelCheck() throws JobCancelledException {
-		if (toBeCanceled) {
-			updateState(JobState.CANCELLED, "");
+		if (toBeCanceled) {			
 			throw new JobCancelledException();
 		}
 	}
