@@ -65,11 +65,11 @@ if((main.effect2=="EMPTY" & main.effect3=="EMPTY" & interactions=="two-way") | (
 #}
 
 # Extracting the variables from phenodata
-main1<-phenodata[,grep(main.effect1, colnames(phenodata))]
-main2<-phenodata[,grep(main.effect2, colnames(phenodata))]
-main3<-phenodata[,grep(main.effect3, colnames(phenodata))]
-techrep<-phenodata[,grep(technical.replication, colnames(phenodata))]
-pair<-phenodata[,grep(pairing, colnames(phenodata))]
+main1<-phenodata[,which(main.effect1==colnames(phenodata))]
+main2<-phenodata[,which(main.effect2==colnames(phenodata))]
+main3<-phenodata[,which(main.effect3==colnames(phenodata))]
+techrep<-phenodata[,which(technical.replication==colnames(phenodata))]
+pair<-phenodata[,which(pairing==colnames(phenodata))]
 
 # Converting vectors to factor, if needed
 if(treat.main.effect1.as.factor=="yes") {

@@ -34,7 +34,7 @@ rownames(design) <- colnames(dat2)
 if(technical.replication == "EMPTY") {
 	fit				<- lmFit(dat2, design);
 } else {
-	techrep			<- phenodata[,grep(technical.replication, colnames(phenodata))]
+	techrep			<- phenodata[,which(technical.replication==colnames(phenodata))]
 	corfit			<- duplicateCorrelation(dat2, ndups=1, block=techrep)
 	fit				<- lmFit(dat2, design, block=techrep, cor=corfit$consensus)
 }
