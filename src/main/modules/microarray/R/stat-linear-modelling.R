@@ -22,6 +22,7 @@
 # JTT, 22.10.2007: Linear Modelling using limma
 # MG, 28.03.2012, modified to handle NUID:s
 # MK, 22.02.2014, modified so that does not report anymore coef or p-vals for pairing information
+# OH, 12.02.2015, getting columns from phenodata using which rather than grep in order to get exact matches
 
 #main.effect1<-"group"
 #main.effect2<-"gender"
@@ -45,7 +46,6 @@ file<-c("normalized.tsv")
 dat<-read.table(file, header=T, sep="\t", row.names=1)
 
 # Separates expression values and flags
-calls<-dat[,grep("flag", names(dat))]
 dat2<-dat[,grep("chip", names(dat))]
 
 # Loads phenodata
