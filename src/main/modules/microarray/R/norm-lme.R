@@ -30,8 +30,8 @@ phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
 
 # Test needs a parameter "groups" that specifies the grouping of the samples
 # and a parameter random that specifies the random effect such as day or technician
-groups<-phenodata[,grep(column.groups, colnames(phenodata))]
-random<-phenodata[,grep(column.random, colnames(phenodata))]
+groups<-phenodata[,which(column.groups==colnames(phenodata))]
+random<-phenodata[,which(column.random==colnames(phenodata))]
 
 # Sanity check
 if(length(unique(random))==1) {

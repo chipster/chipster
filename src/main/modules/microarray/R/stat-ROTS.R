@@ -24,7 +24,7 @@ data <- dat[,grep("chip", names(dat))]
 
 # Test needs a parameter "groups" that specifies the grouping of the samples
 phenodata <- read.table("phenodata.tsv", header=T, sep="\t")
-groups <- phenodata[,grep(paste("^", column, "$", sep=""), colnames(phenodata))]
+groups <- phenodata[,which(column==colnames(phenodata))]
 
 # Sanity checks
 if(length(unique(groups))==1 | length(unique(groups))>=3) {
