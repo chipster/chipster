@@ -6,10 +6,10 @@ source ../installation_files/functions.bash
   apt-get -y install libgd2-noxpm-dev # sudo, emboss needs this to create png images
  	# also vmbin from nic
 
- 	#EMBOSS_VERSION=6.5.7
- 	#EMBOSS_PATH=${TOOLS_PATH}/EMBOSS-${EMBOSS_VERSION}
+ 	EMBOSS_VERSION=6.5.7
+ 	EMBOSS_PATH=${TOOLS_PATH}/EMBOSS-${EMBOSS_VERSION}
 	## used also by other emboss related apps (depend on EMBOSS.bash)
-	#export EMBOSS_OPTIONS="--prefix=${EMBOSS_PATH}"
+	export EMBOSS_OPTIONS="--prefix=${EMBOSS_PATH}"
 
  	 	 
 	##note version in path                                                                                                                                                              
