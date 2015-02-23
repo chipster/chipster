@@ -3,19 +3,15 @@
 # OUTPUT annotated.tsv: annotated.tsv 
 # PARAMETER species: Species TYPE [human: human, mouse: mouse, rat: rat] DEFAULT human (The species needs to be specified in order to annotate the Ensembl IDs.)
 
-
 # ML, 05.02.2015
 
 # ATM only for human, mouse, rat. 
-# Tested with few different files.
 # The ensembl IDs need to be either the row names or in the first column.
-# At least edgeR didn't work quite as expected on the result files.
 
-
-# Loads libraries into memory
+# Load libraries into memory
 library(biomaRt)
 
-# Loads the data
+# Load the data
 file <- c("genelist.tsv")
 #dat <- read.table(file, header=T, sep="\t", row.names=1)
 dat <- read.table(file, header=T, sep="\t")
@@ -27,7 +23,6 @@ if(!is.na(pmatch("ENS", dat[2,1]))) {
 if(!is.na(pmatch("ENS",  rownames(dat)[2] ))) {
 	genes <- rownames(dat)
 }
-
 
 # Fetch the gene symbols and descriptions from ENSEMBL using biomaRt
 if (species=="human") {
