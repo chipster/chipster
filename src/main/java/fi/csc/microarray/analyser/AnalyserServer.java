@@ -522,7 +522,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 			
 			// no slot to run it now, ignore it
 			else {
-				ResultMessage resultMessage = new ResultMessage(jobMessage.getAnalysisId(), JobState.COMP_BUSY, "", "", "", jobMessage.getReplyTo());
+				ResultMessage resultMessage = new ResultMessage(jobMessage.getJobId(), JobState.COMP_BUSY, "", "", "", jobMessage.getReplyTo());
 				sendReplyMessage(jobMessage, resultMessage);
 				return;
 			}
@@ -681,7 +681,8 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	private synchronized ArrayList<AnalysisJob> getAllJobs() {
 		ArrayList<AnalysisJob> allJobs = new ArrayList<AnalysisJob>();
 		allJobs.addAll(scheduledJobs.values());
-		allJobs.addAll(runningJobs.values());
+		allJobs.addAll(runningJobs.values());	
+
 		return allJobs;
 	}
 	

@@ -18,5 +18,8 @@ public enum JobState {
 	ERROR, // something went horribly wrong, unexpected exceptions etc
 	TIMEOUT, 
 	CANCELLED,
-	COMP_BUSY; 
+	COMP_BUSY,
+	RESCHEDULED,
+	SUBMITTED,
+	WAITING; 
 }
