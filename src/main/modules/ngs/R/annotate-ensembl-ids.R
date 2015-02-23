@@ -3,23 +3,40 @@
 # OUTPUT annotated.tsv: annotated.tsv 
 # PARAMETER species: Species TYPE [human: human, mouse: mouse, rat: rat] DEFAULT human (The species needs to be specified in order to map genes to the genomic coordinates.)
 
-
 # ML, 05.02.2015
 
+<<<<<<< release
 # Toimii, mut vain human, mouse, rat. / Testattu vasta human ja htseq-count.R:n tulostiedosto. 
 # Tarvitaan vielä parametri ja siitä riippuva IF että onko eka sarake vai rivinimet ensemblID.
 # Kestää aika kauan.
 
 # Loads libraries into memory
+=======
+# ATM only for human, mouse, rat. 
+# The ensembl IDs need to be either the row names or in the first column.
+
+# Load libraries into memory
+>>>>>>> 0294e23 Add a new tool to NGS/Utilities for annotating Ensembl IDs Tool annotates the Ensembl IDs in tsv-files for human, mouse and rat, when the IDs are either row names or in the first column.
 library(biomaRt)
 
-# Loads the data
+# Load the data
 file <- c("genelist.tsv")
 #dat <- read.table(file, header=T, sep="\t", row.names=1)
 dat <- read.table(file, header=T, sep="\t")
+<<<<<<< release
 genes <- dat$id
 		# genes <- dat$id ???? Onko kaikissa nimetty näin?
 
+=======
+
+# Choose the ensembl IDs
+if(!is.na(pmatch("ENS", dat[2,1]))) {
+	genes <- dat[,1]
+}
+if(!is.na(pmatch("ENS",  rownames(dat)[2] ))) {
+	genes <- rownames(dat)
+}
+>>>>>>> 0294e23 Add a new tool to NGS/Utilities for annotating Ensembl IDs Tool annotates the Ensembl IDs in tsv-files for human, mouse and rat, when the IDs are either row names or in the first column.
 
 # Fetch the gene symbols and descriptions from ENSEMBL using biomaRt
 if (species=="human") {
