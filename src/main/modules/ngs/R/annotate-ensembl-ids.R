@@ -1,33 +1,20 @@
-# TOOL annotate-ensembl-ids.R: "Annotate Ensembl-IDs" (Annotates Ensembl IDs with gene symbols and descriptions, and adds the results to the datafile.)
+# TOOL annotate-ensembl-ids.R: "Annotate Ensembl-IDs" (Annotates Ensembl IDs with gene symbols and descriptions, creates a new table containing these and the values in the original input file. The Ensembl IDs need to be either the rownames or in the first column of the input table.)
 # INPUT genelist.tsv: genelist.tsv TYPE GENERIC
 # OUTPUT annotated.tsv: annotated.tsv 
-# PARAMETER species: Species TYPE [human: human, mouse: mouse, rat: rat] DEFAULT human (The species needs to be specified in order to map genes to the genomic coordinates.)
+# PARAMETER species: Species TYPE [human: human, mouse: mouse, rat: rat] DEFAULT human (The species needs to be specified in order to annotate the Ensembl IDs.)
 
 # ML, 05.02.2015
 
-<<<<<<< release
-# Toimii, mut vain human, mouse, rat. / Testattu vasta human ja htseq-count.R:n tulostiedosto. 
-# Tarvitaan vielä parametri ja siitä riippuva IF että onko eka sarake vai rivinimet ensemblID.
-# Kestää aika kauan.
-
-# Loads libraries into memory
-=======
 # ATM only for human, mouse, rat. 
 # The ensembl IDs need to be either the row names or in the first column.
 
 # Load libraries into memory
->>>>>>> 0294e23 Add a new tool to NGS/Utilities for annotating Ensembl IDs Tool annotates the Ensembl IDs in tsv-files for human, mouse and rat, when the IDs are either row names or in the first column.
 library(biomaRt)
 
 # Load the data
 file <- c("genelist.tsv")
 #dat <- read.table(file, header=T, sep="\t", row.names=1)
 dat <- read.table(file, header=T, sep="\t")
-<<<<<<< release
-genes <- dat$id
-		# genes <- dat$id ???? Onko kaikissa nimetty näin?
-
-=======
 
 # Choose the ensembl IDs
 if(!is.na(pmatch("ENS", dat[2,1]))) {
@@ -36,7 +23,6 @@ if(!is.na(pmatch("ENS", dat[2,1]))) {
 if(!is.na(pmatch("ENS",  rownames(dat)[2] ))) {
 	genes <- rownames(dat)
 }
->>>>>>> 0294e23 Add a new tool to NGS/Utilities for annotating Ensembl IDs Tool annotates the Ensembl IDs in tsv-files for human, mouse and rat, when the IDs are either row names or in the first column.
 
 # Fetch the gene symbols and descriptions from ENSEMBL using biomaRt
 if (species=="human") {
@@ -53,34 +39,27 @@ if (species=="rat") {
 }
 
 ensembl <- useMart("ensembl", dataset=dataset)
-# annotated_genes <- getBM(mart=ensembl, attributes=c(filt,"chromosome_name","start_position","end_position"), filters=filt, values=gene_symbols)
-# modified this:
-# genes_ensembl_org <- getBM(mart=ensembl, attributes=c("entrezgene", "ensembl_gene_id", "external_gene_name", "description"), filters="ensembl_gene_id", values=genes)
 genes_ensembl_org <- getBM(attributes <- c("entrezgene", "ensembl_gene_id", "external_gene_name", "description"), filters = "ensembl_gene_id", values = genes, mart = ensembl, uniqueRows=T)
 
-
-#ensembl = useMart("ensembl")
-#ensembl_hs = useDataset("hsapiens_gene_ensembl", mart=ensembl)
-
-
-# genes <- dat$id ????
-# genes_ensembl_org <- getBM(attributes <- c("entrezgene", "ensembl_gene_id", "external_gene_name", "description", "start_position", "end_position", "chromosome_name"), filters = "entrezgene", values = genes, mart = ensembl_hs, uniqueRows=T)
-#genes_ensembl_org <- getBM(attributes <- c("entrezgene", "ensembl_gene_id", "external_gene_name", "description"), filters = "ensembl_gene_id", values = genes, mart = ensembl_hs, uniqueRows=T)
-
 pmatch_table		<- pmatch(genes, genes_ensembl_org[,2], duplicates.ok=T)
-
 ensembl_table		<- as.data.frame(matrix(NA, nrow=length(genes), ncol=8))
 ensembl_table[which(!is.na(pmatch_table)),] <- genes_ensembl_org[pmatch_table[(!is.na(pmatch_table))], ];
 rownames(ensembl_table)	<- genes;
 colnames(ensembl_table) <- colnames(genes_ensembl_org);
 
-results <- cbind(ensembl_table[,3:4], dat);
-names(results) <- c("External gene name", "Description", names(dat))
+# Build the table:
+if(!is.na(pmatch("ENS", dat[2,1]))) {
+	results <- cbind(dat[,1], ensembl_table[,3:4], dat[,2:ncol(dat)]);
+	colnames(results) <- c(colnames(dat)[1], "symbol", "description", colnames(dat)[2:ncol(dat)])
+}
+if(!is.na(pmatch("ENS",  rownames(dat)[2] ))) {
+	results <- cbind(genes, ensembl_table[,3:4], dat);
+	colnames(results) <- c("Ensembl ID","symbol", "description",  colnames(dat));
+}
 
 # write result table to output
-#results <- cbind(dat, genes);
 write.table(results, file="annotated.tsv", col.names=T, quote=F, sep="\t", row.names=F)
-#write.table(dat, file="htseq-counts.tsv", col.names=T, quote=F, sep="\t", row.names=F)
+
 
 
 
