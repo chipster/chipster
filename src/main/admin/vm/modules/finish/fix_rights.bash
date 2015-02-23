@@ -1,4 +1,4 @@
-##depends:finish/checksums.bash
+##depends:none
 
 ## Fix rights 
 chown -R -h ${CHIPSTER_UID}.${CHIPSTER_GID} ${CHIP_PATH}/
