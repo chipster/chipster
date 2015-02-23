@@ -35,6 +35,11 @@ export CHIPSTER_GID=1001
 export UBUNTU_UID=1000
 export UBUNTU_GID=1000
 
+# EMBOSS_OPTIONS is used in multiple scripts
+export EMBOSS_VERSION=6.5.7
+export EMBOSS_PATH=${TOOLS_PATH}/EMBOSS-${EMBOSS_VERSION}
+export EMBOSS_OPTIONS="--prefix=${EMBOSS_PATH}"
+
 # nic.funet.fi service endpoint
 export NIC_MIRROR=bio.nic.funet.fi
 #NIC_MIRROR=www.nic.funet.fi
