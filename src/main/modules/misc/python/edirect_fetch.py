@@ -26,28 +26,34 @@ def main():
     edirect_path = "/opt/chipster/tools/edirect/"
     esearch_path = edirect_path + "esearch"
     efetch_path = edirect_path + "efetch"
-    xtract_path = edirect_path +  "xtract"
 
     if outformat == "fasta":
         outfile = "sequences.fasta"
     else:
         outfile = "sequences.txt"
-        
+ 
+    # each argument must be a separate list item
     query = [esearch_path, "-db", db, "-query"]
 
+    # construct a query string
     query_str = q1term + "[" + q1field + "]"
     if q2term:
         query_str += " " + log_op + " " + q2term + "[" + q2field + "]"
     if q3term:
         query_str += " " + log_op + " " + q3term + "[" + q3field + "]"
 
+    # append query string to the argument list
     query.append(query_str)
     
+    # run the query command
+    # save standard output and error streams to variables xml and err
     esearch_process = Popen(query, stdout=PIPE, stderr=PIPE)
     xml, err = esearch_process.communicate()
     if err:
+        # something in error stream, give up
         raise Exception("Error in esearch: " + err)
 
+    # parse xml
     str_hits = ET.fromstring(xml).find("Count").text    
     num_hits = int(str_hits)
 
@@ -57,15 +63,18 @@ def main():
     elif num_hits > 50000:
         raise Exception("CHIPSTER-NOTE: Query produced more than 50000 hits.")
         
+    # fetch sequences
+    # read standard input from a variable xml and write output to a file, because it may be big
     with open("hits.txt", "w") as hits:
         efetch_process = Popen([efetch_path, "-format", outformat], stdout=hits, stdin=PIPE)
         efetch_process.communicate(input=xml)
 
+    # read the result file, filter it and write to another file
     with open("hits.txt", "r") as hits, open(outfile, "w") as out:
         for line in hits:
-            if line:
+            # remove empty lines
+            if line != "\n":                
                 out.write(line)
-
 
 if __name__ == "__main__":
     main()
