@@ -15,6 +15,10 @@
 # 6.5.2013 MK added chr-location information to the output
 # 21.5.2014 EK updated to use HTSeq 0.6.1
 
+# check out if the file is compressed and if so unzip it
+source(file.path(chipster.common.path, "zip-utils.R"))
+unzipIfGZipFile("features.gtf")
+
 # bash wrapping
 python.path <- paste(sep="", "PYTHONPATH=", file.path(chipster.tools.path, "lib", "python2.7", "site-packages"), ":$PYTHONPATH")
 command.start <- paste("bash -c '", python.path, ";")

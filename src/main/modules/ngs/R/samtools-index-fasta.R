@@ -2,6 +2,11 @@
 # INPUT sequence.fa TYPE GENERIC 
 # OUTPUT sequence.fa.fai
 
+# check out if the file is compressed and if so unzip it
+source(file.path(chipster.common.path, "zip-utils.R"))
+unzipIfGZipFile("sequence.fa")
+
+
 # samtools binary
 samtools.binary <- c(file.path(chipster.tools.path, "samtools", "samtools"))
 
