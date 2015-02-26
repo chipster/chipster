@@ -278,9 +278,14 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		BooleanMessageListener replyListener = new BooleanMessageListener();  
 		try {
 			
+			String contentLengthString = null;
+			if (contentLength != null) {
+				contentLengthString = contentLength.toString();
+			}
+			
 			CommandMessage requestMessage = new CommandMessage(CommandMessage.COMMAND_IS_AVAILABLE);
 			requestMessage.addNamedParameter(ParameterMessage.PARAMETER_FILE_ID, dataId);
-			requestMessage.addNamedParameter(ParameterMessage.PARAMETER_SIZE, contentLength.toString());
+			requestMessage.addNamedParameter(ParameterMessage.PARAMETER_SIZE, contentLengthString);
 			requestMessage.addNamedParameter(ParameterMessage.PARAMETER_CHECKSUM, checksum);
 			requestMessage.addNamedParameter(ParameterMessage.PARAMETER_AREA, area.toString());
 			filebrokerTopic.sendReplyableMessage(requestMessage, replyListener);
