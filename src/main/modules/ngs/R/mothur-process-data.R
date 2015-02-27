@@ -23,6 +23,11 @@
 # oligos-fitteräinti kommentoitu pois päältä.
 # aikaisempi vaihe prepare data ei tee kunnollista phenodata-tiedostoa
 
+# check out if the file is compressed and if so unzip it
+source(file.path(chipster.common.path, "zip-utils.R"))
+unzipIfGZipFile("all.fasta")
+unzipIfGZipFile("all.qual")
+
 # Set the path to the mothur executable
 mothur.path<-c("/opt/chipster/tools/mothur/1.28.0")
 mothur.exe<-c("mothur")

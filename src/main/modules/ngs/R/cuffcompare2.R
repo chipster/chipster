@@ -15,6 +15,11 @@
 # AMS 2014.06.18 Changed the handling of GTF files
 # AMS 04.07.2014 New genome/gtf/index locations & names
 
+# check out if the file is compressed and if so unzip it
+source(file.path(chipster.common.path, "zip-utils.R"))
+unzipIfGZipFile("input.gtf")
+unzipIfGZipFile("reference.gtf")
+
 # binary
 cuffcompare.binary <- c(file.path(chipster.tools.path, "cufflinks2", "cuffcompare"))
 
