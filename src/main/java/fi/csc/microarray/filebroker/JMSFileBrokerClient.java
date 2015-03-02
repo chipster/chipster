@@ -276,25 +276,35 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	@Override
 	public boolean isAvailable(String dataId, Long contentLength, String checksum, FileBrokerArea area) throws JMSException {
 		BooleanMessageListener replyListener = new BooleanMessageListener();  
+		try {
 			
-		CommandMessage requestMessage = new CommandMessage(CommandMessage.COMMAND_IS_AVAILABLE);
-		requestMessage.addNamedParameter(ParameterMessage.PARAMETER_FILE_ID, dataId);
-		requestMessage.addNamedParameter(ParameterMessage.PARAMETER_SIZE, contentLength.toString());
-		requestMessage.addNamedParameter(ParameterMessage.PARAMETER_CHECKSUM, checksum);
-		requestMessage.addNamedParameter(ParameterMessage.PARAMETER_AREA, area.toString());
-		filebrokerTopic.sendReplyableMessage(requestMessage, replyListener);
-
-		// wait
-		Boolean success = replyListener.waitForReply(QUICK_POLL_OPERATION_TIMEOUT, TimeUnit.SECONDS); 
-
-		// check how it went
-
-		// timeout
-		if (success == null) {
-			throw new RuntimeException("timeout while waiting for the filebroker");
-		} else {
-			return success;
-		}					
+			String contentLengthString = null;
+			if (contentLength != null) {
+				contentLengthString = contentLength.toString();
+			}
+			
+			CommandMessage requestMessage = new CommandMessage(CommandMessage.COMMAND_IS_AVAILABLE);
+			requestMessage.addNamedParameter(ParameterMessage.PARAMETER_FILE_ID, dataId);
+			requestMessage.addNamedParameter(ParameterMessage.PARAMETER_SIZE, contentLengthString);
+			requestMessage.addNamedParameter(ParameterMessage.PARAMETER_CHECKSUM, checksum);
+			requestMessage.addNamedParameter(ParameterMessage.PARAMETER_AREA, area.toString());
+			filebrokerTopic.sendReplyableMessage(requestMessage, replyListener);
+			
+			// wait
+			Boolean success = replyListener.waitForReply(QUICK_POLL_OPERATION_TIMEOUT, TimeUnit.SECONDS); 
+			
+			// check how it went
+			
+			// timeout
+			if (success == null) {
+				throw new RuntimeException("timeout while waiting for the filebroker");
+			} else {
+				return success;
+			}
+			
+		} finally {
+			replyListener.cleanUp();
+		}
 	}
 
 	
@@ -358,11 +368,14 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 
 		BooleanMessageListener replyListener = new BooleanMessageListener();  
 		Boolean spaceAvailable;
-
-		CommandMessage spaceRequestMessage = new CommandMessage(CommandMessage.COMMAND_DISK_SPACE_REQUEST);
-		spaceRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_DISK_SPACE, String.valueOf(size));
-		filebrokerTopic.sendReplyableMessage(spaceRequestMessage, replyListener);
-		spaceAvailable = replyListener.waitForReply(SPACE_REQUEST_TIMEOUT, TimeUnit.SECONDS);
+		try {
+			CommandMessage spaceRequestMessage = new CommandMessage(CommandMessage.COMMAND_DISK_SPACE_REQUEST);
+			spaceRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_DISK_SPACE, String.valueOf(size));
+			filebrokerTopic.sendReplyableMessage(spaceRequestMessage, replyListener);
+			spaceAvailable = replyListener.waitForReply(SPACE_REQUEST_TIMEOUT, TimeUnit.SECONDS);
+		} finally {
+			replyListener.cleanUp();
+		}
 
 		if (spaceAvailable == null) {
 			logger.warn("did not get response for space request");
@@ -375,17 +388,22 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	@Override
 	public void saveRemoteSession(String sessionName, String sessionId, LinkedList<String> dataIds) throws JMSException {
 		ReplyMessageListener replyListener = new ReplyMessageListener();  
+		try {
+			CommandMessage storeRequestMessage = new CommandMessage(CommandMessage.COMMAND_STORE_SESSION);
+			storeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME, sessionName);
+			storeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID, sessionId);
+			storeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_FILE_ID_LIST, Strings.delimit(dataIds, "\t"));
+			
+			filebrokerTopic.sendReplyableMessage(storeRequestMessage, replyListener);
+			ParameterMessage reply = replyListener.waitForReply(QUICK_POLL_OPERATION_TIMEOUT, TimeUnit.SECONDS);
+			
+			if (reply == null || !(reply instanceof CommandMessage) || !CommandMessage.COMMAND_FILE_OPERATION_SUCCESSFUL.equals((((CommandMessage)reply).getCommand()))) {
+				throw new JMSException("failed to save session metadata remotely");
+			}
 
-		CommandMessage storeRequestMessage = new CommandMessage(CommandMessage.COMMAND_STORE_SESSION);
-		storeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME, sessionName);
-		storeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID, sessionId);
-		storeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_FILE_ID_LIST, Strings.delimit(dataIds, "\t"));
-
-		filebrokerTopic.sendReplyableMessage(storeRequestMessage, replyListener);
-		ParameterMessage reply = replyListener.waitForReply(QUICK_POLL_OPERATION_TIMEOUT, TimeUnit.SECONDS);
-
-		if (reply == null || !(reply instanceof CommandMessage) || !CommandMessage.COMMAND_FILE_OPERATION_SUCCESSFUL.equals((((CommandMessage)reply).getCommand()))) {
-			throw new JMSException("failed to save session metadata remotely");
+			
+		} finally {
+			replyListener.cleanUp();
 		}
 	}
 
@@ -393,33 +411,38 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	public List<DbSession> listRemoteSessions() throws JMSException {
 		ReplyMessageListener replyListener = new ReplyMessageListener();  
 		
-		CommandMessage listRequestMessage = new CommandMessage(CommandMessage.COMMAND_LIST_SESSIONS);
-		filebrokerTopic.sendReplyableMessage(listRequestMessage, replyListener);
-		ParameterMessage reply = replyListener.waitForReply(QUICK_POLL_OPERATION_TIMEOUT, TimeUnit.SECONDS);
-		if (reply == null) {
-			throw new RuntimeException("server failed to list sessions");
-		}
-		String[] names, sessionIds;
-		String namesString = reply.getNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME_LIST);
-		String sessionIdsString = reply.getNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID_LIST);
-
-		List<DbSession> sessions = new LinkedList<>();
-
-		if (namesString != null && !namesString.equals("") && sessionIdsString != null && !sessionIdsString.equals("")) {
-
-			names = namesString.split("\t");
-			sessionIds = sessionIdsString.split("\t");
-
-			for (int i = 0; i < names.length && i < sessionIds.length; i++) {
-				sessions.add(new DbSession(sessionIds[i], names[i], null));
+		try {
+			CommandMessage listRequestMessage = new CommandMessage(CommandMessage.COMMAND_LIST_SESSIONS);
+			filebrokerTopic.sendReplyableMessage(listRequestMessage, replyListener);
+			ParameterMessage reply = replyListener.waitForReply(QUICK_POLL_OPERATION_TIMEOUT, TimeUnit.SECONDS);
+			if (reply == null) {
+				throw new RuntimeException("server failed to list sessions");
 			}
-
-			if (names.length != sessionIds.length) {
-				sessions.clear();
+			String[] names, sessionIds;
+			String namesString = reply.getNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME_LIST);
+			String sessionIdsString = reply.getNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID_LIST);
+			
+			List<DbSession> sessions = new LinkedList<>();
+			
+			if (namesString != null && !namesString.equals("") && sessionIdsString != null && !sessionIdsString.equals("")) {
+				
+				names = namesString.split("\t");
+				sessionIds = sessionIdsString.split("\t");
+				
+				for (int i = 0; i < names.length && i < sessionIds.length; i++) {
+					sessions.add(new DbSession(sessionIds[i], names[i], null));
+				}
+				
+				if (names.length != sessionIds.length) {
+					sessions.clear();
+				}
 			}
+			
+			return sessions;
+			
+		} finally {
+			replyListener.cleanUp();
 		}
-
-		return sessions;
 	}
 	
 

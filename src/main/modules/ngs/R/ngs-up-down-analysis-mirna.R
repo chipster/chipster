@@ -55,8 +55,8 @@ mirna.data.2 <- mirna.data[,grep("chip", names(mirna.data))]
 gene.data.2 <- gene.data[,grep("chip", names(gene.data))]
 
 # Get experiment groups from for the two datasets
-mirna.groups <- mirna.phenodata[,grep(groups.column.mirna, colnames(mirna.phenodata))]
-gene.groups <- gene.phenodata[,grep(groups.column.gene, colnames(gene.phenodata))]
+mirna.groups <- mirna.phenodata[,which(groups.column.mirna==colnames(mirna.phenodata))]
+gene.groups <- gene.phenodata[,which(groups.column.gene==colnames(gene.phenodata))]
 
 # Sanity checks to make sure only two experiment groups exist in the two datasets
 if(length(unique(mirna.groups))==1 | length(unique(mirna.groups))>=3) {

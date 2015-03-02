@@ -147,7 +147,14 @@
 		</tool>	
         <tool runtime="R-3.0">
 			<resource>test-data-in-out.R</resource>
+		</tool>
+		<tool runtime="python">
+			<resource>test-data-in-out.py</resource>
+		</tool>		
+		<tool runtime="R-3.0">
+			<resource>annotate-ensembl-ids.R</resource>
 		</tool>	
+		
 	</category>
 
 	<category name="Matching sets of genomic regions" color="#e7881c">

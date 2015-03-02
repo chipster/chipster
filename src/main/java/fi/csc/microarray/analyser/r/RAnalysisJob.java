@@ -13,6 +13,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.analyser.ToolDescription;
@@ -109,6 +110,8 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 	
 	
 	private class RProcessMonitor implements Runnable {
+		
+		public final String ERROR_MESSAGE_TOKEN = "Error";
 
 		private ArrayList<String> outputLines;
 

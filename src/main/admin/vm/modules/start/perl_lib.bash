@@ -11,7 +11,7 @@
 # Math::Cephes, for prinseq-graph
 # Math::MatrixReal, for prinseq-graph
 aptitude -y --without-recommends install libjson-perl libcairo-perl libtext-simpletable-perl libcontextual-return-perl libwant-perl cpanminus
-#cpanm Contextual::Return Exception::Class Test::{Warn,Exception,Differences,Deep} Math::Cephes Math::MatrixReal Statistics::PCA
+
 cpanm --mirror http://ftp.funet.fi/pub/languages/perl/CPAN/ Contextual::Return Exception::Class Test::{Warn,Exception,Differences,NoWarnings,Deep} Math::Cephes Math::MatrixReal Statistics::PCA
 
 # misc packages

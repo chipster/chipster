@@ -8,6 +8,10 @@
 
 # EK 18.06.2013
 
+# check out if the file is compressed and if so unzip it
+source(file.path(chipster.common.path, "zip-utils.R"))
+unzipIfGZipFile("a.fasta")
+
 # binary
 binary <- c(file.path(chipster.tools.path, "mothur", "mothur"))
 

@@ -27,7 +27,7 @@ phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
 if(length(grep(column, colnames(phenodata))) == 0) {
 	stop("CHIPSTER-NOTE: You need to select phenodata column to run this analysis")
 }
-phenodata_col <- phenodata[, grep(column, colnames(phenodata))]
+phenodata_col <- phenodata[, which(column==colnames(phenodata))]
 
 # Setup sample colors according to group
 if (length(levels(as.factor(phenodata_col))) > 0) {
