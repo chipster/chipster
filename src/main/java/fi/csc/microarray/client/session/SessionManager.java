@@ -20,6 +20,7 @@ import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.OperationRecord;
+import fi.csc.microarray.client.tasks.TaskExecutor;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataChangeEvent;
 import fi.csc.microarray.databeans.DataChangeListener;
@@ -76,9 +77,11 @@ public class SessionManager {
 	private DataManager dataManager;
 	private FileBrokerClient fileBrokerClient;
 	private SessionManagerCallback callback;
+	private TaskExecutor taskExecutor;
 
 	/**
 	 * @param dataManager
+	 * @param taskExecutor 
 	 * @param fileBrokerClient
 	 * @param callback
 	 *            if null, SessionChangedEvents are ignored and error messages
@@ -86,9 +89,10 @@ public class SessionManager {
 	 * @throws IOException
 	 */
 	public SessionManager(final DataManager dataManager,
-			FileBrokerClient fileBrokerClient, SessionManagerCallback callback)
+			TaskExecutor taskExecutor, FileBrokerClient fileBrokerClient, SessionManagerCallback callback)
 			throws IOException {
 		this.dataManager = dataManager;
+		this.taskExecutor = taskExecutor;
 		this.fileBrokerClient = fileBrokerClient;
 		if (callback == null) {
 			callback = new BasicSessionManagerCallback();
@@ -543,6 +547,7 @@ public class SessionManager {
 	public void clearSessionWithoutConfirming() throws MalformedURLException,
 			JMSException {
 		dataManager.deleteAllDataItems();
+		taskExecutor.clear();
 		setSessionNotes(null);
 		setSession(null, null);
 		unsavedChanges = false;

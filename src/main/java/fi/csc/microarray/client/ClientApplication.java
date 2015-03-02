@@ -234,9 +234,10 @@ public abstract class ClientApplication {
 			reportInitialisationThreadSafely("Connecting to broker at " + configuration.getString("messaging", "broker-host") + "...", false);
 			serviceAccessor.initialise(manager, getAuthenticationRequestListener());
 			
-			this.sessionManager = new SessionManager(manager, serviceAccessor.getFileBrokerClient(), new ClientSessionManagerCallback(this));
-			
 			this.taskExecutor = serviceAccessor.getTaskExecutor();
+
+			this.sessionManager = new SessionManager(manager, taskExecutor, serviceAccessor.getFileBrokerClient(), new ClientSessionManagerCallback(this));
+			
 			reportInitialisationThreadSafely(" ok", true);
 
 			if (!fast) {

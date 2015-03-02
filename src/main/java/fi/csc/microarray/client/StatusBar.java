@@ -80,7 +80,7 @@ public class StatusBar {
 			jobListButton.addMouseListener(new MouseListener() {
 
 				public void mouseClicked(MouseEvent e) {
-					flipTaskListVisibility(true);
+					viewTasks();
 				}
 
 				public void mouseEntered(MouseEvent e) {
@@ -118,31 +118,17 @@ public class StatusBar {
 		return statusPanel;
 	}
 
-	public void flipTaskListVisibility(boolean closeIfVisible) {
+	public void viewTasks() {
 		application.refreshTaskList();
-		boolean wasVisible = application.getTaskListScreen().getFrame().isVisible();
-		// boolean wasActive =
-		// childScreens.get("TaskList").getFrame().isActive();
-		boolean wasShowing = application.getTaskListScreen().getFrame().isShowing();
-		boolean wasNotIconified = true;
-		if ((application.getTaskListScreen().getFrame().getExtendedState() & JFrame.ICONIFIED) == 1) {
-			wasNotIconified = false;
-		}
 
-		if (wasVisible && wasShowing && wasNotIconified && closeIfVisible) {
-			// hide
-			application.getTaskListScreen().getFrame().setVisible(false);
-			jobListButton.setToolTipText("View Task manager");
-		} else {
-			// show
-			application.getTaskListScreen().getFrame().setVisible(true);
-			application.getTaskListScreen().getFrame().setExtendedState(JFrame.NORMAL);
-			application.getTaskListScreen().getFrame().toFront();
-			application.getTaskListScreen().getFrame().setFocusable(true);
-			application.getTaskListScreen().getFrame().requestFocus();
-			application.getTaskListScreen().getFrame().toFront();
-			jobListButton.setToolTipText("Hide Task manager");
-		}
+		// show
+		application.getTaskListScreen().getFrame().setVisible(true);
+		application.getTaskListScreen().getFrame().setExtendedState(JFrame.NORMAL);
+		application.getTaskListScreen().getFrame().toFront();
+		application.getTaskListScreen().getFrame().setFocusable(true);
+		application.getTaskListScreen().getFrame().requestFocus();
+		application.getTaskListScreen().getFrame().toFront();
+		jobListButton.setToolTipText("Hide Task manager");
 	}
 	
 	private void setProgressBar(String indicatorText, boolean indeterminate, int value) {

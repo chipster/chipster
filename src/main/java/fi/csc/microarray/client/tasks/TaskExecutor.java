@@ -128,6 +128,13 @@ public class TaskExecutor {
 
 		public void onChipsterMessage(ChipsterMessage msg) {
 			logger.debug("Task " + pendingTask.getId() + " got message (" + msg.getMessageID() + ") of type " + msg.getClass().getName());
+			
+			// ignore results that don't belong to this session
+			synchronized (runningTasks) {
+				if (!runningTasks.contains(pendingTask)) {
+					return;
+				}
+			}
 
 			// ignore everything if we (ResultListener) are already finished
 			if (internalState.equals(ResultListenerState.FINISHED)) {
@@ -700,5 +707,13 @@ public class TaskExecutor {
 			}
 		}).start();
 		logger.debug("Message cancel thread started.");
+	}
+
+	public void clear() {
+		synchronized (runningTasks) {
+			runningTasks.clear();
+			tasks.clear();
+		}
+		SwingUtilities.invokeLater(new TaskExecutorChangeNotifier(this));
 	}
 }

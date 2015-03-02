@@ -20,7 +20,7 @@ public class DataManagerTest {
 	public void init() throws Exception {
 		ClientContextUtil.setupClientContext();
 		this.manager = Session.getSession().getDataManager();
-		this.sessionManager = new SessionManager(manager, Session.getSession().getServiceAccessor().getFileBrokerClient(), null);
+		this.sessionManager = new SessionManager(manager, null, Session.getSession().getServiceAccessor().getFileBrokerClient(), null);
 	}
 	
 	@Test
