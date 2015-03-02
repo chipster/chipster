@@ -17,8 +17,11 @@ Differential expression analysis for multifactor experiments using the generaliz
 <li>Treat main effect 1 as factor (yes, no) [yes] </li>
 <li>Treat main effect 2 as factor (yes, no) [yes] </li>
 <li>Treat main effect 3 as factor (yes, no) [yes] </li>
-<li>Interaction (main, all) [main] </li>
+<li>Include interactions in the model (yes, no) [no] </li>
+<li>Apply TMM normalization (yes, no) [yes]</li>
 <li>Analyze only genes which have counts in at least this many samples (0-10000) [1]</li>
+<li> Plot width (200-3200 [600]</li>
+<li> Plot height (200-3200) [600]</li>
 </ul>
 <br>
 <h3>Details</h3>
@@ -39,10 +42,22 @@ Dispersion is estimated using Cox-Reid profile-adjusted likelyhood (CR) method. 
 using a multivariate regression model. A maximum of three different variables, and their interactions
  can be specified for the model. It is highly recommended to always have at least two biological replicates for each experiment condition.</p>
  
+<p> Note that unlike with basic edgeR or DESeq2, no filtering is done to the results table. 
+Please notice that in the results table you will have all the comparisons between the different effects defined in the parameters -section. 
+You can filter the table for example based on the adjusted p-values (FDR-columns) using the tool Utilities / Filter table by column value. 
+ </p>
+ 
 <h3>Output</h3>
 <ul>
-<li>de-list-edger.tsv: Table containing the statistical testing results, including fold change and p-values.</li>
-<li>dispersion-edger.pdf: Biological coefficient of variation plot.</li>
+<li>edger_glm.tsv: Table containing the statistical testing results, including fold change and p-values.</li>
+	<ul>
+		<li>logFC = log2 fold change between the groups. E.g. value 2 means that the expression has increased 4-fold</li>
+		<li>logCPM = the average log2-counts-per-million</li>
+		<li>LR = likelihood ratio statistics </li>
+		<li>PValue = the two-sided p-value</li>
+		<li>FDR = adjusted p-value</li>
+	</ul></li>
+<li>dispersion-edger-glm.pdf: Biological coefficient of variation plot.</li>
 </ul>
 <br>
 <h3>References</h3>
