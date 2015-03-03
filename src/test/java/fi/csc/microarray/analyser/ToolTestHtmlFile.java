@@ -42,11 +42,17 @@ public class ToolTestHtmlFile {
 			writer.write("<h3>Summary</h3>");
 
 			// Summary
-			long duration = summary.getDuration()/1000;
-			String totalTime = String.format("%02dm %02ds", (duration/60), (duration%60));
-			String timesHtml = "<tr><td>Start time</td><td>" + summary.getStartTime() + "</td></tr>" +
-					"<tr><td>Total time</td><td>" + totalTime + "</td></tr>";
-
+			
+			// times
+			String timesHtml = "";
+			if (summary.getDuration() > 0) {
+				long duration = summary.getDuration()/1000;
+				timesHtml += "<tr><td>Total time</td><td>" + String.format("%02dm %02ds", (duration/60), (duration%60)) + "</td></tr>";
+			}
+			
+			if (summary.getStartTime() != null) {
+				timesHtml += "<tr><td>Start time</td><td>" + summary.getStartTime() + "</td></tr>";
+			}
 			writer.write("<table>" +
 					"<tr><td>Results summary</td><td>" + 
 					summary.getSuccessfulJobs().size() + " <span" + (summary.getSuccessfulJobs().isEmpty() ? "" : " style=\"color: green\"") + ">ok</span>, " + 
