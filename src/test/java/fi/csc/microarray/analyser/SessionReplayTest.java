@@ -548,26 +548,33 @@ public class SessionReplayTest extends MessagingTestBase {
 			System.out.println(e.getMessage());
 			jc.usage();
 			initWebDir(null);
+			System.out.println("TOOL TEST EARLY ERROR");
 			updateFlagFileAndExit(false);
 		}
 		
-		if ("run".equals(jc.getParsedCommand())) {
-			initWebDir(run.output);
-			runTestSessions(run.config, run.username, run.password, run.sessions);
+		try { 
+			if ("run".equals(jc.getParsedCommand())) {
+				initWebDir(run.output);
+				runTestSessions(run.config, run.username, run.password, run.sessions);
+				
+				
+			} else if ("generate".equals(jc.getParsedCommand())) {
+				initWebDir(generate.output);
+				File resultsDir = new File(generate.generateFrom);
+				readResultsFromFiles(resultsDir);
 			
-			
-		} else if ("generate".equals(jc.getParsedCommand())) {
-			initWebDir(generate.output);
-			File resultsDir = new File(generate.generateFrom);
-			readResultsFromFiles(resultsDir);
-		
-		} else {
-			jc.usage();
-			initWebDir(null);
+			} else {
+				jc.usage();
+				initWebDir(null);
+				updateFlagFileAndExit(false);
+			}
+		} catch (Exception e) {
+			System.out.println("TOOL TEST EXCEPTION ERROR");
 			updateFlagFileAndExit(false);
 		}
 
-
+		System.out.println("TOOL TEST UNEXCPECTED ERROR");
+		updateFlagFileAndExit(false);
 			
 	}
 	
@@ -607,7 +614,11 @@ public class SessionReplayTest extends MessagingTestBase {
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println("TOOL TEST ERROR");
-			test.tearDown();
+			try {
+				test.tearDown();
+			} catch (Exception e2) {
+				// ignore
+			}
 			updateFlagFileAndExit(false);
 		} finally {
 			test.tearDown();
