@@ -13,6 +13,7 @@ import org.joda.time.format.ISODateTimeFormat;
 
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.SuccessMessageListener;
 import fi.csc.microarray.messaging.TempTopicMessagingListenerBase;
 import fi.csc.microarray.messaging.Topics;
@@ -20,6 +21,7 @@ import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
 import fi.csc.microarray.messaging.message.SuccessMessage;
+import fi.csc.microarray.util.Strings;
 
 /**
  * This class uses JMS messages to send data queries and converts result messages to
@@ -50,7 +52,8 @@ public class StorageAdminAPI extends ServerAdminAPI {
 	public List<StorageEntry> listStorageUsageOfSessions(String username) throws JMSException, InterruptedException {
 		
 		StorageEntryMessageListener listener = new StorageEntryMessageListener();
-		return listener.query(username);
+		listener.query(getTopic(), username);
+		return listener.getEntries();
 	}
 
 	public List<StorageAggregate> listStorageUsageOfUsers() throws JMSException, InterruptedException {
@@ -119,22 +122,45 @@ public class StorageAdminAPI extends ServerAdminAPI {
 	}
 	
 	
-	private class StorageEntryMessageListener extends TempTopicMessagingListenerBase {
+	public static class StorageEntryMessageListener extends TempTopicMessagingListenerBase {
 
 		private List<StorageEntry> entries;
+		private long quota;
+		private long quotaWarning;
 		private CountDownLatch latch;
+		private long storageUsage;
 		
-		public List<StorageEntry> query(String username) throws JMSException, InterruptedException {
+		public void query(MessagingTopic topic, String username) throws JMSException, InterruptedException {
 			
-			latch = new CountDownLatch(1);
-			
-			CommandMessage request = new CommandMessage(CommandMessage.COMMAND_LIST_STORAGE_USAGE_OF_SESSIONS);
-			request.addNamedParameter("username", username);
+			try {
+				latch = new CountDownLatch(1);
 
-			getTopic().sendReplyableMessage(request, this);			
-			latch.await(TIMEOUT, TIMEOUT_UNIT);
-			
+				CommandMessage request = new CommandMessage(CommandMessage.COMMAND_LIST_STORAGE_USAGE_OF_SESSIONS);
+				if (username != null) {
+					request.addNamedParameter("username", username);
+				}
+
+				topic.sendReplyableMessage(request, this);			
+				latch.await(TIMEOUT, TIMEOUT_UNIT);
+			} finally {
+				cleanUp();
+			}
+		}
+		
+		public List<StorageEntry> getEntries() {	
 			return entries;
+		}
+		
+		public long getQuota() {
+			return quota;
+		}
+		
+		public long getQuotaWarning() {
+			return quotaWarning;
+		}
+		
+		public long getStorageUsage() {
+			return storageUsage;
 		}
 
 		public void onChipsterMessage(ChipsterMessage msg) {
@@ -145,13 +171,15 @@ public class StorageAdminAPI extends ServerAdminAPI {
 			String sizesString = resultMessage.getNamedParameter(ParameterMessage.PARAMETER_SIZE_LIST);
 			String datesString = resultMessage.getNamedParameter(ParameterMessage.PARAMETER_DATE_LIST);
 			String idsString = resultMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID_LIST);
-
+			String quotaString = resultMessage.getNamedParameter(ParameterMessage.PARAMETER_QUOTA);
+			String quotaWarningString = resultMessage.getNamedParameter(ParameterMessage.PARAMETER_QUOTA_WARNING);
+			String storageUsageString = resultMessage.getNamedParameter(ParameterMessage.PARAMETER_SIZE);
 			
-			String[] usernames = usernamesString.split("\t");
-			String[] names = namesString.split("\t");
-			String[] sizes = sizesString.split("\t");
-			String[] dates = datesString.split("\t");
-			String[] ids = idsString.split("\t");
+			String[] usernames = Strings.splitUnlessEmpty(usernamesString, "\t");
+			String[] names = Strings.splitUnlessEmpty(namesString, "\t");
+			String[] sizes = Strings.splitUnlessEmpty(sizesString, "\t");
+			String[] dates = Strings.splitUnlessEmpty(datesString, "\t");
+			String[] ids = Strings.splitUnlessEmpty(idsString, "\t");
 			
 			DateTimeFormatter dateTimeFormatter = ISODateTimeFormat.dateTime();
 			entries = new LinkedList<StorageEntry>();
@@ -165,6 +193,10 @@ public class StorageAdminAPI extends ServerAdminAPI {
 				entry.setID(ids[i]);
 				entries.add(entry);
 			}
+			
+			quota = Long.parseLong(quotaString);
+			quotaWarning = Long.parseLong(quotaWarningString);
+			storageUsage = Long.parseLong(storageUsageString);
 
 			latch.countDown();
 		}

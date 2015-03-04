@@ -96,6 +96,4 @@ public class CommandMessage extends ParameterMessage {
 	public List<String> getParameters() {
 		return super.getParameters();
 	}
-
-
 }

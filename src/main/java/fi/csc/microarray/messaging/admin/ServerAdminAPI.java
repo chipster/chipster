@@ -48,7 +48,7 @@ public class ServerAdminAPI {
 	};
 	
 	public static final long TIMEOUT = 30;
-	public final TimeUnit TIMEOUT_UNIT = TimeUnit.SECONDS;
+	public static final TimeUnit TIMEOUT_UNIT = TimeUnit.SECONDS;
 
 	private MessagingTopic serverAdminTopic;
 
