@@ -121,6 +121,10 @@
 		<entry entryKey="default-user-quota" type="int" description="maximum disk space that single user is allowed to consume, megabytes. set to -1 for unlimited quota">
 			<value>-1</value>
 		</entry>
+		
+		<entry entryKey="quota-warning" type="int" description="quota warning level, in percentage of the quota">
+			<value>10</value>
+		</entry>
 
 		<entry entryKey="clean-up-minimum-file-age" type="int" description="only clean up files older than this, seconds">
 			<value>259200</value>

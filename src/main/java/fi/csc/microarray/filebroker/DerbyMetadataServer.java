@@ -100,10 +100,15 @@ public class DerbyMetadataServer {
 	private static String SQL_DELETE_BELONGS_TO  = "DELETE FROM chipster.belongs_to WHERE session_uuid = ?";
 	
 	private static String SQL_INSERT_SPECIAL_USER  = "INSERT INTO chipster.special_users (username, show_as_folder) VALUES (?, ?)";
-	
-	private static String SQL_LIST_STORAGE_USAGE_OF_USER = "SELECT SUM(chipster.files.size) as size FROM chipster.sessions JOIN chipster.belongs_to ON chipster.sessions.uuid = chipster.belongs_to.session_uuid JOIN chipster.files ON chipster.files.uuid = chipster.belongs_to.file_uuid WHERE chipster.sessions.username = ?";
-	private static String SQL_LIST_STORAGE_USAGE_OF_USERS = "SELECT chipster.sessions.username, SUM(chipster.files.size) as size FROM chipster.sessions JOIN chipster.belongs_to ON chipster.sessions.uuid = chipster.belongs_to.session_uuid JOIN chipster.files ON chipster.files.uuid = chipster.belongs_to.file_uuid GROUP BY chipster.sessions.username";
+	// a sum of all distinct files referenced by the user's sessions
+	// when multiple sessions contain the same files, their size is counted only once
+	private static String SQL_LIST_STORAGE_USAGE_OF_USER = "SELECT SUM(size) as size FROM(SELECT DISTINCT chipster.files.uuid, chipster.files.size as size FROM chipster.sessions JOIN chipster.belongs_to ON chipster.sessions.uuid = chipster.belongs_to.session_uuid JOIN chipster.files ON chipster.files.uuid = chipster.belongs_to.file_uuid WHERE chipster.sessions.username = ?) as foo";
+	// a sum of all distinct files referenced by the user's sessions
+	// duplicate files are counted once for each user
+	private static String SQL_LIST_STORAGE_USAGE_OF_USERS = "SELECT username, SUM(size) as size FROM (SELECT DISTINCT username, file_uuid, size FROM chipster.sessions JOIN chipster.belongs_to ON chipster.sessions.uuid = chipster.belongs_to.session_uuid JOIN chipster.files ON chipster.files.uuid = chipster.belongs_to.file_uuid) as foo GROUP BY username";
+	// a simple sum of all files
 	private static String SQL_LIST_STORAGE_USAGE_OF_SESSIONS = "SELECT chipster.sessions.username, chipster.sessions.name, chipster.sessions.uuid, SUM(chipster.files.size) AS size , MAX(chipster.files.last_accessed) AS date FROM chipster.sessions JOIN chipster.belongs_to ON chipster.sessions.uuid = chipster.belongs_to.session_uuid  JOIN chipster.files ON chipster.files.uuid = chipster.belongs_to.file_uuid WHERE chipster.sessions.username = ? GROUP BY chipster.sessions.uuid, chipster.sessions.name, chipster.sessions.username";
+	// no join with sessions, so each file is counted only once (even when referenced by different users)
 	private static String SQL_GET_TOTAL_DISK_USAGE = "SELECT SUM(chipster.files.size) AS size FROM chipster.files";
 		
 	private static String SQL_LIST_ALL_FILES = "SELECT * FROM chipster.files";

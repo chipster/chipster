@@ -871,7 +871,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem getSaveSessionMenuItem() {
 		if (saveSessionMenuItem == null) {
 			saveSessionMenuItem = new JMenuItem();
-			saveSessionMenuItem.setText("Save cloud session... (beta)");
+			saveSessionMenuItem.setText("Save cloud session...");
 			saveSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					application.saveSession(SessionSavingMethod.UPLOAD_DATA_TO_SERVER);

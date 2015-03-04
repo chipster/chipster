@@ -10,6 +10,7 @@ import java.util.List;
 
 import javax.jms.JMSException;
 
+import fi.csc.microarray.messaging.admin.StorageAdminAPI.StorageEntryMessageListener;
 import fi.csc.microarray.util.IOUtils.CopyProgressListener;
 
 public interface FileBrokerClient {
@@ -154,4 +155,7 @@ public interface FileBrokerClient {
 
 
 	public Long getContentLength(String dataId) throws IOException, JMSException, FileBrokerException;
+
+
+	StorageEntryMessageListener getStorageUsage() throws JMSException, InterruptedException;
 }
