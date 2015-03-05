@@ -280,7 +280,7 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 		if (defaultUserQuota > 0) {
 			quota = defaultUserQuota * 1024 * 1024;
 		} else {
-			quota = storageRoot.getUsableSpace();
+			quota = storageUsage + storageRoot.getUsableSpace();
 		}
 		
 		long quotaWarningBytes = (long) (quota * quotaWarning / 100.0);
