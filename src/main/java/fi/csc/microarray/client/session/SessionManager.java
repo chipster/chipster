@@ -26,6 +26,7 @@ import fi.csc.microarray.filebroker.DbSession;
 import fi.csc.microarray.filebroker.DerbyMetadataServer;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.filebroker.QuotaExceededException;
+import fi.csc.microarray.messaging.admin.StorageAdminAPI.StorageEntryMessageListener;
 import fi.csc.microarray.security.CryptoKey;
 import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.Files;
@@ -271,6 +272,10 @@ public class SessionManager {
 	public List<DbSession> listRemoteSessions() throws JMSException {
 		return fileBrokerClient.listRemoteSessions();
 	}
+	
+	public StorageEntryMessageListener getStorageUsage() throws JMSException, InterruptedException {
+		return fileBrokerClient.getStorageUsage();
+	}
 
 	public void setSession(File sessionFile, String sessionId) throws MalformedURLException, JMSException {
 		if (sessionFile != null) {
@@ -281,7 +286,7 @@ public class SessionManager {
 		} else if (sessionId != null) {
 			String oldValue = currentRemoteSession;
 			currentRemoteSession = sessionId;
-			currentSessionName = getSessionName(listRemoteSessions(), sessionId);
+			currentSessionName = findSessionWithUuid(listRemoteSessions(), sessionId).getName();
 			listener.sessionChanged(new SessionChangedEvent(this, "session", oldValue, currentRemoteSession));
 		} else {
 			String oldValue = currentRemoteSession != null? currentRemoteSession : currentSessionName; 
@@ -295,26 +300,22 @@ public class SessionManager {
 		return currentSessionName;
 	}
 	
-	public String getSessionUuid(List<DbSession> sessions, String name) throws MalformedURLException {
-		String sessionUuid = null;
+	public DbSession findSessionWithName(List<DbSession> sessions, String name) throws MalformedURLException {
 		for (DbSession session : sessions) {
 			if (session.getName() != null && session.getName().equals(name)) {
-				sessionUuid = session.getDataId();
-				break;
+				return session;
 			}
 		}
-		return sessionUuid;
+		return null;
 	}
 	
-	public String getSessionName(List<DbSession> sessions, String uuid) throws MalformedURLException {
-		String name = null;
+	public DbSession findSessionWithUuid(List<DbSession> sessions, String uuid) throws MalformedURLException {
 		for (DbSession session : sessions) {
 			if (session.getDataId() != null && session.getDataId().equals(uuid)) {
-				name = session.getName();
-				break;
+				return session;
 			}
 		}
-		return name;
+		return null;
 	}
 	
 	public String getSessionNotes() {
@@ -566,5 +567,5 @@ public class SessionManager {
 		}
 		
 		return mostRecentDeadSignalFile != null ? mostRecentDeadSignalFile.getParentFile() : null;
-	}	
+	}
 }

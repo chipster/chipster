@@ -2,30 +2,29 @@ package fi.csc.microarray.analyser;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.Comparator;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Assert;
 import org.springframework.validation.Errors;
 
+import com.beust.jcommander.JCommander;
+
 import fi.csc.microarray.analyser.AnalysisTestBase.JobResultListener;
+import fi.csc.microarray.analyser.SessionReplayTestParameters.CommandGenerate;
+import fi.csc.microarray.analyser.SessionReplayTestParameters.CommandRun;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.RemoteServiceAccessor;
 import fi.csc.microarray.client.ServiceAccessor;
@@ -57,14 +56,20 @@ import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.MessagingTestBase;
 import fi.csc.microarray.module.ModuleManager;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
+import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.IOUtils;
+
 
 public class SessionReplayTest extends MessagingTestBase {
 
+	public static final String SESSIONS_DIR_NAME = "sessions";
+	public static final String SCREEN_OUTPUTS_DIR_NAME = "screen-outputs";
+	public static final String STACKTRACES_DIR_NAME = "stacktraces";
+	
 	private static final String FLAG_FILE = "test-ok";
-	private static final String DEFAULT_SESSIONS_DIR = "sessions";
 	private static final String DEFAULT_WEB_DIR = "web";
-	private static final String SCREEN_OUTPUTS_DIR = "screen-outputs";
+	public static final String SCREEN_OUTPUT_POSTFIX = "-output.txt";
+	public static final String STACKTRACE_POSTFIX = "-stacktrace.txt";
 	
 	private static final long TOOL_TEST_TIMEOUT = 3;
 	private static final TimeUnit TOOL_TEST_TIMEOUT_UNIT = TimeUnit.HOURS;
@@ -72,24 +77,11 @@ public class SessionReplayTest extends MessagingTestBase {
 	private static final boolean FAIL_ON_OUTPUT_SIZE_MISMATCH = false;
 	private static final boolean CHECK_CONTENTS = true;
 	
-	
-	private static final String CSS = "<style type=\"text/css\">" + 
-			"th {text-align: left; border-bottom-width: 1; border-bottom-style: solid}" +
-			"td {padding-right: 1em}" +
-			"h3 {margin-top: 2em}" +
-			"a {text-decoration: none}" +
-			"</style>";
-	
-	private Date startTime;
 	private File sessionsDir;
-	static private File webDir;
+	static private File webDir; // needed in early fail
+	private File screenOutputsDir;
+	private File stacktracesDir;
 	
-	private List<ToolTestResult> toolTestResults = new LinkedList<ToolTestResult>();
-	
-	// Sessions which cause something to be thrown, normal tool failures etc not counted
-	// TODO add to report
-	private LinkedHashMap<File, Throwable> sessionsWithErrors = new LinkedHashMap<File, Throwable>();
-	private LinkedHashMap<File, String> sessionsWithMissingTools = new LinkedHashMap<File, String>();
 	
 	private TaskExecutor executor;
 	private DataManager manager, sourceManager;
@@ -98,65 +90,99 @@ public class SessionReplayTest extends MessagingTestBase {
 	
 	public SessionReplayTest(String username, String password, String configURL) {
 		super(username, password, configURL);
-		this.startTime = new Date();
+
+		screenOutputsDir = new File(webDir, SCREEN_OUTPUTS_DIR_NAME);
+		screenOutputsDir.mkdirs();
+		
+		// delete existing screen outputs
+		if (screenOutputsDir.exists()) {
+			for (File f : screenOutputsDir.listFiles()) {
+				f.delete();
+			}
+		}
+
+		stacktracesDir = new File(webDir, STACKTRACES_DIR_NAME);
+		stacktracesDir.mkdirs();
+		
+		// delete existing
+		if (stacktracesDir.exists()) {
+			for (File f : stacktracesDir.listFiles()) {
+				f.delete();
+			}
+		}
 	}
 
 	public boolean testSessions(String sessionsDirName) throws Exception {
 
 		this.sessionsDir = new File(sessionsDirName);
+		ToolTestSummary summary = new ToolTestSummary();
+		summary.setStartTime(new Date());
 		
 		// Set up modules
 		ModuleManager moduleManager = new ModuleManager("fi.csc.microarray.module.chipster.MicroarrayModule");
 		Session.getSession().setModuleManager(moduleManager);
 		try {
-		// Set up main (target) system
-		manager = new DataManager();
-		moduleManager.plugAll(manager, null);
-		executor = new TaskExecutor(super.endpoint, manager);
-		toolModules = new LinkedList<ToolModule>();
-		serviceAccessor = new RemoteServiceAccessor();
-		serviceAccessor.initialise(manager, this.authenticationListener);
-		serviceAccessor.fetchDescriptions(new MicroarrayModule());
-		Session.getSession().setServiceAccessor(serviceAccessor);
-		toolModules.addAll(serviceAccessor.getModules());
-		Session.getSession().setClientApplication(new SessionLoadingSkeletonApplication(this, toolModules, manager));
-		
-		// Set up source system
-		sourceManager = new DataManager();
-		moduleManager.plugAll(sourceManager, null);
-		
-		// Run all sessions
-		for (File testSession : sessionsDir.listFiles()) {
-			
-			// Zip files only, maybe should check if it really is a session file
-			if (!testSession.getName().endsWith(".zip")) {
-				continue;
-			}
+			// Set up main (target) system
+			manager = new DataManager();
+			moduleManager.plugAll(manager, null);
+			executor = new TaskExecutor(super.endpoint, manager);
+			toolModules = new LinkedList<ToolModule>();
+			serviceAccessor = new RemoteServiceAccessor();
+			serviceAccessor.initialise(manager, this.authenticationListener);
+			serviceAccessor.fetchDescriptions(new MicroarrayModule());
+			Session.getSession().setServiceAccessor(serviceAccessor);
+			toolModules.addAll(serviceAccessor.getModules());
+			Session.getSession().setClientApplication(new SessionLoadingSkeletonApplication(this, toolModules, manager));
 
-			// Clear data managers after previous session
-			manager.deleteAllDataItems();
-			sourceManager.deleteAllDataItems();
-			
-			// Test session
-			try {
-				testSession(testSession);
-			} catch (Throwable e) {
-				e.printStackTrace();
-				sessionsWithErrors.put(testSession, e);
+			// Set up source system
+			sourceManager = new DataManager();
+			moduleManager.plugAll(sourceManager, null);
+
+			// Run all sessions
+			for (File testSession : sessionsDir.listFiles()) {
+
+				// Zip files only, maybe should check if it really is a session file
+				if (!testSession.getName().endsWith(".zip")) {
+					continue;
+				}
+
+				// Clear data managers after previous session
+				manager.deleteAllDataItems();
+				sourceManager.deleteAllDataItems();
+
+				// Test session
+				try {
+					testSession(testSession, summary);
+				} catch (Throwable e) {
+					e.printStackTrace();
+					File f = writeThrowableToDisk(e);
+					summary.getSessionsWithErrors().put(testSession, f.getName());
+				}
 			}
-		}
 		} finally {
 			if (serviceAccessor != null) {
 				serviceAccessor.close();
 			}
 		}
 
-		// Create reports
-		createReports();
+		// running tests done
+
+		
+		// create result files
+		addAllToolsToSummary(summary);
+		summary.calculateStats();
+		summary.setEndTime(new Date());
+		summary.writeToFiles(webDir);
+		
+		return getOverallResult(summary);
+		
+	}
+
+	private static boolean getOverallResult(ToolTestSummary summary) {
 		
 		// Get overall result
 		boolean combinedToolsResult = true;
-		for (ToolTestResult toolTestResult : toolTestResults) {
+		for (ToolTestResult toolTestResult : summary.getToolTestResults()) {
 			if (toolTestResult.getTestResult().equals(TestResult.FAIL)) {
 				combinedToolsResult = false;
 			}
@@ -167,27 +193,28 @@ public class SessionReplayTest extends MessagingTestBase {
 		}
 		
 		// Fail if no results at all
-		if (toolTestResults.size() == 0) {
+		if (summary.getToolTestResults().size() == 0) {
 			System.out.println("zero results, failing");
 			return false;
 		}
 		
 		// Fail if missing tools
-		if (sessionsWithMissingTools.size() > 0) {
+		if (summary.getSessionsWithMissingTools().size() > 0) {
 			System.out.println("missing tools, failing");
 			return false;
 		}
 
 		// Fail if sessions with errors
-		if (sessionsWithErrors.size() > 0) {
+		if (summary.getSessionsWithErrors().size() > 0) {
 			System.out.println("sessions with errors, failing");
 			return false;
 		}
 		
 		return true;
-	}
 
-	private void testSession(File session) throws Exception {
+	}
+	
+	private void testSession(File session, ToolTestSummary summary) throws Exception {
 
 		Map<DataBean, DataBean> sourceDataBeanToTargetDataBean = new HashMap<DataBean, DataBean>();
 
@@ -301,7 +328,7 @@ public class SessionReplayTest extends MessagingTestBase {
 			OperationDefinition operationDefinition = getOperationDefinition(operationRecord.getNameID().getID(), toolModules);
 			if (operationDefinition == null) {
 				System.out.println("Missing tool: " + operationRecord.getNameID().getID() + "  in session: " + session.getName() + " skipping rest of the session");
-				sessionsWithMissingTools.put(session, operationRecord.getNameID().getID());
+				summary.getSessionsWithMissingTools().put(session, operationRecord.getNameID().getID());
 				return;
 			}
 			Operation operation = new Operation(operationDefinition, inputBeans.toArray(new DataBean[] {}));
@@ -333,16 +360,19 @@ public class SessionReplayTest extends MessagingTestBase {
 			executor.startExecuting(task);
 			latch.await(TOOL_TEST_TIMEOUT, TOOL_TEST_TIMEOUT_UNIT);
 			
+			// write screen output to disk
+			writeScreenOutputToDisk(task);
+			
 			// Task failed
 			if (!task.getState().equals(State.COMPLETED)) {
 				
 				// try to cancel if still running
 				if (task.getState().equals(State.RUNNING)) {
 					executor.kill(task);
-					toolTestResults.add(new ToolTestResult(TestResult.FAIL, operation, session, task, "task did not finish before test timeout " +TOOL_TEST_TIMEOUT + " " + TOOL_TEST_TIMEOUT_UNIT.toString()));
+					summary.getToolTestResults().add(new ToolTestResult(TestResult.FAIL, session, task, "task did not finish before test timeout " +TOOL_TEST_TIMEOUT + " " + TOOL_TEST_TIMEOUT_UNIT.toString()));
 					return;
 				}
-				toolTestResults.add(new ToolTestResult(TestResult.FAIL, operation, session, task, "task was not completed"));
+				summary.getToolTestResults().add(new ToolTestResult(TestResult.FAIL, session, task, "task was not completed"));
 				return;
 			}
 			
@@ -362,7 +392,7 @@ public class SessionReplayTest extends MessagingTestBase {
 
 						// check content types
 						if (!sourceBean.getContentType().getType().equals(targetBean.getContentType().getType())) {
-							toolTestResults.add(new ToolTestResult(TestResult.FAIL, operation, session, task, "Mismatch in result content types, "
+							summary.getToolTestResults().add(new ToolTestResult(TestResult.FAIL, session, task, "Mismatch in result content types, "
 									+ sourceBean.getName() + ": " + sourceBean.getContentType().getType() + ", " + targetBean.getName() + ": " + targetBean.getContentType().getType()));
 							return;
 						}
@@ -376,12 +406,12 @@ public class SessionReplayTest extends MessagingTestBase {
 					} 
 					// Not enough results
 					else {
-						toolTestResults.add(new ToolTestResult(TestResult.FAIL, operation, session, task, "not enough result datasets"));
+						summary.getToolTestResults().add(new ToolTestResult(TestResult.FAIL, session, task, "not enough result datasets"));
 						return;
 					}
 				}
 				if (targetIterator.hasNext()) {
-					toolTestResults.add(new ToolTestResult(TestResult.FAIL, operation, session, task, "too many result datasets"));
+					summary.getToolTestResults().add(new ToolTestResult(TestResult.FAIL, session, task, "too many result datasets"));
 					return;
 				}
 
@@ -415,7 +445,7 @@ public class SessionReplayTest extends MessagingTestBase {
 					try {
 						compareDataBeans(sourceBean, targetBean);
 					} catch (Throwable t) {
-						toolTestResults.add(new ToolTestResult(TestResult.FAIL, operation, session, task, t.getMessage()));
+						summary.getToolTestResults().add(new ToolTestResult(TestResult.FAIL, session, task, t.getMessage()));
 						return;
 					}
 					
@@ -453,10 +483,10 @@ public class SessionReplayTest extends MessagingTestBase {
 				}
 
 				// Add result
-				ToolTestResult toolTestResult = new ToolTestResult(TestResult.OK, operation, session, task, null);
+				ToolTestResult toolTestResult = new ToolTestResult(TestResult.OK, session, task, null);
 				toolTestResult.setOutputsWithMisMatchingSizes(outputsWithMisMatchingSizes);
 				toolTestResult.setOutputsWithMisMatchingContents(outputsWithMisMatchingContents);
-				toolTestResults.add(toolTestResult);
+				summary.getToolTestResults().add(toolTestResult);
 
 			} finally {
 				// Set session data manager back to null to avoid problems
@@ -504,71 +534,76 @@ public class SessionReplayTest extends MessagingTestBase {
 
 	
 	public static void main(String[] args) throws Exception {
-		
-		boolean testOK = false;
 
-		// needed if things fail early
-		webDir = new File(DEFAULT_WEB_DIR);
-		
+		// parse command line parameters
+		SessionReplayTestParameters parameters = new SessionReplayTestParameters();
+		JCommander jc = new JCommander(parameters);
+		CommandRun run = new CommandRun();
+		jc.addCommand("run", run);
+		CommandGenerate generate = new CommandGenerate();
+		jc.addCommand("generate", generate);
 		try {
-
-			String configURL = null;
-			String username = null;
-			String password = null;
-			String sessionsDirName = DEFAULT_SESSIONS_DIR;
-			switch(args.length) {
-			case 3:
-				configURL = args[0];
-				username = args[1];
-				password = args[2];
-				DirectoryLayout.initialiseClientLayout(configURL);
-				break;
-			case 4:
-				configURL = args[0];
-				username = args[1];
-				password = args[2];
-				DirectoryLayout.initialiseClientLayout(configURL);
-				sessionsDirName = args[3];
-				break;
-			case 5:
-				configURL = args[0];
-				username = args[1];
-				password = args[2];
-				DirectoryLayout.initialiseClientLayout(configURL);
-				sessionsDirName = args[3];
-				webDir = new File(args[4]);
-				break;
-
-			default:
-				System.out.println("Usage: " + SessionReplayTest.class.getSimpleName() + " <config-url username password> <sessions dir> <web dir>\n" +
-				"If there are no arguments, config file is used.");
+			jc.parse(args);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			jc.usage();
+			initWebDir(null);
+			System.out.println("TOOL TEST EARLY ERROR");
+			updateFlagFileAndExit(false);
+		}
+		
+		try { 
+			if ("run".equals(jc.getParsedCommand())) {
+				initWebDir(run.output);
+				runTestSessions(run.config, run.username, run.password, run.sessions);
+				
+				
+			} else if ("generate".equals(jc.getParsedCommand())) {
+				initWebDir(generate.output);
+				File resultsDir = new File(generate.generateFrom);
+				readResultsFromFiles(resultsDir);
+			
+			} else {
+				jc.usage();
+				initWebDir(null);
 				updateFlagFileAndExit(false);
 			}
+		} catch (Exception e) {
+			System.out.println("TOOL TEST EXCEPTION ERROR");
+			updateFlagFileAndExit(false);
+		}
 
+		System.out.println("TOOL TEST UNEXCPECTED ERROR");
+		updateFlagFileAndExit(false);
+			
+	}
+	
+	private static void initWebDir(String dirName) {
+		if (dirName == null || dirName.isEmpty()) {
+			webDir = new File(DEFAULT_WEB_DIR); 
+		} else {
+			webDir = new File(dirName);
+		}
+		webDir.mkdirs();
+	}
+	
 
-			// initialize
-			SessionReplayTest test = null;
-			try {
-				test = new SessionReplayTest(username, password, configURL);
-			} catch (Exception e) {
-				e.printStackTrace();
-				System.out.println("TOOL TESTS INIT ERROR");
-				updateFlagFileAndExit(false);
-			}
+	private static void runTestSessions(String config, String username, String password, String sessionsDirName) throws Exception {
 
-			// run
-			try {
-				test.setUp();
-				testOK = test.testSessions(sessionsDirName);
-			} catch (Exception e) {
-				e.printStackTrace();
-				System.out.println("TOOL TEST ERROR");
-				test.tearDown();
-				updateFlagFileAndExit(false);
-			} finally {
-				test.tearDown();
-			}
+		SessionReplayTest test = null;
+		try {
+			DirectoryLayout.initialiseClientLayout(config);
+			test = new SessionReplayTest(username, password, config);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("TOOL TESTS INIT ERROR");
+			updateFlagFileAndExit(false);
+		}
 
+		try {
+			test.setUp();
+			// run tests
+			boolean testOK = test.testSessions(sessionsDirName);
 			if (testOK) {
 				System.out.println("TOOL TESTS OK");
 				updateFlagFileAndExit(true);
@@ -576,276 +611,51 @@ public class SessionReplayTest extends MessagingTestBase {
 				System.out.println("TOOL TESTS FAILED");
 				updateFlagFileAndExit(false);
 			}
-		} 
-		
-		// Should only get here if something weird happens
-		finally {
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("TOOL TEST ERROR");
+			try {
+				test.tearDown();
+			} catch (Exception e2) {
+				// ignore
+			}
 			updateFlagFileAndExit(false);
+		} finally {
+			test.tearDown();
 		}
 	}
 	
-	private void createReports() throws IOException {
-		
-		
-		// count unique tools and sessions
-		final HashMap<String, Integer> uniqueTools = new HashMap<String,Integer>(); 
-		HashMap<String, Integer> failCounts = new HashMap<String,Integer>(); 
-		
-		Set<File> uniqueSessions = new HashSet<File>();
-		HashMap<String, List<File>> toolToSessionsMap = new HashMap<String, List<File>>();
-		for (ToolTestResult toolTestResult : toolTestResults) {
-			if (!uniqueTools.containsKey(toolTestResult.getOperation().getID())) {
-				uniqueTools.put(toolTestResult.getOperation().getID(), 1);
-			} else {
-				uniqueTools.put(toolTestResult.getOperation().getID(), uniqueTools.get(toolTestResult.getOperation().getID()) + 1);
-			}
-
-			if (!toolToSessionsMap.containsKey(toolTestResult.getOperation().getID())) {
-				List<File> sessionsList = new LinkedList<File>();
-				sessionsList.add(toolTestResult.getSession());
-				toolToSessionsMap.put(toolTestResult.getOperation().getID(), sessionsList);
-			} else {
-				List<File> sessionsList = toolToSessionsMap.get(toolTestResult.getOperation().getID());
-				if (!sessionsList.contains(toolTestResult.getSession())) {
-					sessionsList.add(toolTestResult.getSession());
-				}
-			}
-			
-			if (!uniqueSessions.contains(toolTestResult.getSession())) {
-				uniqueSessions.add(toolTestResult.getSession());
-			}
-		}
-
-		// sort tools by test count
-		String[] toolsSortedbyTestCount = uniqueTools.keySet().toArray(new String[]{});
-		Arrays.sort(toolsSortedbyTestCount, new Comparator<String>() {
-			@Override
-			public int compare(String arg0, String arg1) {
-				return uniqueTools.get(arg1) - uniqueTools.get(arg0);
-			}
-		});
-		
-		// failed and successful tasks
-		List<ToolTestResult> failedTasks = new LinkedList<ToolTestResult>();
-		List<ToolTestResult> successTasks = new LinkedList<ToolTestResult>();
-		for (ToolTestResult toolTestResult : toolTestResults) {
-			if (TestResult.FAIL.equals(toolTestResult.getTestResult())) {
-				failedTasks.add(toolTestResult);
-				String toolID = toolTestResult.getOperation().getID();
-				if (failCounts.containsKey(toolID)) {
-					failCounts.put(toolID, failCounts.get(toolID) + 1);
-				} else {
-					failCounts.put(toolID, 1);
-				}
-			} else {
-				successTasks.add(toolTestResult);
-			}
-		}
-		
-
-		// create files
-		webDir.mkdirs();
-		File screenOutputsDir = new File(webDir, SCREEN_OUTPUTS_DIR);
-
-		// delete existing screen outputs
-		if (screenOutputsDir.exists()) {
-			for (File f : screenOutputsDir.listFiles()) {
-				f.delete();
-			}
-		}
-		
-		File htmlFile = new File(webDir,"index.html");
-		
-		FileWriter writer = new FileWriter(htmlFile);
-		writer.write("<html>");
-		writer.write("<head>" + CSS + "</head>");
-		
-		writer.write("<body>");
-		
-		// Main title
-		String titleStatus = "<span style=\"color: green\">everything ok!</span>";
-		if (failedTasks.size() > 0 || sessionsWithErrors.size() > 0 || sessionsWithMissingTools.size() > 0) {
-			titleStatus = "<span style=\"color: red\">" + 
-						failCounts.keySet().size() + " tool(s) failed in " + failedTasks.size() + " test(s), " +
-						sessionsWithErrors.size() + " session(s) with errors, " +
-						sessionsWithMissingTools.size() + " sessions(s) with missing tools" +
-						"</span>";
-		}
-		writer.write("<h2>Tool tests &ndash; " + titleStatus + "</h2>");
-
-		writer.write("<h3>Summary</h3>");
-
-		// Summary
-		long duration = (System.currentTimeMillis() - startTime.getTime())/1000;
-		String totalTime = String.format("%02dm %02ds", (duration/60), (duration%60));
-		writer.write("<table>" +
-				"<tr><td>Results summary</td><td>" + 
-				 successTasks.size() + " <span" + (successTasks.isEmpty() ? "" : " style=\"color: green\"") + ">ok</span>, " + 
-				 failedTasks.size() + " <span" + (failedTasks.isEmpty() ? "" : " style=\"color: red\"") + ">failed</span>, "+
-				 toolTestResults.size() + " total</td</tr>" +
-				
-				 "<tr><td>Tool coverage</td><td>" + uniqueTools.size() + "/" + getTotalNumberOfTools() + "</td></tr>" +
-				
-				 "<tr><td>Sessions</td>" + 
-				 "<td>" + uniqueSessions.size() + " total, " + 
-				 sessionsWithErrors.size() + " <span" + (sessionsWithErrors.isEmpty() ? "" : " style=\"color: red\"") + ">with errors</span>, " +
-				 sessionsWithMissingTools.size() + " <span" + (sessionsWithMissingTools.isEmpty() ? "" : " style=\"color: red\"") + ">with missing tools</span>, "+
-				 "</td></tr>" +
-
-				 
-				 "<tr><td>Start time</td><td>" + startTime.toString() + "</td></tr>" +
-				 "<tr><td>Total time</td><td>" + totalTime + "</td></tr>" +
-
-				"</table>");
-		
-		// Sessions with errors
-		if (sessionsWithErrors.size() > 0) {
-			writer.write("<h3>Sessions with errors</h3>");
-			writer.write("<table><tr>" + 
-					"<th>Session</th>" + 
-					"<th>Throwable</th>" +
-					"</tr>");
-			for (Entry<File, Throwable> entry : sessionsWithErrors.entrySet()) {
-				writer.write("<tr>" +
-						"<td>" + entry.getKey().getName() + "</td>" +
-						"<td>" + entry.getValue().toString() + "</td>" +
-						"</tr>");
-			}
-			writer.write("</table>");
-		}
-
-		// Missing tools
-		if (sessionsWithMissingTools.size() > 0) {
-			writer.write("<h3>Sessions with missing tools</h3>");
-			writer.write("<table><tr>" + 
-					"<th>Session</th>" + 
-					"<th>Tool</th>" +
-					"</tr>");
-			for (Entry<File, String> entry : sessionsWithMissingTools.entrySet()) {
-				writer.write("<tr>" +
-						"<td>" + entry.getKey().getName() + "</td>" +
-						"<td>" + entry.getValue() + "</td>" +
-						"</tr>");
-			}
-			writer.write("</table>");
-		}
-
-		
-		
-		// Tool test results
-		writer.write("<h3>Tool test results</h3>");
-		writer.write("<table><tr>" + 
-				"<th>Tool</th>" + 
-				"<th>Result</th>" +
-				"<th>Session</th>" +
-				"<th>Task state</th>" + 
-				"<th>Test error message</th>" + 
-				"<th>Task error message</th>" +
-				"<th>Task screen output</th>" + 
-				"<th>Duration</th>" + 
-				"<th>Outputs with mismatching sizes</th>" + 
-				"<th>Outputs with mismatching contents</th>" + 
-				"</tr>");
-
-		// Failed tests
-		for (ToolTestResult toolTestResult : failedTasks) {
-			writer.write("<tr>" +
-					"<td>" + toolTestResult.getOperation().getDefinition().getFullName() + "</td>" +
-					"<td style=\"color: red\">" + toolTestResult.getTestResult() + "</td>" +
-					"<td>" + createSessionLink(toolTestResult.getSession()) + "</td>" + 
-					"<td>" + toolTestResult.getTask().getState() + "</td>" +
-					"<td>" + nullToEmpty(toolTestResult.getTestErrorMessage()) + "</td>" +
-					"<td>" + nullToEmpty(toolTestResult.getTask().getErrorMessage()) + "</td>" +
-					"<td>" + createScreenOutputLink(toolTestResult.getTask()) + "</td>" +
-					"<td><nobr>" + getDurationString(toolTestResult.getTask()) + "</nobr></td>" +
-					"<td>" + getOutputsWithMisMatchingSizes(toolTestResult) + "</td>" +
-					"<td>" + getOutputsWithMisMatchingContents(toolTestResult) + "</td>" +
-					"</tr>");
-		}
-
-		// Successful tests
-		for (ToolTestResult toolTestResult : successTasks) {
-			writer.write("<tr>" +
-					"<td>" + toolTestResult.getOperation().getDefinition().getFullName() + "</td>" +
-					"<td>" + toolTestResult.getTestResult() + "</td>" +
-					"<td>" + createSessionLink(toolTestResult.getSession()) + "</td>" + 
-					"<td>" + toolTestResult.getTask().getState() + "</td>" +
-					"<td>" + nullToEmpty(toolTestResult.getTestErrorMessage()) + "</td>" +
-					"<td>" + nullToEmpty(toolTestResult.getTask().getErrorMessage()) + "</td>" +
-					"<td>" + createScreenOutputLink(toolTestResult.getTask()) + "</td>" +
-					"<td><nobr>" + getDurationString(toolTestResult.getTask()) + "</nobr></td>" +
-					"<td>" + getOutputsWithMisMatchingSizes(toolTestResult) + "</td>" +
-					"<td>" + getOutputsWithMisMatchingContents(toolTestResult) + "</td>" +
-					"</tr>");
-		}
-		writer.write("</table>");
-		
-
-		// Coverage
-		writer.write("<h3>Coverage</h3>");
-		writer.write("<table><tr>" + 
-				"<th>Tool</th>" + 
-				"<th>Count</th>" +
-				"<th>Sessions</th>" + 
-				"</tr>");
-
-		// Tools with tests
-		for (String toolID : toolsSortedbyTestCount) {
-			String sessionsString = "";
-			for (File session : toolToSessionsMap.get(toolID)) {
-				sessionsString += createSessionLink(session) + " ";
-			}
-			sessionsString.trim();
-			
-			writer.write("<tr>" +
-					"<td>" + this.getOperationDefinition(toolID, toolModules).getFullName()  + "</td>" +
-					"<td>" + uniqueTools.get(toolID) + "</td>" +
-					"<td>" + sessionsString + "</td>" +
-			    	"</tr>");
-		}
-
-		// Tools without tests
-		for (OperationDefinition od : getAllOperationDefinitions()) {
-			if (!uniqueTools.containsKey(od.getID())) {
-			writer.write("<tr>" +
-					"<td>" + od.getFullName()  + "</td>" +
-					"<td>" + 0 + "</td>" +
-					"<td>" + "" + "</td>" +
-			    	"</tr>");
-			}
-		}
-		
-		
-		
-		writer.write("</table>");
-
-		
-		writer.write("</body></html>");
-		writer.flush();
-		writer.close();
+	
+	private static void readResultsFromFiles(File inputDir) throws IOException, ParseException {
+		ToolTestSummary summary = new ToolTestSummary();
+		summary.readFromFiles(inputDir);
+		summary.calculateStats();
+		summary.writeToFiles(webDir);
+		boolean summaryResult = getOverallResult(summary);
+		System.out.println("summary result is : " + summaryResult);
+		updateFlagFileAndExit(summaryResult);
 	}
 	
+	private void writeScreenOutputToDisk(Task task) {
+		if (task.getScreenOutput() != null) {
+			File outputFile = new File(screenOutputsDir, task.getId() + SCREEN_OUTPUT_POSTFIX);
+			try {
+				IOUtils.copy(new ByteArrayInputStream(task.getScreenOutput().getBytes()), outputFile);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}	
 	
-	private String getOutputsWithMisMatchingSizes(ToolTestResult toolTestResult) {
-		String s = "";
-		for (String output : toolTestResult.getOutputsWithMisMatchingSizes()) {
-			s += output + ", ";
+	private File writeThrowableToDisk(Throwable t) {
+		File outputFile = new File(stacktracesDir, UUID.randomUUID().toString() + STACKTRACE_POSTFIX );
+		try {
+			IOUtils.copy(new ByteArrayInputStream(Exceptions.getStackTrace(t).getBytes()), outputFile);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
 		}
-		if (s.endsWith(", ")) {
-			s = s.substring(0, s.length() - ", ".length());
-		}
-		return s;
-	}
-
-	private String getOutputsWithMisMatchingContents(ToolTestResult toolTestResult) {
-		String s = "";
-		for (String output : toolTestResult.getOutputsWithMisMatchingContents()) {
-			s += output + ", ";
-		}
-		if (s.endsWith(", ")) {
-			s = s.substring(0, s.length() - ", ".length());
-		}
-		return s;
+		return outputFile;
 	}
 
 	
@@ -869,125 +679,20 @@ public class SessionReplayTest extends MessagingTestBase {
 	}
 	
 	
-	private enum TestResult {
+	enum TestResult {
 		OK,FAIL;
 	}
 	
-	private class ToolTestResult {
-		private TestResult testResult;
-		private Operation operation;
-		private File sessionFile;
-		private Task task;
-		private String testErrorMessage;
-		private List<String> outputsWithMisMatchingSizes = new LinkedList<String>();
-		private List<String> outputsWithMisMatchingContents = new LinkedList<String>();
-
-		
-		public ToolTestResult(TestResult testResult, Operation operation, File sessionFile, Task task, String testErrorMessage) {
-			this.testResult = testResult;
-			this.operation = operation;
-			this.sessionFile = sessionFile;
-			this.task = task;
-			this.testErrorMessage = testErrorMessage;
-		}
-
-		public TestResult getTestResult() {
-			return testResult;
-		}
-		public Operation getOperation() {
-			return operation;
-		}
-		public File getSession() {
-			return sessionFile;
-		}
-		public Task getTask() {
-			return task;
-		}
-		
-		public String getTestErrorMessage() {
-			return testErrorMessage;
-		}
-
-		public List<String> getOutputsWithMisMatchingSizes() {
-			return outputsWithMisMatchingSizes;
-		}
-
-		public void setOutputsWithMisMatchingSizes(List<String> outputs) {
-			this.outputsWithMisMatchingSizes = outputs;
-		}
-
-		public List<String> getOutputsWithMisMatchingContents() {
-			return outputsWithMisMatchingContents;
-		}
-
-		public void setOutputsWithMisMatchingContents(List<String> outputs) {
-			this.outputsWithMisMatchingContents = outputs;
-		}
-
-		
-	}
-	
-	private int getTotalNumberOfTools() {
-		Set<String> uniqueIDs = new HashSet<String>();
+	private void addAllToolsToSummary(ToolTestSummary summary) {
 		for (ToolModule toolModule : toolModules) {
 			for (ToolCategory toolCategory : toolModule.getVisibleCategories()) {
 				for (OperationDefinition od : toolCategory.getToolList()) {
-					if (!uniqueIDs.contains(od.getID())) {
-						uniqueIDs.add(od.getID());
-					}
+					summary.getAllTools().put(od.getID(), od.getFullName());
 				}
 			}
 		}
-		return uniqueIDs.size();
 	}
 
-	private List<OperationDefinition> getAllOperationDefinitions() {
-		List<OperationDefinition> tools = new LinkedList<OperationDefinition>();
-		for (ToolModule toolModule : toolModules) {
-			for (ToolCategory toolCategory : toolModule.getVisibleCategories()) {
-				for (OperationDefinition od : toolCategory.getToolList()) {
-					tools.add(od);
-				}
-			}
-		}
-		return tools;
-	}
-
-	private String nullToEmpty(String s) {
-		if (s == null) {
-			return "";
-		} else {
-			return s;
-		}
-	}
-	
-	private String createSessionLink(File sessionFile) {
-		return "<a href=\"" + sessionsDir + "/" + sessionFile.getName() + "\">" + sessionFile.getName() + "</a>";
-	}
-	
-	
-	private String createScreenOutputLink(Task task) {
-		if (task.getScreenOutput() == null) {
-			return "";
-		}
-		
-		File outputsDir = new File(webDir, SCREEN_OUTPUTS_DIR);
-		outputsDir.mkdirs();
-		File outputFile = new File(outputsDir, task.getId() + "-output");
-		try {
-			IOUtils.copy(new ByteArrayInputStream(task.getScreenOutput().getBytes()), outputFile);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return "creating screen output failed";
-		}
-		
-		return "<a href=\"" + SCREEN_OUTPUTS_DIR + "/" + outputFile.getName() + "\">" + "output" + "</a>";
-	}
-
-	private String getDurationString(Task task) {
-		long duration = task.getExecutionTime() / 1000;
-		return String.format("%02dm %02ds", (duration/60), (duration%60));
-	}
 	
 	
 	public static class SessionLoadingSkeletonApplication extends ClientApplication {
@@ -1051,4 +756,7 @@ public class SessionReplayTest extends MessagingTestBase {
 			throw new UnsupportedOperationException("not supported by skeleton app");
 		}
 	}
+
+
+	
 }
