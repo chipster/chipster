@@ -76,9 +76,9 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 	private int metadataPort;
 	
 	private ExampleSessionUpdater exampleSessionUpdater;
-	private List<FileServerListener> listeners = new LinkedList<FileServerListener>();
 
-	private long defaultUserQuota;
+	private long defaultUserQuota; // MB
+	private long quotaWarning; // percentage of the quota
 
 
 	public static void main(String[] args) {
@@ -108,6 +108,7 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
     		this.host = configuration.getString("filebroker", "url");
     		this.port = configuration.getInt("filebroker", "port");    	
     		this.defaultUserQuota = configuration.getInt("filebroker", "default-user-quota");
+    		this.quotaWarning = configuration.getInt("filebroker", "quota-warning");
     		// initialise filebroker areas
     		this.filebrokerAreas = new FileBrokerAreas(fileRepository, CACHE_PATH, STORAGE_PATH);
     		
@@ -171,18 +172,19 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
     		MessagingTopic filebrokerAdminTopic = jmsEndpoint.createTopic(Topics.Name.FILEBROKER_ADMIN_TOPIC, AccessMode.READ);
     		filebrokerAdminTopic.setListener(new FilebrokerAdminMessageListener());
     		
-    		// Load new zip example sessions and store as server sessions. 
-    		// ManagerClient is not really needed in this, but must be initialized to avoid NullPointerException.
-    		File exampleSessionDir = new File(fileRepository, exampleSessionPath);
-    		this.exampleSessionUpdater = new ExampleSessionUpdater(this, metadataServer, exampleSessionDir);
-    		
-    		try {
-    			this.exampleSessionUpdater.importExampleSessions();
-    		} catch(ZipException e) {
-    			//import failed because of the broken zip file. Probably something interrupted the session export
-    			//and the situation needs to be resolved manually
-    			logger.error("example session import failed", e);
-    			throw e;
+    		// load new zip example sessions and store as server sessions
+    		if (exampleSessionPath != null && !exampleSessionPath.isEmpty()) {
+    			File exampleSessionDir = new File(fileRepository, exampleSessionPath);
+    			this.exampleSessionUpdater = new ExampleSessionUpdater(this, metadataServer, exampleSessionDir);
+
+    			try {
+    				this.exampleSessionUpdater.importExampleSessions();
+    			} catch(ZipException e) {
+    				//import failed because of the broken zip file. Probably something interrupted the session export
+    				//and the situation needs to be resolved manually
+    				logger.error("example session import failed", e);
+    				throw e;
+    			}
     		}
     		
     		// create keep-alive thread and register shutdown hook
@@ -245,7 +247,9 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 
 			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_LIST_SESSIONS.equals(((CommandMessage)msg).getCommand())) {
 				handleListSessionsRequest(endpoint, (CommandMessage)msg);
-
+				
+			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_LIST_STORAGE_USAGE_OF_SESSIONS.equals(((CommandMessage)msg).getCommand())) {
+				handleListStorageUsageOfSessionsRequest(endpoint, (CommandMessage)msg, msg.getUsername());
 			} else {
 				logger.error("message " + msg.getMessageID() + " not understood");
 			}
@@ -253,6 +257,39 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 		} catch (Exception e) {
 			logger.error(e, e);
 		}
+	}
+
+	private void handleListStorageUsageOfSessionsRequest(
+			MessagingEndpoint endpoint, CommandMessage msg, String username) throws SQLException, JMSException {
+		
+		CommandMessage requestMessage = (CommandMessage) msg;
+		CommandMessage reply;
+
+		List<String>[] sessions;
+		sessions = metadataServer.getStorageUsageOfSessions(username);
+		Long storageUsage = metadataServer.getStorageusageOfUser(username);
+
+		reply = new CommandMessage();
+		reply.addNamedParameter(ParameterMessage.PARAMETER_USERNAME_LIST, Strings.delimit(sessions[0], "\t"));
+		reply.addNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME_LIST, Strings.delimit(sessions[1], "\t"));
+		reply.addNamedParameter(ParameterMessage.PARAMETER_SIZE_LIST, Strings.delimit(sessions[2], "\t"));
+		reply.addNamedParameter(ParameterMessage.PARAMETER_DATE_LIST, Strings.delimit(sessions[3], "\t"));
+		reply.addNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID_LIST, Strings.delimit(sessions[4], "\t"));
+		
+		long quota;
+		if (defaultUserQuota > 0) {
+			quota = defaultUserQuota * 1024 * 1024;
+		} else {
+			quota = storageUsage + storageRoot.getUsableSpace();
+		}
+		
+		long quotaWarningBytes = (long) (quota * quotaWarning / 100.0);
+		
+		reply.addNamedParameter(ParameterMessage.PARAMETER_QUOTA, "" + quota);
+		reply.addNamedParameter(ParameterMessage.PARAMETER_QUOTA_WARNING, "" + quotaWarningBytes);
+		reply.addNamedParameter(ParameterMessage.PARAMETER_SIZE, "" + storageUsage);
+		
+		jmsEndpoint.replyToMessage(requestMessage, reply);
 	}
 
 	@Deprecated
@@ -462,7 +499,7 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 		String username = requestMessage.getUsername();
 		String name = requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME);		
 		String sessionId = AuthorisedUrlRepository.stripCompressionSuffix(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID));
-		List<String> fileIds = Arrays.asList(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_FILE_ID_LIST).split("\t"));
+		List<String> fileIds = Arrays.asList(requestMessage.getNamedParameterAsArray(ParameterMessage.PARAMETER_FILE_ID_LIST));
 		
 		ChipsterMessage reply; 
 		try {
@@ -477,8 +514,6 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 		}
 		
 		endpoint.replyToMessage(requestMessage, reply);
-		
-		dispatch(new FileServerListener.AfterStoreSessionReply(username, name, sessionId, fileIds, endpoint));
 	}
 
 	private void storeSession(String username, String name, String sessionId, List<String> fileIds) throws SQLException {
@@ -511,8 +546,6 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 
 		// parse request
 		String sessionId = requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID);
-		
-		dispatch(new FileServerListener.BeforeRemoveSession(sessionId, requestMessage.getUsername(), endpoint));
 		
 		SuccessMessage reply;
 		try {
@@ -666,7 +699,7 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 			}
 		}		
 	}
-
+	
 	private class FilebrokerAdminMessageListener implements MessagingListener {
 
 		/* (non-Javadoc)
@@ -696,21 +729,8 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 				// get sessions for user
 				else if (msg instanceof CommandMessage && CommandMessage.COMMAND_LIST_STORAGE_USAGE_OF_SESSIONS.equals(((CommandMessage)msg).getCommand())) {
 					String username = ((ParameterMessage)msg).getNamedParameter("username");
-					CommandMessage requestMessage = (CommandMessage) msg;
-					CommandMessage reply;
-
-					List<String>[] sessions;
-					sessions = metadataServer.getStorageUsageOfSessions(username);
-
-					reply = new CommandMessage();
-					reply.addNamedParameter(ParameterMessage.PARAMETER_USERNAME_LIST, Strings.delimit(sessions[0], "\t"));
-					reply.addNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME_LIST, Strings.delimit(sessions[1], "\t"));
-					reply.addNamedParameter(ParameterMessage.PARAMETER_SIZE_LIST, Strings.delimit(sessions[2], "\t"));
-					reply.addNamedParameter(ParameterMessage.PARAMETER_DATE_LIST, Strings.delimit(sessions[3], "\t"));
-					reply.addNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID_LIST, Strings.delimit(sessions[4], "\t"));
-					jmsEndpoint.replyToMessage(requestMessage, reply);
+					handleListStorageUsageOfSessionsRequest(jmsEndpoint, (CommandMessage)msg, username);
 				}
-
 
 				// get sessions for session name
 				else if (msg instanceof CommandMessage && CommandMessage.COMMAND_GET_STORAGE_USAGE_TOTALS.equals(((CommandMessage)msg).getCommand())) {
@@ -759,27 +779,6 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 
 		private FileServerAdminTools getAdminTools() {
 			return new FileServerAdminTools(metadataServer, cacheRoot, storageRoot, false);
-		}
-	}
-	
-	/**
-	 * Add a local listener for FileServer events.
-	 * 
-	 * @param listener
-	 */
-	public void addListener(FileServerListener listener) {
-		listeners.add(listener);
-	}
-	
-	/**
-	 * Send a FileServer event to all registered listeners.
-	 * 
-	 * @param event
-	 */
-	private void dispatch(FileServerListener.Event event) {
-
-		for (FileServerListener listener : listeners) {
-			listener.listen(event);
 		}
 	}
 }

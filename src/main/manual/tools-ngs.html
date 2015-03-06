@@ -18,9 +18,8 @@ allowing you to view reads and results in their genomic context.</p>
 <li> <a href="#variants">Variants</a> </li>
 <li> <a href="#RNA">RNA-seq</a> </li>
 <li> <a href="#miRNA">miRNA-seq</a> </li>
-<li> <a href="#ChIP">ChIP-seq and DNase-seq</a> </li>
+<li> <a href="#ChIP">ChIP-, DNase-, and Methyl-seq</a> </li>
 <li> <a href="#CNA">CNA-seq</a> </li>
-<li> <a href="#methyl">Methyl-seq</a> </li>
 <li> <a href="#meta">Metagenomics</a> </li>
 </ol>
 <hr>
@@ -30,6 +29,7 @@ allowing you to view reads and results in their genomic context.</p>
 <li> <a href="fastx-statistics.html">Quality statistics with FASTX</a></li>
 <li> <a href="prinseq-statistics.html">Read quality statistics with PRINSEQ </a> </li>
 <li> <a href="rseqc.html">RNA-seq quality metrics with RseQC</a></li>
+<li> <a href="deseq2-pca-heatmap.html">PCA and heatmap of samples with DESeq2</a></li>
 <br>
 <br>
 <b><a name="preprocessing">Preprocessing</a></b>
@@ -98,11 +98,13 @@ allowing you to view reads and results in their genomic context.</p>
 <li> <a href="bowtie2-with-index-building.html">Bowtie2 for single end reads and own genome</a>.</li>
 <li> <a href="bowtie2-paired-end-with-index-building.html">Bowtie2 for paired end reads and own genome</a>.</li>
 <li> <a href="bwa.html">BWA for single-end reads </a> </li>
-<!--  <li> <a href="bwasw.html">BWA-SW for single-end reads </a> </li>-->
 <li> <a href="bwa-paired-end.html">BWA for paired-end reads </a> </li>
 <li> <a href="bwa-with-index-building.html">BWA for single-end reads and own genome</a> </li>
-<li> <a href="bwasw-with-index-building.html">BWA-SW for single-end reads and own genome</a> </li>
 <li> <a href="bwa-paired-end-with-index-building.html">BWA for paired-end reads and own genome </a> </li>
+<li> <a href="bwa-mem.html">BWA MEM for single-end reads </a> </li>
+<li> <a href="bwa-mem-paired-end.html">BWA MEM for paired-end reads </a> </li>
+<li> <a href="bwa-mem-with-index-building.html">BWA MEM for single-end reads and own genome</a> </li>
+<li> <a href="bwa-mem-paired-end-with-index-building.html">BWA MEM for paired-end reads and own genome </a> </li>
 <li> <a href="bowtie.html">Bowtie for single-end reads </a> </li>
 <li> <a href="bowtie-paired-end.html">Bowtie for paired-end reads</a> </li>
 <li> <a href="bowtie-with-index-building.html">Bowtie for single-end reads and own genome </a> </li>
@@ -123,7 +125,7 @@ allowing you to view reads and results in their genomic context.</p>
 <li><a href="dexseq-exoncount-own-gtf.html">Count aligned reads per exons for DEXSeq using own GTF</a></li>
 <li><a href="express.html">Count reads per transcripts using eXpress</a></li>
 <li><a href="ngs-dea-edger-RNA.html"> Differential expression using edgeR</a></li>
-<li><a href="edger-multivariate.html"> Differential expression using edgeR for multivariate experiments</a></li>
+<li><a href="edgeR-multivariate.html"> Differential expression using edgeR for multivariate experiments</a></li>
 <li><a href="deseq2.html">Differential expression using DESeq2</a></li>
 <li><a href="dea-deseq.html">Differential expression using DESeq</a></li>
 <li><a href="DEXSeq.html">Differential exon expression using DEXSeq</a></li>
@@ -135,8 +137,8 @@ allowing you to view reads and results in their genomic context.</p>
 <b><a name="miRNA">miRNA-seq</a></b>
 <li><a href="convert-bam-to-edger.html">Convert genomic BAM to count table</a></li>
 <li><a href="convert-miRBase-bam-to-edger.html">Convert miRBased BAM to count table</a></li>
-<li><a href="ngs-dea-edger.html">Differential expression using edgeR</a></li>
-<li><a href="edger-multivariate.html"> Differential expression using edgeR for multivariate experiments</a></li>
+<li><a href="ngs-dea-edger-RNA.html">Differential expression using edgeR</a></li>
+<li><a href="edgeR-multivariate.html"> Differential expression using edgeR for multivariate experiments</a></li>
 <li><a href="deseq2.html">Differential expression using DESeq2</a></li>
 <li><a href="dea-deseq.html">Differential expression using DESeq</a></li>
 <li><a href="ngs-annotate-miRNA-targets.html">Find miRNA targets</a></li>
@@ -148,7 +150,8 @@ allowing you to view reads and results in their genomic context.</p>
 <li><a href="ngs-extract-target-gene-expression.html">Extract gene expression array data for miRNA targets</a></li>
 <br>
 <br>
-<b><a name="ChIP">ChIP-seq and DNase-seq</a></b>
+<b><a name="ChIP">ChIP-, DNase-, and Methyl-seq</a></b>
+<li> <a href="macs2.html">Find peaks using MACS2 </a> </li>
 <li> <a href="ngs-find-peaks-macs-one.html">Find peaks using MACS, treatment only </a> </li>
 <li> <a href="ngs-find-peaks-macs-two.html">Find peaks using MACS, treatment vs. control </a> </li>
 <li> <a href="ngs-find-motifs-jaspar.html">Find common motifs and match to JASPAR </a> </li>
@@ -159,7 +162,8 @@ allowing you to view reads and results in their genomic context.</p>
 <li> <a href="dimontdata.html">Dimont sequence extractor</a></li>
 <li> <a href="dimont-extract-data-custom.html">Dimont sequence extractor using own genome</a></li>
 <li> <a href="dimont.html">Find motifs with Dimont</a></li>
-<li> <a href="dimont-predictor.html">DimontPredictor</a></li>			
+<li> <a href="dimont-predictor.html">DimontPredictor</a></li>
+<li> <a href="MEDIPS.html">MEDIPS -methylation analysis </a> </li>			
 <br>
 <br>
 <b><a name="CNA">CNA-seq</a></b>
@@ -184,13 +188,6 @@ allowing you to view reads and results in their genomic context.</p>
 <li><a href="acgh-plot-combined-expression.html">Plot copy number induced gene expression</a></li>
 <li><a href="acgh-add-cytobands.html">Add cytogenetic bands</a></li>
 <li><a href="acgh-count-overlapping-cnvs.html">Count overlapping CNVs</a></li>
-<br>
-<br>
-<b><a name="methyl">Methyl-seq</a></b>
-<li> <a href="convertBAMtoMEDIPS.html">Convert BAM file to MEDIPS input format </a> </li>
-<li> <a href="combineMEDIPS.html">Combine MEDIPS input files </a> </li>
-<li> <a href="MEDIPS_one_sample.html">MEDIPS -methylation analysis, treatment only </a> </li>
-<li> <a href="MEDIPS_two_samples.html">MEDIPS -methylation analysis, treatment and control </a> </li>
 <br>
 <br>
 <b><a name="meta">Metagenomics</a></b>

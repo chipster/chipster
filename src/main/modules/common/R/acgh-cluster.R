@@ -2,8 +2,8 @@
 # INPUT regions.tsv: regions.tsv TYPE GENERIC 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT wecca.pdf: wecca.pdf 
-# PARAMETER type.of.calls: "cluster on" TYPE [hard: "hard calls", soft: "call probabilities / soft calls", none: "none"] DEFAULT soft (Whether to cluster the arrays based on soft or hard calls. Hard calls are losses, normals, and gains, whereas soft calls refer to the respective probabilities of these calls. The preferred choice is to use soft calls whenever they are available. Choosing "none" will leave samples unordered.)
-# PARAMETER column: column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column to include in the output plot.)
+# PARAMETER type.of.calls: "Cluster on" TYPE [hard: "hard calls", soft: "call probabilities / soft calls", none: "none"] DEFAULT soft (Whether to cluster the arrays based on soft or hard calls. Hard calls are losses, normals, and gains, whereas soft calls refer to the respective probabilities of these calls. The preferred choice is to use soft calls whenever they are available. Choosing "none" will leave samples unordered.)
+# PARAMETER column: Column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column to include in the output plot.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
 # 2014-01-25

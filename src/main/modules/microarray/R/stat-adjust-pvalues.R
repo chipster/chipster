@@ -2,8 +2,8 @@
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT adjusted-p-values.tsv: adjusted-p-values.tsv 
-# PARAMETER column: column TYPE COLUMN_SEL DEFAULT EMPTY (Data file column containing the p-values to adjust)
-# PARAMETER p.value.adjustment.method: p.value.adjustment.method TYPE [Bonferroni: Bonferroni, Holm: Holm, Hochberg: Hochberg, BH: BH, BY: BY, Storey-Q: Storey-Q] DEFAULT BH (Multiple testing correction method)
+# PARAMETER column: "Column" TYPE COLUMN_SEL DEFAULT EMPTY (Data file column containing the p-values to adjust)
+# PARAMETER p.value.adjustment.method: "p-value adjustment method" TYPE [Bonferroni: Bonferroni, Holm: Holm, Hochberg: Hochberg, BH: BH, BY: BY, Storey-Q: Storey-Q] DEFAULT BH (Multiple testing correction method)
 
 # JTT 12.12.2008: P-value adjustment created
 

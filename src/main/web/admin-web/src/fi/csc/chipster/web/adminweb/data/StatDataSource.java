@@ -382,7 +382,9 @@ public class StatDataSource {
 				@SuppressWarnings({ "rawtypes", "unchecked" })
 				List<Map> resultList = criteria.list();
 
-				for (Map<Object, Object> toolCount : resultList) {				
+				for (@SuppressWarnings("rawtypes") Map item : resultList) {
+					@SuppressWarnings("unchecked")
+					Map<Object, Object> toolCount = item;
 					toolCount.put(YEAR, year);
 					results.add(toolCount);
 				}

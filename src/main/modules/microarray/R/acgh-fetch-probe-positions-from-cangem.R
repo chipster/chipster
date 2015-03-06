@@ -1,11 +1,11 @@
 # TOOL acgh-fetch-probe-positions-from-cangem.R: "Fetch probe positions from CanGEM" (Fetches microarray probe positions from the CanGEM database.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # OUTPUT probe-positions.tsv: probe-positions.tsv 
-# PARAMETER platform.accession: "platform accession" TYPE STRING DEFAULT CG-PLM- (The accession of the platform.)
-# PARAMETER genome.build: genome.build TYPE [GRCh37: GRCh37, NCBI36: NCBI36, NCBI35: NCBI35, NCBI34: NCBI34] DEFAULT GRCh37 (The genome build to use for adding the chromosome names and start and end base pair positions for the probes.)
-# PARAMETER username: username TYPE STRING DEFAULT empty (Username, in case the data is password-protected. WARNING: This will store your username password in the Chipster history files. To avoid this, use the session parameter.)
-# PARAMETER password: password TYPE STRING DEFAULT empty (Password, in case the data is password-protected. WARNING: This will store your username password in the Chipster history files. To avoid this, use the session parameter.)
-# PARAMETER session: session TYPE STRING DEFAULT empty (Session ID. To avoid saving your username password in Chipster history files, log in at http: www.cangem.org using a web browser, then copy&paste your session ID from the lower right corner of the CanGEM website. This will allow Chipster to access your password-protected data until you log out of the web site (or the session times out\).)
+# PARAMETER platform.accession: "Platform accession" TYPE STRING DEFAULT CG-PLM- (The accession of the platform.)
+# PARAMETER genome.build: "Genome build" TYPE [GRCh37: GRCh37, NCBI36: NCBI36, NCBI35: NCBI35, NCBI34: NCBI34] DEFAULT GRCh37 (The genome build to use for adding the chromosome names and start and end base pair positions for the probes.)
+# PARAMETER username: Username TYPE STRING DEFAULT empty (Username, in case the data is password-protected. WARNING: This will store your username password in the Chipster history files. To avoid this, use the session parameter.)
+# PARAMETER password: Password TYPE STRING DEFAULT empty (Password, in case the data is password-protected. WARNING: This will store your username password in the Chipster history files. To avoid this, use the session parameter.)
+# PARAMETER session: "Session ID" TYPE STRING DEFAULT empty (Session ID. To avoid saving your username password in Chipster history files, log in at http: www.cangem.org using a web browser, then copy&paste your session ID from the lower right corner of the CanGEM website. This will allow Chipster to access your password-protected data until you log out of the web site (or the session times out\).)
 
 # fetch-probe-positions-from-cangem.R
 # Ilari Scheinin <firstname.lastname@gmail.com>

@@ -1,10 +1,10 @@
 # TOOL impute.R: "Impute missing values" (Imputation of missing values. If the maximum specified number of missing values is exceeded, the missing values for that stratum of data are not replaced with imputed values.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # OUTPUT imputed.tsv: imputed.tsv 
-# PARAMETER imputation.method: imputation.method TYPE [mean: mean, median: median, knn: knn] DEFAULT knn (Imputation method)
-# PARAMETER number.of.neighbors: number.of.neighbors TYPE INTEGER FROM 1 TO 100000 DEFAULT 5 (Number of neighbors to use for knn imputation)
-# PARAMETER missing.row.max: missing.row.max TYPE PERCENT DEFAULT 20 (Maximum number of missing values on a row)
-# PARAMETER missing.column.max: missing.column.max TYPE PERCENT DEFAULT 20 (Maximum number of missing values on a column)
+# PARAMETER imputation.method: "Imputation method" TYPE [mean: mean, median: median, knn: knn] DEFAULT knn (Imputation method)
+# PARAMETER number.of.neighbors: "Number of neighbors" TYPE INTEGER FROM 1 TO 100000 DEFAULT 5 (Number of neighbors to use for knn imputation)
+# PARAMETER missing.row.max: "Missing values row max" TYPE PERCENT DEFAULT 20 (Maximum number of missing values on a row)
+# PARAMETER missing.column.max: "Missing values column max" TYPE PERCENT DEFAULT 20 (Maximum number of missing values on a column)
 
 
 # JTT 22.06.2006: Imputation of missing values by mean or median

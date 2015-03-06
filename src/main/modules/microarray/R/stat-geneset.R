@@ -7,7 +7,7 @@
 # PARAMETER pathway.or.genelist: "Pathways or genelist" TYPE [KEGG: KEGG, GO: GO, current: current] DEFAULT KEGG (Which gene list to test)
 # PARAMETER OPTIONAL minimum.category.size: "Minimum pathway size" TYPE INTEGER FROM 1 TO 100 DEFAULT 5 (Minimum size for a pathway to be evaluated)
 # PARAMETER OPTIONAL number.of.groups.to.visualize: "Number of pathways to visualize" TYPE INTEGER FROM 1 TO 100 DEFAULT 5 (Number of most significant groups to visualize)
-# PARAMETER OPTIONAL p.value.threshold: "P-value threshold" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (Adjusted P-value cut-off for significant results)
+# PARAMETER OPTIONAL p.value.threshold: "p-value threshold" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (Adjusted P-value cut-off for significant results)
 # PARAMETER OPTIONAL mult.test.cor: "Multiple testing correction method" TYPE [Holm: Holm, BH: BH, BY:BY] DEFAULT BH (Type of multiple testing correction to be used)
 
 

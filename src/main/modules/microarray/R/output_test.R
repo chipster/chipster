@@ -2,8 +2,8 @@
 # INPUT bedfile.bed: "BED file with \"description\" column to be extracted" TYPE GENERIC 
 # INPUT sequences.fa: "Your fasta file" TYPE GENERIC
 # OUTPUT my-output{...}.tsv: "Multiple files" 
-# PARAMETER column: column TYPE COLUMN_SEL (Data \"column\" from first input)
-# PARAMETER num: num TYPE DECIMAL FROM 0 TO 10 DEFAULT 1 (Some \(test\) number)
+# PARAMETER column: Column TYPE COLUMN_SEL (Data \"column\" from first input)
+# PARAMETER num: Num TYPE DECIMAL FROM 0 TO 10 DEFAULT 1 (Some \(test\) number)
 
 # MK 18.11.2013
 

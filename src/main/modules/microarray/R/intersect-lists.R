@@ -3,10 +3,10 @@
 # OUTPUT intersect-lists-operation.tsv: intersect-lists-operation.tsv 
 # OUTPUT intersect-lists-summary.tsv: intersect-lists-summary.tsv 
 # OUTPUT venn-diagram-plot.pdf: venn-diagram-plot.pdf 
-# PARAMETER common.column: common.column TYPE STRING DEFAULT empty (The name of the column that is common to the data tables.)
-# PARAMETER operation: operation TYPE [intersection: intersection, union: union] DEFAULT intersection (Defines the operation to be performed on the lists, where intersection will yield a list of only the rows that are common between lnput lists, whereas union will yield a list of the rows that appear in any of the input lists.)
-# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
-# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
+# PARAMETER common.column: "Common column" TYPE STRING DEFAULT empty (The name of the column that is common to the data tables.)
+# PARAMETER operation: Operation TYPE [intersection: intersection, union: union] DEFAULT intersection (Defines the operation to be performed on the lists, where intersection will yield a list of only the rows that are common between lnput lists, whereas union will yield a list of the rows that appear in any of the input lists.)
+# PARAMETER OPTIONAL image.width: "Image width" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
+# PARAMETER OPTIONAL image.height: "Image height" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
 # INPUT GENERIC genelist[...].tsv OUTPUT intersect-lists-operation.tsv, intersect-lists-summary.tsv, venn-diagram-plot.pdf
 #common.column <- "symbol"

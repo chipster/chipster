@@ -2,7 +2,7 @@
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT extracted-from-KEGG.tsv: extracted-from-KEGG.tsv 
-# PARAMETER match.term: match.term TYPE STRING DEFAULT empty (The identifier for the KEGG pathway to extract genes from.)
+# PARAMETER match.term: "Match term" TYPE STRING DEFAULT empty (The identifier for the KEGG pathway to extract genes from.)
 
 # Extract the rows from a table that contain probes that map genes annotated
 # to a given KEGG pathway

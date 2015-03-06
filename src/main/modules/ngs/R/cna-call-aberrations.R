@@ -3,8 +3,8 @@
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT aberrations.tsv: aberrations.tsv
 # OUTPUT aberration-frequencies.pdf: aberration-frequencies.pdf
-# PARAMETER number.of.copy.number.states: "number of copy number states" TYPE [3: 3, 4: 4, 5: 5] DEFAULT 3 (Three states means calling loss vs. normal vs. gain, four states separates amplifications, and five also homozygous deletions.)
-# PARAMETER column: cellularity TYPE METACOLUMN_SEL DEFAULT EMPTY (If available, phenodata column containing the cellularities (the proportion of tumor cells\) of the samples. If there are values larger than 1, they are assumed to be percentages and are divided by 100. Missing values are replaced with the mean.)
+# PARAMETER number.of.copy.number.states: "Number of copy number states" TYPE [3: 3, 4: 4, 5: 5] DEFAULT 3 (Three states means calling loss vs. normal vs. gain, four states separates amplifications, and five also homozygous deletions.)
+# PARAMETER column: Cellularity TYPE METACOLUMN_SEL DEFAULT EMPTY (If available, phenodata column containing the cellularities (the proportion of tumor cells\) of the samples. If there are values larger than 1, they are assumed to be percentages and are divided by 100. Missing values are replaced with the mean.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
 # 2014-03-25

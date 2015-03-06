@@ -4,10 +4,10 @@
 # OUTPUT sam.tsv: sam.tsv 
 # OUTPUT sam.png: sam.png 
 # OUTPUT sam-delta.pdf: sam-delta.pdf 
-# PARAMETER column: column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
-# PARAMETER p.value.threshold: p.value.threshold TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (FDR cut-off for significant results)
-# PARAMETER random.number: random.number TYPE INTEGER FROM 1 TO 1000 DEFAULT 1 (Random number)
-# PARAMETER number.of.delta: number.of.delta TYPE INTEGER FROM 1 TO 100 DEFAULT 10 (How many different delta values are used)
+# PARAMETER column: "Column" TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
+# PARAMETER p.value.threshold: "p-value threshold" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (FDR cut-off for significant results)
+# PARAMETER random.number: "Random number" TYPE INTEGER FROM 1 TO 1000 DEFAULT 1 (Random number)
+# PARAMETER number.of.delta: "Number of delta" TYPE INTEGER FROM 1 TO 100 DEFAULT 10 (How many different delta values are used)
 
 # SAM analysis
 

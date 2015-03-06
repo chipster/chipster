@@ -10,7 +10,7 @@
 # PARAMETER appears.more.than.once: "Appears more than once" TYPE [yes: yes, no: no] DEFAULT no (Could the motif appear more than once in every sequence)
 # PARAMETER no.of.motifs: "No of motifs" TYPE INTEGER FROM 1 TO 100 DEFAULT 10 (Number of motifs to return)
 # PARAMETER percentage: Percentage TYPE INTEGER FROM 1 TO 100 DEFAULT 50 (Percentage of sequences the motif should appear)
-# PARAMETER tfsize: tfsize TYPE [small: small, medium: medium] DEFAULT small (Transcription factor binding site size)
+# PARAMETER tfsize: "TFBS size" TYPE [small: small, medium: medium] DEFAULT small (Transcription factor binding site size)
 
 # 17.11.2006 JTT
 # 27.09.2013 MK

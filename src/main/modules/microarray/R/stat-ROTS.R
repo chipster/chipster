@@ -3,8 +3,8 @@
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT ROTS.tsv: ROTS.tsv 
 # OUTPUT ROTSparameters.tsv: ROTSparameters.tsv 
-# PARAMETER column: column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
-# PARAMETER fdr.threshold: fdr.threshold TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (FDR cut-off for significant results)
+# PARAMETER column: "Column" TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
+# PARAMETER fdr.threshold: "FDR threshold" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (FDR cut-off for significant results)
 # PARAMETER B: B TYPE INTEGER FROM 10 TO 100000 DEFAULT 500 (Number of bootstrap and permutation resamplings)
 # PARAMETER K: K TYPE INTEGER FROM 1000 TO 100000 DEFAULT 5000 (Largest top list size considered)
 
@@ -24,7 +24,7 @@ data <- dat[,grep("chip", names(dat))]
 
 # Test needs a parameter "groups" that specifies the grouping of the samples
 phenodata <- read.table("phenodata.tsv", header=T, sep="\t")
-groups <- phenodata[,grep(paste("^", column, "$", sep=""), colnames(phenodata))]
+groups <- phenodata[,which(column==colnames(phenodata))]
 
 # Sanity checks
 if(length(unique(groups))==1 | length(unique(groups))>=3) {

@@ -39,7 +39,7 @@
     <typedef name="fatjar.filesource" classname="net.sf.fjep.anttask.FJFileSourceType" classpath="${fjepPath}" loaderref="lib.path.loader"/>
 
 	<!-- version numbering -->
-	<property name="release-version" value="3.1.1" />
+	<property name="release-version" value="3.2.1" />
 	<property name="release-jar" value="${dist}/chipster-${release-version}.jar" />
 	<property name="release-tar" value="${dist}/chipster-${release-version}.tar.gz" />
 	<property name="release-zip" value="${dist}/chipster-${release-version}.zip" />
@@ -140,6 +140,7 @@
 			<fatjar.jarsource file="${lib}/jemboss-new.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/jakarta-regexp-1.5.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/argparse4j-0.4.3.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/jcommander-1.30.jar" relpath=""/>
 		    </fatjar.build>
 
 		<!-- sign it -->

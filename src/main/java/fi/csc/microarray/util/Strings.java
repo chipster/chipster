@@ -282,4 +282,23 @@ public class Strings {
 			return  roundNumber + " " + remainder;
 		}
 	}
+
+	/**
+	 * Split a string using a method String.split() if the string is not empty.
+	 * In case of empty string, return a zero length array as opposed to
+	 * String.split(), which returns an array of length one containing an empty
+	 * string.
+	 * 
+	 * @param str
+	 * @param regex
+	 * @return
+	 */
+	public static String[] splitUnlessEmpty(String str,
+			String regex) {
+		if (str == null || str.isEmpty()) {
+			return new String[0];
+		} else {
+			return str.split(regex);
+		}
+	}
 }

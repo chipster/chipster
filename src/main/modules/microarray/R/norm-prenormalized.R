@@ -2,8 +2,8 @@
 # INPUT microarray{...}.tsv: microarray{...}.tsv TYPE CDNA 
 # OUTPUT normalized.tsv: normalized.tsv 
 # OUTPUT META phenodata.tsv: phenodata.tsv 
-# PARAMETER chiptype: chiptype TYPE STRING DEFAULT cDNA ()
-# PARAMETER keep.annotations: keep.annotations TYPE [yes: yes, no: no] DEFAULT no (Keep or discard annotation column after preprocessing)
+# PARAMETER chiptype: "Chiptype" TYPE STRING DEFAULT cDNA ()
+# PARAMETER keep.annotations: "Keep annotations" TYPE [yes: yes, no: no] DEFAULT no (Keep or discard annotation column after preprocessing)
 
 # Process prenormalized
 # JTT 26.01.2009

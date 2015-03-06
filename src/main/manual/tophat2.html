@@ -26,8 +26,8 @@ You need to supply the reads in a FASTQ file. Supplying a GTF file is optional b
 <li>Maximum number of mismatches allowed in the anchor (0, 1, 2) [0]</li>
 <li>Minimum intron length (10-1000) [70]</li>
 <li>Maximum intron length (1000-1000000) [500000]</li>
-<li>Report only concordant alignments (yes, no) [yes]</li>
 <li>Report only paired alignments (yes, no) [yes]</li>
+<li>Library type (fr-unstranded, fr-firststrand, fr-secondstrand) [fr-unstranded]</li>
 </ul>
 
 <h3>Details</h3>
@@ -58,7 +58,7 @@ The expected mean inner distance between mate pairs means the fragment length mi
 
 
 <h3>Output</h3>
-
+<p>
 This tool returns the following files:
 <ul>
 <li>tophat.bam: BAM file containingthe alignments.</li>
@@ -66,10 +66,9 @@ This tool returns the following files:
 <li>tophat-summary.txt: Summary of the alignment results.</li>
 <li>junctions.bed: Each junction consists of two connected BED blocks, where each block is as long as the maximal overhang of any read spanning the junction. 
 The score is the number of alignments spanning the junction.</li>
-<li>insertions.bed: Insertions reported by TopHat. chromLeft refers to the last genomic base before the insertion.</li>
-<li>deletions.bed: Deletions reported by TopHat. chromLeft refers to the first genomic base of the deletion.</li>
 </ul>
-
+In cases where Tophat2 for some reason fails, file tophat2.log is returned instead.
+</p>
  
 
 <h3>Reference</h3>

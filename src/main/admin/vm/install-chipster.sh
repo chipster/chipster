@@ -33,13 +33,6 @@ create_flag_dirs $moduledir
 read_dirs $moduledir
 
 
-## If parallel is ON, install GNU parallel, if not already installed
-if [[ "$parallel" == "1" ]] && [[ ! -f installation_files/flags/parallel.done ]]; then
-	bash installation_files/install_parallel.bash 2>&1 | tee -a $logfile
-	touch installation_files/flags/parallel.done
-fi
-
-
 echo "Starting to generate installation files"
 
 for i in "${folders[@]}"; do

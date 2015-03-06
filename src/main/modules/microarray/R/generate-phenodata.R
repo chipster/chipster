@@ -2,7 +2,7 @@
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # OUTPUT META phenodata.tsv: phenodata.tsv 
 # OUTPUT input.tsv: input.tsv 
-# PARAMETER chiptype: chiptype TYPE STRING DEFAULT empty ()
+# PARAMETER chiptype: Chiptype TYPE STRING DEFAULT empty ()
 
 
 # Combines two different tables using gene names

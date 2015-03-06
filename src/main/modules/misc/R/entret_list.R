@@ -1,4 +1,4 @@
-# TOOL entret_list.R: "Retrieve sequeces from sequence file" (Tool to retrieve a set of sequences from a given sequence set based on a list of sequence IDs or names)
+# TOOL entret_list.R: "Retrieve sequences from sequence file" (Tool to retrieve a set of sequences from a given sequence set based on a list of sequence IDs or names)
 # INPUT idlist.txt: "Names or IDs of the database entries" TYPE GENERIC
 # INPUT datafile.txt: "Sequence file from which the sequeces will be picked" TYPE GENERIC
 # OUTPUT OPTIONAL data.txt

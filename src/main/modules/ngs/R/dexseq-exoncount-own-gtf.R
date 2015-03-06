@@ -13,6 +13,10 @@
 # 01.06.2014 EK, fixed BAM sorting by name, updated to use dexseq-count.py from DEXSeq v1.8.0, added support for BAMs which don't have the chr prefix in chromosome names, moved NH tag production to a separate script
 # 03.06.2014 AMS, changed the way chr is handled, updated gtf files
 
+# check out if the file is compressed and if so unzip it
+source(file.path(chipster.common.path, "zip-utils.R"))
+unzipIfGZipFile("annotation.gtf")
+
 # if BAM contains paired-end data, sort it by read names
 samtools.binary <- file.path(chipster.tools.path, "samtools", "samtools")
 if(paired == "yes"){

@@ -5,10 +5,10 @@
 # INPUT phenodata_gene.tsv: phenodata_gene.tsv TYPE GENERIC 
 # OUTPUT mirna-up-gene-down.tsv: mirna-up-gene-down.tsv 
 # OUTPUT mirna-down-gene-up.tsv: mirna-down-gene-up.tsv 
-# PARAMETER average.method: average.method TYPE [mean: mean, median: median] DEFAULT median (The method to calculate the average of samples in each experiment group.)
-# PARAMETER groups.column.mirna: groups.column.mirna TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the experiment groups of the samples in the miRNA expression dataset.)
-# PARAMETER groups.column.gene: groups.column.gene TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the experiment groups of the samples in the gene expression dataset.)
-# PARAMETER id.type: id.type TYPE [probe_id: probe_id, entrez_id: entrez_id] DEFAULT probe_id (Defines the type of gene identifier to use. For supported array types from Affymetrix, Agilent or Illumina probe_id should be used, whereas for custom arrays entrez_id should be used.)
+# PARAMETER average.method: "Average method" TYPE [mean: mean, median: median] DEFAULT median (The method to calculate the average of samples in each experiment group.)
+# PARAMETER groups.column.mirna: "Groups column miRNA" TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the experiment groups of the samples in the miRNA expression dataset.)
+# PARAMETER groups.column.gene: "Groups column gene" TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the experiment groups of the samples in the gene expression dataset.)
+# PARAMETER id.type: "ID type" TYPE [probe_id: probe_id, entrez_id: entrez_id] DEFAULT probe_id (Defines the type of gene identifier to use. For supported array types from Affymetrix, Agilent or Illumina probe_id should be used, whereas for custom arrays entrez_id should be used.)
 
 # Up-down analysis of miRNA targets
 # MG, 25.2.2010
@@ -55,8 +55,8 @@ mirna.data.2 <- mirna.data[,grep("chip", names(mirna.data))]
 gene.data.2 <- gene.data[,grep("chip", names(gene.data))]
 
 # Get experiment groups from for the two datasets
-mirna.groups <- mirna.phenodata[,grep(groups.column.mirna, colnames(mirna.phenodata))]
-gene.groups <- gene.phenodata[,grep(groups.column.gene, colnames(gene.phenodata))]
+mirna.groups <- mirna.phenodata[,which(groups.column.mirna==colnames(mirna.phenodata))]
+gene.groups <- gene.phenodata[,which(groups.column.gene==colnames(gene.phenodata))]
 
 # Sanity checks to make sure only two experiment groups exist in the two datasets
 if(length(unique(mirna.groups))==1 | length(unique(mirna.groups))>=3) {

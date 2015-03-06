@@ -106,11 +106,11 @@ public class ImportUtils {
 
 	public static class URLFileLoader {
 
-		public File loadFileFromURL(URL url, File outputFile, String importFolder, boolean skipActionChooser) {
+		public File loadFileFromURL(URL url, File outputFile, String importFolder, Runnable whenReady) {
 			logger.debug("Method loadFileFromURL started");
 			InformationDialog info = new InformationDialog("Loading file", "Loading file from the specified URL", null);
 			logger.debug("Next the download process will start");
-			new FileLoaderImportProcess(outputFile, url, importFolder, info, skipActionChooser).runProcess();
+			new FileLoaderImportProcess(outputFile, url, importFolder, info, whenReady).runProcess();
 			logger.debug("Download process started");
 			return outputFile;
 		}
@@ -191,16 +191,17 @@ public class ImportUtils {
 
 		protected String importFolder;
 		protected boolean skipActionChooser;
+		private Runnable whenReady;
 
-		public FileLoaderImportProcess(File outputFile, URL url, String importFolder, InformationDialog info, boolean skipActionChooser) {
+		public FileLoaderImportProcess(File outputFile, URL url, String importFolder, InformationDialog info, Runnable whenReady) {
 			super(outputFile, url, info);
 			this.importFolder = importFolder;
-			this.skipActionChooser = skipActionChooser;
+			this.whenReady = whenReady;
 		}
-		
+
 		@Override
 		protected void postProcess() {
-			ImportUtils.executeImport(new ImportSession(ImportSession.Source.URL, new Object[] { outputFile }, importFolder, skipActionChooser));
+			whenReady.run();
 		}
 	}
 
@@ -304,8 +305,8 @@ public class ImportUtils {
 
 				// import directly
 				if (!importToolSupported || (importSession.isSkipActionChooser() && !ImportUtils.containsUnsupportedTypes(files))) {
-					// skip requested and all of the files are supported => import directly and don't show action chooser			
-					((SwingClientApplication) application).importGroup(importSession.getImportItems(), importSession.getDestinationFolder());
+					// skip requested and all of the files are supported => import directly and don't show action chooser
+					importDirectly(importSession);					
 				} 
 
 				// action chooser or preprocess
@@ -320,7 +321,7 @@ public class ImportUtils {
 
 			// import directly
 			if (importSession.isSkipActionChooser()) {
-				((SwingClientApplication) application).importGroup(importSession.getImportItems(), importSession.getDestinationFolder());
+				importDirectly(importSession);
 			}
 
 			// go to preprocessing
@@ -328,6 +329,10 @@ public class ImportUtils {
 				openPreprocessDialog(importSession);
 			}
 		}
+	}
+
+	private static void importDirectly(ImportSession importSession) {
+		((SwingClientApplication) application).importGroup(importSession.getImportItems(), importSession.getDestinationFolder());
 	}
 
 	private static void openPreprocessDialog(ImportSession importSession) {

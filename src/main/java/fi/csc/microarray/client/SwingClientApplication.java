@@ -17,6 +17,9 @@ import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,6 +31,7 @@ import java.util.Vector;
 import java.util.concurrent.TimeUnit;
 
 import javax.jms.JMSException;
+import javax.net.ssl.SSLHandshakeException;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -82,8 +86,7 @@ import fi.csc.microarray.client.screen.Screen;
 import fi.csc.microarray.client.screen.ShowSourceScreen;
 import fi.csc.microarray.client.screen.TaskManagerScreen;
 import fi.csc.microarray.client.serverfiles.ServerFile;
-import fi.csc.microarray.client.serverfiles.ServerFileSystemView;
-import fi.csc.microarray.client.serverfiles.ServerFileUtils;
+import fi.csc.microarray.client.session.RemoteSessionChooserFactory;
 import fi.csc.microarray.client.session.UserSession;
 import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.tasks.Task.State;
@@ -107,6 +110,7 @@ import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.exception.ErrorReportAsException;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.DbSession;
+import fi.csc.microarray.messaging.JMSMessagingEndpoint;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
 import fi.csc.microarray.module.basic.BasicModule.VisualisationMethods;
 import fi.csc.microarray.util.BrowserLauncher;
@@ -225,13 +229,70 @@ public class SwingClientApplication extends ClientApplication {
 					initialiseApplication(false);
 
 				} catch (Exception e) {
-					reportInitalisationErrorThreadSafely(e);
+					if (Exceptions.isCausedBy(e, new SSLHandshakeException(""))) {
+						reportTruststoreError(e);						
+					} else {				
+						reportInitalisationErrorThreadSafely(e);
+					}
 				}
 			}
+
 		});
 		t.start();
 	}
 
+	private void reportTruststoreError(Exception e) {
+		String truststore = null;
+		try {
+			truststore = JMSMessagingEndpoint.getClientTruststore();
+		} catch (NoSuchAlgorithmException | CertificateException | KeyStoreException | IOException e1) {
+			reportInitalisationErrorThreadSafely(new MicroarrayException("could not read trusstore configuration", e));
+		}
+			
+		String title;
+		String msg;
+		PluginButton button;
+
+		if (truststore == null) {
+			title = "Server's identity cannot be verified";
+			msg = "Server's administrator "
+					+ "must install a proper certificate signed by CA or configure "
+					+ "the server to use self-signed certificates.";
+			button = null;
+		} else {
+			title = "Server's identity has changed";
+			msg = "Click 'Close' to keep the old certificate. Server's identity will be verified "
+					+ "with this certificate also next time."
+					+ "\n\n"
+					+ "Click 'Trust this server' to update the certificate. "
+					+ "Update certificate only in a network that you trust. Chipster must be "
+					+ "restarted manually after this.";
+			
+			final File truststoreFile = new File(truststore);
+			
+			button = new PluginButton() {
+
+				@Override
+				public void actionPerformed() {																		
+					truststoreFile.delete();
+					// now that the file is missing, getClientTruststore() will download it without complaints
+					try {
+						JMSMessagingEndpoint.getClientTruststore();
+					} catch (NoSuchAlgorithmException | CertificateException | KeyStoreException | IOException e) {
+						reportInitalisationErrorThreadSafely(new MicroarrayException("could not download trusstore", e));
+					}
+				}
+
+				@Override
+				public String getText() {
+					return "Trust this server";
+				}
+			};
+		}						
+		showDialog(title, msg, Exceptions.getStackTrace(e), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, button);
+		quitImmediately();		
+	}
+	
 	private void reportInitalisationErrorThreadSafely(final Exception e) {
 		SwingUtilities.invokeLater(new Runnable() {
 			
@@ -468,9 +529,7 @@ public class SwingClientApplication extends ClientApplication {
 	
 	private String windowTitleJobPrefix = null;
 	private String windowTitleBlockingPrefix = null;
-	private JFileChooser remoteSessionFileChooser;
 	private JFileChooser localSessionFileChooser;
-	private JFileChooser exampleSessionFileChooser;
 
 	public void updateWindowTitleJobCount(Integer jobCount) {
 		windowTitleJobPrefix = jobCount > 0 ? jobCount + " tasks / " : null;
@@ -1123,13 +1182,19 @@ public class SwingClientApplication extends ClientApplication {
 	public void quitImmediately() {
 
 		// hide immediately to look more reactive...
-		childScreens.disposeAll();
-		mainFrame.setVisible(false);
+		if (childScreens != null) {
+			childScreens.disposeAll();
+		}
+		if (mainFrame != null) {
+			mainFrame.setVisible(false);
+		}
 
 		super.quit();
 
 		// this closes the application
-		mainFrame.dispose();
+		if (mainFrame != null) {
+			mainFrame.dispose();
+		}
 		System.exit(0);
 	}
 
@@ -1388,62 +1453,19 @@ public class SwingClientApplication extends ClientApplication {
 		return importExportFileChooser;
 	}
 
-	private JFileChooser getSessionManagementFileChooser() throws RuntimeException {
-
-		JFileChooser sessionFileChooser = null;
-
-		try {
-			// fetch current sessions to show in the dialog and create it
-			sessionFileChooser = populateFileChooserFromServer();
-
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-
-		// hide buttons that we don't need
-		ServerFileUtils.hideJFileChooserButtons(sessionFileChooser);
-
-		// tune GUI
-		sessionFileChooser.setDialogTitle("Manage");
-		sessionFileChooser.setApproveButtonText("Remove");
-
-		return sessionFileChooser;
-	}
-
-	private JFileChooser populateFileChooserFromServer() throws JMSException, Exception, MalformedURLException {
-		JFileChooser sessionFileChooser;
-		List<DbSession> sessions = super.getSessionManager().listRemoteSessions();
-		ServerFileSystemView view = ServerFileSystemView.parseFromPaths(ServerFile.SERVER_SESSION_ROOT_FOLDER, sessions);
-		sessionFileChooser = new JFileChooser(view.getRoot(), view); // we do not need to use ImportUtils.getFixedFileChooser() here
-		sessionFileChooser.putClientProperty("sessions", sessions);
-		sessionFileChooser.setMultiSelectionEnabled(false);
-		fixFileChooserFontSize(sessionFileChooser);
-		return sessionFileChooser;
-	}
-
 	private JFileChooser getSessionFileChooser(boolean remote, boolean openExampleDir) throws MalformedURLException, JMSException, Exception {
 		
 		if (openExampleDir) {
-			if (exampleSessionFileChooser == null) {
-
-				exampleSessionFileChooser = populateFileChooserFromServer();
-				exampleSessionFileChooser.setSelectedFile(new File("Session name"));
-				ServerFileUtils.hideJFileChooserButtons(exampleSessionFileChooser);
-			}
-			ServerFileSystemView view = (ServerFileSystemView) exampleSessionFileChooser.getFileSystemView();
-			exampleSessionFileChooser.setCurrentDirectory(view.getExampleSessionDir());				
-			return exampleSessionFileChooser;
+			
+			return new RemoteSessionChooserFactory(this).getExampleSessionChooser();
 			
 		} else if (remote) {
-			if (remoteSessionFileChooser == null) {
-				
-				remoteSessionFileChooser = populateFileChooserFromServer();
-				remoteSessionFileChooser.setSelectedFile(new File("Session name"));
-				ServerFileUtils.hideJFileChooserButtons(remoteSessionFileChooser);
-			}
-			return remoteSessionFileChooser;
+			
+			return new RemoteSessionChooserFactory(this).getRemoteSessionChooser();
 
 		} else {
+			// don't create new local file choosers, because that would reset
+			// the selected directory
 			if (localSessionFileChooser == null) {
 
 				localSessionFileChooser = ImportUtils.getFixedFileChooser();
@@ -1480,11 +1502,8 @@ public class SwingClientApplication extends ClientApplication {
 	 */
 	public void openImportTool(ImportSession importSession) {
 		
-		// make ImportSession compatible with import tool
-		try {
-			importSession.makeLocal();
-		} catch (IOException e) {
-			reportException(e);
+		if (!importSession.isLocal()) {
+			throw new IllegalArgumentException("only local files supported in import tool");
 		}
 		
 		// fire up import tool
@@ -1582,7 +1601,7 @@ public class SwingClientApplication extends ClientApplication {
 						@SuppressWarnings("unchecked")
 						List<DbSession> sessions = (List<DbSession>)fileChooser.getClientProperty("sessions");
 						remoteSessionName = selectedFile.getPath().substring(ServerFile.SERVER_SESSION_ROOT_FOLDER.length()+1);
-						sessionId = getSessionManager().getSessionUuid(sessions, remoteSessionName);
+						sessionId = getSessionManager().findSessionWithName(sessions, remoteSessionName).getDataId();
 						if (sessionId == null) {
 							// user didn't select anything
 							showDialog("Session \"" + selectedFile + "\" not found", Severity.INFO, true);
@@ -1818,38 +1837,8 @@ public class SwingClientApplication extends ClientApplication {
 
 	public void manageRemoteSessions() {
 		
-		final JFileChooser fileChooser = getSessionManagementFileChooser();
-		int ret = fileChooser.showOpenDialog(this.getMainFrame());
-
-		// user has selected a file
-		if (ret == JFileChooser.APPROVE_OPTION) {
-			File selectedFile = fileChooser.getSelectedFile();
-			String filename = selectedFile.getPath().substring(ServerFile.SERVER_SESSION_ROOT_FOLDER.length()+1);
-			String sessionUuid = null;
-			
-			try {
-				@SuppressWarnings("unchecked")
-				List<DbSession> sessions = (List<DbSession>)fileChooser.getClientProperty("sessions");
-				sessionUuid = getSessionManager().getSessionUuid(sessions, filename);
-				if (sessionUuid == null) {
-					throw new RuntimeException("session not found");
-				}
-			} catch (Exception e) {
-				throw new RuntimeException("internal error: URL or name from save dialog was invalid"); // should never happen
-			}
-			
-			try {
-				// remove selected session
-				if (getSessionManager().removeRemoteSession(sessionUuid)) {			
-					// confirm to user
-					DialogInfo info = new DialogInfo(Severity.INFO, "Remove successful", "Session " + selectedFile.getName() + " removed successfully.", "", Type.MESSAGE);
-					ChipsterDialog.showDialog(this, info, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true);
-				}
-
-			} catch (JMSException e) {
-				reportException(e);
-			}
-		}
+		final JFileChooser fileChooser = new RemoteSessionChooserFactory(this).getManagementChooser();							
+		fileChooser.showOpenDialog(this.getMainFrame());
 	}
 
 	private void enableKeyboardShortcuts() {

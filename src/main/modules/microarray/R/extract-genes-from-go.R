@@ -2,7 +2,7 @@
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT extracted-from-GO.tsv: extracted-from-GO.tsv 
-# PARAMETER match.term: match.term TYPE STRING DEFAULT empty (String to search for.)
+# PARAMETER match.term: "Match term" TYPE STRING DEFAULT empty (String to search for.)
 
 # Extract the rows from a table that contain probes that map genes annotated
 # to a given gene ontology term

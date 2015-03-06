@@ -2,12 +2,12 @@
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT classification.txt: classification.txt 
-# PARAMETER method: method TYPE [knn: knn, lda: lda, dlda: dlda, slda: slda, rpart: rpart, svm: svm, lvq: lvq, naiveBayes: naiveBayes, nnet: nnet, bagging: bagging] DEFAULT knn (Analysis method)
-# PARAMETER standardize: standardize TYPE [yes: yes, no: no] DEFAULT yes (Standardize genes before analysis)
-# PARAMETER feature.selection.in.crossvalidation: feature.selection.in.crossvalidation TYPE [yes: yes, no: no] DEFAULT no (Include a feature selection step in crossvalidation)
-# PARAMETER feature.selection.threshold: feature.selection.threshold TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.75 (What percentage of the t-test values to discard)
-# PARAMETER group.column: group.column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
-# PARAMETER max.genes: max.genes TYPE INTEGER FROM 0 TO 50000 DEFAULT 100 (Maximum number of genes to be given to the classifier. If the data-matrix has more genes, the analysis in terminated)
+# PARAMETER method: "Method" TYPE [knn: knn, lda: lda, dlda: dlda, slda: slda, rpart: rpart, svm: svm, lvq: lvq, naiveBayes: naiveBayes, nnet: nnet, bagging: bagging] DEFAULT knn (Analysis method)
+# PARAMETER standardize: "Standardize" TYPE [yes: yes, no: no] DEFAULT yes (Standardize genes before analysis)
+# PARAMETER feature.selection.in.crossvalidation: "Feature selection in cross-validation" TYPE [yes: yes, no: no] DEFAULT no (Include a feature selection step in crossvalidation)
+# PARAMETER feature.selection.threshold: "Feature selection threshold" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.75 (What percentage of the t-test values to discard)
+# PARAMETER group.column: "Group column" TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
+# PARAMETER max.genes: "Max. number of genes" TYPE INTEGER FROM 0 TO 50000 DEFAULT 100 (Maximum number of genes to be given to the classifier. If the data-matrix has more genes, the analysis in terminated)
 
 # PARAMETER training.column: training.column TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing the samples in the training groups)
 # PARAMETER validation.type: validation.type TYPE [crossvalidate: crossvalidate, predict: predict] DEFAULT crossvalidate (Use crossvalidation)
@@ -57,7 +57,7 @@ if(standardize=="yes") {
 date()
 
 # Creating a suitable dataset
-dat3<-data.frame(group=phenodata[,grep(group.column, colnames(phenodata))], t(dat2))
+dat3<-data.frame(group=phenodata[,which(group.column==colnames(phenodata))], t(dat2))
 
 # Assessory function from MLInterfaces
 fsFun.rowtQ3 = function(formula, data) {

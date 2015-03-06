@@ -3,7 +3,7 @@
 # OUTPUT OPTIONAL pattern_matches.txt
 # OUTPUT OPTIONAL pattern_matches.tsv
 # OUTPUT OPTIONAL fuzznuc.log
-# PARAMETER pattern TYPE STRING (pattern)
+# PARAMETER pattern: "Pattern" TYPE STRING (pattern)
 # PARAMETER OPTIONAL complement: "Search complementary strand" TYPE [<undefined>: " ", Y: Yes, N: No] DEFAULT N (Search complementary strand)
 # PARAMETER OPTIONAL rformat: "Output format type" TYPE [excel: "Table", table: "Text formatted report", gff: "GFF3 formatted file", tagseq: "Tagseq format", listfile: "EMBOSS list file"] DEFAULT excel (Output format type)
 # PARAMETER OPTIONAL save_log: "Collect a log file" TYPE [yes: Yes, no: No] DEFAULT no (Collect a log file about the analysis run.)

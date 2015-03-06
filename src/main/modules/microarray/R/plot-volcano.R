@@ -3,11 +3,11 @@
 # OUTPUT volcanoP.pdf: volcanoP.pdf 
 # OUTPUT volcanoSE.pdf: volcanoSE.pdf 
 # OUTPUT one-sample.tsv: one-sample.tsv 
-# PARAMETER p.value.threshold: p.value.threshold TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
-# PARAMETER expression.threshold: expression.threshold TYPE DECIMAL FROM -10 TO 10 DEFAULT 1 (Expression threshold for plotting)
-# PARAMETER p.value.adjustment.method: p.value.adjustment.method TYPE [none: none, bonferroni: Bonferroni, holm: Holm, hochberg: Hochberg, BH: BH, BY: BY] DEFAULT BH (Multiple testing correction method)
-# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
-# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
+# PARAMETER p.value.threshold: "p-value threshold" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
+# PARAMETER expression.threshold: "Expression threshold" TYPE DECIMAL FROM -10 TO 10 DEFAULT 1 (Expression threshold for plotting)
+# PARAMETER p.value.adjustment.method: "p-value adjustment method" TYPE [none: none, bonferroni: Bonferroni, holm: Holm, hochberg: Hochberg, BH: BH, BY: BY] DEFAULT BH (Multiple testing correction method)
+# PARAMETER OPTIONAL image.width: "Image width" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
+# PARAMETER OPTIONAL image.height: "Image height" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
 # JTT: 19.09.2007
 # MG: 10.02.2011 Added table with FC and p-values to the output, Added p-value adjustment capability

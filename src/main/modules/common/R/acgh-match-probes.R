@@ -6,9 +6,9 @@
 # OUTPUT matched-cn-and-expression.tsv: matched-cn-and-expression.tsv 
 # OUTPUT matched-cn-and-expression-heatmap.pdf: matched-cn-and-expression-heatmap.pdf 
 # OUTPUT META phenodata-matched.tsv: phenodata-matched.tsv 
-# PARAMETER samples_cgh: "copy number sample identifiers" TYPE METACOLUMN_SEL DEFAULT Sample (The phenodata column for data set 1 used to link the two data sets together.)
-# PARAMETER samples_exp: "expression sample identifiers" TYPE METACOLUMN_SEL DEFAULT Sample (The phenodata column for data set 2 used to link the two data sets together.)
-# PARAMETER method: method TYPE [distance: distance, overlap: overlap, overlapplus: overlapplus] DEFAULT distance (The method for linking copy number and expression data points together.)
+# PARAMETER samples_cgh: "Copy number sample identifiers" TYPE METACOLUMN_SEL DEFAULT Sample (The phenodata column for data set 1 used to link the two data sets together.)
+# PARAMETER samples_exp: "Expression sample identifiers" TYPE METACOLUMN_SEL DEFAULT Sample (The phenodata column for data set 2 used to link the two data sets together.)
+# PARAMETER method: Method TYPE [distance: distance, overlap: overlap, overlapplus: overlapplus] DEFAULT distance (The method for linking copy number and expression data points together.)
 
 # match-cn-and-expression-probes.R
 # Ilari Scheinin <firstname.lastname@gmail.com>

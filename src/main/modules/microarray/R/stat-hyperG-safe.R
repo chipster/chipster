@@ -4,7 +4,7 @@
 # OUTPUT safeplot.png: safeplot.png 
 # OUTPUT safe.tsv: safe.tsv 
 # PARAMETER column: Column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
-# PARAMETER p.value.threshold: "P-value threshold" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
+# PARAMETER p.value.threshold: "p-value threshold" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
 # PARAMETER image.width: "Image width" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height: "Image height" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 # PARAMETER minimum.category.size: "Minimum category size" TYPE INTEGER FROM 1 TO 100 DEFAULT 10 (Minimum size for categories to be evaluated)

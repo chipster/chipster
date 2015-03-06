@@ -2,10 +2,10 @@
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT normalized-lme.tsv: normalized-lme.tsv 
-# PARAMETER column.groups: column.groups TYPE METACOLUMN_SEL DEFAULT group (Phenodata column containing group effects)
-# PARAMETER column.random: column.random TYPE METACOLUMN_SEL DEFAULT random (Phenodata column containing random effects groups)
+# PARAMETER column.groups: "Column groups" TYPE METACOLUMN_SEL DEFAULT group (Phenodata column containing group effects)
+# PARAMETER column.random: "Column random" TYPE METACOLUMN_SEL DEFAULT random (Phenodata column containing random effects groups)
 # PARAMETER error.handle: "Error handling method" TYPE [remove: remove, na: NA, add.noise: add.noise] DEFAULT remove (Should genes for which effect estimation fails be removed, marked with NAs or analysed by adding noise to them) 
-# PARAMETER random.noise: random.noise TYPE DECIMAL FROM 0 TO 10000 DEFAULT 0.00001 (Random noise added to gene expression values. Use very small values like 0.00001 or less)
+# PARAMETER random.noise: "Random noise" TYPE DECIMAL FROM 0 TO 10000 DEFAULT 0.00001 (Random noise added to gene expression values. Use very small values like 0.00001 or less)
 
 # JTT: 12.7.2006 Crated linear Mixed Model
 # JTT: 19.10.2006: Modified to use nlme library
@@ -30,8 +30,8 @@ phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
 
 # Test needs a parameter "groups" that specifies the grouping of the samples
 # and a parameter random that specifies the random effect such as day or technician
-groups<-phenodata[,grep(column.groups, colnames(phenodata))]
-random<-phenodata[,grep(column.random, colnames(phenodata))]
+groups<-phenodata[,which(column.groups==colnames(phenodata))]
+random<-phenodata[,which(column.random==colnames(phenodata))]
 
 # Sanity check
 if(length(unique(random))==1) {

@@ -1,15 +1,16 @@
-# TOOL stat-linear-modelling-designmat.R: "Linear modelling using user-defined design matrix" (Analyzes the data using linear modelling as implemented in the R package limma and users-define design-matrix. Fold changes and p-values are reported for all effects and interactions. If desired, technical replication can be blocket by settting a blocking variable.)
+# TOOL stat-linear-modelling-designmat.R: "Linear modelling using user-defined design matrix" (Statistical testing using linear modelling and a user-defined design-matrix. Fold changes and p-values are reported for all effects and interactions. If desired, technical replication can be blocked by setting a blocking variable. This tool is based on R/Bioconductor package limma )
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # INPUT design.tsv: design.tsv TYPE GENERIC
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC
 # OUTPUT limma.tsv: limma.tsv
 # OUTPUT foldchange.tsv: foldchange.tsv 
-# OUTPUT pvalues.tsv: pvalues.tsv 
-# PARAMETER technical.replication: technical.replication TYPE METACOLUMN_SEL DEFAULT EMPTY (Technical replication)
-# PARAMETER cont.string: contrasts TYPE STRING DEFAULT empty (List of contrasts to be compared separated by commas)
-# PARAMETER p.value.adjustment.method: p.value.adjustment.method TYPE [none: none, bonferroni: bonferroni, holm: holm, hochberg: hochberg, BH: BH, BY: BY] DEFAULT BH (Multiple testing correction method)
+# OUTPUT pvalues.tsv: pvalues.tsv
+# PARAMETER cont.string: "Contrasts" TYPE STRING DEFAULT empty (List of contrasts to be compared separated by commas)
+# PARAMETER OPTIONAL technical.replication: "Technical replication" TYPE METACOLUMN_SEL DEFAULT EMPTY (Technical replication)
+# PARAMETER OPTIONAL p.value.adjustment.method: "p-value adjustment method" TYPE [none: none, bonferroni: Bonferroni, holm: Holm, hochberg: Hochberg, BH: BH, BY: BY] DEFAULT BH (Multiple testing correction method)
 
 # MK, 24.06.2013 created linear Modelling using limma
+# OH, 12.02.2015, getting columns from phenodata using which rather than grep in order to get exact matches
  
 # Loads the libraries
 library(limma)
@@ -19,7 +20,6 @@ file	<- c("normalized.tsv")
 dat		<- read.table(file, header=T, sep="\t", row.names=1)
 
 # Separates expression values and flags
-calls	<- dat[,grep("flag", names(dat))]
 dat2	<- dat[,grep("chip", names(dat))]
 
 # Loads phenodata
@@ -34,7 +34,7 @@ rownames(design) <- colnames(dat2)
 if(technical.replication == "EMPTY") {
 	fit				<- lmFit(dat2, design);
 } else {
-	techrep			<- phenodata[,grep(technical.replication, colnames(phenodata))]
+	techrep			<- phenodata[,which(technical.replication==colnames(phenodata))]
 	corfit			<- duplicateCorrelation(dat2, ndups=1, block=techrep)
 	fit				<- lmFit(dat2, design, block=techrep, cor=corfit$consensus)
 }
@@ -49,11 +49,11 @@ if(cont.string != "empty") {
 		col.names <- unlist(strsplit(contrast.string[i], "-"))
 		if(length(col.names) == 1) {
 			if(!(col.names[1] %in% colnames(design))) {
-				stop("CHIPSTER-NOTE: Design-matrix has no column for one of the given constrast")
+				stop("CHIPSTER-NOTE: Design-matrix has no column for one of the given constrasts")
 			}
 		} else {
 			if(!(col.names[1] %in% colnames(design)) | !(col.names[2] %in% colnames(design))) {
-				stop("CHIPSTER-NOTE: Design-matrix has no column for one of the given constrast")
+				stop("CHIPSTER-NOTE: Design-matrix has no column for one of the given constrasts")
 			}
 		}
 	}

@@ -2,9 +2,9 @@
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT boxplot.png: boxplot.png 
-# PARAMETER column: column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column according to which boxplots are coloured)
-# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
-# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
+# PARAMETER column: Column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column according to which boxplots are coloured)
+# PARAMETER OPTIONAL image.width: "Image width" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
+# PARAMETER OPTIONAL image.height: "Image height" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
 # JTT 02.10.2007: Boxplot
 # MG 15.09.2011: Updated colors and legend
@@ -27,7 +27,7 @@ phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
 if(length(grep(column, colnames(phenodata))) == 0) {
 	stop("CHIPSTER-NOTE: You need to select phenodata column to run this analysis")
 }
-phenodata_col <- phenodata[, grep(column, colnames(phenodata))]
+phenodata_col <- phenodata[, which(column==colnames(phenodata))]
 
 # Setup sample colors according to group
 if (length(levels(as.factor(phenodata_col))) > 0) {

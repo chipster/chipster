@@ -6,6 +6,7 @@ import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.server.ssl.SslSocketConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
 import fi.csc.microarray.config.Configuration;
@@ -35,6 +36,8 @@ public class JettyFileServer {
 		jettyInstance.setThreadPool(new QueuedThreadPool());
 		
 		Connector connector;
+		SslContextFactory contextFactory = null;
+		
 		switch (protocol) {
 		case "http":
 			connector= new SelectChannelConnector();
@@ -42,10 +45,15 @@ public class JettyFileServer {
 			
 		case "https":
 			Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
-			connector = new SslSocketConnector(KeyAndTrustManager.createSslContextFactory(
+			
+			String[] protocols = configuration.getString("filebroker", "ssl-protocol-version").split(",");
+			
+			contextFactory = KeyAndTrustManager.createSslContextFactory(
 					configuration.getString("security", "filebroker-keystore"),
-					configuration.getString("security", "storepass")
-			));
+					configuration.getString("security", "storepass"),
+					protocols
+			);
+			connector = new SslSocketConnector(contextFactory);			
 			break;
 			
 		default:

@@ -2,7 +2,7 @@
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT normalized2samples.tsv: normalized2samples.tsv 
-# PARAMETER column.to.normalize.by: column.to.normalize.by TYPE METACOLUMN_SEL DEFAULT group (Phenodata column containing the samples to be normalized)
+# PARAMETER column.to.normalize.by: "Column to normalize by" TYPE METACOLUMN_SEL DEFAULT group (Phenodata column containing the samples to be normalized)
 
 
 # Normalize the data to specific samples
@@ -19,7 +19,7 @@ dat2<-dat[,grep("chip", names(dat))]
 phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
 
 # Extract the data from the phenodata column
-extract<-phenodata[,grep(column.to.normalize.by, colnames(phenodata))]
+extract<-phenodata[,which(column.to.normalize.by==colnames(phenodata))]
 
 # Sanity checks
 if(length(unique(extract))>2) {

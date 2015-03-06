@@ -71,7 +71,6 @@
 		<entry entryKey="guest-username" type="string" description="username for the guest accout which is not allowed to run tasks">
 			<value>guest</value>
 		</entry>
-
 	
 	</configuration-module>
 
@@ -96,7 +95,7 @@
 		</entry>
 		
 		<entry entryKey="example-session-path" type="string" description="path to example session files'">
-			<value>example-sessions</value>
+			<value></value>
 		</entry>
 
 		<entry entryKey="public-path" type="string" description="path to public data files">
@@ -121,6 +120,10 @@
 		
 		<entry entryKey="default-user-quota" type="int" description="maximum disk space that single user is allowed to consume, megabytes. set to -1 for unlimited quota">
 			<value>-1</value>
+		</entry>
+		
+		<entry entryKey="quota-warning" type="int" description="quota warning level, in percentage of the quota">
+			<value>10</value>
 		</entry>
 
 		<entry entryKey="clean-up-minimum-file-age" type="int" description="only clean up files older than this, seconds">
@@ -166,6 +169,10 @@
 
         <entry entryKey="metadata-backup-keep-count" type="int" description="max number of backups to keep, the oldest are deleted first, use -1 to keep all backups">
 			<value>100</value>
+		</entry>
+		
+		<entry entryKey="ssl-protocol-version" type="string" description="enabled ssl protocol versions, delimited with a comma">
+			<value>TLSv1,TLSv1.1,TLSv1.2</value>
 		</entry>
         
 	</configuration-module>

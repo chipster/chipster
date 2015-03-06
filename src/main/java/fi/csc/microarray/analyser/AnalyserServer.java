@@ -266,7 +266,11 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 			
 			// Request to send descriptions
 			else if (CommandMessage.COMMAND_DESCRIBE.equals(commandMessage.getCommand())) {
-	            logger.info("sending all descriptions");
+				if (stopGracefully) {
+					return;
+				}
+				
+				logger.info("sending all descriptions");
 	            
 	            // Send descriptions for all available modules
                 try {
@@ -285,7 +289,11 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 
 			// source code request
 			else if (CommandMessage.COMMAND_GET_SOURCE.equals(commandMessage.getCommand())) {
-	            logger.info("sending source code");
+				if (stopGracefully) {
+					return;
+				}
+	            
+				logger.info("sending source code");
 				SourceMessage sourceMessage = createSourceCodeMessage(commandMessage);
 	            if (sourceMessage != null) {
 					sendReplyMessage(commandMessage, sourceMessage);
