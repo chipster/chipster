@@ -68,6 +68,9 @@
 		<tool runtime="R-3.0" module="common"><resource>sort_and_select_columns.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
+			<resource>annotate-ensembl-ids.R</resource>
+		</tool>	
+		<tool runtime="R-3.0">
 			<resource>process-preprocessed-counts.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
@@ -151,9 +154,6 @@
 		<tool runtime="python">
 			<resource>test-data-in-out.py</resource>
 		</tool>		
-		<tool runtime="R-3.0">
-			<resource>annotate-ensembl-ids.R</resource>
-		</tool>	
 		
 	</category>
 
