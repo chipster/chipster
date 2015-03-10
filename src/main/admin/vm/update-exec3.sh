@@ -93,7 +93,7 @@ function update_tools()
     echo "4. Remove the old tools directory, when you have checked that everything is working again. "
     echo "    rm -rf /mnt/tools_old"
     echo "" 
-    echo "Have you done the steps above?"
+    echo "Have you done the steps 1 and 2 above?"
     select yn in "Yes" "No"; do
         case $yn in
             Yes ) echo "** Continue update"; break;;
