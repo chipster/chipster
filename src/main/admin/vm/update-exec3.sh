@@ -71,6 +71,37 @@ function compare_to_current_and_latest()
     compare_to_latest $1
 }
 
+function update_tools()
+{
+    echo ""
+    echo "Tools package has to be updated manually"
+    echo ""
+    echo "This update contains significant changes in the tools package, which has "
+    echo "to be downloaded again. Because of the size of the package, it is not "
+    echo "downloaded in this update script, but you have to do it manually. Required steps: "
+    echo ""
+    echo "1. Rename the old tools directory"
+    echo "    mv /mnt/tools /mnt/tools_old"
+    echo ""
+    echo "2. Download the new tools package. If you have a fast and reliable internet "
+    echo "connection, use the following command. Otherwise follow the instructions in "
+    echo "https://github.com/chipster/chipster/wiki/TechnicalManual#download-tools-package-manually."
+    echo "    bash download-tools.sh"
+    echo ""
+    echo "3. Run this update script again to update Chipster itself"
+    echo ""
+    echo "4. Remove the old tools directory, when you have checked that everything is working again. "
+    echo "    rm -rf /mnt/tools_old"
+    echo "" 
+    echo "Have you done the steps above?"
+    select yn in "Yes" "No"; do
+        case $yn in
+            Yes ) echo "** Continue update"; break;;
+            No ) echo "** Update aborted"; exit;;
+        esac
+    done
+}
+
 
 # Make sure user has sudo rights
 echo ""
@@ -143,6 +174,9 @@ fi
 # 3.2.0
 compare_to_current_and_latest "3.2.0"
 if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
+  # genomes from the new Ensembl release
+  update_tools
+
   echo "enable importing of example sessions"
   cd /opt/chipster; sudo bash configure.sh edit fileserver set filebroker/example-session-path example-sessions
   
@@ -182,10 +216,6 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   # Copy away tool scripts in case there were important local changes
   sudo -u chipster cp -r comp/modules ${BACKUPDIR_PATH}/
 
-  # Unpack bundle tool
-  echo "** Updating Chipster genome bundle tool"
-  sudo -u chipster tar -C .. --overwrite -xzf chipster-$LATEST_VERSION.tar.gz chipster/bundle.py
-
   # Unpack tool scripts
   echo "** Updating Chipster tool scripts: comp/modules"
   sudo -u chipster tar -C .. --overwrite -xzf chipster-$LATEST_VERSION.tar.gz chipster/comp/modules
@@ -207,32 +237,6 @@ fi
 
 # Remove temp dir
 rm -rf ${TMPDIR_PATH}
-
-# Bundle
-function update_bundles()
-{
-  echo "** Updating genome bundles"
-  sudo -u chipster wget -q http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bundle/bundles.yaml -O bundles.yaml
-  python3 bundle.py update installed -q
-}
-
-function install_bundle()
-{
-  echo "** Installing $1 genome"
-  python3 bundle.py install $1.bowtie
-  python3 bundle.py install $1.bowtie2
-  python3 bundle.py install $1.bwa
-  python3 bundle.py install $1.gb
-  python3 bundle.py install $1
-}
-
-# Version specific bundle tool commands
-# 2.12.0
-#compare_to_current_and_latest "2.12.0"
-#if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
-#  update_bundles
-# install_bundle "Schizosaccharomyces_pombe.ASM294v2"
-#fi
 
 # Check backup dir
 SIZE=`du -hs ${BACKUPDIR_PATH} | cut -f1`
