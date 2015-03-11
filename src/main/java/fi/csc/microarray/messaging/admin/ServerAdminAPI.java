@@ -23,6 +23,7 @@ import fi.csc.microarray.messaging.TempTopicMessagingListenerBase;
 import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.CommandMessage;
+import fi.csc.microarray.messaging.message.JsonMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
 import fi.csc.microarray.messaging.message.ServerStatusMessage;
 import fi.csc.microarray.messaging.message.SuccessMessage;
@@ -99,18 +100,28 @@ public class ServerAdminAPI {
 
 			latch = new CountDownLatch(1);
 
-			CommandMessage request = new CommandMessage(CommandMessage.COMMAND_GET_STATUS_REPORT);
+			try {
+				CommandMessage request = new CommandMessage(CommandMessage.COMMAND_GET_STATUS_REPORT);
 
-			getTopic().sendReplyableMessage(request, this);
-			latch.await(TIMEOUT, TIMEOUT_UNIT);
+				getTopic().sendReplyableMessage(request, this);
+				latch.await(TIMEOUT, TIMEOUT_UNIT);
 
-			return report;
+				return report;
+			} finally {
+				// close temp topic
+				this.cleanUp();
+			}
 		}
 
 
 		public void onChipsterMessage(ChipsterMessage msg) {
-			ParameterMessage resultMessage = (ParameterMessage) msg;
-			report = resultMessage.getNamedParameter(ParameterMessage.PARAMETER_STATUS_REPORT);
+			if (msg instanceof JsonMessage) {
+				JsonMessage jsonMessage = (JsonMessage)msg;
+				report = jsonMessage.getJson();
+			} else if (msg instanceof ParameterMessage) {
+				ParameterMessage resultMessage = (ParameterMessage) msg;
+				report = resultMessage.getNamedParameter(ParameterMessage.PARAMETER_STATUS_REPORT);
+			}
 			latch.countDown();
 		}
 	}
@@ -155,8 +166,12 @@ public class ServerAdminAPI {
 				
 				listener.statusUpdated(statuses);
 				
-			} finally {
-				mutex.unlock();
+			} finally {			
+				try {
+					this.cleanUp();
+				} finally {
+					mutex.unlock();
+				}
 			}
 		}
 	}

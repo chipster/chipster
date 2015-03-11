@@ -29,6 +29,9 @@ public class SuccessMessageListener extends TempTopicMessagingListenerBase {
 			latch.await(timeout, unit);
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
+		} finally {
+			// close temp topic
+			this.cleanUp();
 		}
 		return this.message;
 	}

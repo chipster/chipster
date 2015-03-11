@@ -897,12 +897,12 @@ public class SwingClientApplication extends ClientApplication {
 		// user-friendly message
 		if (userFixable) {
 			title = task.getErrorMessage();
-			message = task.getNamePrettyPrinted() + " was stopped. ";
+			message = task.getFullName() + " was stopped. ";
 		} 
 		
 		// generic message
 		else {
-			title = task.getNamePrettyPrinted() + " did not complete successfully. ";
+			title = task.getFullName() + " did not complete successfully. ";
 			message = "You may have used a tool or parameters which are unsuitable for the selected dataset, or " + "there might be a bug in the analysis tool itself.\n\n" + "The details below may provide hints about the problem.";
 		}		
 
@@ -1000,6 +1000,7 @@ public class SwingClientApplication extends ClientApplication {
 		e.printStackTrace();
 		if (logger != null) {
 			logger.error(e.getMessage(), e);
+			e.printStackTrace();
 		}
 	}
 
@@ -1126,30 +1127,14 @@ public class SwingClientApplication extends ClientApplication {
 	}
 	
 	public void quit() {
-		int returnValue = JOptionPane.DEFAULT_OPTION;
-
-		// Check the running tasks
-		if (taskExecutor.getRunningTaskCount() > 0) {
-			String message = "";
-			if (taskExecutor.getRunningTaskCount() == 1) {
-				message += "There is a running task.  Are you sure you want to cancel the running task?";
-			} else {
-				message += "There are " + taskExecutor.getRunningTaskCount() + " running tasks. " + "Are you sure you want to cancel all running tasks?";
-			}
-
-			Object[] options = { "Cancel running tasks", "Cancel" };
-
-			returnValue = JOptionPane.showOptionDialog(this.getMainFrame(), message, "Confirm close", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
-
-			if (returnValue == JOptionPane.YES_OPTION) {
-				taskExecutor.killAll();
-			} else {
-				return;
-			}
+				
+		if (!killUploadingTasks()) {
+			// user wanted to continue uploading, so we can't quit
+			return;
 		}
 
 		// Check for unsaved changes
-		returnValue = JOptionPane.DEFAULT_OPTION;
+		int returnValue = JOptionPane.DEFAULT_OPTION;
 
 		if (getSessionManager().hasUnsavedChanges()) {
 
@@ -1179,6 +1164,38 @@ public class SwingClientApplication extends ClientApplication {
 		quitImmediately();
 	}
 	
+	/**
+	 * Check if there are uploading jobs and ask if user wants to kill
+	 * them. Returns true if the jobs were killed or there weren't any. Returns
+	 * false if the killing was cancelled.
+	 * 
+	 * @return false if the action was cancelled
+	 */
+	private boolean killUploadingTasks() {
+		// Check the running tasks
+		int returnValue = JOptionPane.DEFAULT_OPTION;
+		
+		if (taskExecutor.getUploadingTaskCount() > 0) {
+			String message = "";
+			if (taskExecutor.getUploadingTaskCount() == 1) {
+				message += "There is a task uploading input files.  Are you sure you want to cancel the task?";
+			} else {
+				message += "There are " + taskExecutor.getUploadingTaskCount() + " tasks uploading input files. " + "Are you sure you want to cancel these tasks?";
+			}
+
+			Object[] options = { "Cancel uploading tasks", "Continue uploading" };
+
+			returnValue = JOptionPane.showOptionDialog(this.getMainFrame(), message, "Confirm close", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+
+			if (returnValue == JOptionPane.YES_OPTION) {
+				taskExecutor.killUploadingTasks();
+			} else {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	public void quitImmediately() {
 
 		// hide immediately to look more reactive...
@@ -1779,6 +1796,10 @@ public class SwingClientApplication extends ClientApplication {
 	 */
 	public boolean clearSession() throws MalformedURLException, JMSException {
 
+		if (!killUploadingTasks()) {
+			return false;
+		}
+		
 		int returnValue = JOptionPane.DEFAULT_OPTION;
 		if (getSessionManager().hasUnsavedChanges()) {
 
@@ -1791,6 +1812,7 @@ public class SwingClientApplication extends ClientApplication {
 			getSessionManager().clearSessionWithoutConfirming();			
 			return true;
 		}
+		
 		return false;
 	}
 
@@ -1806,8 +1828,8 @@ public class SwingClientApplication extends ClientApplication {
 		return visualisationFrameManager;
 	}
 
-	public void flipTaskListVisibility(boolean closeIfVisible) {
-		statusBar.flipTaskListVisibility(closeIfVisible);		
+	public void viewTasks() {
+		statusBar.viewTasks();		
 	}
 
 	private void taskCountChanged(int newTaskCount, boolean attractAttention) {

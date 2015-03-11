@@ -8,6 +8,7 @@ package fi.csc.microarray.messaging.message;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.HashMap;
 
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
@@ -35,7 +36,6 @@ public class JobLogMessage extends ChipsterMessage {
 	private static final String KEY_END_TIME = "endTime";
 	private static final String KEY_ERROR_MESSAGE = "errorMessage";
 	private static final String KEY_OUTPUT_TEXT = "outputText";
-
 	
 	private static final String KEY_USERNAME = "username";
 	private static final String KEY_COMP_HOST = "compHost";
@@ -50,9 +50,8 @@ public class JobLogMessage extends ChipsterMessage {
 	private String outputText;
 	private String username;
 	private String compHost;
-	
-	
 
+	
 	public JobLogMessage(String operation, JobState state, String stateDetail, String jobId, Date startTime, Date endTime, String errorMessage, String outputText, String username, String compHost) {
 		super();
 		this.operation = operation;
@@ -225,6 +224,60 @@ public class JobLogMessage extends ChipsterMessage {
 
 	public String getStateDetail() {
 		return this.stateDetail;
+	}
+
+	public HashMap<String, Object> toMap() {
+		HashMap<String, Object> map = new HashMap<>();
+		
+		DateFormat df = DateFormat.getDateTimeInstance();
+		
+		map.put(KEY_OPERATION, getOperation());
+		map.put(KEY_STATE, getState().name());
+		map.put(KEY_STATE_DETAIL, getStateDetail());
+		map.put(KEY_JOB_ID, getJobId());
+		
+		if (startTime != null) {
+			map.put(KEY_START_TIME, df.format(getStartTime()));
+		}
+		
+		if (endTime != null) {
+			map.put(KEY_END_TIME, df.format(getEndTime()));
+		}
+		
+		map.put(KEY_ERROR_MESSAGE, getErrorMessage());
+		map.put(KEY_OUTPUT_TEXT, getOutputText());
+		map.put(KEY_USERNAME, getUsername());
+		map.put(KEY_COMP_HOST, getCompHost());
+		
+		return map;
+	}
+
+	public void fromMap(HashMap<String, String> map) throws JMSException {
+		
+		this.operation = map.get(KEY_OPERATION);
+		if (map.get(KEY_STATE) != null) {
+			this.state = JobState.valueOf(map.get(KEY_STATE));
+		}
+		
+		this.stateDetail = map.get(KEY_STATE_DETAIL);
+		
+		this.jobId = map.get(KEY_JOB_ID);
+		try {
+			DateFormat df = DateFormat.getDateTimeInstance();
+			if (map.get(KEY_START_TIME) != null) {
+				this.startTime = df.parse(map.get(KEY_START_TIME));
+			}
+			if (map.get(KEY_END_TIME) != null) {
+				this.endTime = df.parse(map.get(KEY_END_TIME));
+			}
+		} catch (ParseException e) {
+			throw new JMSException(e.toString());
+		}
+		this.errorMessage = map.get(KEY_ERROR_MESSAGE);
+		this.outputText = map.get(KEY_OUTPUT_TEXT);
+		this.username = map.get(KEY_USERNAME);
+		this.compHost = map.get(KEY_COMP_HOST);
+		
 	}
 }
 	

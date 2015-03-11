@@ -221,7 +221,7 @@ public class SessionReplayTest extends MessagingTestBase {
 		// Load session
 		// some loading code uses Session.getSession().getDataManagers
 		Session.getSession().setDataManager(sourceManager);
-		SessionManager sourceSessionManager = new SessionManager(sourceManager, serviceAccessor.getFileBrokerClient(), null);
+		SessionManager sourceSessionManager = new SessionManager(sourceManager, serviceAccessor.getTaskExecutor(), serviceAccessor.getFileBrokerClient(), null);
 		sourceSessionManager.loadLocalSession(session, false);
 		Session.getSession().setDataManager(manager);
 		
@@ -239,7 +239,7 @@ public class SessionReplayTest extends MessagingTestBase {
 			if (OperationDefinition.IMPORT_DEFINITION_ID.equals(operationRecord.getNameID().getID()) ||
 					"LocalNGSPreprocess.java".equals(operationRecord.getNameID().getID()) ||
 					(dataBean.getLinkTargets(Link.derivationalTypes()).size() == 0 &&
-					operationRecord.getInputs().size() > 0)) {
+					operationRecord.getInputRecords().size() > 0)) {
 				
 				// load imported databean, add mapping
 				DataBean dataBeanCopy = manager.createDataBean(dataBean.getName());
@@ -313,7 +313,7 @@ public class SessionReplayTest extends MessagingTestBase {
 
 			// Get inputs
 			LinkedList <DataBean> inputBeans = new LinkedList<DataBean>();
-			for (InputRecord inputRecord : operationRecord.getInputs()) {
+			for (InputRecord inputRecord : operationRecord.getInputRecords()) {
 				DataBean inputBean = sourceDataBeanToTargetDataBean.get(inputRecord.getValue());
 				if (inputBean != null) {
 					inputBeans.add(inputBean);
@@ -351,7 +351,7 @@ public class SessionReplayTest extends MessagingTestBase {
 				}
 			}
 
-			Task task = executor.createTask(operation);
+			Task task = executor.createNewTask(new OperationRecord(operation), operation.getDefinition().isLocal());
 			
 			// Execute the task
 			System.out.println("running " + operation.getDefinition().getFullName());
@@ -381,11 +381,11 @@ public class SessionReplayTest extends MessagingTestBase {
 			Session.getSession().setDataManager(manager);
 			try {
 				
-				// Link result beans, add to folders etc
-				Session.getSession().getApplication().onFinishedTask(task, operation, task.getState());
+				// Link result beans, add to folders etc			
+				Session.getSession().getApplication().onFinishedTask(task, operation.getResultListener(), task.getState());
 
 				// Check that number of results and result names match
-				Iterator<DataBean> targetIterator = task.outputs().iterator();
+				Iterator<DataBean> targetIterator = task.getOutputs().iterator();
 				for (DataBean sourceBean : outputMap.get(operationRecord)) {
 					if (targetIterator.hasNext()) {
 						DataBean targetBean = targetIterator.next();
@@ -416,7 +416,7 @@ public class SessionReplayTest extends MessagingTestBase {
 				}
 
 				// Find and replace metadata 
-				targetIterator = task.outputs().iterator();
+				targetIterator = task.getOutputs().iterator();
 				for (DataBean sourceBean : outputMap.get(operationRecord)) {
 					DataBean targetBean = targetIterator.next();
 
@@ -439,7 +439,7 @@ public class SessionReplayTest extends MessagingTestBase {
 				List<String> outputsWithMisMatchingSizes = new LinkedList<String>();
 				List<String> outputsWithMisMatchingContents = new LinkedList<String>();
 
-				targetIterator = task.outputs().iterator();
+				targetIterator = task.getOutputs().iterator();
 				for (DataBean sourceBean : outputMap.get(operationRecord)) {
 					DataBean targetBean = targetIterator.next();
 					try {

@@ -141,6 +141,7 @@
 			<fatjar.jarsource file="${lib}/jakarta-regexp-1.5.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/argparse4j-0.4.3.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/jcommander-1.30.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/gson-2.3.1.jar" relpath=""/>
 		    </fatjar.build>
 
 		<!-- sign it -->

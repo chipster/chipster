@@ -246,6 +246,10 @@
 		<entry entryKey="timeout-check-interval" type="int" description="receive, schedule timeout check interval, milliseconds">
 			<value>1000</value>
 		</entry>
+		
+		<entry entryKey="job-heartbeat-interval" type="int" description="job status repeat interval, milliseconds">
+			<value>30000</value>
+		</entry>
 
 		<entry entryKey="job-threads-max" type="int" description="max number or threads that single job should use">
 			<value>2</value>

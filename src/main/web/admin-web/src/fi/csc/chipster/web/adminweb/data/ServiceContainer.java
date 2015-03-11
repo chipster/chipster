@@ -40,7 +40,7 @@ public class ServiceContainer extends BeanItemContainer<ServiceEntry> implements
 		"Service name", "Host", 	"Status" };
 	
 	public static final String[] SERVER_NAMES = new String[] { 
-		"authenticator", "analyser", "filebroker", "manager" };
+		"authenticator", "analyser", "filebroker", "manager", "jobmanager" };
 	private ServicesView view;
 
 	public ServiceContainer(ServicesView view) throws InstantiationException, IllegalAccessException {

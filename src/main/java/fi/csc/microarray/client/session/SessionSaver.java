@@ -12,6 +12,7 @@ import java.net.URL;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map.Entry;
 
 import javax.xml.bind.JAXBException;
@@ -65,7 +66,7 @@ public class SessionSaver {
 	private static final Logger logger = Logger.getLogger(SessionSaver.class);
 
 	
-	private final int DATA_BLOCK_SIZE = 2048;
+	private final int DATA_BLOCK_SIZE = 64*1024;
 	
 	private File sessionFile;
 	private String sessionId;
@@ -90,21 +91,19 @@ public class SessionSaver {
 
 	private String validationErrors;
 
-
+	private List<OperationRecord> unfinishedJobs;
 	private String sessionNotes;
-
-
 
 	/**
 	 * Create a new instance for every session to be saved.
 	 * 
 	 * @param sessionFile file to write out metadata and possible data
+	 * @param unfinishedJobs 
 	 */
 	public SessionSaver(File sessionFile, DataManager dataManager) {
 		this.sessionFile = sessionFile;
 		this.sessionId = null;
 		this.dataManager = dataManager;
-
 	}
 
 	/**
@@ -116,7 +115,10 @@ public class SessionSaver {
 		this.sessionFile = null;
 		this.sessionId = sessionId;
 		this.dataManager = dataManager;
-
+	}
+	
+	public void setUnfinishedJobs(List<OperationRecord> unfinishedJobs) {
+		this.unfinishedJobs = unfinishedJobs;
 	}
 
 	/**
@@ -184,6 +186,7 @@ public class SessionSaver {
 	
 	/**
 	 * Gather the metadata form the data beans, folders and operations.
+	 * @param unfinishedJobs 
 	 * 
 	 * @throws IOException
 	 * @throws JAXBException
@@ -204,8 +207,13 @@ public class SessionSaver {
 		
 		// save session notes
 		sessionType.setNotes(sessionNotes);
+		
+		if (this.unfinishedJobs != null) {
+			for (OperationRecord job : this.unfinishedJobs) {
+				saveOperationRecord(job);
+			}
+		}
 	}
-
 
 	/**
 	 * 
@@ -522,16 +530,8 @@ public class SessionSaver {
 		// for now, accept beans without operation
 		if (bean.getOperationRecord() != null) {
 			OperationRecord operationRecord = bean.getOperationRecord();
-			String operId;
-			
-			// write operation or lookup already written
-			if (!operationRecordIdMap.containsValue(operationRecord) ) {
-				operId = generateId(operationRecord);
-				saveOperationMetadata(operationRecord, operId);
 
-			} else {
-				operId = reversedOperationRecordIdMap.get(operationRecord).toString();
-			}
+			String operId = saveOperationRecord(operationRecord);
 
 			// link data to operation
 			operationRecordTypeMap.get(operId).getOutput().add(beanId);
@@ -560,11 +560,33 @@ public class SessionSaver {
 	}
 
 	
+	/**
+	 * @param operationRecord
+	 * @param jobId jobId for running jobs, set to null for others
+	 * @return
+	 */
+	private String saveOperationRecord(OperationRecord operationRecord) {
+		String operId;
+		
+		// write operation or lookup already written
+		if (!operationRecordIdMap.containsValue(operationRecord) ) {
+			operId = generateId(operationRecord);
+			saveOperationMetadata(operationRecord, operId);
+
+		} else {
+			operId = reversedOperationRecordIdMap.get(operationRecord).toString();
+		}
+		return operId;
+	}
+
 	private void saveOperationMetadata(OperationRecord operationRecord, String operationId) {
 		OperationType operationType = factory.createOperationType();
 		
 		// session id
 		operationType.setId(operationId);
+		
+		// affects only running jobs 
+		operationType.setJobId(operationRecord.getJobId());
 		
 		// name
 		NameType nameType = createNameType(operationRecord.getNameID());
@@ -583,7 +605,7 @@ public class SessionSaver {
 		}
 
 		// inputs
-		for (InputRecord inputRecord : operationRecord.getInputs()) {
+		for (InputRecord inputRecord : operationRecord.getInputRecords()) {
 
 			InputType inputType = factory.createInputType();
 			inputType.setName(createNameType(inputRecord.getNameID()));

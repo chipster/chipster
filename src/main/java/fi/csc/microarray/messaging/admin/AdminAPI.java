@@ -106,6 +106,7 @@ public class AdminAPI {
 		this.nodeStatuses.put("analyser", new NodeStatus("analyser"));
 		this.nodeStatuses.put("filebroker", new NodeStatus("filebroker"));
 		this.nodeStatuses.put("manager", new NodeStatus("manager"));
+		this.nodeStatuses.put("jobmanager", new NodeStatus("jobmanager"));
 		this.nodeStatuses.put("client", new NodeStatus("client"));
 	}
 
@@ -182,6 +183,11 @@ public class AdminAPI {
 		
 		if (nodeStatuses.get("authenticator").status != NodeStatus.Status.UP) {
 			errorStatus += " authenticator(s) not up ";
+			areUp = false;
+		}
+		
+		if (nodeStatuses.get("jobmanager").status != NodeStatus.Status.UP) {
+			errorStatus += " jobmanager not up ";
 			areUp = false;
 		}
 		
