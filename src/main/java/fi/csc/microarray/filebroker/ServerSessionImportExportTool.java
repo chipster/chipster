@@ -46,7 +46,7 @@ public class ServerSessionImportExportTool {
 				LOCAL_FILEBROKER_IP );
 		serviceAccessor.initialise(endpoint, dataManager, fileBrokerClient);
 		
-		this.sessionManager = new SessionManager(dataManager, fileBrokerClient, null);
+		this.sessionManager = new SessionManager(dataManager, null, fileBrokerClient, null);
 		//module manager is needed when session loading checks if a file is phenodata
 		ModuleManager moduleManager = new ModuleManager();		
 		moduleManager.plugAll(dataManager, null);

@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Time;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -35,7 +36,6 @@ import org.jdesktop.swingx.hyperlink.LinkModelAction;
 import org.jdesktop.swingx.renderer.DefaultTableRenderer;
 import org.jdesktop.swingx.renderer.HyperlinkProvider;
 
-import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.tasks.TaskExecutor;
@@ -50,8 +50,6 @@ import fi.csc.microarray.util.Strings;
 public class TaskManagerScreen extends ScreenBase implements ActionListener, ListSelectionListener {
 
 	private static Logger logger = Logger.getLogger(TaskManagerScreen.class);
-
-	private SwingClientApplication application = (SwingClientApplication)Session.getSession().getApplication();
 
 	private Dimension BUTTON_SIZE = new Dimension(120,22);
 	private JFrame frame = new JFrame("Jobs");
@@ -385,12 +383,26 @@ public class TaskManagerScreen extends ScreenBase implements ActionListener, Lis
 	 */
 	public void refreshTasks(){
 		logger.debug("Refreshing tasks in Task manager");
-		for(Task task : taskExecutor.getTasks(true, false)) {
+		
+		List<Task> executorTasks = taskExecutor.getTasks(false, false);
+		
+		// remove tasks that have disappeared
+		Iterator<Task> taskIter = tasks.iterator();
+		while (taskIter.hasNext()) {
+			Task task = taskIter.next();
+			if (!executorTasks.contains(task)) {
+				taskIter.remove();
+			}
+		}
+		
+		// add new tasks
+		for(Task task : executorTasks) {
 			if(!tasks.contains(task)){
 				logger.debug("\tNew job added: " + task.getName());
 				tasks.add(task);
 			}
-		}
+		}		
+		
 		tableModel.notifyListeners();
 		logger.debug("Refreshing done");
 	}
@@ -415,7 +427,7 @@ public class TaskManagerScreen extends ScreenBase implements ActionListener, Lis
 				detailsButton.setText("Hide details");
 			}
 		} else if (e.getSource() == closeButton) {
-			application.flipTaskListVisibility(true);
+			frame.setVisible(false);
 		}		
 	}
 

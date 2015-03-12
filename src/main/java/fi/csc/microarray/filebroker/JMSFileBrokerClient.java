@@ -32,6 +32,7 @@ import fi.csc.microarray.messaging.ReplyMessageListener;
 import fi.csc.microarray.messaging.SuccessMessageListener;
 import fi.csc.microarray.messaging.UrlListMessageListener;
 import fi.csc.microarray.messaging.UrlMessageListener;
+import fi.csc.microarray.messaging.admin.StorageAdminAPI.StorageEntryMessageListener;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
 import fi.csc.microarray.messaging.message.SuccessMessage;
@@ -278,9 +279,14 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		BooleanMessageListener replyListener = new BooleanMessageListener();  
 		try {
 			
+			String contentLengthString = null;
+			if (contentLength != null) {
+				contentLengthString = contentLength.toString();
+			}
+			
 			CommandMessage requestMessage = new CommandMessage(CommandMessage.COMMAND_IS_AVAILABLE);
 			requestMessage.addNamedParameter(ParameterMessage.PARAMETER_FILE_ID, dataId);
-			requestMessage.addNamedParameter(ParameterMessage.PARAMETER_SIZE, contentLength.toString());
+			requestMessage.addNamedParameter(ParameterMessage.PARAMETER_SIZE, contentLengthString);
 			requestMessage.addNamedParameter(ParameterMessage.PARAMETER_CHECKSUM, checksum);
 			requestMessage.addNamedParameter(ParameterMessage.PARAMETER_AREA, area.toString());
 			filebrokerTopic.sendReplyableMessage(requestMessage, replyListener);
@@ -440,6 +446,13 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		}
 	}
 	
+	@Override
+	public StorageEntryMessageListener getStorageUsage() throws JMSException, InterruptedException {
+		
+		StorageEntryMessageListener listener = new StorageEntryMessageListener();
+		listener.query(filebrokerTopic, null);
+		return listener;
+	}
 
 	@Override
 	public List<DbSession> listPublicRemoteSessions() throws JMSException {

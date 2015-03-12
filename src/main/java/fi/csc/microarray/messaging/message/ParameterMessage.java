@@ -57,6 +57,9 @@ public abstract class ParameterMessage extends ChipsterMessage {
 	public static final String PARAMETER_DATE_LIST = "date-list";
 	public static final String PARAMETER_STATUS_REPORT = "status-report";
 	public static final String PARAMETER_HOST = "host";
+	public static final String PARAMETER_JSON = "json";
+	public static final String PARAMETER_QUOTA = "quota";
+	public static final String PARAMETER_QUOTA_WARNING = "quota-warning";
 	
 	private List<String> parameters = new LinkedList<String>();
 	private HashMap<String, String> namedParameters = new HashMap<String, String>();
@@ -95,6 +98,15 @@ public abstract class ParameterMessage extends ChipsterMessage {
 	
 	public String getNamedParameter(String key) {
 		return namedParameters.get(key);
+	}
+	
+	public String[] getNamedParameterAsArray(String key) {
+		String tabSeparated = getNamedParameter(key);
+		if ("".equals(tabSeparated)) {
+			return new String[0];
+		} else {
+			return tabSeparated.split("\t");
+		}
 	}
 	
 	public Set<String> getParameterNames() {

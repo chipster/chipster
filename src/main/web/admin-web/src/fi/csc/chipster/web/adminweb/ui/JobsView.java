@@ -20,19 +20,19 @@ import fi.csc.chipster.web.adminweb.data.JobsContainer;
 import fi.csc.chipster.web.adminweb.util.Notificationutil;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.messaging.admin.CompAdminAPI;
+import fi.csc.microarray.messaging.admin.JobmanagerAdminAPI;
 import fi.csc.microarray.messaging.admin.JobsEntry;
 
 public class JobsView extends AsynchronousView implements ClickListener, ValueChangeListener {
 	
 	private static final Logger logger = Logger.getLogger(JobsView.class);
 	
-	public static final int WAIT_SECONDS = 1;
+	public static final int WAIT_SECONDS = 5;
 	
 	private HorizontalLayout toolbarLayout;
 
 	private JobsTable table;
-	private CompAdminAPI compAdminAPI;
+	private JobmanagerAdminAPI jobmanagerAdminAPI;
 	private JobsContainer dataSource;
 
 	private ChipsterAdminUI app;
@@ -43,8 +43,8 @@ public class JobsView extends AsynchronousView implements ClickListener, ValueCh
 		
 		this.app = app;
 		try {
-			compAdminAPI = new CompAdminAPI();
-			dataSource = new JobsContainer(this, compAdminAPI);
+			jobmanagerAdminAPI = new JobmanagerAdminAPI();
+			dataSource = new JobsContainer(this, jobmanagerAdminAPI);
 
 			table = new JobsTable(this);
 			table.setContainerDataSource(dataSource);
@@ -95,7 +95,7 @@ public class JobsView extends AsynchronousView implements ClickListener, ValueCh
 	
 	public void update() {
 		
-		super.submitUpdateAndWait(new Runnable() {
+		super.submitUpdate(new Runnable() {
 
 			@Override
 			public void run() {				
@@ -116,11 +116,11 @@ public class JobsView extends AsynchronousView implements ClickListener, ValueCh
 
 	public void cancel(JobsEntry job) {
 		try {
-			compAdminAPI.cancelJob(job.getJobId());
+			jobmanagerAdminAPI.cancelJob(job.getJobId());
+			table.removeItem(job);
 		} catch (MicroarrayException e) {
 			Notificationutil.showFailNotification(e.getClass().getSimpleName(), e.getMessage());
 		}
-		update();
 	}
 
 	public JobsTable getEntryTable() {

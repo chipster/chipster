@@ -269,7 +269,7 @@ public class Strings {
 			sym = "T";
 		}
 
-		int div = (int) Math.pow(10, (pow - pow % 3));		
+		long div = (long) Math.pow(10, (pow - pow % 3));		
 		
 		if (round) {
 			// a space between number and symbol to make it less squeezed
@@ -280,6 +280,25 @@ public class Strings {
 			String roundNumber = "" + i / div + sym;
 			String remainder = toHumanReadable(i % div, false, false);
 			return  roundNumber + " " + remainder;
+		}
+	}
+
+	/**
+	 * Split a string using a method String.split() if the string is not empty.
+	 * In case of empty string, return a zero length array as opposed to
+	 * String.split(), which returns an array of length one containing an empty
+	 * string.
+	 * 
+	 * @param str
+	 * @param regex
+	 * @return
+	 */
+	public static String[] splitUnlessEmpty(String str,
+			String regex) {
+		if (str == null || str.isEmpty()) {
+			return new String[0];
+		} else {
+			return str.split(regex);
 		}
 	}
 }

@@ -86,8 +86,7 @@ import fi.csc.microarray.client.screen.Screen;
 import fi.csc.microarray.client.screen.ShowSourceScreen;
 import fi.csc.microarray.client.screen.TaskManagerScreen;
 import fi.csc.microarray.client.serverfiles.ServerFile;
-import fi.csc.microarray.client.serverfiles.ServerFileSystemView;
-import fi.csc.microarray.client.serverfiles.ServerFileUtils;
+import fi.csc.microarray.client.session.RemoteSessionChooserFactory;
 import fi.csc.microarray.client.session.UserSession;
 import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.tasks.Task.State;
@@ -898,12 +897,12 @@ public class SwingClientApplication extends ClientApplication {
 		// user-friendly message
 		if (userFixable) {
 			title = task.getErrorMessage();
-			message = task.getNamePrettyPrinted() + " was stopped. ";
+			message = task.getFullName() + " was stopped. ";
 		} 
 		
 		// generic message
 		else {
-			title = task.getNamePrettyPrinted() + " did not complete successfully. ";
+			title = task.getFullName() + " did not complete successfully. ";
 			message = "You may have used a tool or parameters which are unsuitable for the selected dataset, or " + "there might be a bug in the analysis tool itself.\n\n" + "The details below may provide hints about the problem.";
 		}		
 
@@ -1001,6 +1000,7 @@ public class SwingClientApplication extends ClientApplication {
 		e.printStackTrace();
 		if (logger != null) {
 			logger.error(e.getMessage(), e);
+			e.printStackTrace();
 		}
 	}
 
@@ -1127,30 +1127,14 @@ public class SwingClientApplication extends ClientApplication {
 	}
 	
 	public void quit() {
-		int returnValue = JOptionPane.DEFAULT_OPTION;
-
-		// Check the running tasks
-		if (taskExecutor.getRunningTaskCount() > 0) {
-			String message = "";
-			if (taskExecutor.getRunningTaskCount() == 1) {
-				message += "There is a running task.  Are you sure you want to cancel the running task?";
-			} else {
-				message += "There are " + taskExecutor.getRunningTaskCount() + " running tasks. " + "Are you sure you want to cancel all running tasks?";
-			}
-
-			Object[] options = { "Cancel running tasks", "Cancel" };
-
-			returnValue = JOptionPane.showOptionDialog(this.getMainFrame(), message, "Confirm close", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
-
-			if (returnValue == JOptionPane.YES_OPTION) {
-				taskExecutor.killAll();
-			} else {
-				return;
-			}
+				
+		if (!killUploadingTasks()) {
+			// user wanted to continue uploading, so we can't quit
+			return;
 		}
 
 		// Check for unsaved changes
-		returnValue = JOptionPane.DEFAULT_OPTION;
+		int returnValue = JOptionPane.DEFAULT_OPTION;
 
 		if (getSessionManager().hasUnsavedChanges()) {
 
@@ -1180,6 +1164,38 @@ public class SwingClientApplication extends ClientApplication {
 		quitImmediately();
 	}
 	
+	/**
+	 * Check if there are uploading jobs and ask if user wants to kill
+	 * them. Returns true if the jobs were killed or there weren't any. Returns
+	 * false if the killing was cancelled.
+	 * 
+	 * @return false if the action was cancelled
+	 */
+	private boolean killUploadingTasks() {
+		// Check the running tasks
+		int returnValue = JOptionPane.DEFAULT_OPTION;
+		
+		if (taskExecutor.getUploadingTaskCount() > 0) {
+			String message = "";
+			if (taskExecutor.getUploadingTaskCount() == 1) {
+				message += "There is a task uploading input files.  Are you sure you want to cancel the task?";
+			} else {
+				message += "There are " + taskExecutor.getUploadingTaskCount() + " tasks uploading input files. " + "Are you sure you want to cancel these tasks?";
+			}
+
+			Object[] options = { "Cancel uploading tasks", "Continue uploading" };
+
+			returnValue = JOptionPane.showOptionDialog(this.getMainFrame(), message, "Confirm close", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+
+			if (returnValue == JOptionPane.YES_OPTION) {
+				taskExecutor.killUploadingTasks();
+			} else {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	public void quitImmediately() {
 
 		// hide immediately to look more reactive...
@@ -1454,56 +1470,19 @@ public class SwingClientApplication extends ClientApplication {
 		return importExportFileChooser;
 	}
 
-	private JFileChooser getSessionManagementFileChooser() throws RuntimeException {
-
-		JFileChooser sessionFileChooser = null;
-
-		try {
-			// fetch current sessions to show in the dialog and create it
-			sessionFileChooser = populateFileChooserFromServer();
-
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-
-		// hide buttons that we don't need
-		ServerFileUtils.hideJFileChooserButtons(sessionFileChooser);
-
-		// tune GUI
-		sessionFileChooser.setDialogTitle("Manage");
-		sessionFileChooser.setApproveButtonText("Remove");
-
-		return sessionFileChooser;
-	}
-
-	private JFileChooser populateFileChooserFromServer() throws JMSException, Exception, MalformedURLException {
-		JFileChooser sessionFileChooser;
-		List<DbSession> sessions = super.getSessionManager().listRemoteSessions();
-		ServerFileSystemView view = ServerFileSystemView.parseFromPaths(ServerFile.SERVER_SESSION_ROOT_FOLDER, sessions);
-		sessionFileChooser = new JFileChooser(view.getRoot(), view); // we do not need to use ImportUtils.getFixedFileChooser() here
-		sessionFileChooser.putClientProperty("sessions", sessions);
-		sessionFileChooser.setMultiSelectionEnabled(false);
-		fixFileChooserFontSize(sessionFileChooser);
-		return sessionFileChooser;
-	}
-
 	private JFileChooser getSessionFileChooser(boolean remote, boolean openExampleDir) throws MalformedURLException, JMSException, Exception {
 		
 		if (openExampleDir) {
-			JFileChooser exampleSessionFileChooser = populateFileChooserFromServer();	 		
-			exampleSessionFileChooser.setSelectedFile(new File("Session name"));
-			ServerFileUtils.hideJFileChooserButtons(exampleSessionFileChooser);			
-			ServerFileSystemView view = (ServerFileSystemView) exampleSessionFileChooser.getFileSystemView();
-			exampleSessionFileChooser.setCurrentDirectory(view.getExampleSessionDir());				
-			return exampleSessionFileChooser;
+			
+			return new RemoteSessionChooserFactory(this).getExampleSessionChooser();
 			
 		} else if (remote) {
-			JFileChooser remoteSessionFileChooser = populateFileChooserFromServer();
-			remoteSessionFileChooser.setSelectedFile(new File("Session name"));
-			ServerFileUtils.hideJFileChooserButtons(remoteSessionFileChooser);
-			return remoteSessionFileChooser;
+			
+			return new RemoteSessionChooserFactory(this).getRemoteSessionChooser();
 
 		} else {
+			// don't create new local file choosers, because that would reset
+			// the selected directory
 			if (localSessionFileChooser == null) {
 
 				localSessionFileChooser = ImportUtils.getFixedFileChooser();
@@ -1639,7 +1618,7 @@ public class SwingClientApplication extends ClientApplication {
 						@SuppressWarnings("unchecked")
 						List<DbSession> sessions = (List<DbSession>)fileChooser.getClientProperty("sessions");
 						remoteSessionName = selectedFile.getPath().substring(ServerFile.SERVER_SESSION_ROOT_FOLDER.length()+1);
-						sessionId = getSessionManager().getSessionUuid(sessions, remoteSessionName);
+						sessionId = getSessionManager().findSessionWithName(sessions, remoteSessionName).getDataId();
 						if (sessionId == null) {
 							// user didn't select anything
 							showDialog("Session \"" + selectedFile + "\" not found", Severity.INFO, true);
@@ -1817,6 +1796,10 @@ public class SwingClientApplication extends ClientApplication {
 	 */
 	public boolean clearSession() throws MalformedURLException, JMSException {
 
+		if (!killUploadingTasks()) {
+			return false;
+		}
+		
 		int returnValue = JOptionPane.DEFAULT_OPTION;
 		if (getSessionManager().hasUnsavedChanges()) {
 
@@ -1829,6 +1812,7 @@ public class SwingClientApplication extends ClientApplication {
 			getSessionManager().clearSessionWithoutConfirming();			
 			return true;
 		}
+		
 		return false;
 	}
 
@@ -1844,8 +1828,8 @@ public class SwingClientApplication extends ClientApplication {
 		return visualisationFrameManager;
 	}
 
-	public void flipTaskListVisibility(boolean closeIfVisible) {
-		statusBar.flipTaskListVisibility(closeIfVisible);		
+	public void viewTasks() {
+		statusBar.viewTasks();		
 	}
 
 	private void taskCountChanged(int newTaskCount, boolean attractAttention) {
@@ -1875,38 +1859,8 @@ public class SwingClientApplication extends ClientApplication {
 
 	public void manageRemoteSessions() {
 		
-		final JFileChooser fileChooser = getSessionManagementFileChooser();
-		int ret = fileChooser.showOpenDialog(this.getMainFrame());
-
-		// user has selected a file
-		if (ret == JFileChooser.APPROVE_OPTION) {
-			File selectedFile = fileChooser.getSelectedFile();
-			String filename = selectedFile.getPath().substring(ServerFile.SERVER_SESSION_ROOT_FOLDER.length()+1);
-			String sessionUuid = null;
-			
-			try {
-				@SuppressWarnings("unchecked")
-				List<DbSession> sessions = (List<DbSession>)fileChooser.getClientProperty("sessions");
-				sessionUuid = getSessionManager().getSessionUuid(sessions, filename);
-				if (sessionUuid == null) {
-					throw new RuntimeException("session not found");
-				}
-			} catch (Exception e) {
-				throw new RuntimeException("internal error: URL or name from save dialog was invalid"); // should never happen
-			}
-			
-			try {
-				// remove selected session
-				if (getSessionManager().removeRemoteSession(sessionUuid)) {			
-					// confirm to user
-					DialogInfo info = new DialogInfo(Severity.INFO, "Remove successful", "Session " + selectedFile.getName() + " removed successfully.", "", Type.MESSAGE);
-					ChipsterDialog.showDialog(this, info, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true);
-				}
-
-			} catch (JMSException e) {
-				reportException(e);
-			}
-		}
+		final JFileChooser fileChooser = new RemoteSessionChooserFactory(this).getManagementChooser();							
+		fileChooser.showOpenDialog(this.getMainFrame());
 	}
 
 	private void enableKeyboardShortcuts() {

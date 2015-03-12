@@ -7,6 +7,7 @@ package fi.csc.microarray.messaging.message;
 
 import java.util.Iterator;
 import java.util.List;
+
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
 
@@ -160,7 +161,6 @@ public class JobMessage extends PayloadMessage {
 		// Everything was ok, return the parameters
 		return parameters;
 	}
-
 }
 	
 

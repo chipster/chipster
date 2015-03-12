@@ -13,7 +13,6 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
@@ -24,7 +23,8 @@ import org.apache.log4j.Logger;
 import fi.csc.chipster.tools.ngs.LocalNGSPreprocess;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.operation.Operation;
+import fi.csc.microarray.client.operation.OperationRecord;
+import fi.csc.microarray.client.operation.OperationRecord.InputRecord;
 import fi.csc.microarray.client.tasks.Task.State;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
@@ -104,7 +104,7 @@ public class TaskExecutor {
 	}
 
 	private enum ResultListenerState {
-		WAIT_FOR_ACK, WAIT_FOR_OFFER, WAIT_FOR_STATUS, FINISHED, TIMEOUT
+		WAIT_FOR_STATUS, FINISHED, TIMEOUT
 	};
 
 	/**
@@ -116,7 +116,6 @@ public class TaskExecutor {
 		Task pendingTask; 
 		// should be removed
 		ResultListenerState internalState;
-		String asId;
 
 		/**
 		 * @param pendingTask
@@ -124,11 +123,18 @@ public class TaskExecutor {
 		 */
 		public ResultMessageListener(Task pendingTask) {
 			this.pendingTask = pendingTask;
-			this.internalState = ResultListenerState.WAIT_FOR_ACK;
+			this.internalState = ResultListenerState.WAIT_FOR_STATUS;
 		}
 
 		public void onChipsterMessage(ChipsterMessage msg) {
 			logger.debug("Task " + pendingTask.getId() + " got message (" + msg.getMessageID() + ") of type " + msg.getClass().getName());
+			
+			// ignore results that don't belong to this session
+			synchronized (runningTasks) {
+				if (!runningTasks.contains(pendingTask)) {
+					return;
+				}
+			}
 
 			// ignore everything if we (ResultListener) are already finished
 			if (internalState.equals(ResultListenerState.FINISHED)) {
@@ -160,85 +166,6 @@ public class TaskExecutor {
 
 			// ResultListener state machine
 			switch (internalState) {
-
-			case WAIT_FOR_ACK:
-				if (msg instanceof CommandMessage) {
-					CommandMessage commandMessage = (CommandMessage) msg;
-
-					// got ack message
-					if (CommandMessage.COMMAND_ACK.equals(commandMessage.getCommand())) {
-						logger.debug("Got ACK message.");
-						internalState = ResultListenerState.WAIT_FOR_OFFER;
-						// TODO set timeout
-
-					}
-
-					// got offer message
-					else if (CommandMessage.COMMAND_OFFER.equals(commandMessage.getCommand())) {
-
-						// store as-id
-						asId = commandMessage.getNamedParameter(ParameterMessage.PARAMETER_AS_ID);
-						logger.debug("Got OFFER from " + asId);
-
-						// switch state (before sending the accept, as we
-						// should be ready
-						// to receive status immediately after the accept
-						// has been sent)
-						internalState = ResultListenerState.WAIT_FOR_STATUS;
-
-						// send accept
-						CommandMessage acceptMessage = new CommandMessage(CommandMessage.COMMAND_ACCEPT_OFFER);
-						acceptMessage.addNamedParameter(ParameterMessage.PARAMETER_JOB_ID, pendingTask.getId());
-						acceptMessage.addNamedParameter(ParameterMessage.PARAMETER_AS_ID, asId);
-						logger.debug("Sending ACCEPT_OFFER to " + asId);
-
-						try {
-							requestTopic.sendMessage(acceptMessage);
-							// TODO set timeout
-
-						} catch (JMSException e) {
-							logger.error("Could not send accept message.", e);
-
-							// usually taskFinished would pick the error message, from
-							// ResultMessage, but here we use the Exception.toString()
-							pendingTask.setErrorMessage(e.toString());
-							taskFinished(State.ERROR, "Sending message failed", null);
-						}
-					}
-				}
-				break;
-
-			case WAIT_FOR_OFFER:
-				if (msg instanceof CommandMessage) {
-					CommandMessage commandMessage = (CommandMessage) msg;
-					if (CommandMessage.COMMAND_OFFER.equals(commandMessage.getCommand())) {
-						// store as-id
-						asId = commandMessage.getNamedParameter(ParameterMessage.PARAMETER_AS_ID);
-
-						// switch state (before sending the accept, as we
-						// should be ready
-						// to receive status immediately after the accept
-						// has been sent)
-						internalState = ResultListenerState.WAIT_FOR_STATUS;
-
-						// send accept
-						CommandMessage acceptMessage = new CommandMessage(CommandMessage.COMMAND_ACCEPT_OFFER);
-						acceptMessage.addNamedParameter(ParameterMessage.PARAMETER_JOB_ID, pendingTask.getId());
-						acceptMessage.addNamedParameter(ParameterMessage.PARAMETER_AS_ID, asId);
-						try {
-							requestTopic.sendMessage(acceptMessage);
-							// TODO set timeout
-						} catch (JMSException e) {
-							logger.error("Could not send accept message.", e);
-							// usually taskFinished would pick the error message, from
-							// ResultMessage, but here we use the Exception.toString()
-							pendingTask.setErrorMessage(e.toString());
-							taskFinished(State.ERROR, "Sending message failed", null);
-						}
-					}
-				}
-				break;
-
 			case WAIT_FOR_STATUS:
 
 				// status message
@@ -270,6 +197,9 @@ public class TaskExecutor {
 						}
 						taskFinished(State.COMPLETED, null, resultMessage);
 						break;
+					case CANCELLED:
+						taskFinished(State.CANCELLED, resultMessage.getStateDetail(), resultMessage);
+						break;
 					case FAILED:
 						taskFinished(State.FAILED, resultMessage.getStateDetail(), resultMessage);
 						break;
@@ -280,32 +210,12 @@ public class TaskExecutor {
 						// Task state TIMEOUT is reserved for communications timeout
 						taskFinished(State.FAILED, resultMessage.getStateDetail(), resultMessage);
 						break;
-					case RETRY:
-						if (!pendingTask.hasBeenRetried()) {
-							logger.debug("Resending job " + pendingTask.getId());
-
-							// change the id of the task to avoid analyser
-							// servers getting confused
-							pendingTask.changeId();
-
-							try {
-								resendJobMessage(pendingTask, resultMessage.getReplyTo());
-							} catch (Exception e) {
-								logger.error("Could not resend job " + pendingTask.getId(), e);
-								pendingTask.setErrorMessage(e.toString());
-								taskFinished(State.ERROR, "Resending job failed", null);
-							}
-							pendingTask.setHasBeenRetried(true);
-
-						} else {
-							logger.error("Not resending the job message for the second time " + pendingTask.getId());
-
-							pendingTask.setErrorMessage("Resending task failed.");
-							taskFinished(State.ERROR, "Retransferring data failed", null);
-						}
+					default:
 						break;
 					}
 				}
+				break;
+			default:
 				break;
 			}
 
@@ -331,7 +241,7 @@ public class TaskExecutor {
 				logger.debug("output " + name);
 				String dataId = resultMessage.getPayload(name);
 				DataBean bean = manager.createDataBean(name, dataId, true);
-				pendingTask.addOutput(name, bean);
+				pendingTask.addOutput(bean);
 			}
 		}
 
@@ -365,6 +275,10 @@ public class TaskExecutor {
 
 			// end time(s)
 			pendingTask.setEndTime(System.currentTimeMillis());
+			
+			// clear job id, because it would cause job to continue when the
+			// session is opened next time
+			pendingTask.getOperationRecord().setJobId(null);
 
 			// update state
 			updateTaskState(pendingTask, state, stateDetail, -1);
@@ -392,8 +306,17 @@ public class TaskExecutor {
 		this.jobExecutorStateChangeSupport = new SwingPropertyChangeSupport(this);
 	}
 
-	public Task createTask(Operation operation) {
-		return new Task(operation);
+	public Task createNewTask(OperationRecord operationRecord, boolean local) {
+		// new job: create new id
+		Task task = new Task(operationRecord, local);
+		operationRecord.setJobId(task.getId());
+		return task;
+	}
+	
+	public Task createContinuedTask(OperationRecord operationRecord, boolean local) {
+		// continued job: use existing id
+		Task task = new Task(operationRecord, operationRecord.getJobId(), local);
+		return task;
 	}
 	
 
@@ -421,7 +344,7 @@ public class TaskExecutor {
 			
 			Runnable taskRunnable = new LocalNGSPreprocess(task);
 			ClientApplication app = Session.getSession().getApplication();
-			app.runBlockingTask("running " + task.getNamePrettyPrinted(), taskRunnable);
+			app.runBlockingTask("running " + task.getFullName(), taskRunnable);
 			return;
 		}
 		
@@ -451,14 +374,14 @@ public class TaskExecutor {
 					logger.debug("adding inputs to job message");
 					updateTaskState(task, State.TRANSFERRING_INPUTS, null, -1);
 					int i = 0;
-
 					
-					for (final String name : task.getInputNames()) {
-
+					for (InputRecord input : task.getInputRecords()) {
+						String operationsInputName = input.getNameID().getID();
+						final DataBean bean = input.getValue();
 						final int fi = i;
 						CopyProgressListener progressListener = new CopyProgressListener() {
 
-							long length = Session.getSession().getApplication().getDataManager().getContentLength(task.getInput(name));
+							long length = Session.getSession().getApplication().getDataManager().getContentLength(bean);
 
 							public void progress(long bytes) {
 								float overall = ((float)fi) / ((float)task.getInputCount());
@@ -470,15 +393,14 @@ public class TaskExecutor {
 						
 						
 						// transfer input contents to file broker if needed
-						DataBean bean = task.getInput(name);
 						manager.uploadToCacheIfNeeded(bean, progressListener);
 						
 						// add the data id to the message
-						jobMessage.addPayload(name, bean.getId());
+						jobMessage.addPayload(operationsInputName, bean.getId());
 						
-						logger.debug("added input " + name + " to job message.");
+						logger.debug("added input " + bean.getName() + " to job message.");
 						i++;
-					}
+					}				
 
 					updateTaskState(task, State.WAITING, null, -1);
 					TempTopicMessagingListener replyListener = new ResultMessageListener(task);
@@ -490,11 +412,66 @@ public class TaskExecutor {
 					logger.warn("received not enough disk space when uploading input", nedse);
 					updateTaskState(task, State.FAILED_USER_ERROR, "Not enough disk space", -1);
 					task.setErrorMessage("There was not enough disk space in Chipster server to run the task. Please try again later.");
-					removeFromRunningTasks(task);
+					removeFromRunningTasks(task);									
+					
+				} catch (Exception e) {
+					
+					if (e instanceof IOException && "Stream Closed".equals(e.getMessage())) {
+						String msg = "Uploading input data was interrupted. \n"
+								+ "\n"
+								+ "Source of the input data was lost before \n"
+								+ "upload was completed. This may happen \n"
+								+ "the current session file is replace by \n"
+								+ "saving a new session with the same file name. \n"
+								+ "\n"
+								+ "Please run the tool again.\n";  
+						updateTaskState(task, State.ERROR, msg, -1);
+						removeFromRunningTasks(task);						
+					} else {
+						// could not send job message --> task fails
+						logger.error("Could not send job message.", e);
+						updateTaskState(task, State.ERROR, "Sending message failed: " + e.getMessage(), -1);
+						removeFromRunningTasks(task);
+					}
+				}
+			}
+		}).start();
+		logger.debug("task starter thread started");
+
+		setupTimeoutTimer(task, timeout);
+	}
+	
+	public void continueExecuting(final Task task) throws TaskException {
+		continueExecuting(task, -1);
+	}
+	
+	public void continueExecuting(final Task task, int timeout) throws TaskException {
+		logger.debug("Continuing task " + task.getName());
+
+		if (task.isLocal()) {						
+			throw new IllegalArgumentException("local tasks cannot be continued");
+		}
+
+		// set task as running (task becomes visible in the task list)
+		task.setStartTime(task.getStartTime());
+		addToRunningTasks(task);
+
+		// send job message (start task) in a background thread
+		new Thread(new Runnable() {
+			public void run() {
+				try {
+					CommandMessage commandMsg = new CommandMessage(CommandMessage.COMMAND_GET_JOB);
+					commandMsg.addNamedParameter(ParameterMessage.PARAMETER_JOB_ID, task.getId());
+										
+					updateTaskState(task, State.WAITING, null, -1);
+					TempTopicMessagingListener replyListener = new ResultMessageListener(task);
+					logger.debug("sending get-job message, jobId: " + task.getId());
+
+					requestTopic.sendReplyableMessage(commandMsg, replyListener);				
 					
 				} catch (Exception e) {
 					// could not send job message --> task fails
-					logger.error("Could not send job message.", e);
+					logger.error("Could not send get-job message.", e);
 					updateTaskState(task, State.ERROR, "Sending message failed: " + e.getMessage(), -1);
 					removeFromRunningTasks(task);
 				}
@@ -502,6 +479,10 @@ public class TaskExecutor {
 		}).start();
 		logger.debug("task starter thread started");
 
+		setupTimeoutTimer(task, timeout);
+	}
+
+	private void setupTimeoutTimer(Task task, int timeout) {
 		// setup timeout checker if needed
 		if (timeout != -1) {
 			// we'll have to timeout this task
@@ -546,25 +527,33 @@ public class TaskExecutor {
 
 		removeFromRunningTasks(task);
 	}
-
+	
 	public void killAll() {
 		synchronized (runningTasks) {
-
 			// copy of runningTasks, avoid concurrent modification by kill(Task task)
-			LinkedList<Task> tasksToKill = new LinkedList<Task>();
-			for (Task task : runningTasks) {
-				tasksToKill.add(task);
-			}
-			for (Task task : tasksToKill) {
-				kill(task);
-			}
-
-			runningTasks.clear();
-			SwingUtilities.invokeLater(new TaskExecutorChangeNotifier(this));
+			LinkedList<Task> tasksToKill = new LinkedList<Task>(runningTasks);			
+			killAll(tasksToKill);
 		}
 	}
 
-	public Collection<Task> getTasks(boolean onlyRunning, boolean showHidden) {
+	public void killAll(List<Task> tasks) {
+		synchronized (runningTasks) {
+
+			for (Task task : tasks) {
+				kill(task);
+			}
+
+			SwingUtilities.invokeLater(new TaskExecutorChangeNotifier(this));
+		}
+	}
+	
+	public void killUploadingTasks() {
+		synchronized (runningTasks) {
+			killAll(getUploadingTasks());
+		}		
+	}
+
+	public List<Task> getTasks(boolean onlyRunning, boolean showHidden) {
 		synchronized (runningTasks) {
 			// select if we return only running or all
 			LinkedList<Task> taskList = onlyRunning ? runningTasks : tasks;
@@ -586,11 +575,31 @@ public class TaskExecutor {
 		}
 	}
 
+	private List<Task> getUploadingTasks() {
+			
+		synchronized (runningTasks) {
+			Collection<Task> allTasks = getTasks(true, true);
+			LinkedList<Task> uploadingTasks = new LinkedList<Task>();
+			for (Task task : allTasks) {
+				if (task.getState() == Task.State.NEW || 
+						task.getState() == Task.State.TRANSFERRING_INPUTS) {
+					uploadingTasks.add(task);
+				}
+			}
+			return uploadingTasks;
+		}
+	}
+	
 	public int getRunningTaskCount() {
 		synchronized (runningTasks) {
 			Collection<Task> taskList = getTasks(true, false);
 			return taskList.size();
 		}
+	}
+	
+
+	public int getUploadingTaskCount() {
+		return getUploadingTasks().size();
 	}
 
 	/**
@@ -700,19 +709,11 @@ public class TaskExecutor {
 		logger.debug("Message cancel thread started.");
 	}
 
-	private void resendJobMessage(Task task, Destination replyTo) throws Exception {
-
-		JobMessage jobMessage = new JobMessage(task.getId(), task.getOperationID(), task.getParameters());
-		for (String name : task.getInputNames()) {
-			DataBean bean = task.getInput(name);
-			manager.uploadToCacheIfNeeded(bean, null); // no progress listening on resends
-			jobMessage.addPayload(name, bean.getId());
+	public void clear() {
+		synchronized (runningTasks) {
+			runningTasks.clear();
+			tasks.clear();
 		}
-		jobMessage.setReplyTo(replyTo);
-
-		logger.debug("Retry replyTo is: " + jobMessage.getReplyTo());
-		requestTopic.sendMessage(jobMessage);
-
+		SwingUtilities.invokeLater(new TaskExecutorChangeNotifier(this));
 	}
-
 }

@@ -2,7 +2,6 @@ package fi.csc.chipster.web.adminweb.data;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.locks.Lock;
 
@@ -15,9 +14,9 @@ import com.vaadin.data.util.BeanItemContainer;
 import fi.csc.chipster.web.adminweb.ui.JobsView;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.messaging.admin.CompAdminAPI;
+import fi.csc.microarray.messaging.admin.JobmanagerAdminAPI;
+import fi.csc.microarray.messaging.admin.JobmanagerAdminAPI.JobsListener;
 import fi.csc.microarray.messaging.admin.JobsEntry;
-import fi.csc.microarray.messaging.admin.CompAdminAPI.JobsListener;
 
 public class JobsContainer extends BeanItemContainer<JobsEntry> implements Serializable, JobsListener {
 	
@@ -36,26 +35,25 @@ public class JobsContainer extends BeanItemContainer<JobsEntry> implements Seria
 	public static final String[] COL_HEADERS_ENGLISH = new String[] {
 		"Username", 	"Operation", 	"Status", 	"Comp host", 	"Start time", 	"" };
 	
-	private CompAdminAPI compAdminAPI;
+	private JobmanagerAdminAPI jobmanagerAdminAPI;
 
 	private JobsView view;
 
 
 
-	public JobsContainer(JobsView view, CompAdminAPI compAdminAPI) throws IOException, IllegalConfigurationException, MicroarrayException, JMSException {
+	public JobsContainer(JobsView view, JobmanagerAdminAPI jobmanagerAdminAPI) throws IOException, IllegalConfigurationException, MicroarrayException, JMSException {
 		super(JobsEntry.class);
 		this.view = view;
-		this.compAdminAPI = compAdminAPI;
+		this.jobmanagerAdminAPI = jobmanagerAdminAPI;
 	}
 	
 	public void update() {		
 		
 		try {
-			compAdminAPI.queryRunningJobs(this);
-			// clear table even if there aren't any status updates
-			statusUpdated(new ArrayList<JobsEntry>());
-			
-		} catch (JMSException | InterruptedException e) {
+			Collection<JobsEntry> list = jobmanagerAdminAPI.queryRunningJobs().values();			
+			statusUpdated(list);
+						
+		} catch (JMSException | InterruptedException | MicroarrayException e) {
 			logger.error(e);
 		}
 	}

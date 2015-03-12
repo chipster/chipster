@@ -148,7 +148,6 @@ if (dim(significant_results)[1] > 0) {
 		bed_output <- sort.bed(bed_output)
 		write.table(bed_output, file="de-list-edger.bed", sep="\t", row.names=F, col.names=F, quote=F)
 	}	
-}
 
 # Make an MA-plot displaying the significant tags (genes)
 pdf(file="ma-plot-edger.pdf", width=w/72, height=h/72)	
@@ -170,7 +169,7 @@ legend (x="topright", legend=c("p-values","adjusted p-values", "significance cut
 		cex=1, pch=15)
 dev.off()
 
-
+}
 
 
 # EOF

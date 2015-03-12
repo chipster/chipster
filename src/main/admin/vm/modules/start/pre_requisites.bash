@@ -2,12 +2,6 @@
 
 ## Pre-requisites:
 
-# Java
-# sun-java6-jre (prefered would be openjdk-7-jre)
-# Bypasses manual interaction to accept license
-#echo 'sun-java6-jre shared/accepted-sun-dlj-v1-1 select true' | /usr/bin/debconf-set-selections
-# aptitude -y install sun-java6-jre # (40 packages)
-#aptitude -y --without-recommends install sun-java6-jre # (7 packages)
 aptitude -y --without-recommends install openjdk-7-jre
 
 # For now OpenJDK 6 is required, as is Ubuntu's default-jre,
