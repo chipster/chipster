@@ -269,7 +269,7 @@ public class Strings {
 			sym = "T";
 		}
 
-		int div = (int) Math.pow(10, (pow - pow % 3));		
+		long div = (long) Math.pow(10, (pow - pow % 3));		
 		
 		if (round) {
 			// a space between number and symbol to make it less squeezed
