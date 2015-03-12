@@ -96,7 +96,7 @@ public class SessionManager {
 		this.taskExecutor = taskExecutor;
 		this.fileBrokerClient = fileBrokerClient;
 		if (callback == null) {
-			callback = new BasicSessionManagerCallback();
+			this.callback = new BasicSessionManagerCallback();
 		} else {
 			this.callback = callback;
 		}
@@ -173,8 +173,7 @@ public class SessionManager {
 		@Override
 		public void continueJobs(List<OperationRecord> unfinishedJobs) {
 			logger.info("Continuation of jobs isn't implemented in "
-					+ this.getClass().getSimpleName() + ". Session contained "
-					+ unfinishedJobs.size() + " jobs");
+					+ this.getClass().getSimpleName());
 		}
 	}
 
