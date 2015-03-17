@@ -96,11 +96,11 @@ start() {
     run auth start
     run comp start
     run manager start
-    supervisorctl start jobmanager
+    supervisorctl start chipster-jobmanager
 }
 
 stopit() {
-    supervisorctl stop jobmanager
+    supervisorctl stop chipster-jobmanager
     run auth stop
     run comp stop
 	run manager stop
@@ -116,7 +116,7 @@ status() {
     run auth status
     run comp status
     run manager status
-    supervisorctl status jobmanager
+    supervisorctl status chipster-jobmanager
 }
 
 case "$1" in
