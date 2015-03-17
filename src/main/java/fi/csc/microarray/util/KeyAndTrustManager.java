@@ -3,9 +3,7 @@ package fi.csc.microarray.util;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.KeyManagementException;
@@ -21,6 +19,7 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
@@ -60,21 +59,13 @@ public class KeyAndTrustManager {
 		// Check if proper keystore file exists
 		if (!localTrustStore.exists()) {
 			
-			// in practice just a complicated way of doing a http download
-			
-			logger.info("keystore file missing, exporting it");
-			KeyStore original = KeyStore.getInstance(KeyStore.getDefaultType());
-
-			try (InputStream urlStream = remoteTrustStore.openStream()){
-				original.load(urlStream, password.toCharArray());
-			} catch (FileNotFoundException e) {
-				// there is no "cause" in FileNotFoundException
-				throw new KeyStoreException("cannot load server's SSL certificate", e);
-			}
-			
-			try (FileOutputStream out = new FileOutputStream(localTrustStore)) {
-				original.store(out, password.toCharArray());
-			}
+			logger.info("keystore file missing, downloading it");
+			// rename file only when it's complete to avoid problems when there are parallel instances of SessionReplayTest
+			File downloadTemp = File.createTempFile(localTrustStore.getName(), "", localTrustStore.getParentFile());			
+			FileUtils.copyURLToFile(remoteTrustStore, downloadTemp);
+			if (!downloadTemp.renameTo(localTrustStore)) {
+				logger.info("renaming keystore file failed, maybe other client is running at the same time? (error ignored)");
+			}			
 		}
 		
 		return localTrustStore.getPath();
