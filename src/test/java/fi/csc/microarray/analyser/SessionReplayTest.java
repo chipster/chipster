@@ -569,6 +569,7 @@ public class SessionReplayTest extends MessagingTestBase {
 				updateFlagFileAndExit(false);
 			}
 		} catch (Exception e) {
+			System.out.println(Exceptions.getStackTrace(e));
 			System.out.println("TOOL TEST EXCEPTION ERROR");
 			updateFlagFileAndExit(false);
 		}
