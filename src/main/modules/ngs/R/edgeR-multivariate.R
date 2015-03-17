@@ -9,7 +9,7 @@
 # PARAMETER OPTIONAL treat.main.effect1.as.factor: "Treat main effect 1 as factor" TYPE [no: no, yes: yes] DEFAULT yes (Should main.effect1 be treated as a factor)
 # PARAMETER OPTIONAL treat.main.effect2.as.factor: "Treat main effect 2 as factor" TYPE [no: no, yes: yes] DEFAULT yes (Should main.effect2 be treated as a factor)
 # PARAMETER OPTIONAL treat.main.effect3.as.factor: "Treat main effect 3 as factor" TYPE [no: no, yes: yes] DEFAULT yes (Should main.effect3 be treated as a factor)
-# PARAMETER OPTIONAL interactions: "Include interactions in the model" TYPE [main: "no", all: "yes"] DEFAULT main (Should interactions be included in the model in addition to the main effects.)
+# PARAMETER OPTIONAL interactions: "Include interactions in the model" TYPE [main: "no", all: "yes", nested: "nested"] DEFAULT main (Should interactions be included in the model in addition to the main effects. "Yes" = include all interaction terms, "no" = include only main effects, "nested" = include main effect 1 and its interactions with effects 2 and 3. Use the last option when you have comparisons both between and within subjects. Please note that when using the "nested" option, you need to place the effects in particular order -see manual for more information! )
 # PARAMETER OPTIONAL normalization: "Apply TMM normalization" TYPE [yes, no] DEFAULT yes (Should normalization based on the trimmed mean of M-values \(TMM\) be performed to reduce the RNA composition effect.)
 # PARAMETER OPTIONAL filter: "Analyze only genes which have counts in at least this many samples" TYPE INTEGER FROM 0 TO 1000 DEFAULT 1 (Analyze only genes which have at least 5 counts in at least this many samples)
 # PARAMETER OPTIONAL w: "Plot width" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted image)
@@ -21,6 +21,7 @@
 # EK 2.5.2013 updated to BioC2.11
 # EK 4.5.2013 added dispersion plot and filtering
 # EK 19.11.2013 updated to edgeR 3.4.0 and added the counts to output
+# ML & SS 3.3.2015 added the "nested" option to the interactions
 
 
 # Loads the libraries
@@ -92,6 +93,26 @@ if(main.effect3!="EMPTY" & treat.main.effect3.as.factor=="no") {
 }
 if(main.effect3!="EMPTY" & treat.main.effect3.as.factor=="yes") {
 	formula<-paste(formula, "as.factor(", main.effect3, ")", sep="")
+}
+
+# If there are interactions between and within the subjects (see edgeR userguide chapter 3.5)
+if(main.effect3!="EMPTY" & interactions=="nested") {
+	formula<-paste("~as.factor(", main.effect1,")+as.factor(", main.effect1, "):as.factor(", main.effect2,")+as.factor(", main.effect1, "):as.factor(", main.effect3, ")", sep="")
+
+	# modify the phenodata column for "subject", create a tmp table for this:
+	tmp <- phenodata[c(main.effect1, main.effect2, main.effect3)]
+	tmp[[main.effect1]]<-factor(tmp[[main.effect1]]) # group main effect 1, (disease group,) "between" comparison
+	tmp[[main.effect2]]<-factor(tmp[[main.effect2]]) # trt main effect 2, (treatment,) the "within" comparison
+	tmp[[main.effect3]]<-factor(tmp[[main.effect3]])  # subj main effect 3, (patient,) pairing
+	
+	splitsubj<-split(tmp[[main.effect3]],tmp[[main.effect1]])
+	splitind<-lapply(splitsubj,FUN=function(ssubj) {as.numeric(factor(ssubj))} )
+	# in the anonymous function, call to factor will drop unused levels, 
+	# and as.numeric returns only the integer codes (so the result is not a factor) to problems in unsplit
+	tmp[[main.effect3]]<-unsplit(splitind,tmp[[main.effect1]])
+	
+	phenodata <- tmp
+
 }
 
 design<-with(phenodata, model.matrix(as.formula(formula)))
