@@ -130,7 +130,12 @@ public class TaskManagerScreen extends ScreenBase implements ActionListener, Lis
 				return status; 
 
 			} else if (col == Column.TIME){ 						
-				return (new Date(tasks.get(row).getStartTime()));
+				long t = tasks.get(row).getStartTime();
+				if (t == 0) {
+					return null;
+				}
+				
+				return (new Date(t));
 
 			} else if (col == Column.ACTIONS){
 				if (!tasks.get(row).getState().isFinished()) {
@@ -199,8 +204,9 @@ public class TaskManagerScreen extends ScreenBase implements ActionListener, Lis
 			public Component getTableCellRendererComponent(JTable table, Object value,
                     boolean isSelected, boolean hasFocus, int row, int column) {						
 				
-				if(value instanceof Date){
-					value = (new Time(((Date)value).getTime())).toString(); 
+				// format start time
+				if (value instanceof Date) { 
+//					value = (new Time(((Date)value).getTime())).toString(); 
 				}
 				
 				return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);				
@@ -303,10 +309,14 @@ public class TaskManagerScreen extends ScreenBase implements ActionListener, Lis
 							jc.setToolTipText(status); 
 
 						} else if (col == Column.TIME){
-							long longTime = task.getExecutionTime();
-							String min = Strings.toString((int)(longTime/1000)/60, 2);
-							String sec = Strings.toString((int)(longTime/1000)%60, 2);
-							jc.setToolTipText("Execution time: " + min + ":" + sec);
+							if (task.getStartTime() > 0) {
+								long longTime = task.getExecutionTime();
+								String min = Strings.toString((int)(longTime/1000)/60, 2);
+								String sec = Strings.toString((int)(longTime/1000)%60, 2);
+								jc.setToolTipText("Execution time: " + min + ":" + sec);
+							} else {
+								jc.setToolTipText("Execution time: not available");
+							}
 						}														
 					}
 					return c;
