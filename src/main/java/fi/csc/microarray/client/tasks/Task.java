@@ -6,6 +6,7 @@ package fi.csc.microarray.client.tasks;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -94,8 +95,8 @@ public class Task {
 	private State state = State.NEW;
 	private String stateDetail = "";
 	private int completionPercentage = -1;
-	private long startTime;
-	private long endTime;
+	private Date startTime;
+	private Date endTime;
 	private String errorMessage;
 	private String screenOutput;
 	private String sourceCode;
@@ -239,34 +240,44 @@ public class Task {
 		this.id = generateId();
 	}
 
-	public long getStartTime() {
+	public Date getStartTime() {
 		return startTime;
 	}
 
-	public void setStartTime(long startTime) {
+	public void setStartTime(Date startTime) {
 		this.startTime = startTime;
 	}
 
-	public long getEndTime() {
+	public Date getEndTime() {
 		return endTime;
 	}
 
-	public void setEndTime(long endTime) {
+	public void setEndTime(Date endTime) {
 		this.endTime = endTime;
 	}
 
 	/**
 	 * Execution time is the time between passing a message corresponding 
 	 * to this task to JMS layer and receiving+parsing a reply message.
+	 * @return current time - start time if not finished, -1 if finished but start time or end time not available
 	 */
 	public long getExecutionTime() {
-		if (endTime > startTime) {
-			return endTime - startTime;
-		} else if (startTime > 0) {
-			return System.currentTimeMillis() - startTime;
-		} else {
-			return 0;
+		// finished
+		if (this.state.isFinished()) {
+			if (startTime != null && endTime != null) {
+				return endTime.getTime() - startTime.getTime();
+			}
+		} 
+		
+		// still running
+		else {
+			if (startTime != null) {
+				return System.currentTimeMillis() - startTime.getTime();	
+			}
 		}
+
+		// something missing
+		return -1;
 	}
 
 	private String generateId() {

@@ -130,7 +130,7 @@ public class TaskManagerScreen extends ScreenBase implements ActionListener, Lis
 				return status; 
 
 			} else if (col == Column.TIME){ 						
-				return (new Date(tasks.get(row).getStartTime()));
+				return (tasks.get(row).getStartTime());
 
 			} else if (col == Column.ACTIONS){
 				if (!tasks.get(row).getState().isFinished()) {
@@ -364,7 +364,7 @@ public class TaskManagerScreen extends ScreenBase implements ActionListener, Lis
 				parametersLabel.setText("?");
 			}
 			statusLabel.setText(task.getState().toString());
-			timeLabel.setText((new Time(task.getStartTime())).toString());
+			timeLabel.setText((new Time(task.getStartTime().getTime())).toString());
 			infoLabel.setText(task.getStateDetail());
 			detailsTextArea.setText(task.getScreenOutput());
 

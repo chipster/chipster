@@ -333,7 +333,7 @@ public class ChipsterAnnotationsScreen extends ScreenBase implements ActionListe
 				parametersLabel.setText("?");
 			}
 			statusLabel.setText(task.getState().toString());
-			timeLabel.setText((new Time(task.getStartTime())).toString());
+			timeLabel.setText((new Time(task.getStartTime().getTime())).toString());
 			infoLabel.setText(task.getStateDetail());
 			detailsTextArea.setText(task.getScreenOutput());
 
