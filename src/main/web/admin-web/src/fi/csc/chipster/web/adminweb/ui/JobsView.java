@@ -37,6 +37,7 @@ public class JobsView extends AsynchronousView implements ClickListener, ValueCh
 
 	private ChipsterAdminUI app;
 
+
 	public JobsView(ChipsterAdminUI app) {
 		
 		super(WAIT_SECONDS);

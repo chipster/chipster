@@ -1,7 +1,6 @@
 package fi.csc.microarray.messaging.admin;
 
 import java.io.IOException;
-import java.util.Collection;
 
 import javax.jms.JMSException;
 
@@ -25,10 +24,6 @@ import fi.csc.microarray.messaging.message.SuccessMessage;
 public class CompAdminAPI extends ServerAdminAPI {
 		
 	private static final Logger logger = Logger.getLogger(CompAdminAPI.class);
-	
-	public static interface JobsListener {
-		public void statusUpdated(Collection<JobsEntry> collection);
-	}
 
 	public CompAdminAPI() throws IOException, IllegalConfigurationException, MicroarrayException, JMSException {
 		super(Topics.Name.COMP_ADMIN_TOPIC, "comp-admin");

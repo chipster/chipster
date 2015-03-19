@@ -138,5 +138,9 @@ public class AsynchronousView extends VerticalLayout {
 	public boolean isRefreshButton(Object object) {
 		return refreshButton == object;
 	}
+	
+	public long getTimeout() {
+		return timeout;
+	}
 
 }

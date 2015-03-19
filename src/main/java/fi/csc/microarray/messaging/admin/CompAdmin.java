@@ -218,7 +218,7 @@ public class CompAdmin {
 				public void statusUpdated(List<ServerStatusMessage> statuses) {					
 					comps = statuses;					
 				}
-			});
+			}, wait);
 			Thread.sleep(wait * 1000);
 			return comps;
 		}

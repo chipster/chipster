@@ -1,6 +1,8 @@
 package fi.csc.chipster.web.adminweb.data;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 
@@ -80,10 +82,10 @@ public class ReportDataSource {
 		return jobmanagerAdminAPI;
 	}
 
-	public void updateCompReport(final ReportView view) {
+	public void updateCompReport(final ReportView view, int timeout) {
 		
 		try {	
-			getCompAdminAPI().getStatusReports(new CompStatusReportListener(view, this));		
+			getCompAdminAPI().getStatusReports(new CompStatusReportListener(view, this), timeout);		
 			
 		} catch (JMSException | InterruptedException | IOException | IllegalConfigurationException | MicroarrayException e) {
 			logger.error("failed to update comp status reports", e);
@@ -159,9 +161,21 @@ public class ReportDataSource {
 				try {
 					layout.removeAllComponents();
 					
+					Collections.sort(statuses, new Comparator<ServerStatusMessage>() {
+						@Override
+						public int compare(ServerStatusMessage m1, ServerStatusMessage m2) {
+							int hostComparison = m1.getHost().compareTo(m2.getHost());
+							int idComparison = m1.getHostId().compareTo(m2.getHostId());
+							if (hostComparison != 0) {
+								return hostComparison;
+							}
+							return idComparison;
+						}						
+					});
+					
 					for (ServerStatusMessage serverStatus : statuses) {
 					
-						Label title = view.createReportLabel("Comp " + serverStatus.getHost() + "   ");
+						Label title = view.createReportLabel("Comp " + serverStatus.getHost() + " (" + serverStatus.getHostId() + ")" + "    ");
 						Button shutdownButton = view.createReportButton("Stop gracefully");
 						
 						shutdownButton.addClickListener(new StopClickListener(view, reportDataSource, serverStatus.getHostId()));

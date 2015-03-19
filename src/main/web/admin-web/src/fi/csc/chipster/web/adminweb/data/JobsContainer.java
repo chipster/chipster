@@ -41,6 +41,7 @@ public class JobsContainer extends BeanItemContainer<JobsEntry> implements Seria
 
 
 
+
 	public JobsContainer(JobsView view, JobmanagerAdminAPI jobmanagerAdminAPI) throws IOException, IllegalConfigurationException, MicroarrayException, JMSException {
 		super(JobsEntry.class);
 		this.view = view;
@@ -50,7 +51,7 @@ public class JobsContainer extends BeanItemContainer<JobsEntry> implements Seria
 	public void update() {		
 		
 		try {
-			Collection<JobsEntry> list = jobmanagerAdminAPI.queryRunningJobs().values();			
+			Collection<JobsEntry> list = jobmanagerAdminAPI.queryRunningJobs().values();
 			statusUpdated(list);
 						
 		} catch (JMSException | InterruptedException | MicroarrayException e) {

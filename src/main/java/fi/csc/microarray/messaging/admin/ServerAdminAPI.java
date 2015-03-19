@@ -1,5 +1,7 @@
 package fi.csc.microarray.messaging.admin;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +11,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.jms.JMSException;
+import javax.swing.Timer;
 
 import org.apache.log4j.Logger;
 
@@ -82,13 +85,14 @@ public class ServerAdminAPI {
 	 * 
 	 * It's not possible to wait for all status reports, because it is not know how many servers 
 	 * there are. Therefore, a listener is called always when a new status report is received.
+	 * @param wait 
 	 * 
 	 * @param listener
 	 * @throws JMSException
 	 * @throws InterruptedException
 	 */
-	public void getStatusReports(StatusReportListener listener) throws JMSException, InterruptedException {
-		new AsyncStatusReportMessageListener(listener).query();
+	public void getStatusReports(StatusReportListener listener, int wait) throws JMSException, InterruptedException {
+		new AsyncStatusReportMessageListener(listener, wait).query();
 	}
 	
 	private class BlockingStatusReportMessageListener extends TempTopicMessagingListenerBase {
@@ -131,14 +135,20 @@ public class ServerAdminAPI {
 	 * 
 	 * @author klemela
 	 */
-	private class AsyncStatusReportMessageListener extends TempTopicMessagingListenerBase {
+	public class AsyncStatusReportMessageListener extends TempTopicMessagingListenerBase {
 
 		private Lock mutex = new ReentrantLock();
 		private ArrayList<ServerStatusMessage> statuses;
 		private StatusReportListener listener;
+		private int cleanUpDelay;
 
-		public AsyncStatusReportMessageListener(StatusReportListener listener) {
+		/**
+		 * @param listener
+		 * @param cleanUpDelay in seconds
+		 */
+		public AsyncStatusReportMessageListener(StatusReportListener listener, int cleanUpDelay) {
 			this.listener = listener;
+			this.cleanUpDelay = cleanUpDelay;
 		}
 
 
@@ -150,9 +160,26 @@ public class ServerAdminAPI {
 				
 				CommandMessage request = new CommandMessage(CommandMessage.COMMAND_GET_COMP_STATUS);
 				getTopic().sendReplyableMessage(request, this);
+				
 			} finally {
 				mutex.unlock();
 			}
+			
+			// clean up the topic simply after a fixed delay, because
+			// we don't know when all the serves have replied
+			Timer cleanUpTimer = new Timer(cleanUpDelay * 1000, new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					mutex.lock();
+					try {
+						cleanUp();
+					} finally {
+						mutex.unlock();
+					}		
+				}
+			});				
+			cleanUpTimer.setRepeats(false);
+			cleanUpTimer.start();
 		}
 
 
@@ -167,11 +194,7 @@ public class ServerAdminAPI {
 				listener.statusUpdated(statuses);
 				
 			} finally {			
-				try {
-					this.cleanUp();
-				} finally {
-					mutex.unlock();
-				}
+				mutex.unlock();				
 			}
 		}
 	}

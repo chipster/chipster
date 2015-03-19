@@ -102,7 +102,7 @@ public class ReportView extends AsynchronousView implements ClickListener {
 			
 			@Override
 			public void run() {				
-				dataSource.updateCompReport(ReportView.this);					
+				dataSource.updateCompReport(ReportView.this, (int) getTimeout());					
 			}			
 		});
 	}
