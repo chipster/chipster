@@ -20,6 +20,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.Authenticator.LoginCallback;
 import fi.csc.microarray.constants.VisualConstants;
@@ -75,15 +76,20 @@ public class LoginDialog extends JDialog implements ActionListener, KeyListener 
 		c.gridy = 0;
 
 		 c.gridwidth = 2;
-		 JLabel infoLabel = new JLabel("<html><p>Please enter your Chipster username and password,<br>or use the username 'guest' and password 'guest'<br/>to have a look. Running tools is disabled for guests.</p></html>");
-//		 infoLabel.setFont(infoLabel.getFont().deriveFont(Font.BOLD));
+		 
+		 String announcement = Session.getSession().getApplication().getAnnouncementText();
+		 String msg = 
+				 "<html><p>Please enter your Chipster username and password,<br>"
+				 + "or use the username 'guest' and password 'guest'<br/>to "
+				 + "have a look. Running tools is disabled for guests.</p>";
+		 if (announcement != null) {
+			 msg += announcement;
+		 }
+		 msg  += "</html>";
+		 
+		 JLabel infoLabel = new JLabel(msg);
 		 panel.add(infoLabel, c);
 		 c.gridy++;
-//		 JLabel infoLabel2 = new JLabel("<html><p>You can also login as a guest with the username 'guest'<br/>and password 'guest'.<br/>Running tools is disabled for guests.</p>");
-//		 //infoLabel.setFont(infoLabel.getFont().deriveFont(Font.BOLD));
-//		 panel.add(infoLabel2, c);
-//		 c.gridy++;
-
 		 c.gridwidth = 1;
 
 		if (previousAttemptFailed) {
@@ -147,13 +153,15 @@ public class LoginDialog extends JDialog implements ActionListener, KeyListener 
 			System.exit(1);
 
 		} else {
-			throw new RuntimeException("unknown action command: " + e.getActionCommand());
+			throw new RuntimeException("unknown action command: "
+					+ e.getActionCommand());
 		}
 
 	}
 
 	private void login() {
-		loginCallback.authenticate(usernameField.getText(), new String(passwordField.getPassword()));
+		loginCallback.authenticate(usernameField.getText(), new String(
+				passwordField.getPassword()));
 		dispose();
 	}
 
