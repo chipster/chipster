@@ -316,7 +316,7 @@ public class TaskExecutor {
 	
 	public Task createContinuedTask(OperationRecord operationRecord, boolean local) {
 		// continued job: use existing id
-		Task task = new Task(operationRecord, operationRecord.getJobId(), local);
+		Task task = new Task(operationRecord, operationRecord.getJobId(), operationRecord.getStartTime(), operationRecord.getEndTime(),local);
 		return task;
 	}
 	

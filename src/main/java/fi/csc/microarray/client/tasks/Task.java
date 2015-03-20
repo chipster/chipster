@@ -112,10 +112,12 @@ public class Task {
 		this.isLocal = local;
 	}
 
-	public Task(OperationRecord operationRecord, String jobId, boolean local) {
+	public Task(OperationRecord operationRecord, String jobId, Date startTime, Date endTime, boolean local) {
 		this.operationRecord = operationRecord;
 		this.id = jobId;
 		this.isLocal = local;
+		this.startTime = startTime;
+		this.endTime = endTime;
 	}
 
 	public String getOperationID() {
@@ -246,6 +248,9 @@ public class Task {
 
 	public void setStartTime(Date startTime) {
 		this.startTime = startTime;
+		if (this.operationRecord != null) {
+			this.operationRecord.setStartTime(startTime);
+		}
 	}
 
 	public Date getEndTime() {
@@ -254,6 +259,9 @@ public class Task {
 
 	public void setEndTime(Date endTime) {
 		this.endTime = endTime;
+		if (this.operationRecord != null) {
+			this.operationRecord.setEndTime(endTime);
+		}
 	}
 
 	/**

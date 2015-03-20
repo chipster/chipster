@@ -2,6 +2,7 @@ package fi.csc.microarray.client.operation;
 
 import java.awt.Color;
 import java.util.Collection;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
@@ -37,7 +38,25 @@ public class OperationRecord {
 	// operations
 	private String jobId;
 	
+	private Date startTime;
+	private Date endTime;
 	
+	public Date getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(Date startTime) {
+		this.startTime = startTime;
+	}
+
+	public Date getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(Date endTime) {
+		this.endTime = endTime;
+	}
+
 	public OperationRecord(Operation operation) {
 		
 		// name

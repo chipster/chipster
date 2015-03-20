@@ -349,9 +349,20 @@ public class SessionLoaderImpl2 {
 					}
 				}
 			}
-			
+
+			// job id for continuation
 			operationRecord.setJobId(operationType.getJobId());
 
+			// start and end times
+			XMLGregorianCalendar startTimeXML = operationType.getStartTime();
+			if (startTimeXML != null) {
+				operationRecord.setStartTime(startTimeXML.toGregorianCalendar().getTime());
+			}
+			XMLGregorianCalendar endTimeXML = operationType.getStartTime();
+			if (startTimeXML != null) {
+				operationRecord.setEndTime(endTimeXML.toGregorianCalendar().getTime());
+			}
+			
 			// store the operation record
 			operationRecords.put(operationSessionId, operationRecord);
 			operationTypes.put(operationRecord, operationType);
