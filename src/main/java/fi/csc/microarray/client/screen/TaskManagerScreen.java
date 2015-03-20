@@ -130,12 +130,7 @@ public class TaskManagerScreen extends ScreenBase implements ActionListener, Lis
 				return status; 
 
 			} else if (col == Column.TIME){ 						
-				long t = tasks.get(row).getStartTime();
-				if (t == 0) {
-					return null;
-				}
-				
-				return (new Date(t));
+				return tasks.get(row).getStartTime();
 
 			} else if (col == Column.ACTIONS){
 				if (!tasks.get(row).getState().isFinished()) {
@@ -309,10 +304,11 @@ public class TaskManagerScreen extends ScreenBase implements ActionListener, Lis
 							jc.setToolTipText(status); 
 
 						} else if (col == Column.TIME){
-							if (task.getStartTime() > 0) {
-								long longTime = task.getExecutionTime();
-								String min = Strings.toString((int)(longTime/1000)/60, 2);
-								String sec = Strings.toString((int)(longTime/1000)%60, 2);
+							long execTime = task.getExecutionTime();
+							if (execTime > 0) {
+								String min = Strings.toString((int)(execTime/1000)/60, 2);
+								String sec = Strings.toString((int)(execTime/1000)%60, 2);
+								// TODO add better format for long jobs
 								jc.setToolTipText("Execution time: " + min + ":" + sec);
 							} else {
 								jc.setToolTipText("Execution time: not available");
@@ -374,7 +370,7 @@ public class TaskManagerScreen extends ScreenBase implements ActionListener, Lis
 				parametersLabel.setText("?");
 			}
 			statusLabel.setText(task.getState().toString());
-			timeLabel.setText((new Time(task.getStartTime())).toString());
+			timeLabel.setText((new Time(task.getStartTime().getTime())).toString());
 			infoLabel.setText(task.getStateDetail());
 			detailsTextArea.setText(task.getScreenOutput());
 

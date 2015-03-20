@@ -34,6 +34,8 @@
     		<xs:element name="categoryColor" type="xs:string" minOccurs="0" />
 			<xs:element name="module" type="xs:string" minOccurs="0"/>
 			<xs:element name="jobId" type="xs:string" minOccurs="0"/>
+			<xs:element name="startTime" type="xs:dateTime" minOccurs="0"/>
+			<xs:element name="endTime" type="xs:dateTime" minOccurs="0"/>
 		</xs:sequence>
 	</xs:complexType>
 

@@ -10,6 +10,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -274,7 +275,7 @@ public class TaskExecutor {
 			}
 
 			// end time(s)
-			pendingTask.setEndTime(System.currentTimeMillis());
+			pendingTask.setEndTime(new Date());
 			
 			// clear job id, because it would cause job to continue when the
 			// session is opened next time
@@ -315,7 +316,7 @@ public class TaskExecutor {
 	
 	public Task createContinuedTask(OperationRecord operationRecord, boolean local) {
 		// continued job: use existing id
-		Task task = new Task(operationRecord, operationRecord.getJobId(), local);
+		Task task = new Task(operationRecord, operationRecord.getJobId(), operationRecord.getStartTime(), operationRecord.getEndTime(),local);
 		return task;
 	}
 	
@@ -361,7 +362,7 @@ public class TaskExecutor {
 		}
 
 		// set task as running (task becomes visible in the task list)
-		task.setStartTime(System.currentTimeMillis());
+		task.setStartTime(new Date());
 		addToRunningTasks(task);
 
 		// send job message (start task) in a background thread
@@ -453,7 +454,6 @@ public class TaskExecutor {
 		}
 
 		// set task as running (task becomes visible in the task list)
-		task.setStartTime(task.getStartTime());
 		addToRunningTasks(task);
 
 		// send job message (start task) in a background thread

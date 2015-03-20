@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -19,6 +20,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.log4j.Logger;
 import org.xml.sax.SAXException;
@@ -499,13 +501,7 @@ public class SessionSaver {
 
 		// creation time
 		if (bean.getDate() != null) {
-			GregorianCalendar c = new GregorianCalendar();
-			c.setTime(bean.getDate());
-			try {
-				dataType.setCreationTime(DatatypeFactory.newInstance().newXMLGregorianCalendar(c));
-			} catch (DatatypeConfigurationException e) {
-				logger.warn("could not save data bean creation time", e);
-			}
+			dataType.setCreationTime(dateToXMLGregorian(bean.getDate()));
 		}
 		
 		// write all URL's
@@ -639,6 +635,14 @@ public class SessionSaver {
 			String entryName = getNewSourceCodeEntryName(operationRecord.getNameID().getID());
 			operationType.setSourceCodeFile(entryName);
 		}
+
+		// start and end times
+		if (operationRecord.getStartTime() != null) {
+			operationType.setStartTime(dateToXMLGregorian(operationRecord.getStartTime()));
+		}
+		if (operationRecord.getEndTime() != null) {
+			operationType.setEndTime(dateToXMLGregorian(operationRecord.getEndTime()));
+		}
 		
 		sessionType.getOperation().add(operationType);
 		operationRecordTypeMap.put(operationId, operationType);
@@ -764,6 +768,18 @@ public class SessionSaver {
 	public void setSessionNotes(String sessionNotes) {
 		this.sessionNotes = sessionNotes;
 	}
+
+	private XMLGregorianCalendar dateToXMLGregorian(Date date) {
+		GregorianCalendar c = new GregorianCalendar();
+		c.setTime(date);
+		try {
+			return DatatypeFactory.newInstance().newXMLGregorianCalendar(c);
+		} catch (DatatypeConfigurationException e) {
+			logger.warn("could not convert Date to XMLGregorianCalendar when saving", e);
+			return null;
+		}
+	}
+	
 	
 //    public static void main(String args[])
 //    {                
