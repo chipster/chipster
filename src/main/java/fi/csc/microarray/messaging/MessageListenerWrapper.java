@@ -28,8 +28,9 @@ public class MessageListenerWrapper implements MessageListener {
 
 	public void onMessage(Message msg) {
 		
+		String msgClass = "";
 		try {
-			String msgClass = msg.getStringProperty(ChipsterMessage.KEY_CLASS);
+			msgClass = msg.getStringProperty(ChipsterMessage.KEY_CLASS);
 			logger.debug("message received, class is " + msgClass);
 			MapMessage mapMessage = (MapMessage)msg;
 			ChipsterMessage chipsterMessage = (ChipsterMessage)Class.forName(msgClass).newInstance();
@@ -38,6 +39,8 @@ public class MessageListenerWrapper implements MessageListener {
 			
 		} catch (Exception e) {
 			logger.error("Exception when handling a message.", e);
+			logger.error("message class was: " + msgClass);
+
 		} 
 	}
 

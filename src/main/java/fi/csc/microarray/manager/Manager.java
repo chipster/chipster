@@ -345,7 +345,9 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 	            parameters.put("status", jobLogMessage.getState().toString()); 
 	            parameters.put("starttime", jobLogMessage.getStartTime()); 
 	            parameters.put("endtime", jobLogMessage.getEndTime());
-	            parameters.put("wallclockTime", (jobLogMessage.getEndTime().getTime() - jobLogMessage.getStartTime().getTime()) / 1000);
+	            if (jobLogMessage.getEndTime() != null && jobLogMessage.getStartTime() != null) {
+	            	parameters.put("wallclockTime", (jobLogMessage.getEndTime().getTime() - jobLogMessage.getStartTime().getTime()) / 1000);
+	            }
 	            parameters.put("errorMessage", jobLogMessage.getErrorMessage());
 	            parameters.put("outputText", jobLogMessage.getOutputText()); 
 	            parameters.put("username", jobLogMessage.getUsername());
@@ -358,7 +360,7 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 		} else if (chipsterMessage instanceof FeedbackMessage) {
 		    // user gives feedback after seeing an error message
 		    FeedbackMessage feedback = (FeedbackMessage) chipsterMessage;
-		    logger.info("Feedback received: " + feedback.getDetails());
+		    logger.info("got feedback from: " + feedback.getUsername());
 		    
 		    // formulate an email
 		    String replyEmail = !feedback.getEmail().equals("") ?

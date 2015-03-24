@@ -380,7 +380,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	public void sendJobLogMessage(AnalysisJob job) {
 		JobLogMessage jobLogMessage;		
 		
-		jobLogMessage = jobToMesage(job);
+		jobLogMessage = jobToMessage(job);
 		
 		try {
 			managerTopic.sendMessage(jobLogMessage);
@@ -390,7 +390,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	}
 	
 	
-	private JobLogMessage jobToMesage(AnalysisJob job) {
+	private JobLogMessage jobToMessage(AnalysisJob job) {
 		
 		String hostname = getHost();
 		
@@ -718,7 +718,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 					synchronized (jobsLock) {
 									
 						for (AnalysisJob job : getAllJobs()) {
-							JobLogMessage reply = jobToMesage(job);
+							JobLogMessage reply = jobToMessage(job);
 							endpoint.replyToMessage(requestMessage, reply);
 						}						
 					}
