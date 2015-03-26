@@ -7,6 +7,7 @@
 # PARAMETER chiptype: "Chip type" TYPE [empty: empty, Human-6v1: Human-6v1, HumanRef-8v1: HumanRef-8v1, Human-6v2: Human-6v2, HumanRef-8v2: HumanRef-8v2, Human-6v3: Human-6v3, HumanRef-8v3: HumanRef-8v3, Human-HT12: Human-HT12, Human-HT12v4: Human-HT12v4, Mouse-6v1.0a: Mouse-6v1.0a, MouseRef-8v1.0a: MouseRef-8v1.0a, Mouse-6v1.1: Mouse-6v1.1, MouseRef-8v1.1: MouseRef-8v1.1, Mouse-6v2: Mouse-6v2, MouseRef-8v2: MouseRef-8v2, RatRef-12: RatRef-12] DEFAULT empty ()
 # PARAMETER id.type: "Identifier type" TYPE [TargetID: TargetID, ProbeID: ProbeID] DEFAULT ProbeID (Which identifiers to use)
 # PARAMETER OPTIONAL produce.flags: "Produce flags" TYPE [yes: yes, no: no] DEFAULT no (Automatic recording of Detection-value as flags)
+# PARAMETER OPTIONAL annotations: "Include original annotations" TYPE [yes: yes, no: no] DEFAULT no (Include the original probe annotations. Note that these might be very outdated.)
 
 # Illumina data preprocessing and normalization for separate files
 # JTT 17.10.2007
@@ -14,6 +15,7 @@
 # MK 20.06.2013 Stops if trying to produce flags from data that does not support this feature
 # MK 26.05.2013 fixed bug in illumina detection p-value thresholds
 # MK 27.05.2013 Illumina detection p-value cells marked as Ms are converted to 0.0 -values
+# ML 17.03.2015 Added an option to add the original annotations to result file.
 
 # Loads the libraries
 library(limma)
@@ -24,7 +26,12 @@ normba<-normalize.chips
 # Reading data
 columns<-list(R="sample", Rb="sample", G="sample", Gb="sample")
 annotation<-c("identifier")
-columns.other<-c("flag")
+columns.other<-c("flag", "annotation")	
+
+# tarvitaanko tätä...?
+#if(annotations=="yes") {
+#	columns.other<-c("flag", "annotation")	
+#}
 
 files<-dir()
 files<-files[files!="phenodata.tsv"]
@@ -36,6 +43,15 @@ if(normba!="vsn") {
 	dat2 <- log2(dat2)
 } else {
 	dat2 <- normalizeVSN(dat$R)
+}
+
+# Get the annotations. If there are flags (type=double), annotations (type=character) are after those.
+if(annotations=="yes") {
+	if(typeof(dat$other[[1]][,1])=="character") {
+		orig_annotations <- dat$other[[1]][,1]
+	} else if (typeof(dat$other[[1]][,1])=="double") {
+		orig_annotations <- dat$other[[2]][,1]
+	}
 }
 
 # Rounding expression data to two digits
@@ -163,6 +179,7 @@ lib<-paste(chiptype, ".db", sep="")
 # Write out a phenodata
 write.table(data.frame(sample=sample.names, chiptype=lib, group=group), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
 
+# Write out expression data
 if(chiptype!="Illumina") {
    # Including gene names to data
    library(lib, character.only=T)
@@ -172,21 +189,33 @@ if(chiptype!="Illumina") {
    genename<-gsub("#", "", genename)
    symbol <- gsub("'", "", symbol)
    genename <- gsub("'", "", genename)
-   # Write out expression data
 		
-   if(produce.flags=="yes") {
+	if(produce.flags=="yes" && annotations=="no") {
 	   if(nrow(flags) == nrow(dat2)) {
            write.table(data.frame(symbol, description=genename, dat2, flags), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
 	   } else {
 		   write.table(data.frame(symbol, description=genename, dat2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
 	   }
-  } else {
+   } else if(produce.flags=="yes" && annotations=="yes") {	   
+		if(nrow(flags) == nrow(dat2)) {
+			write.table(data.frame(symbol, description=genename, orig_annotations, dat2, flags), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
+		} else {
+			write.table(data.frame(symbol, description=genename, orig_annotations, dat2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
+		}
+	} else if(produce.flags=="no" && annotations=="yes") {	   
+			write.table(data.frame(symbol, description=genename, orig_annotations, dat2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
+  	} else {
       write.table(data.frame(symbol, description=genename, dat2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
-   }
+  	}
+	
 } else {
-   if(produce.flags=="yes") {
-      write.table(data.frame(dat2, flags), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
-   } else {
+   if(produce.flags=="yes" && annotations=="no") {
+      write.table(data.frame( dat2, flags), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
+  } else if(produce.flags=="yes" && annotations=="yes") {  
+	  write.table(data.frame(orig_annotations, dat2, flags), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
+  } else if(produce.flags=="no" && annotations=="yes") {  
+	  write.table(data.frame(orig_annotations, dat2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T) 
+  } else {
       write.table(data.frame(dat2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
    }
 }
