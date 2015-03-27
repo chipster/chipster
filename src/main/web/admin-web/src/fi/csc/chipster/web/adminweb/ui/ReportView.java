@@ -50,6 +50,8 @@ public class ReportView extends AsynchronousView implements ClickListener {
 		this.addComponent(super.getProggressIndicator());
 
 		tabSheet = new TabSheet();
+		
+		dataSource = new ReportDataSource(app.getEndpoint());
 				
 		tabSheet.setSizeFull();
 		tabSheet.addSelectedTabChangeListener(new SelectedTabChangeListener() {
@@ -77,10 +79,6 @@ public class ReportView extends AsynchronousView implements ClickListener {
 	}
 	
 	public void updateData() {
-
-		if (dataSource == null) {
-			dataSource = new ReportDataSource();
-		}
 
 		if (tabSheet.getSelectedTab() == filebrokerLayout) {
 			updateFileBrokerData();
@@ -183,5 +181,9 @@ public class ReportView extends AsynchronousView implements ClickListener {
 	
 	public VerticalLayout getJobmanagerLayout() {
 		return jobmanagerLayout;
+	}
+
+	public ChipsterAdminUI getApp() {
+		return app;
 	}
 }
