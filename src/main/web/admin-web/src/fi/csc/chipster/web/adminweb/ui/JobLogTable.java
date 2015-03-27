@@ -42,9 +42,11 @@ public class JobLogTable extends Table {
 
 				Integer wallClockTime = (Integer) prop.getValue();
 
-				Label label = new Label(StringUtils.formatMinutes(wallClockTime));
-				
-				return label;
+				if (wallClockTime != null) {
+					return new Label(StringUtils.formatMinutes(wallClockTime));
+				} else {
+					return new Label();
+				}
 			}
 			return null;
 		}
