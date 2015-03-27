@@ -1,5 +1,4 @@
 package fi.csc.chipster.web.adminweb.data;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -8,22 +7,15 @@ import java.util.concurrent.locks.Lock;
 import javax.jms.JMSException;
 
 import com.vaadin.data.util.BeanItemContainer;
-import com.vaadin.ui.Notification;
-import com.vaadin.ui.Notification.Type;
 
 import fi.csc.chipster.web.adminweb.ui.ServicesView;
-import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
-import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.messaging.JMSMessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
+import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.admin.AdminAPI;
-import fi.csc.microarray.messaging.admin.ManagerConfiguration;
 import fi.csc.microarray.messaging.admin.AdminAPI.AdminAPILIstener;
 import fi.csc.microarray.messaging.admin.AdminAPI.NodeStatus;
 import fi.csc.microarray.messaging.admin.AdminAPI.NodeStatus.Status;
-import fi.csc.microarray.messaging.NodeBase;
-import fi.csc.microarray.messaging.Topics;
 
 @SuppressWarnings("serial")
 public class ServiceContainer extends BeanItemContainer<ServiceEntry> implements AdminAPILIstener, Serializable {
@@ -52,37 +44,16 @@ public class ServiceContainer extends BeanItemContainer<ServiceEntry> implements
 		
 		try {
 
-			NodeBase nodeSupport = new NodeBase() {
-				public String getName() {
-					return "chipster-admin-web";
-				}
-			};
-
-			ManagerConfiguration.init();
-			MessagingEndpoint endpoint = new JMSMessagingEndpoint(nodeSupport);
+			MessagingEndpoint endpoint = view.getApp().getEndpoint();
 			AdminAPI api = new AdminAPI(
 					endpoint.createTopic(Topics.Name.ADMIN_TOPIC, AccessMode.READ), this);
 			
 			//Wait for responses									
-			api.areAllServicesUp(true);					
+			api.areAllServicesUp(true);														
 
-			endpoint.close();										
-
-		} catch (MicroarrayException e) {
-			if (e.getCause() != null) {
-				//The cause has better message, at least when the broker is not available 
-				Throwable cause = e.getCause();
-				Notification notification = new Notification(cause.getClass().getSimpleName(), cause.getMessage(), Type.ERROR_MESSAGE); 
-				notification.show(view.getApp().getPage());
-			}
-			e.printStackTrace();
 		} catch (JMSException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (IllegalConfigurationException e) {
 			e.printStackTrace();
 		} 	
 	}

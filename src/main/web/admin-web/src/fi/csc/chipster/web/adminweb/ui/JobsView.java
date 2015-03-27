@@ -44,7 +44,7 @@ public class JobsView extends AsynchronousView implements ClickListener, ValueCh
 		
 		this.app = app;
 		try {
-			jobmanagerAdminAPI = new JobmanagerAdminAPI();
+			jobmanagerAdminAPI = new JobmanagerAdminAPI(app.getEndpoint());
 			dataSource = new JobsContainer(this, jobmanagerAdminAPI);
 
 			table = new JobsTable(this);

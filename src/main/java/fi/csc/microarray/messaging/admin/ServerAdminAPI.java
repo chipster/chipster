@@ -17,7 +17,6 @@ import org.apache.log4j.Logger;
 
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.messaging.JMSMessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
@@ -33,6 +32,7 @@ import fi.csc.microarray.messaging.message.SuccessMessage;
 
 public class ServerAdminAPI {
 	
+	@SuppressWarnings("unused")
 	private static final Logger logger = Logger.getLogger(ServerAdminAPI.class);
 	
 	public static interface StatusReportListener {
@@ -58,12 +58,10 @@ public class ServerAdminAPI {
 
 	private MessagingEndpoint messagingEndpoint;
 
-	public ServerAdminAPI(Topics.Name topic, String nodeName) throws IOException, IllegalConfigurationException, MicroarrayException, JMSException {
+	public ServerAdminAPI(Topics.Name topic, MessagingEndpoint endpoint) throws IOException, IllegalConfigurationException, MicroarrayException, JMSException {
 
-		ManagerConfiguration.init();
-		nodeSupport = new AdminNodeBase(nodeName);
-		messagingEndpoint = new JMSMessagingEndpoint(nodeSupport);
-		serverAdminTopic = messagingEndpoint.createTopic(topic, AccessMode.WRITE);
+		this.messagingEndpoint = endpoint;
+		this.serverAdminTopic = messagingEndpoint.createTopic(topic, AccessMode.WRITE);
 	}
 	
 	/**
@@ -205,23 +203,6 @@ public class ServerAdminAPI {
 	
 	public MessagingEndpoint getEndpoint() {
 		return this.messagingEndpoint;
-	}
-	
-	public void clean() {
-		if (serverAdminTopic != null) {
-			try {
-				serverAdminTopic.delete();
-			} catch (JMSException e) {
-				logger.error(e);
-			}
-		}
-		if (messagingEndpoint != null) {
-			try {
-				messagingEndpoint.close();
-			} catch (JMSException e) {
-				logger.error(e);
-			}
-		}
 	}
 	
 	public void checkSuccessMessage(SuccessMessage reply, String context) throws MicroarrayException {

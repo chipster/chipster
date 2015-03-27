@@ -99,7 +99,7 @@ public class StorageView extends AsynchronousView implements ClickListener, Valu
 		
 		try {
 			
-			adminEndpoint = new StorageAdminAPI();
+			adminEndpoint = new StorageAdminAPI(app.getEndpoint());
 			entryDataSource = new StorageEntryContainer(adminEndpoint);
 			aggregateDataSource = new StorageAggregateContainer(adminEndpoint);
 			
@@ -300,11 +300,5 @@ public class StorageView extends AsynchronousView implements ClickListener, Valu
 
 	public AbstractClientConnector getEntryTable() {
 		return entryTable;
-	}
-
-	public void clean() {
-		if (adminEndpoint != null) {
-			adminEndpoint.clean();
-		}
 	}
 }

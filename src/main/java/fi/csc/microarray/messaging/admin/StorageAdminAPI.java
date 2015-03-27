@@ -13,6 +13,7 @@ import org.joda.time.format.ISODateTimeFormat;
 
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.SuccessMessageListener;
 import fi.csc.microarray.messaging.TempTopicMessagingListenerBase;
@@ -39,8 +40,8 @@ public class StorageAdminAPI extends ServerAdminAPI {
 		public void process(List<StorageEntry> entries);
 	}
 	
-	public StorageAdminAPI() throws IOException, IllegalConfigurationException, MicroarrayException, JMSException {
-		super(Topics.Name.FILEBROKER_ADMIN_TOPIC, "filebroker-admin");
+	public StorageAdminAPI(MessagingEndpoint endpoint) throws IOException, IllegalConfigurationException, MicroarrayException, JMSException {
+		super(Topics.Name.FILEBROKER_ADMIN_TOPIC, endpoint);
 	}
 	
 	public Long[] getStorageUsage() throws JMSException, InterruptedException {

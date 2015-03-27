@@ -22,6 +22,7 @@ import com.vaadin.ui.VerticalLayout;
 import fi.csc.chipster.web.adminweb.ui.ReportView;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.admin.CompAdminAPI;
 import fi.csc.microarray.messaging.admin.JobmanagerAdminAPI;
 import fi.csc.microarray.messaging.admin.ServerAdminAPI;
@@ -36,7 +37,13 @@ public class ReportDataSource {
 	private StorageAdminAPI storageAdminAPI;
 	private CompAdminAPI compAdminAPI;
 	private JobmanagerAdminAPI jobmanagerAdminAPI;
+
+	private MessagingEndpoint endpoint;
 	
+	public ReportDataSource(MessagingEndpoint endpoint) {
+		this.endpoint = endpoint;
+	}
+
 	public void updateFilebrokerReport(final ReportView view) {
 				
 		String report;
@@ -70,14 +77,14 @@ public class ReportDataSource {
 	
 	private ServerAdminAPI getStorageAdminAPI() throws IOException, IllegalConfigurationException, MicroarrayException, JMSException {
 		if (storageAdminAPI == null) {
-			storageAdminAPI = new StorageAdminAPI();
+			storageAdminAPI = new StorageAdminAPI(endpoint);
 		}
 		return storageAdminAPI;
 	}
 	
 	private JobmanagerAdminAPI getJobmanagerAdminAPI() throws IOException, IllegalConfigurationException, MicroarrayException, JMSException {
 		if (jobmanagerAdminAPI == null) {
-			jobmanagerAdminAPI = new JobmanagerAdminAPI();
+			jobmanagerAdminAPI = new JobmanagerAdminAPI(endpoint);
 		}
 		return jobmanagerAdminAPI;
 	}
@@ -135,7 +142,7 @@ public class ReportDataSource {
 	
 	private CompAdminAPI getCompAdminAPI() throws IOException, IllegalConfigurationException, MicroarrayException, JMSException {
 		if (compAdminAPI == null) {
-			compAdminAPI = new CompAdminAPI();			
+			compAdminAPI = new CompAdminAPI(endpoint);			
 		}
 		return compAdminAPI;
 	}

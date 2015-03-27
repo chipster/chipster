@@ -1,11 +1,19 @@
 package fi.csc.chipster.web.adminweb;
 
+import java.io.IOException;
+
+import javax.jms.JMSException;
+
+import org.apache.log4j.Logger;
+
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.ClientConnector.DetachListener;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
@@ -15,10 +23,18 @@ import fi.csc.chipster.web.adminweb.ui.ReportView;
 import fi.csc.chipster.web.adminweb.ui.ServicesView;
 import fi.csc.chipster.web.adminweb.ui.StatView;
 import fi.csc.chipster.web.adminweb.ui.StorageView;
+import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
+import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.messaging.JMSMessagingEndpoint;
+import fi.csc.microarray.messaging.MessagingEndpoint;
+import fi.csc.microarray.messaging.NodeBase;
+import fi.csc.microarray.messaging.admin.ManagerConfiguration;
 
 @SuppressWarnings("serial")
 @Theme("admin")
 public class ChipsterAdminUI extends UI implements DetachListener {
+	
+	private static final Logger logger = Logger.getLogger(ChipsterAdminUI.class);
 
 	private HorizontalLayout horizontalSplit;
 
@@ -34,6 +50,8 @@ public class ChipsterAdminUI extends UI implements DetachListener {
 	private VerticalLayout emptyView;
 
 	private HorizontalLayout toolbarLayout;
+
+	private JMSMessagingEndpoint endpoint;
 	
 	private VerticalLayout getServicesView() {
 		if (serviceView == null) {
@@ -182,6 +200,31 @@ public class ChipsterAdminUI extends UI implements DetachListener {
 
 	@Override
 	protected void init(VaadinRequest request) {
+		try {
+
+			NodeBase nodeSupport = new NodeBase() {
+				public String getName() {
+					return "chipster-admin-web";
+				}
+			};
+
+			ManagerConfiguration.init();
+			logger.info("create a message endpoint for admin-web");
+			endpoint = new JMSMessagingEndpoint(nodeSupport);					
+
+		} catch (MicroarrayException e) {
+			if (e.getCause() != null) {
+				//The cause has better message, at least when the broker is not available 
+				Throwable cause = e.getCause();
+				Notification notification = new Notification(cause.getClass().getSimpleName(), cause.getMessage(), Type.ERROR_MESSAGE); 
+				notification.show(this.getPage());
+			}
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (IllegalConfigurationException e) {
+			e.printStackTrace();
+		}
 		
 		buildMainLayout();
 		
@@ -190,8 +233,20 @@ public class ChipsterAdminUI extends UI implements DetachListener {
 
 	@Override
 	public void detach(DetachEvent event) {
-		if (storageView != null) {
-			storageView.clean();
+		// this is executed by default after 15 minutes after the client side
+		// has stopped sending heartbeats
+		logger.info("clean inactive admin-web session");
+		if (endpoint != null) {
+			try {
+				// delete topics and close the connection
+				endpoint.close();
+			} catch (JMSException e) {
+				logger.error("closing of the messaging endpoint failed", e);
+			}
 		}
+	}
+
+	public MessagingEndpoint getEndpoint() {
+		return this.endpoint;
 	}
 }
