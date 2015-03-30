@@ -7,7 +7,7 @@ import java.util.GregorianCalendar;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 
-import com.vaadin.data.hbnutil.ContainerFilter;
+import com.vaadin.data.hbnutil.filter.ContainerFilter;
 
 public class DateContainerFilter extends ContainerFilter {
 

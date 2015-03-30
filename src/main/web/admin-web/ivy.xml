@@ -1,10 +1,9 @@
 <?xml version="1.0"?>
 <!DOCTYPE ivy-module [
-	<!ENTITY vaadin.version "7.0.0">
+	<!ENTITY vaadin.version "7.4.2">
 	<!ENTITY guava.version "13.0.1">
 	<!ENTITY hibernate.version "4.1.7.Final">
-	<!ENTITY slf4j.version "1.6.6">
-	<!ENTITY log4j.version "1.2.17">
+	<!ENTITY log4j.version "2.2">
 	<!ENTITY hsqldb.version "2.2.8">
 ]>
 <ivy-module version="2.0"
@@ -47,8 +46,8 @@
 		<dependency org="org.hibernate" name="hibernate-c3p0" rev="&hibernate.version;"/>
 		
 		<!-- Apache Logging -->
-		<dependency org="org.slf4j" name="slf4j-log4j12" rev="&slf4j.version;"/>
-		<dependency org="log4j" name="log4j" rev="&log4j.version;"/>
+		<dependency org="org.apache.logging.log4j" name="log4j-api" rev="&log4j.version;" />
+		<dependency org="org.apache.logging.log4j" name="log4j-core" rev="&log4j.version;" />		
 		
 		<!-- HyperSQL Database -->
 		<dependency org="org.hsqldb" name="hsqldb" rev="&hsqldb.version;"/>

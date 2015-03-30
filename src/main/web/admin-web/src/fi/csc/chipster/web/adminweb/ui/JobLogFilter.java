@@ -3,9 +3,9 @@ package fi.csc.chipster.web.adminweb.ui;
 import java.util.Arrays;
 import java.util.Collection;
 
-import com.vaadin.data.hbnutil.ContainerFilter;
-import com.vaadin.data.hbnutil.IdContainerFilter;
-import com.vaadin.data.hbnutil.StringContainerFilter;
+import com.vaadin.data.hbnutil.filter.ContainerFilter;
+import com.vaadin.data.hbnutil.filter.IdContainerFilter;
+import com.vaadin.data.hbnutil.filter.StringContainerFilter;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.ShortcutListener;
 import com.vaadin.server.ThemeResource;
@@ -32,7 +32,7 @@ public class JobLogFilter extends HorizontalLayout {
 	private TextField searchStringField;
 	private NativeSelect columnToSearch;
 
-	private ContainerFilter containerFilter;
+	private com.vaadin.data.hbnutil.filter.ContainerFilter containerFilter;
 
 
 	public JobLogFilter(final JobLogView view) {
