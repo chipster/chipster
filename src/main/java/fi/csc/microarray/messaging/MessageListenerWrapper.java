@@ -45,29 +45,29 @@ public class MessageListenerWrapper implements MessageListener {
 		} catch (Exception e) {
 			logger.error("Exception when handling a message.", e);
 			logger.error("message class was: " + msgClass);
-//			if (mapMessage != null) {
-//				try {
-//					logger.error("message properties:");
-//					while (mapMessage.getPropertyNames().hasMoreElements()) {
-//						String name = (String) mapMessage.getPropertyNames().nextElement();
-//						logger.error(name + " : " + mapMessage.getStringProperty(name));
-//					}
-//
-//					logger.error("message map objects:");
-//					while (mapMessage.getMapNames().hasMoreElements()) {
-//						String name = (String) mapMessage.getMapNames().nextElement();
-//						logger.error(name + " : " + mapMessage.getString(name));
-//					}
-//
-//					logger.error("message JMSType: " + mapMessage.getJMSType());
-//					logger.error("message JMSMessageID: " + mapMessage.getJMSMessageID());
-//					logger.error("message JMSDestination: " + mapMessage.getJMSDestination());
-//				
-//				
-//				} catch (JMSException e1) {
-//					logger.error(Exceptions.getStackTrace(e1));
-//				}
-//			}
+			if (mapMessage != null) {
+				try {
+					logger.error("message first property:");
+					if (mapMessage.getPropertyNames().hasMoreElements()) {
+						String name = (String) mapMessage.getPropertyNames().nextElement();
+						logger.error(name + " : " + mapMessage.getStringProperty(name));
+					}
+
+					logger.error("message first map object:");
+					if (mapMessage.getMapNames().hasMoreElements()) {
+						String name = (String) mapMessage.getMapNames().nextElement();
+						logger.error(name + " : " + mapMessage.getString(name));
+					}
+
+					logger.error("message JMSType: " + mapMessage.getJMSType());
+					logger.error("message JMSMessageID: " + mapMessage.getJMSMessageID());
+					logger.error("message JMSDestination: " + mapMessage.getJMSDestination());
+				
+				
+				} catch (JMSException e1) {
+					logger.error(Exceptions.getStackTrace(e1));
+				}
+			}
 		} 
 	}
 
