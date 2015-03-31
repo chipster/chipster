@@ -30,7 +30,7 @@ public class FileBrokerClientTest extends MessagingTestBase {
 	}
 
 	@Before
-	public void tearDown() throws Exception {
+	public void tearDown() {
 		super.tearDown();
 	}
 	

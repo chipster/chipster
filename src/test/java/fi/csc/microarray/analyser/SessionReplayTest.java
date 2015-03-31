@@ -606,6 +606,7 @@ public class SessionReplayTest extends MessagingTestBase {
 			test.setUp();
 			// run tests
 			boolean testOK = test.testSessions(sessionsDirName);
+			test.tearDown();
 			if (testOK) {
 				System.out.println("TOOL TESTS OK");
 				updateFlagFileAndExit(true);
@@ -616,13 +617,10 @@ public class SessionReplayTest extends MessagingTestBase {
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println("TOOL TEST ERROR");
-			try {
-				test.tearDown();
-			} catch (Exception e2) {
-				// ignore
-			}
+			test.tearDown();
 			updateFlagFileAndExit(false);
 		} finally {
+			// never get here?
 			test.tearDown();
 		}
 	}
