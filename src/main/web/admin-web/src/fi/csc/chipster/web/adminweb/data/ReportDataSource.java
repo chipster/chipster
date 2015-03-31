@@ -53,17 +53,14 @@ public class ReportDataSource {
 
 			if (report != null) {
 				Label label = view.getFilebrokerLabel();
-				//Following is null if data loading in this thread
-				//was faster than UI initialisation in another thread
-				if (label.getUI() != null) {
-					Lock labelLock = label.getUI().getSession().getLockInstance();
-					labelLock.lock();
-					try {
-						label.setValue(report);
 
-					} finally {
-						labelLock.unlock();
-					}
+				Lock labelLock = label.getUI().getSession().getLockInstance();
+				labelLock.lock();
+				try {
+					label.setValue(report);
+
+				} finally {
+					labelLock.unlock();
 				}		
 			} else {
 				Notification.show("Timeout", "Chipster filebroker server doesn't respond", Type.ERROR_MESSAGE);
@@ -109,25 +106,22 @@ public class ReportDataSource {
 			if (report != null) {
 				
 				VerticalLayout layout = view.getJobmanagerLayout();
-				//Following is null if data loading in this thread
-				//was faster than UI initialisation in another thread
-				if (layout.getUI() != null) {
-					Lock labelLock = layout.getUI().getSession().getLockInstance();
-					labelLock.lock();
-					try {
-						layout.removeAllComponents();
 
-						Button purgeButton = view.createReportButton("Purge old jobs");
+				Lock labelLock = layout.getUI().getSession().getLockInstance();
+				labelLock.lock();
+				try {
+					layout.removeAllComponents();
 
-						purgeButton.addClickListener(new PurgeClickListener(view, ReportDataSource.this));
+					Button purgeButton = view.createReportButton("Purge old jobs");
 
-						Label reportLabel = view.createReportLabel(report);
-						layout.addComponent(reportLabel);
-						layout.addComponent(purgeButton);
+					purgeButton.addClickListener(new PurgeClickListener(view, ReportDataSource.this));
 
-					} finally {
-						labelLock.unlock();
-					}
+					Label reportLabel = view.createReportLabel(report);
+					layout.addComponent(reportLabel);
+					layout.addComponent(purgeButton);
+
+				} finally {
+					labelLock.unlock();
 				}
 				
 			} else {
@@ -160,45 +154,42 @@ public class ReportDataSource {
 		public void statusUpdated(List<ServerStatusMessage> statuses) {
 
 			VerticalLayout layout = view.getCompLayout();
-			//Following is null if data loading in this thread
-			//was faster than UI initialisation in another thread
-			if (layout.getUI() != null) {
-				Lock labelLock = layout.getUI().getSession().getLockInstance();
-				labelLock.lock();
-				try {
-					layout.removeAllComponents();
-					
-					Collections.sort(statuses, new Comparator<ServerStatusMessage>() {
-						@Override
-						public int compare(ServerStatusMessage m1, ServerStatusMessage m2) {
-							int hostComparison = m1.getHost().compareTo(m2.getHost());
-							int idComparison = m1.getHostId().compareTo(m2.getHostId());
-							if (hostComparison != 0) {
-								return hostComparison;
-							}
-							return idComparison;
-						}						
-					});
-					
-					for (ServerStatusMessage serverStatus : statuses) {
-					
-						Label title = view.createReportLabel("Comp " + serverStatus.getHost() + " (" + serverStatus.getHostId() + ")" + "    ");
-						Button shutdownButton = view.createReportButton("Stop gracefully");
-						
-						shutdownButton.addClickListener(new StopClickListener(view, reportDataSource, serverStatus.getHostId()));
-						HorizontalLayout titleRow = new HorizontalLayout();						
-						titleRow.addComponent(title);
-						titleRow.addComponent(shutdownButton);
-						Label reportLabel = view.createReportLabel(
-								serverStatus.toString());
-						layout.addComponent(titleRow);
-						layout.addComponent(reportLabel);
-					}
 
-				} finally {
-					labelLock.unlock();
+			Lock labelLock = layout.getUI().getSession().getLockInstance();
+			labelLock.lock();
+			try {
+				layout.removeAllComponents();
+
+				Collections.sort(statuses, new Comparator<ServerStatusMessage>() {
+					@Override
+					public int compare(ServerStatusMessage m1, ServerStatusMessage m2) {
+						int hostComparison = m1.getHost().compareTo(m2.getHost());
+						int idComparison = m1.getHostId().compareTo(m2.getHostId());
+						if (hostComparison != 0) {
+							return hostComparison;
+						}
+						return idComparison;
+					}						
+				});
+
+				for (ServerStatusMessage serverStatus : statuses) {
+
+					Label title = view.createReportLabel("Comp " + serverStatus.getHost() + " (" + serverStatus.getHostId() + ")" + "    ");
+					Button shutdownButton = view.createReportButton("Stop gracefully");
+
+					shutdownButton.addClickListener(new StopClickListener(view, reportDataSource, serverStatus.getHostId()));
+					HorizontalLayout titleRow = new HorizontalLayout();						
+					titleRow.addComponent(title);
+					titleRow.addComponent(shutdownButton);
+					Label reportLabel = view.createReportLabel(
+							serverStatus.toString());
+					layout.addComponent(titleRow);
+					layout.addComponent(reportLabel);
 				}
-			}							
+
+			} finally {
+				labelLock.unlock();
+			}
 		}
 	}
 	

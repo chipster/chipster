@@ -52,56 +52,6 @@ public class ChipsterAdminUI extends UI implements DetachListener {
 	private HorizontalLayout toolbarLayout;
 
 	private JMSMessagingEndpoint endpoint;
-	
-	private VerticalLayout getServicesView() {
-		if (serviceView == null) {
-			serviceView = new ServicesView(this);
-		}
-		serviceView.update();
-		return serviceView;
-	}
-	
-	private Component getStorageView() {
-		if (storageView == null) {
-
-			storageView = new StorageView(this);
-		}
-		storageView.update();
-		return storageView;
-	}
-
-	private JobLogView getJobLogView() {
-		if (jobLogView == null) {
-
-			jobLogView = new JobLogView(this);
-		}
-		return jobLogView;
-	}
-	
-	private JobsView getJobsView() {
-		if (jobsView == null) {
-
-			jobsView = new JobsView(this);
-		}
-		jobsView.update();
-		return jobsView;
-	}
-	
-	private StatView getStatView() {
-		if (statView == null) {
-			statView = new StatView(this);
-		}
-		statView.update();
-		return statView;
-	}
-	
-	private ReportView getReportView() {		
-		if (reportView == null) {
-			reportView = new ReportView(this);
-		}
-		reportView.updateData();
-		return reportView;
-	}
 
 	private void buildMainLayout() {
 
@@ -134,29 +84,52 @@ public class ChipsterAdminUI extends UI implements DetachListener {
 	}
 
 	protected void showServicesView() {
-		setMainComponent(getServicesView());
+		if (serviceView == null) {
+			serviceView = new ServicesView(this);
+		}
+		setMainComponent(serviceView);
+		serviceView.update();
 	}
 
 	public void showJobLogView() {
-		setMainComponent(getJobLogView());
+		if (jobLogView == null) {
+			jobLogView = new JobLogView(this);
+		}
+		setMainComponent(jobLogView);
 	}
 
 
 	public void showJobsView() {
-		setMainComponent(getJobsView());
+		if (jobsView == null) {
+			jobsView = new JobsView(this);
+		}
+		setMainComponent(jobsView);
+		jobsView.update();
 	}
 
 
 	public void showStorageView() {
-		setMainComponent(getStorageView());
+		if (storageView == null) {
+			storageView = new StorageView(this);
+		}
+		setMainComponent(storageView);
+		storageView.update();
 	}
 	
 	public void showStatView() {
-		setMainComponent(getStatView());
+		if (statView == null) {
+			statView = new StatView(this);
+		}
+		setMainComponent(statView);
+		statView.update();
 	}
 	
 	public void showReportView() {
-		setMainComponent(getReportView());
+		if (reportView == null) {
+			reportView = new ReportView(this);
+		}
+		setMainComponent(reportView);
+		reportView.updateData();
 	}
 
 	public void showEmtpyView() {

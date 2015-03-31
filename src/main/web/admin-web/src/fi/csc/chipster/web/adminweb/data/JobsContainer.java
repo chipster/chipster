@@ -62,20 +62,17 @@ public class JobsContainer extends BeanItemContainer<JobsEntry> implements Seria
 	@Override
 	public void statusUpdated(Collection<JobsEntry> jobs) {
 		
-		//Following is null if data loading was faster than UI initialisation in another thread
-		if (view.getEntryTable().getUI() != null) {
-			Lock tableLock = view.getEntryTable().getUI().getSession().getLockInstance();
-			tableLock.lock();
-			try {
-				removeAllItems();
+		Lock tableLock = view.getEntryTable().getUI().getSession().getLockInstance();
+		tableLock.lock();
+		try {
+			removeAllItems();
 
-				for (JobsEntry entry : jobs) {
-					addBean(entry);
-				}
-
-			} finally {
-				tableLock.unlock();
+			for (JobsEntry entry : jobs) {
+				addBean(entry);
 			}
+
+		} finally {
+			tableLock.unlock();
 		}
 	}
 }

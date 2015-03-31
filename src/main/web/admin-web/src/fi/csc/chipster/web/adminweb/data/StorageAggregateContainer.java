@@ -54,22 +54,19 @@ public class StorageAggregateContainer extends BeanItemContainer<StorageAggregat
 			entries = adminEndpoint.listStorageUsageOfUsers();		
 
 			if (entries != null) {
-				//Following is null if data loading in this thread
-				//was faster than UI initialisation in another thread
-				if (view.getEntryTable().getUI() != null) {
-					Lock tableLock = view.getEntryTable().getUI().getSession().getLockInstance();
-					tableLock.lock();
-					try {
-						removeAllItems();
 
-						for (StorageAggregate entry : entries) {
-							addBean(entry);
-						}
+				Lock tableLock = view.getEntryTable().getUI().getSession().getLockInstance();
+				tableLock.lock();
+				try {
+					removeAllItems();
 
-					} finally {
-						tableLock.unlock();
+					for (StorageAggregate entry : entries) {
+						addBean(entry);
 					}
-				}		
+
+				} finally {
+					tableLock.unlock();
+				}
 			} else {
 				Notification.show("Timeout", "Chipster filebroker server doesn't respond", Type.ERROR_MESSAGE);
 				logger.error("timeout while waiting storage usage of users");

@@ -3,7 +3,6 @@ package fi.csc.chipster.web.adminweb.data;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.context.internal.ThreadLocalSessionContext;
 
 import com.vaadin.data.hbnutil.HbnContainer;
 
@@ -44,9 +43,7 @@ public class JobLogContainer extends HbnContainer<JobLogEntry> {
 	
 	@Override
 	protected Criteria getBaseCriteria() {
-		//Fix for incompatibility or bug of hbncontainer and hibernate
-		Session session = HibernateUtil.getSessionFactory().openSession();
-		ThreadLocalSessionContext.bind(session);
+		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
 		
 		//Filter test accounts
 		Criteria criteria = super.getBaseCriteria();		

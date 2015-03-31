@@ -134,16 +134,15 @@ public class StatView extends AsynchronousView implements ClickListener {
 	}
 
 	protected void setData(List<Map<Object, Object>> stats, Table table, Object[] columnOrder) {
-		if (table.getUI() != null) {
-			Lock lock = table.getUI().getSession().getLockInstance();
-			lock.lock();
-			try {
-				mapListToTable(stats, table);
-				table.setVisibleColumns(columnOrder);
-			}
-			finally {
-				lock.unlock();
-			}
+
+		Lock lock = table.getUI().getSession().getLockInstance();
+		lock.lock();
+		try {
+			mapListToTable(stats, table);
+			table.setVisibleColumns(columnOrder);
+		}
+		finally {
+			lock.unlock();
 		}
 	}
 
