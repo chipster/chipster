@@ -25,6 +25,8 @@ public class ServicesView extends AsynchronousView implements ClickListener, Val
 	private ChipsterAdminUI app;
 
 	public ServicesView(ChipsterAdminUI app) {
+		
+		super(5);
 
 		this.app = app;
 

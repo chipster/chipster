@@ -6,9 +6,6 @@ import javax.jms.JMSException;
 
 import org.apache.log4j.Logger;
 
-import com.vaadin.data.Property;
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -23,7 +20,7 @@ import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.admin.JobmanagerAdminAPI;
 import fi.csc.microarray.messaging.admin.JobsEntry;
 
-public class JobsView extends AsynchronousView implements ClickListener, ValueChangeListener {
+public class JobsView extends AsynchronousView implements ClickListener {
 	
 	private static final Logger logger = Logger.getLogger(JobsView.class);
 	
@@ -103,16 +100,6 @@ public class JobsView extends AsynchronousView implements ClickListener, ValueCh
 				dataSource.update();				
 			}			
 		});				
-	}
-
-	public void valueChange(ValueChangeEvent event) {
-		Property<?> property = event.getProperty();
-		if (property == table) {
-			//			Item item = personList.getItem(personList.getValue());
-			//			if (item != personForm.getItemDataSource()) {
-			//				personForm.setItemDataSource(item);
-			//			}
-		}
 	}
 
 	public void cancel(JobsEntry job) {

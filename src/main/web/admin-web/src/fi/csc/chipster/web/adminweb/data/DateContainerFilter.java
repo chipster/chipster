@@ -1,5 +1,6 @@
 package fi.csc.chipster.web.adminweb.data;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -69,5 +70,11 @@ public class DateContainerFilter extends ContainerFilter {
 	@Override
 	public Criterion getFieldCriterion(String fullPropertyName) {
 		return Restrictions.between(fullPropertyName, searchDateStart, searchDateEnd);
+	}
+
+	public static String getToday() {
+		Date now = new Date();
+		String today = new SimpleDateFormat("yyyy-MM-dd").format(now);
+		return today;
 	}
 }

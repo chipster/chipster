@@ -75,18 +75,15 @@ public class ServiceContainer extends BeanItemContainer<ServiceEntry> implements
 
 				NodeStatus node = entry.getValue();
 
-				if (node.host != null) {
-					String hosts[] = node.host.split(", ");
-					for (String host : hosts) {
+				for (String host : node.getHosts()) {
 
-						ServiceEntry service = new ServiceEntry();
-						service.setName(node.name);
-						service.setHost(host);
-						service.setStatus(node.status);
-						service.setCount(node.count);
-
-						addBean(service);
-					}
+					ServiceEntry service = new ServiceEntry();
+					service.setName(node.name);
+					service.setHost(host);
+					service.setStatus(node.status);
+					service.setCount(node.getCount());
+					
+					addBean(service);
 				}
 			}
 

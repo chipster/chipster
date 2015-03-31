@@ -54,13 +54,6 @@ public class ReportView extends AsynchronousView implements ClickListener {
 		dataSource = new ReportDataSource(app.getEndpoint());
 				
 		tabSheet.setSizeFull();
-		tabSheet.addSelectedTabChangeListener(new SelectedTabChangeListener() {
-
-			@Override
-			public void selectedTabChange(SelectedTabChangeEvent e) {
-				updateData();
-			}
-		});
 		
         this.addComponent(tabSheet);        
         this.setExpandRatio(tabSheet, 1);
@@ -76,6 +69,14 @@ public class ReportView extends AsynchronousView implements ClickListener {
 		tabSheet.addTab(compLayout, "Comp");
 		jobmanagerLayout.addComponent(jobmanagerLabel);
 		tabSheet.addTab(jobmanagerLayout, "Jobmanager");
+		
+		tabSheet.addSelectedTabChangeListener(new SelectedTabChangeListener() {
+
+			@Override
+			public void selectedTabChange(SelectedTabChangeEvent e) {
+				updateData();
+			}
+		});
 	}
 	
 	public void updateData() {

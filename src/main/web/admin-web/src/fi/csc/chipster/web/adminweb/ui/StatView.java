@@ -59,12 +59,6 @@ public class StatView extends AsynchronousView implements ClickListener {
 
 		tabSheet = new TabSheet();
 		tabSheet.setSizeFull();
-		tabSheet.addSelectedTabChangeListener(new SelectedTabChangeListener() {
-			@Override
-			public void selectedTabChange(SelectedTabChangeEvent e) {				
-				update();
-			}
-		});
 		
         this.addComponent(tabSheet);        
         this.setExpandRatio(tabSheet, 1);
@@ -76,6 +70,13 @@ public class StatView extends AsynchronousView implements ClickListener {
         tabSheet.addTab(topUsers, "Top users (1 year)");
         tabSheet.addTab(toolFails, "Tool fails (1 year)");
         tabSheet.addTab(moduleUsage, "Module job counts (beta)");
+        
+		tabSheet.addSelectedTabChangeListener(new SelectedTabChangeListener() {
+			@Override
+			public void selectedTabChange(SelectedTabChangeEvent e) {				
+				update();
+			}
+		});
 	}
 	
 	private Session getHibernateSession() {

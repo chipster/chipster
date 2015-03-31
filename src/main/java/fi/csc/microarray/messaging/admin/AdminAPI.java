@@ -1,5 +1,6 @@
 package fi.csc.microarray.messaging.admin;
 
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
@@ -14,6 +15,7 @@ import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.admin.AdminAPI.NodeStatus.Status;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
+import fi.csc.microarray.util.Strings;
 
 /**
  * AdminAPI objects should be used only from a one thread.
@@ -40,9 +42,8 @@ public class AdminAPI {
 	public static class NodeStatus {
 
 		public final String name;
-		public String host = null;
+		private HashSet<String> hosts = new HashSet<>();
 		public Status status = Status.UNKNOWN;
-		public int count = 0;
 		public int requiredCount = 0;
 
 		public enum Status {
@@ -58,6 +59,22 @@ public class AdminAPI {
 		public NodeStatus(String name, int requiredCount) {
 			this(name);
 			this.requiredCount = requiredCount;
+		}
+
+		public void addHost(String host) {
+			hosts.add(host);
+		}
+
+		public int getCount() {
+			return hosts.size();
+		}
+
+		public HashSet<String> getHosts() {
+			return hosts;
+		}
+		
+		public String toString() {
+			return getClass().getSimpleName() +  " " + name + ": " + status + "(" + getCount() + " hosts)";
 		}
 	}
 
@@ -75,13 +92,9 @@ public class AdminAPI {
 					logger.debug(name + " is up");
 					NodeStatus status = nodeStatuses.get(name);
 					if (status != null) {
-						if (status.host == null) {
-							status.host = host;
-						} else {
-							status.host += ", " + host;
-						}
-						status.count += 1;
-						if (status.count >= status.requiredCount) {
+						status.addHost(host);
+						
+						if (status.getCount() >= status.requiredCount) {
 							status.status = Status.UP;
 						}
 						notifyListener();
@@ -162,7 +175,7 @@ public class AdminAPI {
 	public String generateStatusReport() {
 		String report = "";
 		for (NodeStatus status : nodeStatuses.values()) {
-			report += status.name + ": count " + status.count + ", host(s) " + status.host + "\n";
+			report += status.name + ": count " + status.getCount() + ", host(s) " + Strings.delimit(status.getHosts(), ", ") + "\n";
 		}
 		return report;
 	}

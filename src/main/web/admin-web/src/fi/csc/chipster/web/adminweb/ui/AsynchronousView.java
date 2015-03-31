@@ -8,13 +8,19 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Lock;
 
+import org.apache.log4j.Logger;
+
 import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.VerticalLayout;
 
+import fi.csc.chipster.web.adminweb.ChipsterAdminUI;
+
 public class AsynchronousView extends VerticalLayout {
+	
+	private static final Logger logger = Logger.getLogger(AsynchronousView.class);
 	
 	private static final int POLLING_INTERVAL = 100;
 	
@@ -86,26 +92,33 @@ public class AsynchronousView extends VerticalLayout {
 	}
 	
 	private void setProgressIndicatorValue(float value) {
-		//This happens in initialization 
-		if (progressIndicator.getUI() != null ) {
-			
-			Lock indicatorLock = progressIndicator.getUI().getSession().getLockInstance();
-			
-			//Component has to be locked before modification from background thread
-			indicatorLock.lock();					
-			try {
-				progressIndicator.setValue(value);
-				
-				if (value == 1.0f) {
-					refreshButton.setEnabled(true);
-					progressIndicator.setPollingInterval(Integer.MAX_VALUE);	
-				} else {
-					refreshButton.setEnabled(false);
-					progressIndicator.setPollingInterval(POLLING_INTERVAL);
-				}
-			} finally {
-				indicatorLock.unlock();
+		
+		if (progressIndicator.getUI() == null) {
+			if (this.getParent() == null) {
+				// ignore updates to view that aren't anymore active
+				return;
+			} else {
+				// don't start data updates before the UI is initialized
+				throw new IllegalStateException("can't to set progress indicator value before the UI is ready");
 			}
+		}
+		
+		Lock indicatorLock = progressIndicator.getUI().getSession().getLockInstance();
+
+		//Component has to be locked before modification from background thread
+		indicatorLock.lock();					
+		try {
+			progressIndicator.setValue(value);
+
+			if (value == 1.0f) {
+				refreshButton.setEnabled(true);
+				progressIndicator.setPollingInterval(Integer.MAX_VALUE);	
+			} else {
+				refreshButton.setEnabled(false);
+				progressIndicator.setPollingInterval(POLLING_INTERVAL);
+			}
+		} finally {
+			indicatorLock.unlock();
 		}
 	}
 

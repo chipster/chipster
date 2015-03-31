@@ -34,11 +34,13 @@ public class JobLogFilter extends HorizontalLayout {
 
 	private com.vaadin.data.hbnutil.filter.ContainerFilter containerFilter;
 
-
-	public JobLogFilter(final JobLogView view) {
+	public JobLogFilter(final JobLogView view, String column, String search) {
 		this.view = view;
 
 		searchStringField = new TextField();
+		if (search != null) {
+			searchStringField.setValue(search);
+		}
 		searchStringField.setDescription("Search for values starting with this string. Question mark (?) is a wildcard for a single character and asterisk (*) for any number of characters.");  
 		searchStringField.addShortcutListener(new ShortcutListener("Search", ShortcutAction.KeyCode.ENTER, null) {
 
@@ -65,12 +67,16 @@ public class JobLogFilter extends HorizontalLayout {
 			}
 		}
 
-		columnToSearch.setValue(JobLogContainer.USERNAME);
+		if (column != null) {
+			columnToSearch.setValue(column);
+		} else {
+			columnToSearch.setValue(JobLogContainer.USERNAME);
+		}
 		columnToSearch.setNullSelectionAllowed(false);
 
 		clearButton.addClickListener(new Button.ClickListener() {
 			public void buttonClick(ClickEvent event) {
-				getView().clearFilters(JobLogFilter.this);
+				getView().clearFilter(JobLogFilter.this);
 			}
 		});
 
