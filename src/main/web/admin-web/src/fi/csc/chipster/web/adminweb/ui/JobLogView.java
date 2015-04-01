@@ -62,9 +62,9 @@ public class JobLogView extends VerticalLayout implements ClickListener  {
 			table.setColumnHeaders(JobLogContainer.COL_HEADERS_ENGLISH);
 
 			table.setSortAscending(false);
-			table.setSortContainerPropertyId(JobLogContainer.START_TIME);
+			table.setSortContainerPropertyId(JobLogContainer.END_TIME);
 			
-			addFilter(JobLogContainer.START_TIME, DateContainerFilter.getToday());
+			addFilter(JobLogContainer.END_TIME, DateContainerFilter.getToday());
 			applyFilters();
 			
 		} catch (GenericJDBCException e) {
