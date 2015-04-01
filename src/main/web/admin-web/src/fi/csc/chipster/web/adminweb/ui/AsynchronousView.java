@@ -16,10 +16,9 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.VerticalLayout;
 
-import fi.csc.chipster.web.adminweb.ChipsterAdminUI;
-
 public class AsynchronousView extends VerticalLayout {
 	
+	@SuppressWarnings("unused")
 	private static final Logger logger = Logger.getLogger(AsynchronousView.class);
 	
 	private static final int POLLING_INTERVAL = 100;
@@ -79,7 +78,11 @@ public class AsynchronousView extends VerticalLayout {
 					}
 					//Update was successful
 					if (callBack != null) {
-						callBack.updateDone();
+						updateUI(new Runnable() {
+							public void run() {								
+								callBack.updateDone();
+							}
+						});
 					}
 
 				} catch (InterruptedException | ExecutionException e) {
@@ -91,38 +94,60 @@ public class AsynchronousView extends VerticalLayout {
 		});
 	}
 	
-	private void setProgressIndicatorValue(float value) {
+	private void setProgressIndicatorValue(final float value) {
 		
-		if (progressIndicator.getUI() == null) {
-			if (this.getParent() == null) {
-				// ignore updates to view that aren't anymore active
-				return;
-			} else {
-				// don't start data updates before the UI is initialized
-				throw new IllegalStateException("can't to set progress indicator value before the UI is ready");
-			}
-		}
-		
-		Lock indicatorLock = progressIndicator.getUI().getSession().getLockInstance();
-
 		//Component has to be locked before modification from background thread
-		indicatorLock.lock();					
-		try {
-			progressIndicator.setValue(value);
+		
+		this.updateUI(new Runnable() {
+			@Override
+			public void run() {
+				progressIndicator.setValue(value);
 
-			if (value == 1.0f) {
-				refreshButton.setEnabled(true);
-				progressIndicator.setPollingInterval(Integer.MAX_VALUE);	
-			} else {
-				refreshButton.setEnabled(false);
-				progressIndicator.setPollingInterval(POLLING_INTERVAL);
+				if (value == 1.0f) {
+					refreshButton.setEnabled(true);
+					progressIndicator.setPollingInterval(Integer.MAX_VALUE);	
+				} else {
+					refreshButton.setEnabled(false);
+					progressIndicator.setPollingInterval(POLLING_INTERVAL);
+				}
 			}
-		} finally {
-			indicatorLock.unlock();
-		}
+		});
 	}
 
 	
+	/**
+	 * Thread safe UI updates
+	 * 
+	 * Execute UI changes in a runnable after attaining the applications's lock.
+	 * Runnable won't be run, if the view isn't anymore active. 
+	 * 
+	 * Make sure this method won't get called before the UI is ready. In 
+	 * practice the easiest way to ensure this is to start data queries only 
+	 * after the UI is initialized and visible.
+	 * 
+	 * @param runnable
+	 */
+	public void updateUI(Runnable runnable) {
+		if (this.getUI() == null && this.getParent() == null) {
+			// ignore updates to old views, when a new view is already selected
+			return;
+		}
+		
+		if (this.getUI().getSession() == null) {
+			// ignore updates, when user has already reloaded the page
+			return;
+		}
+		
+		Lock lock = this.getUI().getSession().getLockInstance();
+		lock.lock();
+		
+		try {
+			runnable.run();
+		} finally {
+			lock.unlock();
+		}
+	}
+
 	public void submitUpdate(Runnable runnable, AfterUpdateCallBack callBack, boolean wait) {
 		Future<?> future = executor.submit(runnable);
 		
@@ -155,5 +180,4 @@ public class AsynchronousView extends VerticalLayout {
 	public long getTimeout() {
 		return timeout;
 	}
-
 }

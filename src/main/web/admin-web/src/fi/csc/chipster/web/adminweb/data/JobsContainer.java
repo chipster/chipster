@@ -3,7 +3,6 @@ package fi.csc.chipster.web.adminweb.data;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.concurrent.locks.Lock;
 
 import javax.jms.JMSException;
 
@@ -60,19 +59,16 @@ public class JobsContainer extends BeanItemContainer<JobsEntry> implements Seria
 	}
 
 	@Override
-	public void statusUpdated(Collection<JobsEntry> jobs) {
-		
-		Lock tableLock = view.getEntryTable().getUI().getSession().getLockInstance();
-		tableLock.lock();
-		try {
-			removeAllItems();
-
-			for (JobsEntry entry : jobs) {
-				addBean(entry);
+	public void statusUpdated(final Collection<JobsEntry> jobs) {
+		view.updateUI(new Runnable() {
+			@Override
+			public void run() {
+				removeAllItems();
+				
+				for (JobsEntry entry : jobs) {
+					addBean(entry);
+				}
 			}
-
-		} finally {
-			tableLock.unlock();
-		}
+		});
 	}
 }

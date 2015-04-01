@@ -96,6 +96,7 @@ public class ChipsterAdminUI extends UI implements DetachListener {
 			jobLogView = new JobLogView(this);
 		}
 		setMainComponent(jobLogView);
+		jobLogView.update();
 	}
 
 
@@ -129,7 +130,7 @@ public class ChipsterAdminUI extends UI implements DetachListener {
 			reportView = new ReportView(this);
 		}
 		setMainComponent(reportView);
-		reportView.updateData();
+		reportView.update();
 	}
 
 	public void showEmtpyView() {

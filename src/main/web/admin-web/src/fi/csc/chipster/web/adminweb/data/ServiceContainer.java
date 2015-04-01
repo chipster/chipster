@@ -2,7 +2,6 @@ package fi.csc.chipster.web.adminweb.data;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.locks.Lock;
 
 import javax.jms.JMSException;
 
@@ -64,45 +63,49 @@ public class ServiceContainer extends BeanItemContainer<ServiceEntry> implements
 		 * eventually modify its user interface. Keep the lock during the update loop
 		 * to avoid showing inconsistent state during the loop.
 		 */
-		Lock tableLock = view.getTable().getUI().getSession().getLockInstance();
-		tableLock.lock();
-		try {
-
-			removeAllItems();
-
-			for (Entry<String, NodeStatus> entry : statuses.entrySet()) {
-
-
-				NodeStatus node = entry.getValue();
-
-				for (String host : node.getHosts()) {
-
-					ServiceEntry service = new ServiceEntry();
-					service.setName(node.name);
-					service.setHost(host);
-					service.setStatus(node.status);
-					service.setCount(node.getCount());
-					
-					addBean(service);
-				}
-			}
-
-			//Add a placeholder for each missing server component
-			for (String name : ServiceContainer.SERVER_NAMES) {
-
-				if (!contains(name)) {
-					ServiceEntry entry = new ServiceEntry();
-					entry.setName(name);
-					entry.setStatus(Status.UNKNOWN);
-					addBean(entry);
-				}
-			}
-		} finally {
-			tableLock.unlock();
-		}
+		
+		updateUI(view, statuses);
 	}
 
 	
+	private void updateUI(final ServicesView view, final Map<String, NodeStatus> statuses) {
+		view.updateUI(new Runnable() {
+			@Override
+			public void run() {
+
+				removeAllItems();
+
+				for (Entry<String, NodeStatus> entry : statuses.entrySet()) {
+
+
+					NodeStatus node = entry.getValue();
+
+					for (String host : node.getHosts()) {
+
+						ServiceEntry service = new ServiceEntry();
+						service.setName(node.name);
+						service.setHost(host);
+						service.setStatus(node.status);
+						service.setCount(node.getCount());
+
+						addBean(service);
+					}
+				}
+
+				//Add a placeholder for each missing server component
+				for (String name : ServiceContainer.SERVER_NAMES) {
+
+					if (!contains(name)) {
+						ServiceEntry entry = new ServiceEntry();
+						entry.setName(name);
+						entry.setStatus(Status.UNKNOWN);
+						addBean(entry);
+					}
+				}
+			}
+		});
+	}
+
 	private boolean contains(String name) {
 		for (ServiceEntry entry : getItemIds()) {
 			if (name.equals(entry.getName())) {

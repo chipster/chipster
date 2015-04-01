@@ -2,6 +2,7 @@ package fi.csc.chipster.web.adminweb.ui;
 
 import java.util.LinkedList;
 
+import org.apache.log4j.Logger;
 import org.hibernate.exception.GenericJDBCException;
 
 import com.vaadin.data.Property;
@@ -24,6 +25,8 @@ import fi.csc.chipster.web.adminweb.data.DateContainerFilter;
 import fi.csc.chipster.web.adminweb.data.JobLogContainer;
 
 public class JobLogView extends VerticalLayout implements ClickListener  {
+	
+	private static final Logger logger = Logger.getLogger(JobLogView.class);
 	
 	private HorizontalLayout toolbarLayout;
 
@@ -65,9 +68,9 @@ public class JobLogView extends VerticalLayout implements ClickListener  {
 			table.setSortContainerPropertyId(JobLogContainer.END_TIME);
 			
 			addFilter(JobLogContainer.END_TIME, DateContainerFilter.getToday());
-			applyFilters();
 			
 		} catch (GenericJDBCException e) {
+			logger.error("unable to read job database", e);
 			//FIXME Show exception message and hide or disable all database based content 
 			return;
 		}		
@@ -100,7 +103,7 @@ public class JobLogView extends VerticalLayout implements ClickListener  {
 
 				public void buttonClick(ClickEvent event) {
 
-					applyFilters();
+					update();
 				}
 			});
 			
@@ -109,7 +112,7 @@ public class JobLogView extends VerticalLayout implements ClickListener  {
 			 * strings is slow, because H2 doesn't use index for these SQL
 			 * queries (WHERE NOT username = '').
 			 */
-			ignoreTestAccounts = new CheckBox("Ignore test accounts", true);
+			ignoreTestAccounts = new CheckBox("Ignore test accounts", false);
 			ignoreTestAccounts.addStyleName("toolbar-component");
 			toolbarLayout.addComponent(ignoreTestAccounts);
 						
@@ -117,7 +120,7 @@ public class JobLogView extends VerticalLayout implements ClickListener  {
 
 				@Override
 				public void valueChange(ValueChangeEvent arg0) {
-					applyFilters();
+					update();
 				}
 			});
 			
@@ -151,7 +154,7 @@ public class JobLogView extends VerticalLayout implements ClickListener  {
 		}
 	}
 
-	public void applyFilters() {
+	public void update() {
 
 		updateContainerFilters();
 

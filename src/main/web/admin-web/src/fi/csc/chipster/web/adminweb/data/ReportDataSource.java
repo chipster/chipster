@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.locks.Lock;
 
 import javax.jms.JMSException;
 
@@ -52,16 +51,7 @@ public class ReportDataSource {
 			report = getStorageAdminAPI().getStatusReport();		
 
 			if (report != null) {
-				Label label = view.getFilebrokerLabel();
-
-				Lock labelLock = label.getUI().getSession().getLockInstance();
-				labelLock.lock();
-				try {
-					label.setValue(report);
-
-				} finally {
-					labelLock.unlock();
-				}		
+				updateFilebrokerUI(view, report);
 			} else {
 				Notification.show("Timeout", "Chipster filebroker server doesn't respond", Type.ERROR_MESSAGE);
 				logger.error("timeout while waiting status report");
@@ -72,6 +62,16 @@ public class ReportDataSource {
 		}			
 	}
 	
+	private void updateFilebrokerUI(final ReportView view, final String report) {
+		view.updateUI(new Runnable() {
+			@Override
+			public void run() {
+				Label label = view.getFilebrokerLabel();
+				label.setValue(report);						
+			}
+		});
+	}
+
 	private ServerAdminAPI getStorageAdminAPI() throws IOException, IllegalConfigurationException, MicroarrayException, JMSException {
 		if (storageAdminAPI == null) {
 			storageAdminAPI = new StorageAdminAPI(endpoint);
@@ -105,24 +105,7 @@ public class ReportDataSource {
 
 			if (report != null) {
 				
-				VerticalLayout layout = view.getJobmanagerLayout();
-
-				Lock labelLock = layout.getUI().getSession().getLockInstance();
-				labelLock.lock();
-				try {
-					layout.removeAllComponents();
-
-					Button purgeButton = view.createReportButton("Purge old jobs");
-
-					purgeButton.addClickListener(new PurgeClickListener(view, ReportDataSource.this));
-
-					Label reportLabel = view.createReportLabel(report);
-					layout.addComponent(reportLabel);
-					layout.addComponent(purgeButton);
-
-				} finally {
-					labelLock.unlock();
-				}
+				updateJobmanagerUI(view, report);
 				
 			} else {
 				Notification.show("Timeout", "Chipster jobmanager server doesn't respond", Type.ERROR_MESSAGE);
@@ -134,6 +117,25 @@ public class ReportDataSource {
 		}		
 	}
 	
+	private void updateJobmanagerUI(final ReportView view, final String report) {
+		view.updateUI(new Runnable() {
+			@Override
+			public void run() {
+				VerticalLayout layout = view.getJobmanagerLayout();
+
+				layout.removeAllComponents();
+
+				Button purgeButton = view.createReportButton("Purge old jobs");
+
+				purgeButton.addClickListener(new PurgeClickListener(view, ReportDataSource.this));
+
+				Label reportLabel = view.createReportLabel(report);
+				layout.addComponent(reportLabel);
+				layout.addComponent(purgeButton);				
+			}
+		});
+	}
+
 	private CompAdminAPI getCompAdminAPI() throws IOException, IllegalConfigurationException, MicroarrayException, JMSException {
 		if (compAdminAPI == null) {
 			compAdminAPI = new CompAdminAPI(endpoint);			
@@ -153,11 +155,18 @@ public class ReportDataSource {
 		@Override
 		public void statusUpdated(List<ServerStatusMessage> statuses) {
 
-			VerticalLayout layout = view.getCompLayout();
+			updateCompUI(view, statuses, reportDataSource);
+		}
+	}
+	
+	private static void updateCompUI(final ReportView view,
+			final List<ServerStatusMessage> statuses, final ReportDataSource reportDataSource) {
 
-			Lock labelLock = layout.getUI().getSession().getLockInstance();
-			labelLock.lock();
-			try {
+		view.updateUI(new Runnable() {
+			@Override
+			public void run() {
+				VerticalLayout layout = view.getCompLayout();
+
 				layout.removeAllComponents();
 
 				Collections.sort(statuses, new Comparator<ServerStatusMessage>() {
@@ -186,13 +195,10 @@ public class ReportDataSource {
 					layout.addComponent(titleRow);
 					layout.addComponent(reportLabel);
 				}
-
-			} finally {
-				labelLock.unlock();
 			}
-		}
+		});
 	}
-	
+
 	public static class StopClickListener implements ClickListener {
 
 		private ReportView view;
@@ -212,7 +218,7 @@ public class ReportDataSource {
 			} catch (IOException | IllegalConfigurationException | MicroarrayException | JMSException e) {
 				e.printStackTrace();
 			}
-			view.updateData();
+			view.update();
 		}
 	}
 	
@@ -233,7 +239,7 @@ public class ReportDataSource {
 			} catch (IOException | IllegalConfigurationException | MicroarrayException | JMSException e) {
 				e.printStackTrace();
 			}
-			view.updateData();
+			view.update();
 		}
 	}
 }

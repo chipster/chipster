@@ -3,7 +3,6 @@ package fi.csc.chipster.web.adminweb.ui;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.locks.Lock;
 
 import org.hibernate.Session;
 import org.hibernate.exception.GenericJDBCException;
@@ -134,17 +133,14 @@ public class StatView extends AsynchronousView implements ClickListener {
 		});
 	}
 
-	protected void setData(List<Map<Object, Object>> stats, Table table, Object[] columnOrder) {
+	protected void setData(final List<Map<Object, Object>> stats, final Table table, final Object[] columnOrder) {
 
-		Lock lock = table.getUI().getSession().getLockInstance();
-		lock.lock();
-		try {
-			mapListToTable(stats, table);
-			table.setVisibleColumns(columnOrder);
-		}
-		finally {
-			lock.unlock();
-		}
+		this.updateUI(new Runnable() {
+			public void run() {				
+				mapListToTable(stats, table);
+				table.setVisibleColumns(columnOrder);
+			}
+		});
 	}
 
 	public HorizontalLayout getToolbar() {

@@ -46,7 +46,7 @@ public class JobLogFilter extends HorizontalLayout {
 
 			@Override
 			public void handleAction(Object sender, Object target) {
-				view.applyFilters();
+				view.update();
 			}
 		});
 
