@@ -336,7 +336,13 @@ public class SessionManager {
 		} else if (sessionId != null) {
 			String oldValue = currentRemoteSession;
 			currentRemoteSession = sessionId;
-			currentSessionName = findSessionWithUuid(listRemoteSessions(), sessionId).getName();
+			DbSession session = findSessionWithUuid(listRemoteSessions(), sessionId);
+			if (session != null) {
+				currentSessionName = session.getName();
+			} else {
+				// help request sessions don't have a name
+				currentSessionName = null;
+			}
 			callback.sessionChanged(new SessionChangedEvent(this, "session",
 					oldValue, currentRemoteSession));
 		} else {
