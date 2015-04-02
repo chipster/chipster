@@ -32,14 +32,10 @@ public class JobsView extends AsynchronousView implements ClickListener {
 	private JobmanagerAdminAPI jobmanagerAdminAPI;
 	private JobsContainer dataSource;
 
-	private ChipsterAdminUI app;
-
-
 	public JobsView(ChipsterAdminUI app) {
 		
-		super(WAIT_SECONDS);
+		super(app, WAIT_SECONDS);
 		
-		this.app = app;
 		try {
 			jobmanagerAdminAPI = new JobmanagerAdminAPI(app.getEndpoint());
 			dataSource = new JobsContainer(this, jobmanagerAdminAPI);
@@ -74,7 +70,7 @@ public class JobsView extends AsynchronousView implements ClickListener {
 			toolbarLayout.addComponent(spaceEater);
 			toolbarLayout.setExpandRatio(spaceEater, 1);
 			
-			toolbarLayout.addComponent(app.getTitle());	
+			toolbarLayout.addComponent(super.getApp().getTitle());	
 			
 			toolbarLayout.setWidth("100%");
 			toolbarLayout.setStyleName("toolbar");

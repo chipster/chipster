@@ -44,14 +44,10 @@ public class StatView extends AsynchronousView implements ClickListener {
 
 	private Session session;
 	private StatDataSource dataSource;
-
-	private ChipsterAdminUI app;
 	
 	public StatView(ChipsterAdminUI app) {
 		
-		super(TIMEOUT);
-		
-		this.app = app;
+		super(app, TIMEOUT);
 					
 		this.addComponent(getToolbar());
 		this.addComponent(super.getProggressIndicator());
@@ -167,7 +163,7 @@ public class StatView extends AsynchronousView implements ClickListener {
 			toolbarLayout.addComponent(spaceEater);
 			toolbarLayout.setExpandRatio(spaceEater, 1);
 
-			toolbarLayout.addComponent(app.getTitle());	
+			toolbarLayout.addComponent(getApp().getTitle());	
 			
 			toolbarLayout.setWidth("100%");
 			toolbarLayout.setStyleName("toolbar");

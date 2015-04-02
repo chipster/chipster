@@ -18,7 +18,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Panel;
-import com.vaadin.ui.ProgressIndicator;
+import com.vaadin.ui.ProgressBar;
 
 import fi.csc.chipster.web.adminweb.ChipsterAdminUI;
 import fi.csc.chipster.web.adminweb.data.StorageAggregateContainer;
@@ -44,15 +44,13 @@ public class StorageView extends AsynchronousView implements ClickListener, Valu
 	private StorageEntryContainer entryDataSource;
 	private StorageAggregateContainer aggregateDataSource;
 
-	private ChipsterAdminUI app;
-	private ProgressIndicator diskUsageBar;
+	private ProgressBar diskUsageBar;
 	private HorizontalLayout storagePanels;
 	
 	private StorageAdminAPI adminEndpoint;
 
 	public StorageView(ChipsterAdminUI app) {
-
-		this.app = app;
+		super(app);
 
 		this.addComponent(getToolbar());
 		
@@ -157,16 +155,15 @@ public class StorageView extends AsynchronousView implements ClickListener, Valu
 			toolbarLayout.addComponent(spaceEater);
 			toolbarLayout.setExpandRatio(spaceEater, 1);
 			
-			diskUsageBar = new ProgressIndicator(0f);
+			diskUsageBar = new ProgressBar(0f);
 			diskUsageBar.setCaption(DISK_USAGE_BAR_CAPTION);
 			diskUsageBar.setStyleName("big");
-			diskUsageBar.setPollingInterval(Integer.MAX_VALUE);
 			
 			diskUsageBar.setWidth(300, Unit.PIXELS);
 			toolbarLayout.addComponent(diskUsageBar);
 			toolbarLayout.setExpandRatio(diskUsageBar, 1);
 					
-			toolbarLayout.addComponent(app.getTitle());	
+			toolbarLayout.addComponent(super.getApp().getTitle());	
 
 			toolbarLayout.setWidth("100%");
 			toolbarLayout.setStyleName("toolbar");
@@ -217,7 +214,8 @@ public class StorageView extends AsynchronousView implements ClickListener, Valu
 		}, this);
 	}
 	
-	private void updateStorageTotals() {
+	private void updateStorageTotals() {	
+		
 		super.submitUpdate(new Runnable() {
 
 			@Override
@@ -237,10 +235,6 @@ public class StorageView extends AsynchronousView implements ClickListener, Valu
 				}			
 			}			
 		}, this);
-	}
-	
-	public ChipsterAdminUI getApp() {
-		return app;
 	}
 
 	public void delete(Object itemId) {

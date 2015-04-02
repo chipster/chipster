@@ -17,13 +17,10 @@ public class ServicesView extends AsynchronousView implements ClickListener, Aft
 	private HorizontalLayout toolbarLayout;
 
 	private ServiceContainer dataSource;
-	private ChipsterAdminUI app;
 
 	public ServicesView(ChipsterAdminUI app) {
 		
-		super(5);
-
-		this.app = app;
+		super(app, 5);
 
 		this.addComponent(getToolbar());
 
@@ -61,7 +58,7 @@ public class ServicesView extends AsynchronousView implements ClickListener, Aft
 			toolbarLayout.addComponent(spaceEater);
 			toolbarLayout.setExpandRatio(spaceEater, 1);
 
-			toolbarLayout.addComponent(app.getTitle());	
+			toolbarLayout.addComponent(getApp().getTitle());	
 
 			toolbarLayout.setWidth("100%");
 			toolbarLayout.setStyleName("toolbar");
@@ -87,10 +84,6 @@ public class ServicesView extends AsynchronousView implements ClickListener, Aft
 				dataSource.update();
 			}			
 		}, this);				
-	}
-
-	public ChipsterAdminUI getApp() {
-		return app;
 	}
 
 	public ServicesTable getTable() {

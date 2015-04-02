@@ -32,6 +32,9 @@ import fi.csc.microarray.messaging.admin.ManagerConfiguration;
 
 @SuppressWarnings("serial")
 @Theme("admin")
+// HbnContainer's ServletFilter doesn't work with Push,
+// could we use JPAContainer instead?
+//@Push // enable push support (atmosphere framework using WebSocket or some fallback)
 public class ChipsterAdminUI extends UI implements DetachListener {
 	
 	private static final Logger logger = Logger.getLogger(ChipsterAdminUI.class);

@@ -6,15 +6,17 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.locks.Lock;
 
 import org.apache.log4j.Logger;
 
 import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.ProgressIndicator;
+import com.vaadin.ui.ProgressBar;
+import com.vaadin.ui.UIDetachedException;
 import com.vaadin.ui.VerticalLayout;
+
+import fi.csc.chipster.web.adminweb.ChipsterAdminUI;
 
 public class AsynchronousView extends VerticalLayout {
 	
@@ -25,22 +27,25 @@ public class AsynchronousView extends VerticalLayout {
 	
 	private Button refreshButton;
 	
-	private ProgressIndicator progressIndicator = new ProgressIndicator(0.0f);
+	private ProgressBar progressBar = new ProgressBar(0.0f);
 	private ExecutorService executor = Executors.newCachedThreadPool();
 
 	private long timeout; // seconds
+
+	private ChipsterAdminUI ui;
 	
-	public AsynchronousView(long timeout) {
+	public AsynchronousView(ChipsterAdminUI ui, long timeout) {
+		this.ui = ui;
 		this.timeout = timeout;
 	}
 	
-	public AsynchronousView() {
-		this(30);
+	public AsynchronousView(ChipsterAdminUI ui) {
+		this(ui, 30);
 	}
 
-	public ProgressIndicator getProggressIndicator() {
-		progressIndicator.setWidth(100, Unit.PERCENTAGE);
-		return progressIndicator;
+	public ProgressBar getProggressIndicator() {
+		progressBar.setWidth(100, Unit.PERCENTAGE);
+		return progressBar;
 	}
 	
 	/**
@@ -50,8 +55,10 @@ public class AsynchronousView extends VerticalLayout {
 	 */
 	protected void waitForUpdate(final Future<?> future, final AfterUpdateCallBack callBack, final boolean wait) {				
 		
-		//This makes the browser start polling, but the browser will get it only if this is executed in this original thread.
 		setProgressIndicatorValue(0f);
+		
+		//This makes the browser start polling, but the browser will get it only if this is executed in this original thread.
+		ui.setPollInterval(500);
 		
 		executor.execute(new Runnable() {
 			public void run() {								
@@ -89,6 +96,8 @@ public class AsynchronousView extends VerticalLayout {
 					e.printStackTrace();
 				} finally {				
 					setProgressIndicatorValue(1.0f);
+					// disable polling
+					ui.setPollInterval(-1);
 				}
 			}
 		});
@@ -101,14 +110,14 @@ public class AsynchronousView extends VerticalLayout {
 		this.updateUI(new Runnable() {
 			@Override
 			public void run() {
-				progressIndicator.setValue(value);
+				progressBar.setValue(value);
 
 				if (value == 1.0f) {
 					refreshButton.setEnabled(true);
-					progressIndicator.setPollingInterval(Integer.MAX_VALUE);	
+					ui.setPollInterval(-1);
 				} else {
 					refreshButton.setEnabled(false);
-					progressIndicator.setPollingInterval(POLLING_INTERVAL);
+					ui.setPollInterval(500);
 				}
 			}
 		});
@@ -128,24 +137,12 @@ public class AsynchronousView extends VerticalLayout {
 	 * @param runnable
 	 */
 	public void updateUI(Runnable runnable) {
-		if (this.getUI() == null && this.getParent() == null) {
-			// ignore updates to old views, when a new view is already selected
-			return;
-		}
-		
-		if (this.getUI().getSession() == null) {
-			// ignore updates, when user has already reloaded the page
-			return;
-		}
-		
-		Lock lock = this.getUI().getSession().getLockInstance();
-		lock.lock();
 		
 		try {
-			runnable.run();
-		} finally {
-			lock.unlock();
-		}
+			ui.access(runnable);
+		} catch (UIDetachedException e) {
+			// user reloaded the page during the update
+		}		
 	}
 
 	public void submitUpdate(Runnable runnable, AfterUpdateCallBack callBack, boolean wait) {
@@ -179,5 +176,9 @@ public class AsynchronousView extends VerticalLayout {
 	
 	public long getTimeout() {
 		return timeout;
+	}
+
+	public ChipsterAdminUI getApp() {
+		return ui;
 	}
 }

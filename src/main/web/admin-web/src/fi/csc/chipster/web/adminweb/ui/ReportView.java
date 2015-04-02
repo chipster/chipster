@@ -35,15 +35,10 @@ public class ReportView extends AsynchronousView implements ClickListener {
 	private HorizontalLayout toolbarLayout;
 
 	private ReportDataSource dataSource;
-
-	private ChipsterAdminUI app;
-
 	
 	public ReportView(ChipsterAdminUI app) {
 		
-		super(UPDATE_WAIT);
-		
-		this.app = app;
+		super(app, UPDATE_WAIT);
 					
 		this.addComponent(getToolbar());
 		
@@ -135,7 +130,7 @@ public class ReportView extends AsynchronousView implements ClickListener {
 			toolbarLayout.addComponent(spaceEater);
 			toolbarLayout.setExpandRatio(spaceEater, 1);
 
-			toolbarLayout.addComponent(app.getTitle());	
+			toolbarLayout.addComponent(getApp().getTitle());	
 			
 			toolbarLayout.setWidth("100%");
 			toolbarLayout.setStyleName("toolbar");
@@ -160,9 +155,5 @@ public class ReportView extends AsynchronousView implements ClickListener {
 	
 	public VerticalLayout getJobmanagerLayout() {
 		return jobmanagerLayout;
-	}
-
-	public ChipsterAdminUI getApp() {
-		return app;
 	}
 }

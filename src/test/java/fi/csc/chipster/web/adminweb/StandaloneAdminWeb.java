@@ -48,11 +48,6 @@ public class StandaloneAdminWeb {
 		context.setWar(war.getAbsolutePath());
 		System.out.println(war.getAbsolutePath());
         context.setContextPath("/");
-		
-//        context.setDescriptor(new ClassPathResource("WebContent/WEB-INF/web.xml").getURI().toString());
-//        context.setResourceBase(new ClassPathResource("WebContent").getURI().toString());
-//        context.setContextPath("/");
-//        context.setParentLoaderPriority(true);
 				
         context.setHandler(sh);
 		HandlerCollection handlers = new HandlerCollection();
