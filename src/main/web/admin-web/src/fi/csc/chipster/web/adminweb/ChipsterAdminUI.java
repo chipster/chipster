@@ -193,10 +193,13 @@ public class ChipsterAdminUI extends UI implements DetachListener {
 				Notification notification = new Notification(cause.getClass().getSimpleName(), cause.getMessage(), Type.ERROR_MESSAGE); 
 				notification.show(this.getPage());
 			}
+			logger.error(e);
 			e.printStackTrace();
 		} catch (IOException e) {
+			logger.error(e);
 			e.printStackTrace();
 		} catch (IllegalConfigurationException e) {
+			logger.error(e);
 			e.printStackTrace();
 		}
 		

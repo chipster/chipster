@@ -1,5 +1,7 @@
 package fi.csc.chipster.web.adminweb;
 
+import org.apache.log4j.Logger;
+
 import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -9,6 +11,9 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 public class NavigationMenu extends VerticalLayout implements ClickListener {
+	
+	@SuppressWarnings("unused")
+	private static final Logger logger = Logger.getLogger(NavigationMenu.class);
 
 	private Button servicesButton = new Button("Services");
 	private Button storageButton = new Button("Storage");
@@ -54,14 +59,6 @@ public class NavigationMenu extends VerticalLayout implements ClickListener {
 
 		setMargin(true);
 		setSpacing(true);
-		
-
-		//				navigation.setWidth("100%");
-		//
-		//				Embedded em = new Embedded("", new ThemeResource("../runo/images/logo.png"));
-		//				navigation.addComponent(em);
-		//				navigation.setComponentAlignment(em, Alignment.MIDDLE_RIGHT);
-		//				navigation.setExpandRatio(em, 1);
 
 		Component placeHolder = new Label(" ");
 		addComponent(placeHolder);
