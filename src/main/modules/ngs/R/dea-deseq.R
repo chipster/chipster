@@ -3,9 +3,7 @@
 # INPUT phenodata.tsv TYPE GENERIC
 # OUTPUT OPTIONAL de-list-deseq.tsv
 # OUTPUT OPTIONAL de-list-deseq.bed
-# OUTPUT OPTIONAL ma-plot-deseq.pdf
-# OUTPUT OPTIONAL dispersion-plot-deseq.pdf
-# OUTPUT OPTIONAL p-value-plot-deseq.pdf
+# OUTPUT OPTIONAL deseq_report.pdf
 # PARAMETER column: "Column describing groups" TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test.)
 # PARAMETER OPTIONAL ad_factor: "Column describing additional experimental factor" TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing an additional experimental factor. If given, p-values in the output table are from a likelihood ratio test of a model including the experimental groups and experimental factor vs a model which only includes the experimental factor.)
 # PARAMETER OPTIONAL normalization: "Apply normalization" TYPE [yes, no] DEFAULT yes (Should effective library size be estimated. This corrects for RNA composition bias. Note that if you have supplied library size in phenodata, size factors are calculated based on the library size total, and composition bias is not corrected.)
@@ -25,6 +23,7 @@
 # MK 15.04.2014, added possibility to use DESeq2
 # AMS 17.06.2014, split DESeq2 to a separate tool
 # EK 30.6.2014, added gene names to BED output, clarified the script
+# AMS 07.04.2015, joined PDF outputs
 
 # Loads the libraries
 source(file.path(chipster.common.path, "bed-utils.R"))
@@ -139,13 +138,13 @@ if("chr" %in% colnames(dat)) {
 }
 
 # Make dispersion plot
-pdf(file="dispersion-plot-deseq.pdf")
+pdf(file="02-dispersion-plot-deseq.pdf")
 plotDispEsts(counts_data, main="Dispersion plot", cex=0.2)
 legend(x="topright", legend="fitted dispersion", col="red", cex=1, pch="-")
 dev.off()
 
 # Make histogram of p-values with overlaid significance cutoff and uniform distribution.
-pdf (file="p-value-plot-deseq.pdf")
+pdf (file="03-p-value-plot-deseq.pdf")
 hist(output_table$pval, breaks=100, col="blue", border="slateblue", freq=FALSE, main="P-value distribution", xlab="p-value", ylab="proportion (%)")
 hist(output_table$padj, breaks=100, col="red", border="slateblue", add=TRUE, freq=FALSE)
 abline(h=1, lwd=2, lty=2, col="black")
@@ -160,10 +159,13 @@ plotDE <- function(res)
 			main="MA plot", xlab="mean counts", ylab="log2(fold change)") 
 
 # Make MA-plot
-pdf(file="ma-plot-deseq.pdf")
+pdf(file="01-ma-plot-deseq.pdf")
 plotDE(unique(output_table))
 legend (x="topleft", legend=c("significant","not significant"), col=c("red","black"), cex=1, pch=19)
 abline(h = c(-1, 0, 1), col = c("dodgerblue", "darkgreen", "dodgerblue"), lwd = 2)
 dev.off()
+
+# Join the PDFs 
+system("gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=deseq_report.pdf *.pdf")
 
 # EOF
