@@ -2,11 +2,8 @@
 # INPUT data.tsv: "Count table" TYPE GENERIC
 # INPUT phenodata.tsv: "Phenodata file" TYPE GENERIC
 # OUTPUT OPTIONAL de-list-deseq2.tsv
-# OUTPUT OPTIONAL de-list-deseq2.bed
-# OUTPUT OPTIONAL ma-plot-deseq2.pdf
-# OUTPUT OPTIONAL dispersion-plot-deseq2.pdf
-# OUTPUT OPTIONAL p-value-plot-deseq2.pdf
 # OUTPUT OPTIONAL summary.txt
+# OUTPUT OPTIONAL deseq2_report.pdf
 # PARAMETER column: "Column describing groups" TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test.)
 # PARAMETER OPTIONAL ad_factor: "Column describing additional experimental factor" TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing an additional experimental factor. If given, p-values in the output table are from a likelihood ratio test of a model including the experimental groups and experimental factor, vs a model which only includes the experimental factor.)
 # PARAMETER OPTIONAL p.value.cutoff: "Cutoff for the adjusted P-value" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (The cutoff for Benjamini-Hochberg adjusted p-value.)
@@ -16,6 +13,7 @@
 # AMS 17.06.2014, split the DESeq2 part to a separate tool
 # EK 1.7.2014, clarified the script before moving it to production, and fixed a bug that disabled DESeq2's automatic independent filtering 
 # EK 9.2.2015, updated to R3.1.2, changed the MA plot, added summary
+# AMS 7.4.2015, Join pdf outputs to one
 
 #column <-"group"
 #ad_factor<-"EMPTY"
@@ -59,9 +57,9 @@ if (length(unique(groups)) == 2) {
 	sig <- cbind(dat, res)[res$padj <= p.value.cutoff, ]
 	sig <- sig[! (is.na(sig$padj)), ]
 	sig <- sig[ order(sig$padj), ]
-	pdf(file="ma-plot-deseq2.pdf") 
+	# Open pdf file for output
+	pdf(file="deseq2_report.pdf") 
 	plotMA(dds,alpha=p.value.cutoff,main=c("DESeq2 MA-plot, FDR =", p.value.cutoff),ylim=c(-2,2))
-	dev.off()
 	sink("summary.txt")
 	summary(res, alpha=p.value.cutoff)
 	sink()
@@ -122,17 +120,15 @@ if("chr" %in% colnames(dat)) {
 }
 
 # Make dispersion plot
-pdf(file="dispersion-plot-deseq2.pdf")
 plotDispEsts(dds, main="Dispersion plot", cex=0.2)
 legend(x="topright", legend="fitted dispersion", col="red", cex=1, pch="-")
-dev.off()
 
 # Make histogram of p-values with overlaid significance cutoff. When more than two groups, min.pvalue is taken over all comparisons for genes
-pdf (file="p-value-plot-deseq2.pdf")
 hist(output_table$pval, breaks=100, col="blue", border="slateblue", freq=FALSE, main="P-value distribution", xlab="p-value", ylab="proportion (%)")
 hist(output_table$padj, breaks=100, col="red", border="slateblue", add=TRUE, freq=FALSE)
 abline(v=p.value.cutoff, lwd=2, lty=2, col="black")
 legend (x="topright", legend=c("p-values","adjusted p-values", "significance cutoff"), col=c("blue","red","black"), cex=1, pch=15)
+# Close pdf
 dev.off()
 
 # MA-plot when there are more than 2 groups. Define function for making MA-plot.
