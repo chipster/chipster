@@ -3,11 +3,8 @@
 # INPUT phenodata.tsv TYPE GENERIC
 # OUTPUT OPTIONAL de-list-edger.tsv
 # OUTPUT OPTIONAL de-list-edger.bed
-# OUTPUT OPTIONAL ma-plot-edger.pdf
-# OUTPUT OPTIONAL mds-plot-edger.pdf
 # OUTPUT OPTIONAL edger-log.txt
-# OUTPUT OPTIONAL p-value-plot-edger.pdf
-# OUTPUT OPTIONAL dispersion-edger.pdf
+# OUTPUT OPTIONAL edgeR_report.pdf
 # PARAMETER column: "Column describing groups" TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test.)
 # PARAMETER filter: "Filter out genes which don't have counts in at least this many samples" TYPE INTEGER FROM 1 TO 1000 DEFAULT 1 (Analyze only genes which have at least 5 counts in at least this many samples. You should set this to the number of samples in your smallest experimental group.)
 # PARAMETER OPTIONAL p_value_threshold: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (The cutoff for adjusted p-values.)
@@ -87,7 +84,7 @@ if (normalization == "yes") {
 
 # Produce MDS plot of normalized data (possible only when there are more than 2 samples)
 if (number_samples > 2) {
-	pdf(file="mds-plot-edger.pdf", width=w/72, height=h/72)
+	pdf(file="03-mds-plot-edger.pdf", width=w/72, height=h/72)
 	sample_colors <-  ifelse (dge_list$samples$group==group_levels[1], 1, 2)
 	plotMDS(dge_list, main="MDS Plot", col=sample_colors)
 	legend(x="topleft", legend = group_levels,col=c(1,2), pch=19)
@@ -114,7 +111,7 @@ if (dispersion_method == "tagwise") {
 	stat_test <- exactTest(dge_list)
 
 # Dispersion plot
-pdf(file="dispersion-edger.pdf", width=w/72, height=h/72)
+pdf(file="02-dispersion-edger.pdf", width=w/72, height=h/72)
 plotBCV(dge_list, main="Biological coefficient of variation")
 dev.off()
 }
@@ -150,7 +147,7 @@ if (dim(significant_results)[1] > 0) {
 	}	
 
 # Make an MA-plot displaying the significant tags (genes)
-pdf(file="ma-plot-edger.pdf", width=w/72, height=h/72)	
+pdf(file="01-ma-plot-edger.pdf", width=w/72, height=h/72)	
 # significant_indices <- rownames (significant_results)
 plotSmear(dge_list, de.tags = significant_indices, main = "MA plot")
 abline(h = c(-1, 0, 1), col = c("dodgerblue", "darkgreen", "dodgerblue"), lwd = 2)
@@ -158,7 +155,7 @@ legend (x="topleft", legend=c("significantly differentially expressed","not sign
 dev.off()
 
 # Make a histogram of p-values with overlaid significance cutoff
-pdf (file="p-value-plot-edger.pdf")
+pdf (file="04-p-value-plot-edger.pdf")
 hist(results_table$PValue, breaks=100, col="blue",
 		border="slateblue", freq=FALSE,
 		main="P-value distribution", xlab="p-value", ylab="proportion (%)")
@@ -171,5 +168,6 @@ dev.off()
 
 }
 
-
+# Join the PDFs 
+system("gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=edgeR_report.pdf *.pdf")
 # EOF
