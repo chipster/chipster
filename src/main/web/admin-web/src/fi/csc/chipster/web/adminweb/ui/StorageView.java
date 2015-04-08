@@ -214,15 +214,15 @@ public class StorageView extends AsynchronousView implements ClickListener, Valu
 		}, this);
 	}
 	
-	private void updateStorageTotals() {	
+	private void updateStorageTotals() {
 		
 		super.submitUpdate(new Runnable() {
 
 			@Override
 			public void run() {								
 				try {
-					Long[] totals = adminEndpoint.getStorageUsage();	
-					
+					Long[] totals = adminEndpoint.getStorageUsage();
+										
 					if (totals != null) {
 						StorageView.this.setDiskUsage(totals[0], totals[1]);
 					} else {

@@ -1,7 +1,5 @@
 package fi.csc.microarray.messaging;
 
-import java.util.Collections;
-
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.Message;

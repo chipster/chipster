@@ -20,7 +20,6 @@ import fi.csc.chipster.web.adminweb.ChipsterAdminUI;
 
 public class AsynchronousView extends VerticalLayout {
 	
-	@SuppressWarnings("unused")
 	private static final Logger logger = Logger.getLogger(AsynchronousView.class);
 	
 	private static final int POLLING_INTERVAL = 100;
@@ -57,7 +56,7 @@ public class AsynchronousView extends VerticalLayout {
 		
 		setProgressIndicatorValue(0f);
 		
-		//This makes the browser start polling, but the browser will get it only if this is executed in this original thread.
+		//This makes the browser start polling, but the browser will get it only if this is executed in this original thread
 		ui.setPollInterval(500);
 		
 		executor.execute(new Runnable() {
@@ -93,18 +92,24 @@ public class AsynchronousView extends VerticalLayout {
 					}
 
 				} catch (InterruptedException | ExecutionException e) {
-					e.printStackTrace();
-				} finally {				
+					logger.error("error occurred in update", e);
+				} finally {
 					setProgressIndicatorValue(1.0f);
-					// disable polling
-					ui.setPollInterval(-1);
+					
+					// acquire the UI lock for this to make sure that all preceding
+					// UI updates are applied before the polling is disabled
+					updateUI(new Runnable() {
+						public void run() {
+							ui.setPollInterval(-1);
+						}
+					});
 				}
 			}
 		});
 	}
 	
 	private void setProgressIndicatorValue(final float value) {
-		
+				
 		//Component has to be locked before modification from background thread
 		
 		this.updateUI(new Runnable() {
@@ -113,11 +118,9 @@ public class AsynchronousView extends VerticalLayout {
 				progressBar.setValue(value);
 
 				if (value == 1.0f) {
-					refreshButton.setEnabled(true);
-					ui.setPollInterval(-1);
+					refreshButton.setEnabled(true); 
 				} else {
 					refreshButton.setEnabled(false);
-					ui.setPollInterval(500);
 				}
 			}
 		});
