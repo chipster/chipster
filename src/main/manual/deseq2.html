@@ -62,17 +62,20 @@ from a likelihood ratio test of a model including the groups and the additional 
 		<li>padj = Benjamini-Hochberg adjusted p-value</li>
 	</ul></li>
 <li>de-list-deseq2.bed: The BED version of the results table contains genomic coordinates and log2 fold change values.<br></li>
-<li>ma-plot-deseq2.pdf: MA scatter plot where the significantly differentially expressed genes are highlighted. <br></li>
 <li>summary.txt: Textual summary of the differential expression results, including information on filtering and outliers. <br></li>
-<li>dispersion-plot-deseq2.pdf: Plot of dispersion estimates at different count levels, showing
+<li>deseq2_report.pdf: A PDF file containing:
 	<ul>
+	<li>MA scatter plot where the significantly differentially expressed genes are highlighted. <br></li>
+	<li>Plot of dispersion estimates at different count levels, showing
+		<ul>
 		<li>black dot = dispersion estimate for each gene as obtained by considering the information from each gene separately</li>
 		<li>red line = fitted estimates showing the dispersions' dependence on the mean</li>
 		<li>blue dot = the final dispersion estimates shrunk from the gene-wise estimates towards the fitted estimates. The values are used in the statistical testing. </li>
 		<li>blue circles = genes which have high gene-wise dispersion estimates and are hence labelled dispersion outliers and not shrunk toward the fitted trend line</li>
-	</ul></li></li>
-<li>p-value-plot-deseq2.pdf: Plot of the raw and adjusted p-value distributions of the statistical test. <br></li>
-</ul>
+		</ul></li>
+	<li>Plot of the raw and adjusted p-value distributions of the statistical test. <br></li>
+	</ul></li>
+</ul></li>
 
 <h3><br>References</h3>
 
