@@ -15,13 +15,13 @@ and alignment statistics. This tool is based on the RSeQC package.
 
 <h3>Parameters</h3>
 <ul>
-<li>Generate inner distance plot (yes, no) [yes]</li>
+<li>Generate inner distance plot (yes, no) [no]</li>
 </ul>
 
 <h3>Details</h3>
 
 <p>
-The tool performs five different analyses:</p>
+The tool performs five different analyses and one optional one:</p>
 
 <h4>geneBody_coverage</h4>
 <p>
@@ -80,7 +80,32 @@ This program is used to calculate reads mapping statistics from provided BAM fil
 (Do NOT confused with sequence quality, sequence quality measures the probability that a base-calling was wrong).
 </p>
 
+<h4>Inner_distance (optional)</h4>
+<p>
+This module is used to calculate the inner distance (or insert size) between two paired RNA reads. The distance 
+is the mRNA length between two paired fragments. 
+</p>
+<p>
+This module is only applicable to paired-end data
+</p>
 <p>(The above descriptions are from the <a href = "http://rseqc.sourceforge.net/">RSeQC homepage</A>.)</p>
+
+
+<h3>Output</h3>
+
+<p>
+<ul>
+<li>RSeQC_report.pdf: A PDF file containing the plots for the following modules:
+	<ul>
+	<li>geneBody_coverage</li>
+	<li>junction_saturation</li>
+	<li>junction_annotation (2 plots)</li>
+	<li>RPKM_saturation</li>
+	<li>Inner_distance (optional)</li>
+	</ul></li>
+<li>RSeQC.bamStat.txt: Text file with output of BAM_stat module</li>
+</ul>	
+</p>
 
 <h3>References</h3>
 
