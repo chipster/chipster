@@ -6,6 +6,9 @@ import javax.jms.JMSException;
 
 import org.apache.log4j.Logger;
 
+import com.vaadin.annotations.Push;
+import com.vaadin.shared.communication.PushMode;
+import com.vaadin.shared.ui.ui.Transport;
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.ClientConnector.DetachListener;
 import com.vaadin.server.VaadinRequest;
@@ -32,9 +35,12 @@ import fi.csc.microarray.messaging.admin.ManagerConfiguration;
 
 @SuppressWarnings("serial")
 @Theme("admin")
-// HbnContainer's ServletFilter doesn't work with Push,
-// could we use JPAContainer instead?
-//@Push // enable push support (atmosphere framework using WebSocket or some fallback)
+/*
+ * Workaround for Vaadin Push and session-per-request -pattern used by Hibernate
+ * HbnContainer's ServletFilter doesn't work with WebSockets
+ * (PushMode.AUTOMATIC)
+ */ 
+@Push(value=PushMode.MANUAL, transport=Transport.STREAMING)
 public class ChipsterAdminUI extends UI implements DetachListener {
 	
 	private static final Logger logger = Logger.getLogger(ChipsterAdminUI.class);

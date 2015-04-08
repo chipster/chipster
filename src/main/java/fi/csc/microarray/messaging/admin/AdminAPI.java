@@ -252,7 +252,7 @@ public class AdminAPI {
 				for (String key : nodeStatuses.keySet()) {
 					copy.put(key, new NodeStatus(nodeStatuses.get(key)));
 				}
-				listener.statusUpdated(nodeStatuses);
+				listener.statusUpdated(copy);
 			} finally {
 				mutex.unlock();
 			}

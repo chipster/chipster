@@ -56,9 +56,6 @@ public class AsynchronousView extends VerticalLayout {
 		
 		setProgressIndicatorValue(0f);
 		
-		//This makes the browser start polling, but the browser will get it only if this is executed in this original thread
-		ui.setPollInterval(500);
-		
 		executor.execute(new Runnable() {
 			public void run() {								
 				try {									
@@ -95,14 +92,6 @@ public class AsynchronousView extends VerticalLayout {
 					logger.error("error occurred in update", e);
 				} finally {
 					setProgressIndicatorValue(1.0f);
-					
-					// acquire the UI lock for this to make sure that all preceding
-					// UI updates are applied before the polling is disabled
-					updateUI(new Runnable() {
-						public void run() {
-							ui.setPollInterval(-1);
-						}
-					});
 				}
 			}
 		});
@@ -143,6 +132,14 @@ public class AsynchronousView extends VerticalLayout {
 		
 		try {
 			ui.access(runnable);
+			
+			// this is needed, because the ChipsterAdminUI is configured
+			// for manual push
+			ui.access(new Runnable() {
+				public void run() {
+					ui.push();			
+				}
+			});
 		} catch (UIDetachedException e) {
 			// user reloaded the page during the update
 		}		

@@ -58,17 +58,15 @@ public class ServiceContainer extends BeanItemContainer<ServiceEntry> implements
 	}
 	
 	public void statusUpdated(Map<String, NodeStatus> statuses) {
-
-		/* Following operation has to lock table component, because addBean() will 
-		 * eventually modify its user interface. Keep the lock during the update loop
-		 * to avoid showing inconsistent state during the loop.
-		 */
-		
 		updateUI(view, statuses);
 	}
 
 	
 	private void updateUI(final ServicesView view, final Map<String, NodeStatus> statuses) {
+		/* Following operation has to lock table component, because addBean() will 
+		 * eventually modify its user interface. Keep the lock during the update loop
+		 * to avoid showing inconsistent state during the loop.
+		 */
 		view.updateUI(new Runnable() {
 			@Override
 			public void run() {
@@ -76,7 +74,6 @@ public class ServiceContainer extends BeanItemContainer<ServiceEntry> implements
 				removeAllItems();
 
 				for (Entry<String, NodeStatus> entry : statuses.entrySet()) {
-
 
 					NodeStatus node = entry.getValue();
 
