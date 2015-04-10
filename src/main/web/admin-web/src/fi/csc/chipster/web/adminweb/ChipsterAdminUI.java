@@ -40,7 +40,7 @@ import fi.csc.microarray.messaging.admin.ManagerConfiguration;
  * HbnContainer's ServletFilter doesn't work with WebSockets
  * (PushMode.AUTOMATIC)
  */ 
-@Push(value=PushMode.MANUAL, transport=Transport.STREAMING)
+@Push(value=PushMode.MANUAL, transport=Transport.LONG_POLLING)
 public class ChipsterAdminUI extends UI implements DetachListener {
 	
 	private static final Logger logger = Logger.getLogger(ChipsterAdminUI.class);
