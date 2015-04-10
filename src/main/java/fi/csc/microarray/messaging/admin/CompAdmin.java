@@ -14,6 +14,8 @@ import javax.jms.JMSException;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.messaging.JMSMessagingEndpoint;
+import fi.csc.microarray.messaging.NodeBase;
 import fi.csc.microarray.messaging.admin.ServerAdminAPI.StatusReportListener;
 import fi.csc.microarray.messaging.message.ServerStatusMessage;
 
@@ -118,29 +120,49 @@ public class CompAdmin {
 		
 		initConfig(config);
 		
-		compAPI = new CompAdminAPI();
-		
-		if (wait != null) {
-			this.waitTime = wait;
+		try {
+
+			NodeBase nodeSupport = new NodeBase() {
+				public String getName() {
+					return "chipster-comp-admin";
+				}
+			};
+
+			ManagerConfiguration.init();
+			JMSMessagingEndpoint endpoint = new JMSMessagingEndpoint(nodeSupport);					
+
+
+			compAPI = new CompAdminAPI(endpoint);
+
+			if (wait != null) {
+				this.waitTime = wait;
+			}
+
+			if (listJobs) {
+				listJobs(quiet);
+			}
+			if (listComps) {
+				listComps(quiet);
+			}
+			if (cancelJob != null) {
+				cancelJob(cancelJob);
+			}
+			if (stopComp != null) {
+				stopGracefully(stopComp);
+			}
+			if (shutdownOne) {
+				stopGracefully(null);
+			}
+			
+			endpoint.close();
+
+		} catch (MicroarrayException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (IllegalConfigurationException e) {
+			e.printStackTrace();
 		}
-		
-		if (listJobs) {
-			listJobs(quiet);
-		}
-		if (listComps) {
-			listComps(quiet);
-		}
-		if (cancelJob != null) {
-			cancelJob(cancelJob);
-		}
-		if (stopComp != null) {
-			stopGracefully(stopComp);
-		}
-		if (shutdownOne) {
-			stopGracefully(null);
-		}
-		
-		compAPI.clean();
 	}
 
 	private void initConfig(String arg) throws MalformedURLException, IOException, IllegalConfigurationException {
@@ -218,7 +240,7 @@ public class CompAdmin {
 				public void statusUpdated(List<ServerStatusMessage> statuses) {					
 					comps = statuses;					
 				}
-			});
+			}, wait);
 			Thread.sleep(wait * 1000);
 			return comps;
 		}

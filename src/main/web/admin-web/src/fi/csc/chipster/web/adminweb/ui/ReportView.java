@@ -35,30 +35,20 @@ public class ReportView extends AsynchronousView implements ClickListener {
 	private HorizontalLayout toolbarLayout;
 
 	private ReportDataSource dataSource;
-
-	private ChipsterAdminUI app;
-
 	
 	public ReportView(ChipsterAdminUI app) {
 		
-		super(UPDATE_WAIT);
-		
-		this.app = app;
+		super(app, UPDATE_WAIT);
 					
 		this.addComponent(getToolbar());
 		
 		this.addComponent(super.getProggressIndicator());
 
 		tabSheet = new TabSheet();
+		
+		dataSource = new ReportDataSource(app.getEndpoint());
 				
 		tabSheet.setSizeFull();
-		tabSheet.addSelectedTabChangeListener(new SelectedTabChangeListener() {
-
-			@Override
-			public void selectedTabChange(SelectedTabChangeEvent e) {
-				updateData();
-			}
-		});
 		
         this.addComponent(tabSheet);        
         this.setExpandRatio(tabSheet, 1);
@@ -74,62 +64,44 @@ public class ReportView extends AsynchronousView implements ClickListener {
 		tabSheet.addTab(compLayout, "Comp");
 		jobmanagerLayout.addComponent(jobmanagerLabel);
 		tabSheet.addTab(jobmanagerLayout, "Jobmanager");
+		
+		tabSheet.addSelectedTabChangeListener(new SelectedTabChangeListener() {
+
+			@Override
+			public void selectedTabChange(SelectedTabChangeEvent e) {
+				update();
+			}
+		});
 	}
 	
-	public void updateData() {
-
-		if (dataSource == null) {
-			dataSource = new ReportDataSource();
-		}
+	public void update() {
 
 		if (tabSheet.getSelectedTab() == filebrokerLayout) {
-			updateFileBrokerData();
+			super.submitUpdate(new Runnable() {			
+				@Override
+				public void run() {				
+					dataSource.updateFilebrokerReport(ReportView.this);
+				}			
+			});
 		}
 
 		if (tabSheet.getSelectedTab() == compLayout) {
-			updateCompData();
+			super.submitUpdateAndWait(new Runnable() {
+				@Override
+				public void run() {				
+					dataSource.updateCompReport(ReportView.this, (int) getTimeout());					
+				}			
+			});
 		}
 		
 		if (tabSheet.getSelectedTab() == jobmanagerLayout) {
-			updateJobmanagerData();
+			super.submitUpdate(new Runnable() {			
+				@Override
+				public void run() {				
+					dataSource.updateJobmanagerReport(ReportView.this);
+				}			
+			});
 		}
-	}
-	
-	private void updateCompData() {
-		
-		// comp						
-		super.submitUpdateAndWait(new Runnable() {
-			
-			@Override
-			public void run() {				
-				dataSource.updateCompReport(ReportView.this);					
-			}			
-		});
-	}
-
-	private void updateFileBrokerData() {
-
-		// filebroker
-		super.submitUpdate(new Runnable() {
-			
-			@Override
-			public void run() {				
-				dataSource.updateFilebrokerReport(ReportView.this);
-			}			
-		});
-		
-	}
-	
-	private void updateJobmanagerData() {
-
-		super.submitUpdate(new Runnable() {
-			
-			@Override
-			public void run() {				
-				dataSource.updateJobmanagerReport(ReportView.this);
-			}			
-		});
-		
 	}
 
 	public Label createReportLabel(String text) {
@@ -158,7 +130,7 @@ public class ReportView extends AsynchronousView implements ClickListener {
 			toolbarLayout.addComponent(spaceEater);
 			toolbarLayout.setExpandRatio(spaceEater, 1);
 
-			toolbarLayout.addComponent(app.getTitle());	
+			toolbarLayout.addComponent(getApp().getTitle());	
 			
 			toolbarLayout.setWidth("100%");
 			toolbarLayout.setStyleName("toolbar");
@@ -169,7 +141,7 @@ public class ReportView extends AsynchronousView implements ClickListener {
 
 	public void buttonClick(ClickEvent event) {
 		if (super.isRefreshButton(event.getSource())) {			
-			updateData();			
+			update();			
 		}
 	}
 

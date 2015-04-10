@@ -9,6 +9,7 @@ import org.junit.Before;
 import fi.csc.microarray.DemoAuthenticationRequestListener;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.messaging.auth.SimpleAuthenticationRequestListener;
+import fi.csc.microarray.util.Exceptions;
 
 public abstract class MessagingTestBase {
 	/**
@@ -76,10 +77,15 @@ public abstract class MessagingTestBase {
 	}
 	
 	@After
-	public void tearDown() throws Exception {
+	public void tearDown() {
 		if (endpoint != null) {
 			System.out.println("closing messaging endpoint");
-			endpoint.close();
+			try {
+				endpoint.close();
+			} catch (Exception e) {
+				System.out.println("got exception when closing messaging endpoint");
+				System.out.println(Exceptions.getStackTrace(e));
+			}
 			endpoint = null;
 		}
 	}

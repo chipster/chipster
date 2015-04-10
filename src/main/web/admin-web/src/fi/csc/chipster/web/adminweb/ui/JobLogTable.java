@@ -26,8 +26,8 @@ public class JobLogTable extends Table {
 		this.setSelectable(true);
 		this.setImmediate(true);
 
-		this.addGeneratedColumn(JobLogContainer.START_TIME, new DateColumnGenerator());
 		this.addGeneratedColumn(JobLogContainer.WALLCLOCK_TIME, new WallClockColumnGenerator());
+		this.addGeneratedColumn(JobLogContainer.END_TIME, new DateColumnGenerator());
 		this.addGeneratedColumn(JobLogContainer.OUTPUT_LINK, new OutputLinkColumnGenerator());
 		this.addGeneratedColumn(JobLogContainer.ERROR_LINK, new ErrorLinkColumnGenerator());
 	}
@@ -42,9 +42,11 @@ public class JobLogTable extends Table {
 
 				Integer wallClockTime = (Integer) prop.getValue();
 
-				Label label = new Label(StringUtils.formatMinutes(wallClockTime));
-				
-				return label;
+				if (wallClockTime != null) {
+					return new Label(StringUtils.formatMinutes(wallClockTime));
+				} else {
+					return new Label();
+				}
 			}
 			return null;
 		}

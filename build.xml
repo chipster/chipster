@@ -39,7 +39,7 @@
     <typedef name="fatjar.filesource" classname="net.sf.fjep.anttask.FJFileSourceType" classpath="${fjepPath}" loaderref="lib.path.loader"/>
 
 	<!-- version numbering -->
-	<property name="release-version" value="3.3.1" />
+	<property name="release-version" value="3.3.2" />
 	<property name="release-jar" value="${dist}/chipster-${release-version}.jar" />
 	<property name="release-tar" value="${dist}/chipster-${release-version}.tar.gz" />
 	<property name="release-zip" value="${dist}/chipster-${release-version}.zip" />
@@ -76,7 +76,8 @@
 			<fatjar.filesource path="${workflows}" relpath=""/>
 
         	<fatjar.jarsource file="${lib}/concurrent.jar" relpath=""/>
-			<fatjar.jarsource file="${lib}/log4j-1.2.17.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/log4j-api-jar-2.2.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/log4j-core-jar-2.2.jar" relpath=""/>
             <fatjar.jarsource file="${lib}/jgraph-5.12.2.1.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/antlr-3.0b7.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/antlr-2.7.7.jar" relpath=""/>

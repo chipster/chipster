@@ -3,7 +3,6 @@ package fi.csc.chipster.web.adminweb.data;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.context.internal.ThreadLocalSessionContext;
 
 import com.vaadin.data.hbnutil.HbnContainer;
 
@@ -26,10 +25,10 @@ public class JobLogContainer extends HbnContainer<JobLogEntry> {
 	public static final String ERROR_LINK = "errorLink";
 
 	public static final Object[] NATURAL_COL_ORDER  = new String[] {
-		USERNAME, 		OPERATION, 		COMPHOST, 		START_TIME, 	WALLCLOCK_TIME, 	OUTPUT_LINK, 	ERROR_LINK, 	STATUS	};
+		USERNAME, 		OPERATION, 		COMPHOST, 		WALLCLOCK_TIME, 	END_TIME, 	OUTPUT_LINK, 	ERROR_LINK, 	STATUS	};
 
 	public static final String[] COL_HEADERS_ENGLISH = new String[] {
-		"Username", 	"Operation", 	"Comp host", 	"Start time", 	"Wall clock time", 	"", 			"Error", 		"Status" };
+		"Username", 	"Operation", 	"Comp host", 	"Wall clock time",	"End time",	"", 			"Error", 		"Status" };
 	
 	
 	public static final String STATUS_FAIL_VALUE = "FAILED";
@@ -44,9 +43,7 @@ public class JobLogContainer extends HbnContainer<JobLogEntry> {
 	
 	@Override
 	protected Criteria getBaseCriteria() {
-		//Fix for incompatibility or bug of hbncontainer and hibernate
-		Session session = HibernateUtil.getSessionFactory().openSession();
-		ThreadLocalSessionContext.bind(session);
+		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
 		
 		//Filter test accounts
 		Criteria criteria = super.getBaseCriteria();		

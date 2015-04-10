@@ -18,6 +18,7 @@ import com.google.gson.reflect.TypeToken;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.JsonMessageListener;
+import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.JobLogMessage;
@@ -32,8 +33,8 @@ public class JobmanagerAdminAPI extends ServerAdminAPI {
 		public void statusUpdated(Collection<JobsEntry> collection);
 	}
 
-	public JobmanagerAdminAPI() throws IOException, IllegalConfigurationException, MicroarrayException, JMSException {
-		super(Topics.Name.JOBMANAGER_ADMIN_TOPIC, "jobmanager-admin");
+	public JobmanagerAdminAPI(MessagingEndpoint endpoint) throws IOException, IllegalConfigurationException, MicroarrayException, JMSException {
+		super(Topics.Name.JOBMANAGER_ADMIN_TOPIC, endpoint);
 	}
 	
 	public HashMap<String, JobsEntry> queryRunningJobs() throws JMSException, InterruptedException, MicroarrayException {

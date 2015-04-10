@@ -6,36 +6,45 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.locks.Lock;
+
+import org.apache.log4j.Logger;
 
 import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.ProgressIndicator;
+import com.vaadin.ui.ProgressBar;
+import com.vaadin.ui.UIDetachedException;
 import com.vaadin.ui.VerticalLayout;
 
+import fi.csc.chipster.web.adminweb.ChipsterAdminUI;
+
 public class AsynchronousView extends VerticalLayout {
+	
+	private static final Logger logger = Logger.getLogger(AsynchronousView.class);
 	
 	private static final int POLLING_INTERVAL = 100;
 	
 	private Button refreshButton;
 	
-	private ProgressIndicator progressIndicator = new ProgressIndicator(0.0f);
+	private ProgressBar progressBar = new ProgressBar(0.0f);
 	private ExecutorService executor = Executors.newCachedThreadPool();
 
 	private long timeout; // seconds
+
+	private ChipsterAdminUI ui;
 	
-	public AsynchronousView(long timeout) {
+	public AsynchronousView(ChipsterAdminUI ui, long timeout) {
+		this.ui = ui;
 		this.timeout = timeout;
 	}
 	
-	public AsynchronousView() {
-		this(30);
+	public AsynchronousView(ChipsterAdminUI ui) {
+		this(ui, 30);
 	}
 
-	public ProgressIndicator getProggressIndicator() {
-		progressIndicator.setWidth(100, Unit.PERCENTAGE);
-		return progressIndicator;
+	public ProgressBar getProggressIndicator() {
+		progressBar.setWidth(100, Unit.PERCENTAGE);
+		return progressBar;
 	}
 	
 	/**
@@ -45,7 +54,6 @@ public class AsynchronousView extends VerticalLayout {
 	 */
 	protected void waitForUpdate(final Future<?> future, final AfterUpdateCallBack callBack, final boolean wait) {				
 		
-		//This makes the browser start polling, but the browser will get it only if this is executed in this original thread.
 		setProgressIndicatorValue(0f);
 		
 		executor.execute(new Runnable() {
@@ -73,43 +81,70 @@ public class AsynchronousView extends VerticalLayout {
 					}
 					//Update was successful
 					if (callBack != null) {
-						callBack.updateDone();
+						updateUI(new Runnable() {
+							public void run() {								
+								callBack.updateDone();
+							}
+						});
 					}
 
 				} catch (InterruptedException | ExecutionException e) {
-					e.printStackTrace();
-				} finally {				
+					logger.error("error occurred in update", e);
+				} finally {
 					setProgressIndicatorValue(1.0f);
 				}
 			}
 		});
 	}
 	
-	private void setProgressIndicatorValue(float value) {
-		//This happens in initialization 
-		if (progressIndicator.getUI() != null ) {
-			
-			Lock indicatorLock = progressIndicator.getUI().getSession().getLockInstance();
-			
-			//Component has to be locked before modification from background thread
-			indicatorLock.lock();					
-			try {
-				progressIndicator.setValue(value);
+	private void setProgressIndicatorValue(final float value) {
 				
+		//Component has to be locked before modification from background thread
+		
+		this.updateUI(new Runnable() {
+			@Override
+			public void run() {
+				progressBar.setValue(value);
+
 				if (value == 1.0f) {
-					refreshButton.setEnabled(true);
-					progressIndicator.setPollingInterval(Integer.MAX_VALUE);	
+					refreshButton.setEnabled(true); 
 				} else {
 					refreshButton.setEnabled(false);
-					progressIndicator.setPollingInterval(POLLING_INTERVAL);
 				}
-			} finally {
-				indicatorLock.unlock();
 			}
-		}
+		});
 	}
 
 	
+	/**
+	 * Thread safe UI updates
+	 * 
+	 * Execute UI changes in a runnable after attaining the applications's lock.
+	 * Runnable won't be run, if the view isn't anymore active. 
+	 * 
+	 * Make sure this method won't get called before the UI is ready. In 
+	 * practice the easiest way to ensure this is to start data queries only 
+	 * after the UI is initialized and visible.
+	 * 
+	 * @param runnable
+	 */
+	public void updateUI(Runnable runnable) {
+		
+		try {
+			ui.access(runnable);
+			
+			// this is needed, because the ChipsterAdminUI is configured
+			// for manual push
+			ui.access(new Runnable() {
+				public void run() {
+					ui.push();			
+				}
+			});
+		} catch (UIDetachedException e) {
+			// user reloaded the page during the update
+		}		
+	}
+
 	public void submitUpdate(Runnable runnable, AfterUpdateCallBack callBack, boolean wait) {
 		Future<?> future = executor.submit(runnable);
 		
@@ -138,5 +173,12 @@ public class AsynchronousView extends VerticalLayout {
 	public boolean isRefreshButton(Object object) {
 		return refreshButton == object;
 	}
+	
+	public long getTimeout() {
+		return timeout;
+	}
 
+	public ChipsterAdminUI getApp() {
+		return ui;
+	}
 }

@@ -3,7 +3,6 @@ package fi.csc.chipster.web.adminweb.data;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.concurrent.locks.Lock;
 
 import javax.jms.JMSException;
 
@@ -41,6 +40,7 @@ public class JobsContainer extends BeanItemContainer<JobsEntry> implements Seria
 
 
 
+
 	public JobsContainer(JobsView view, JobmanagerAdminAPI jobmanagerAdminAPI) throws IOException, IllegalConfigurationException, MicroarrayException, JMSException {
 		super(JobsEntry.class);
 		this.view = view;
@@ -50,7 +50,7 @@ public class JobsContainer extends BeanItemContainer<JobsEntry> implements Seria
 	public void update() {		
 		
 		try {
-			Collection<JobsEntry> list = jobmanagerAdminAPI.queryRunningJobs().values();			
+			Collection<JobsEntry> list = jobmanagerAdminAPI.queryRunningJobs().values();
 			statusUpdated(list);
 						
 		} catch (JMSException | InterruptedException | MicroarrayException e) {
@@ -59,22 +59,16 @@ public class JobsContainer extends BeanItemContainer<JobsEntry> implements Seria
 	}
 
 	@Override
-	public void statusUpdated(Collection<JobsEntry> jobs) {
-		
-		//Following is null if data loading was faster than UI initialisation in another thread
-		if (view.getEntryTable().getUI() != null) {
-			Lock tableLock = view.getEntryTable().getUI().getSession().getLockInstance();
-			tableLock.lock();
-			try {
+	public void statusUpdated(final Collection<JobsEntry> jobs) {
+		view.updateUI(new Runnable() {
+			@Override
+			public void run() {
 				removeAllItems();
-
+				
 				for (JobsEntry entry : jobs) {
 					addBean(entry);
 				}
-
-			} finally {
-				tableLock.unlock();
 			}
-		}
+		});
 	}
 }

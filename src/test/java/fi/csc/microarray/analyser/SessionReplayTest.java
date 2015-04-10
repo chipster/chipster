@@ -354,7 +354,7 @@ public class SessionReplayTest extends MessagingTestBase {
 			Task task = executor.createNewTask(new OperationRecord(operation), operation.getDefinition().isLocal());
 			
 			// Execute the task
-			System.out.println("running " + operation.getDefinition().getFullName());
+			System.out.println(new Date() + " running " + operation.getDefinition().getFullName());
 			CountDownLatch latch = new CountDownLatch(1);
 			task.addTaskEventListener(new JobResultListener(latch));
 			executor.startExecuting(task);
@@ -554,6 +554,7 @@ public class SessionReplayTest extends MessagingTestBase {
 		
 		try { 
 			if ("run".equals(jc.getParsedCommand())) {
+				System.out.println(new Date() + " running session replay test");
 				initWebDir(run.output);
 				runTestSessions(run.config, run.username, run.password, run.sessions);
 				
@@ -569,6 +570,7 @@ public class SessionReplayTest extends MessagingTestBase {
 				updateFlagFileAndExit(false);
 			}
 		} catch (Exception e) {
+			System.out.println(Exceptions.getStackTrace(e));
 			System.out.println("TOOL TEST EXCEPTION ERROR");
 			updateFlagFileAndExit(false);
 		}
@@ -604,6 +606,7 @@ public class SessionReplayTest extends MessagingTestBase {
 			test.setUp();
 			// run tests
 			boolean testOK = test.testSessions(sessionsDirName);
+			test.tearDown();
 			if (testOK) {
 				System.out.println("TOOL TESTS OK");
 				updateFlagFileAndExit(true);
@@ -614,13 +617,10 @@ public class SessionReplayTest extends MessagingTestBase {
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println("TOOL TEST ERROR");
-			try {
-				test.tearDown();
-			} catch (Exception e2) {
-				// ignore
-			}
+			test.tearDown();
 			updateFlagFileAndExit(false);
 		} finally {
+			// never get here?
 			test.tearDown();
 		}
 	}

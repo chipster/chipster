@@ -29,7 +29,7 @@ public class ToolTestTextFile {
 						result.getToolFullName() + TEXT_FILE_SEPARATOR +
 						result.getTaskId() + TEXT_FILE_SEPARATOR +
 						result.getTaskState() + TEXT_FILE_SEPARATOR +
-						nullToEmpty(result.getTaskErrorMessage()) + TEXT_FILE_SEPARATOR +
+						nullToEmpty(result.getTaskErrorMessage()).replaceAll("\n", " ") + TEXT_FILE_SEPARATOR +
 						result.getTaskDuration() + TEXT_FILE_SEPARATOR +
 						result.getSession() + TEXT_FILE_SEPARATOR +
 						nullToEmpty(result.getTestErrorMessage()) + TEXT_FILE_SEPARATOR

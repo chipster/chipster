@@ -109,19 +109,19 @@
 	background: gray;
 }
 
-.v-progressindicator-wrapper {
+.v-progressbar-wrapper {
 	background: #FFFFFF;
 }
 
-.v-progressindicator-indicator {
+.v-progressbar-indicator {
 	background: lightGray;
 }
 
- .ok .v-progressindicator-indicator {
+ .ok .v-progressbar-indicator {
 	background: green;
 }
 
- .fail .v-progressindicator-indicator {
+ .fail .v-progressbar-indicator {
 	background: red;
 }
 

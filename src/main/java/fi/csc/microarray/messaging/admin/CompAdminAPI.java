@@ -1,7 +1,6 @@
 package fi.csc.microarray.messaging.admin;
 
 import java.io.IOException;
-import java.util.Collection;
 
 import javax.jms.JMSException;
 
@@ -9,6 +8,7 @@ import org.apache.log4j.Logger;
 
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.SuccessMessageListener;
 import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.message.CommandMessage;
@@ -25,13 +25,9 @@ import fi.csc.microarray.messaging.message.SuccessMessage;
 public class CompAdminAPI extends ServerAdminAPI {
 		
 	private static final Logger logger = Logger.getLogger(CompAdminAPI.class);
-	
-	public static interface JobsListener {
-		public void statusUpdated(Collection<JobsEntry> collection);
-	}
 
-	public CompAdminAPI() throws IOException, IllegalConfigurationException, MicroarrayException, JMSException {
-		super(Topics.Name.COMP_ADMIN_TOPIC, "comp-admin");
+	public CompAdminAPI(MessagingEndpoint endpoint) throws IOException, IllegalConfigurationException, MicroarrayException, JMSException {
+		super(Topics.Name.COMP_ADMIN_TOPIC, endpoint);
 	}
 	
 	public void stopGracefullyComp(String compId) throws MicroarrayException {

@@ -3,9 +3,9 @@ package fi.csc.chipster.web.adminweb.ui;
 import java.util.Arrays;
 import java.util.Collection;
 
-import com.vaadin.data.hbnutil.ContainerFilter;
-import com.vaadin.data.hbnutil.IdContainerFilter;
-import com.vaadin.data.hbnutil.StringContainerFilter;
+import com.vaadin.data.hbnutil.filter.ContainerFilter;
+import com.vaadin.data.hbnutil.filter.IdContainerFilter;
+import com.vaadin.data.hbnutil.filter.StringContainerFilter;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.ShortcutListener;
 import com.vaadin.server.ThemeResource;
@@ -32,19 +32,21 @@ public class JobLogFilter extends HorizontalLayout {
 	private TextField searchStringField;
 	private NativeSelect columnToSearch;
 
-	private ContainerFilter containerFilter;
+	private com.vaadin.data.hbnutil.filter.ContainerFilter containerFilter;
 
-
-	public JobLogFilter(final JobLogView view) {
+	public JobLogFilter(final JobLogView view, String column, String search) {
 		this.view = view;
 
 		searchStringField = new TextField();
+		if (search != null) {
+			searchStringField.setValue(search);
+		}
 		searchStringField.setDescription("Search for values starting with this string. Question mark (?) is a wildcard for a single character and asterisk (*) for any number of characters.");  
 		searchStringField.addShortcutListener(new ShortcutListener("Search", ShortcutAction.KeyCode.ENTER, null) {
 
 			@Override
 			public void handleAction(Object sender, Object target) {
-				view.applyFilters();
+				view.update();
 			}
 		});
 
@@ -65,12 +67,16 @@ public class JobLogFilter extends HorizontalLayout {
 			}
 		}
 
-		columnToSearch.setValue(JobLogContainer.USERNAME);
+		if (column != null) {
+			columnToSearch.setValue(column);
+		} else {
+			columnToSearch.setValue(JobLogContainer.USERNAME);
+		}
 		columnToSearch.setNullSelectionAllowed(false);
 
 		clearButton.addClickListener(new Button.ClickListener() {
 			public void buttonClick(ClickEvent event) {
-				getView().clearFilters(JobLogFilter.this);
+				getView().clearFilter(JobLogFilter.this);
 			}
 		});
 
