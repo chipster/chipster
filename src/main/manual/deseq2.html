@@ -3,7 +3,7 @@
 <head><title></title></head>
 <body>
 
-<h2>RNA-seq / Differential expression analysis using DESeq2</h2>
+<h2>Differential expression analysis using DESeq2</h2>
 
 <h3>Description</h3>
 Differential expression analysis using the DESeq2 Bioconductor package. This tool allows you to have more than two experimental groups and 
@@ -17,7 +17,6 @@ account for a second experimental factor.
  
 <li> Column describing groups [group]</li>
 <li> Column describing additional experimental factor [EMPTY]</li>
-<li> Dispersion estimation method (parametric, local) [parametric] </li>
 <li> Cutoff for the adjusted P-value (0-1) [0.05]</li>
 </ul>
 
@@ -30,13 +29,13 @@ and creates a phenodata file for it.
 <br><br>
 DESeq2 performs an internal normalization where geometric mean is calculated for each gene across all samples. 
 The counts for a gene in each sample is then divided by this mean. The median of these ratios in a sample is the size factor for that sample. This procedure
- corrects for RNA composition bias (which can arise for example when only a small number of genes are very highly expressed in one experiment condition but not in the other). 
+ corrects for library size and RNA composition bias, which can arise for example when only a small number of genes are very highly expressed in one experiment condition but not in the other. 
 <br><br>
 DESeq2 fits negative binomial generalized linear models for each gene and uses Wald test for significance testing. 
 As small numbers of replicates make it impossible to estimate within-group variance reliably, DESeq2 uses shrinkage estimation for dispersions and fold changes. 
-A dispersion value is estimated for each gene through a model fit procedure, which can be performed in a "local" or "parametric" mode.
+A dispersion value is estimated for each gene through a model fit procedure.
 You need to have biological replicates of each experiment condition in order to estimate dispersion properly. 
-If there are no replicates, DESeq will estimate dispersion using the samples from the different conditions as replicates. You should use the local mode for dispersion fitting in this case. 
+If there are no replicates, DESeq will estimate dispersion using the samples from the different conditions as replicates. 
 <br><br>
 DESeq2 detects automatically count outliers using Cooks's distance and removes these genes from analysis. It also automatically removes genes whose mean of normalized counts is below a threshold 
 determined by an optimization procedure. Removing these genes with low counts improves the detection power by making the multiple testing adjustment of the p-values less severe.
@@ -55,15 +54,16 @@ from a likelihood ratio test of a model including the groups and the additional 
 <ul>
 <li>de-list-deseq2.tsv: Table containing the significantly differentially expressed genes. The columns include 
 	<ul>
-		<li>baseMean (the average of the normalized counts taken over all samples)</li>
-		<li>log2FoldChange (log2 fold change between the groups. E.g. value 2 means that the expression has increased 4-fold)</li>
-		<li>lfcSE (standard error of the log2FoldChange estimate)</li>
-		<li>stat (Wald statistic)</li>
-		<li>pvalue (Wald test p-value)</li>
-		<li>padj (Benjamini-Hochberg adjusted p-value)</li>
+		<li>baseMean = the average of the normalized counts taken over all samples</li>
+		<li>log2FoldChange = log2 fold change between the groups. E.g. value 2 means that the expression has increased 4-fold</li>
+		<li>lfcSE = standard error of the log2FoldChange estimate</li>
+		<li>stat = Wald statistic</li>
+		<li>pvalue = Wald test p-value</li>
+		<li>padj = Benjamini-Hochberg adjusted p-value</li>
 	</ul></li>
 <li>de-list-deseq2.bed: The BED version of the results table contains genomic coordinates and log2 fold change values.<br></li>
-<li>ma-plot-deseq2.pdf: A scatter plot where the significantly differentially expressed genes are highlighted. <br></li>
+<li>ma-plot-deseq2.pdf: MA scatter plot where the significantly differentially expressed genes are highlighted. <br></li>
+<li>summary.txt: Textual summary of the differential expression results, including information on filtering and outliers. <br></li>
 <li>dispersion-plot-deseq2.pdf: Plot of dispersion estimates at different count levels, showing
 	<ul>
 		<li>black dot = dispersion estimate for each gene as obtained by considering the information from each gene separately</li>

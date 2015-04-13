@@ -20,6 +20,11 @@
 # AMS 24.2.2014 Added G option, changed g option, added support for internal GTFs for both
 # AMS 04.07.2014 New genome/gtf/index locations & names
 
+# check out if the file is compressed and if so unzip it
+source(file.path(chipster.common.path, "zip-utils.R"))
+unzipIfGZipFile("annotation.gtf")
+unzipIfGZipFile("genome.fa")
+
 # binary
 cufflinks.binary <- c(file.path(chipster.tools.path, "cufflinks2", "cufflinks"))
 

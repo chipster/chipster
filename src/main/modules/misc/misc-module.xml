@@ -9,6 +9,7 @@
 
 
 	<category name="Data retrieval" color="#e7df70">
+	   <tool runtime="python"><resource>edirect_fetch.py</resource></tool>
        <tool runtime="R-3.0"><resource>edirect_fetch.R</resource></tool>
 	   <tool runtime="R-3.0"><resource>srafetch.R</resource></tool>
 	   <tool runtime="R-3.0"><resource>srabamfetch.R</resource></tool>
@@ -87,8 +88,9 @@
 	    <tool runtime="R-3.0"><resource>taxonomy_tool.R</resource></tool>
     	<tool runtime="R-3.0"><resource>emboss_files.R</resource></tool>
 	    <tool runtime="R-3.0" module="common"><resource>select_columns.R</resource></tool> 
-	    <tool runtime="R-3.0"><resource>sort_and_select_columns.R</resource></tool>
-	    <tool runtime="R-3.0"><resource>concatenate.R</resource></tool>
+	    <tool runtime="R-3.0" module="common"><resource>sort_and_select_columns.R</resource></tool>
+<!-- 	    <tool runtime="R-3.0" module="common"><resource>general_file_processing.R</resource></tool> -->
+        <tool runtime="R-3.0"><resource>concatenate.R</resource></tool>
 	</category>
 	
 

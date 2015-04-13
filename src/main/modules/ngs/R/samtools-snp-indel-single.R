@@ -22,6 +22,10 @@
 # AMS 24.6.2014: Changed handling of fasta file
 # AMS 04.07.2014 New genome/gtf/index locations & names
 
+# check out if the file is compressed and if so unzip it
+source(file.path(chipster.common.path, "zip-utils.R"))
+unzipIfGZipFile("ownref.fa")
+
 # binaries
 samtools.binary <- c(file.path(chipster.tools.path, "samtools", "samtools"))
 bcftools.binary <- c(file.path(chipster.tools.path, "samtools", "bcftools", "bcftools"))

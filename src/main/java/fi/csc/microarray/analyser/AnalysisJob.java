@@ -56,8 +56,7 @@ import fi.csc.microarray.util.Exceptions;
 public abstract class AnalysisJob implements Runnable {
 
 	public static String SCRIPT_SUCCESSFUL_STRING = "script-finished-succesfully";
-	public static String SCRIPT_FAILED_STRING = "script-finished-unsuccesfully";
-	public final String ERROR_MESSAGE_TOKEN = "Error";
+	public static String SCRIPT_FAILED_STRING = "script-finished-unsuccesfully";	
 	public final String CHIPSTER_NOTE_TOKEN = "CHIPSTER-NOTE:"; 
 
 	private static final Logger logger = Logger.getLogger(AnalysisJob.class);

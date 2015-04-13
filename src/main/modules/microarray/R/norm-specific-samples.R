@@ -19,7 +19,7 @@ dat2<-dat[,grep("chip", names(dat))]
 phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
 
 # Extract the data from the phenodata column
-extract<-phenodata[,grep(column.to.normalize.by, colnames(phenodata))]
+extract<-phenodata[,which(column.to.normalize.by==colnames(phenodata))]
 
 # Sanity checks
 if(length(unique(extract))>2) {

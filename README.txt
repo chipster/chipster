@@ -20,7 +20,7 @@ you can use "keytool" to generate your signing key.
 To build a freshly checked out project directory, go to command line and
 in the project directory give following command:
 
-keytool -genkey -alias csc -keystore keystore.ks -storepass chipster -validity 1825
+keytool -genkey -alias chipster -keystore keystore.ks -storepass chipster -validity 1825
 
 Fill in your data to keytool command parameters. You might want to use your organisations name 
 also as your own name as it is shown by Java Web Start. Use the keystore password

@@ -1,4 +1,4 @@
-# TOOL deseq2-pca-heatmap.R: "PCA and heatmap of samples" (Creates PCA and heatmap plots for samples using the DESeq2 Bioconductor package. Visualizing similarities and dissimilarities between samples can help you to perform experiment level quality control. This tool takes as input a table of raw counts. The count table has to be associated with a phenodata file describing the experimental groups. You can create the count table and phenodata file using the tool \"Utilities - Define NGS experiment\".)
+# TOOL deseq2-pca-heatmap.R: "PCA and heatmap of samples with DESeq2" (Creates PCA and heatmap plots for samples using the DESeq2 Bioconductor package. Visualizing similarities and dissimilarities between samples can help you to perform experiment level quality control. This tool takes as input a table of raw counts. The count table has to be associated with a phenodata file describing the experimental groups. You can create the count table and phenodata file using the tool \"Utilities - Define NGS experiment\".)
 # INPUT data.tsv: "Count table" TYPE GENERIC
 # INPUT phenodata.tsv: "Phenodata file" TYPE GENERIC
 # OUTPUT OPTIONAL pca-deseq2.pdf
@@ -11,6 +11,7 @@
 library(DESeq2)
 library(gplots)
 library(RColorBrewer)
+library(ggplot2)
 
 # Load the count table and extract expression value columns
 dat <- read.table("data.tsv", header=T, sep="\t", row.names=1)
@@ -32,8 +33,15 @@ vst<-varianceStabilizingTransformation(dds)
 vstmat<-assay(vst)
 
 # Make PCA plot as pdf
+# plotPCA(vst,intgroup="condition")
+
+data <- plotPCA(vst, intgroup=c("condition"), returnData=TRUE)
+percentVar <- round(100 * attr(data, "percentVar"))
 pdf(file="pca-deseq2.pdf")
-plotPCA(vst,intgroup="condition")
+ggplot(data, aes(PC1, PC2, color=condition)) +
+		geom_point(size=6,shape=0) +
+		xlab(paste0("PC1: ",percentVar[1],"% variance")) +
+		ylab(paste0("PC2: ",percentVar[2],"% variance"))
 dev.off()
 
 # Make a distance matrix and name samples accroding to the phenodata description column

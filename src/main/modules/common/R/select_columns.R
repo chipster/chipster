@@ -6,8 +6,17 @@
 # PARAMETER OPTIONAL sep: "Column separator in input file" TYPE [tab: "tabulator", space: "space or tabulator", semic: "semicolon (\;\)", doubp: "colon (\:\)", comma: "comma (\,\)", pipe: "pipe (\|\)"] DEFAULT tab (Select the column separator used to parse the input data. By default, Chipster uses tabulator.)  
 # PARAMETER OPTIONAL startrow: "First row to read" TYPE INTEGER DEFAULT 1 (Skip the first few lines of the input dataset. Note that in table files, the header row is considered as the first row)
 # PARAMETER OPTIONAL skiprows: "Number of rows to remove from the end of the file" TYPE INTEGER DEFAULT 0 (Remove the given number number of lines from the end of the file or table )
+# PARAMETER OPTIONAL rstyle: "First row has row names" TYPE [yes: Yes, no: No] DEFAULT no (Choose Yes if the table uses formatting where the first column contains rownames.)
 
 # KM 8.11.2013
+
+#Add tabulator to the first rwo if this is a R-style table
+if (rstyle=="yes"){
+	system('printf "\t%s" "" > input.tmp')
+	system('cat input >> input.tmp')
+	system ('rm -f input')
+	system ('mv input.tmp input')
+}
 
 
 #create new header if defined

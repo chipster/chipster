@@ -57,7 +57,7 @@ if(standardize=="yes") {
 date()
 
 # Creating a suitable dataset
-dat3<-data.frame(group=phenodata[,grep(group.column, colnames(phenodata))], t(dat2))
+dat3<-data.frame(group=phenodata[,which(group.column==colnames(phenodata))], t(dat2))
 
 # Assessory function from MLInterfaces
 fsFun.rowtQ3 = function(formula, data) {

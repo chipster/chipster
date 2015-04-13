@@ -10,6 +10,7 @@
 # PARAMETER p.value.adjustment.method: "p-value adjustment method" TYPE [none: none, bonferroni: Bonferroni, holm: Holm, hochberg: Hochberg, BH: BH, BY: BY] DEFAULT BH (Multiple testing correction method)
 
 # MK, 24.06.2013 created linear Modelling using limma
+# OH, 12.02.2015, getting columns from phenodata using which rather than grep in order to get exact matches
  
 # Loads the libraries
 library(limma)
@@ -19,7 +20,6 @@ file	<- c("normalized.tsv")
 dat		<- read.table(file, header=T, sep="\t", row.names=1)
 
 # Separates expression values and flags
-calls	<- dat[,grep("flag", names(dat))]
 dat2	<- dat[,grep("chip", names(dat))]
 
 # Loads phenodata
@@ -34,7 +34,7 @@ rownames(design) <- colnames(dat2)
 if(technical.replication == "EMPTY") {
 	fit				<- lmFit(dat2, design);
 } else {
-	techrep			<- phenodata[,grep(technical.replication, colnames(phenodata))]
+	techrep			<- phenodata[,which(technical.replication==colnames(phenodata))]
 	corfit			<- duplicateCorrelation(dat2, ndups=1, block=techrep)
 	fit				<- lmFit(dat2, design, block=techrep, cor=corfit$consensus)
 }

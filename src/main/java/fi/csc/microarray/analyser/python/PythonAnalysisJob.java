@@ -13,6 +13,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.analyser.ToolDescription;
@@ -110,6 +111,7 @@ public class PythonAnalysisJob extends OnDiskAnalysisJobBase {
 	
 	private class PythonProcessMonitor implements Runnable {
 
+		public final String ERROR_MESSAGE_TOKEN = "Traceback";
 		
 		private ArrayList<String> outputLines;
 
@@ -156,7 +158,7 @@ public class PythonAnalysisJob extends OnDiskAnalysisJobBase {
 					// get lines starting from the error token
 					if (errorLineNumber != -1) {
 						String errorMessage = "";
-						errorMessage += outputLines.get(errorLineNumber).substring(ERROR_MESSAGE_TOKEN.length()) + "\n";
+						errorMessage += outputLines.get(errorLineNumber);
 						for (int i = errorLineNumber + 1; i < outputLines.size(); i++) {
 							errorMessage += outputLines.get(i) + "\n";
 						}
