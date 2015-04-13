@@ -69,7 +69,7 @@ public class AnalysisTestBase extends MessagingTestBase {
 	}
 
 	@After
-	public void tearDown() throws Exception {
+	public void tearDown() {
 		super.tearDown();
 	}
 

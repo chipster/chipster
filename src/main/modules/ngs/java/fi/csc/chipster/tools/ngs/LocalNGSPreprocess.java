@@ -56,7 +56,7 @@ public class LocalNGSPreprocess implements Runnable {
 		
 		try {
 
-			for (DataBean inputDataBean : task.getInputs()) {
+			for (DataBean inputDataBean : task.getInputDataBeans()) {
 				File inputFile = dataManager.getLocalFile(inputDataBean);
 				String extension = inputFile.getName().substring(inputFile.getName().lastIndexOf(".") + 1);
 				

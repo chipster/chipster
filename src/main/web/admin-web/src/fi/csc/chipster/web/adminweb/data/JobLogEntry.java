@@ -40,7 +40,7 @@ public class JobLogEntry implements Serializable {
 	@Column(name=JobLogContainer.END_TIME)
 	private Date endTime;
 	@Column(name=JobLogContainer.WALLCLOCK_TIME)
-	private int wallclockTime;
+	private Integer wallclockTime;
 	@Column(name=JobLogContainer.ERROR_MESSAGE)
 	private String errorMessage;
 	@Column(name=JobLogContainer.OUTPUT_TEXT)

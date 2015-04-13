@@ -109,19 +109,19 @@
 	background: gray;
 }
 
-.v-progressindicator-wrapper {
+.v-progressbar-wrapper {
 	background: #FFFFFF;
 }
 
-.v-progressindicator-indicator {
+.v-progressbar-indicator {
 	background: lightGray;
 }
 
- .ok .v-progressindicator-indicator {
+ .ok .v-progressbar-indicator {
 	background: green;
 }
 
- .fail .v-progressindicator-indicator {
+ .fail .v-progressbar-indicator {
 	background: red;
 }
 
@@ -145,7 +145,7 @@
 
 
 .v-table-cell-content-authenticator, .v-table-cell-content-analyser, .v-table-cell-content-filebroker, 
-.v-table-cell-content-manager, .v-table-cell-content-client {
+.v-table-cell-content-manager, .v-table-cell-content-client, .v-table-cell-content-jobmanager {
 	background-repeat: no-repeat;
 	background-position: 5px;
 	background-size: 24px 24px;
@@ -170,6 +170,10 @@
 
 .v-table-cell-content-client {
 	background-image: url("crystal/log.png");
+}
+
+.v-table-cell-content-jobmanager {
+	background-image: url("crystal/kfouleggs.png");
 }
 
 .report-text {

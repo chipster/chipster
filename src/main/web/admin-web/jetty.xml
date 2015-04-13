@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "http://www.eclipse.org/jetty/configure.dtd">
+
+<!-- 
+
+Speed up run-jetty-run startup by disabling scanning of annotations:
+
+	- Run -> Debug configurations 
+	- Select the configuration Jetty WebApp / admin-web
+	- Select "Show Advanced Options" checkbox
+	- Set Additional jetty.xml to 
+		
+		../chipster/src/main/web/admin-web/jetty.xml
+				
+	- Check that your working directory on the next tab is configured to
+		
+		${workspace_loc:chipster-environment}
+		
+-->
+
+<Configure id="Server" class="org.eclipse.jetty.server.Server">
+  <Get name="handler">
+    <Call name="setAttribute">
+      <Arg>org.eclipse.jetty.server.webapp.WebInfIncludeJarPattern</Arg>
+      <Arg>^$</Arg>
+    </Call>
+  </Get>
+</Configure>

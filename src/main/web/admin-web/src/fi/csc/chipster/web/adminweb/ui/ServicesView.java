@@ -1,10 +1,5 @@
 package fi.csc.chipster.web.adminweb.ui;
 
-import java.util.concurrent.locks.Lock;
-
-import com.vaadin.data.Property;
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -16,17 +11,16 @@ import fi.csc.chipster.web.adminweb.data.ServiceContainer;
 import fi.csc.chipster.web.adminweb.data.ServiceEntry;
 import fi.csc.microarray.messaging.admin.AdminAPI.NodeStatus.Status;
 
-public class ServicesView extends AsynchronousView implements ClickListener, ValueChangeListener, AfterUpdateCallBack {
+public class ServicesView extends AsynchronousView implements ClickListener, AfterUpdateCallBack {
 
 	private ServicesTable table;
 	private HorizontalLayout toolbarLayout;
 
 	private ServiceContainer dataSource;
-	private ChipsterAdminUI app;
 
 	public ServicesView(ChipsterAdminUI app) {
-
-		this.app = app;
+		
+		super(app, 5);
 
 		this.addComponent(getToolbar());
 
@@ -64,7 +58,7 @@ public class ServicesView extends AsynchronousView implements ClickListener, Val
 			toolbarLayout.addComponent(spaceEater);
 			toolbarLayout.setExpandRatio(spaceEater, 1);
 
-			toolbarLayout.addComponent(app.getTitle());	
+			toolbarLayout.addComponent(getApp().getTitle());	
 
 			toolbarLayout.setWidth("100%");
 			toolbarLayout.setStyleName("toolbar");
@@ -92,43 +86,17 @@ public class ServicesView extends AsynchronousView implements ClickListener, Val
 		}, this);				
 	}
 
-	public void valueChange(ValueChangeEvent event) {
-		Property<?> property = event.getProperty();
-		if (property == table) {
-			//Nothing to do yet
-		}
-	}
-
-	public ChipsterAdminUI getApp() {
-		return app;
-	}
-
 	public ServicesTable getTable() {
 		return table;
 	}
 	
-	/**
-	 * Calling from background threads allowed
-	 */
 	@Override
 	public void updateDone() {
-			
-		if (table.getUI() != null) {
-			Lock tableLock = table.getUI().getSession().getLockInstance();
-			tableLock.lock();
-			try {
-
-				for (ServiceEntry entry : dataSource.getItemIds()) {
-					if (Status.UNKNOWN.equals(entry.getStatus())) {
-						entry.setStatus(Status.DOWN);
-					}
-				}
-
-				table.markAsDirtyRecursive();						
-
-			} finally {
-				tableLock.unlock();
+		for (ServiceEntry entry : dataSource.getItemIds()) {
+			if (Status.UNKNOWN.equals(entry.getStatus())) {
+				entry.setStatus(Status.DOWN);
 			}
 		}
+		table.markAsDirtyRecursive();						
 	}
 }

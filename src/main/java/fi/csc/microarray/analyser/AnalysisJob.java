@@ -172,6 +172,7 @@ public abstract class AnalysisJob implements Runnable {
 	
 	public synchronized void updateState(JobState newState, String stateDetail) {
 
+		// don't allow new state changes, if this is cancelled already
 		if (getState() == JobState.CANCELLED) {
 			return;
 		}
@@ -189,7 +190,8 @@ public abstract class AnalysisJob implements Runnable {
 	 */
 	public synchronized void updateStateDetailToClient(String newStateDetail) {
 
-		if (this.state.equals(JobState.CANCELLED)) {
+		// job may continue for some time before it checks if it's cancelled
+		if (getState() == JobState.CANCELLED) {
 			return;
 		}
 
@@ -203,8 +205,17 @@ public abstract class AnalysisJob implements Runnable {
 	}
 
 
+	public synchronized void updateStateToClient() {
+		this.updateStateToClient(this.state, this.stateDetail, true);
+	}
+	
 	public synchronized void updateStateToClient(JobState newState, String stateDetail) {
+		this.updateStateToClient(newState, stateDetail, false);
+	}
 
+	public synchronized void updateStateToClient(JobState newState, String stateDetail, boolean isHeartbeat) {
+		
+		// job may continue for some time before it checks if it's cancelled
 		if (getState() == JobState.CANCELLED) {
 			return;
 		}
@@ -216,14 +227,9 @@ public abstract class AnalysisJob implements Runnable {
 		// send notification message
 		outputMessage.setState(this.state);
 		outputMessage.setStateDetail(this.stateDetail);
+		outputMessage.setHeartbeat(isHeartbeat);
 		resultHandler.sendResultMessage(inputMessage, outputMessage);
-	}
-
-	
-	
-	
-	
-	
+	}	
 	
 	public JobState getState() {
 		return this.state;
@@ -238,6 +244,7 @@ public abstract class AnalysisJob implements Runnable {
 	public void cancel() {
 		logger.debug("Canceling job " + getId());
 		this.toBeCanceled = true;
+		updateState(JobState.CANCELLED, "");
 		cancelRequested();
 	}
 	
@@ -252,8 +259,7 @@ public abstract class AnalysisJob implements Runnable {
 	 * @throws JobCancelledException
 	 */
 	protected void cancelCheck() throws JobCancelledException {
-		if (toBeCanceled) {
-			updateState(JobState.CANCELLED, "");
+		if (toBeCanceled) {			
 			throw new JobCancelledException();
 		}
 	}

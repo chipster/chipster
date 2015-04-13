@@ -7,8 +7,10 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
@@ -348,6 +350,19 @@ public class SessionLoaderImpl2 {
 				}
 			}
 
+			// job id for continuation
+			operationRecord.setJobId(operationType.getJobId());
+
+			// start and end times
+			XMLGregorianCalendar startTimeXML = operationType.getStartTime();
+			if (startTimeXML != null) {
+				operationRecord.setStartTime(startTimeXML.toGregorianCalendar().getTime());
+			}
+			XMLGregorianCalendar endTimeXML = operationType.getStartTime();
+			if (startTimeXML != null) {
+				operationRecord.setEndTime(endTimeXML.toGregorianCalendar().getTime());
+			}
+			
 			// store the operation record
 			operationRecords.put(operationSessionId, operationRecord);
 			operationTypes.put(operationRecord, operationType);
@@ -506,7 +521,7 @@ public class SessionLoaderImpl2 {
 		return stringWriter.toString();
 	}
 
-	public void loadSession() throws Exception {
+	public List<OperationRecord> loadSession() throws Exception {
 		
 		// parse metadata to jaxb classes
 		parseMetadata();
@@ -532,13 +547,27 @@ public class SessionLoaderImpl2 {
 		linkInputsToOperations();
 		
 		this.sessionNotes = sessionType.getNotes();
+		return getUnfinishedOperations();
 	}
 	
 	public void setXOffset(Integer xOffset) {
 		this.xOffset = xOffset;
 	}
-
+	
 	public String getSessionNotes() {
 		return this.sessionNotes;
+	}
+
+	public List<OperationRecord> getUnfinishedOperations() {
+		
+		ArrayList<OperationRecord> unfinished = new ArrayList<>();
+		
+		for (OperationRecord operationRecord : this.operationRecords.values()) {
+			String jobId = operationRecord.getJobId();
+			if (jobId != null) {
+				unfinished.add(operationRecord);
+			}
+		}
+		return unfinished;
 	}
 }

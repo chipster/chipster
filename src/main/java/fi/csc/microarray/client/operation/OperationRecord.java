@@ -2,7 +2,9 @@ package fi.csc.microarray.client.operation;
 
 import java.awt.Color;
 import java.util.Collection;
+import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 
 import fi.csc.microarray.client.NameID;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
@@ -31,8 +33,30 @@ public class OperationRecord {
 
 	private LinkedHashMap<String, ParameterRecord> parameters = new LinkedHashMap<String, ParameterRecord>();
 	private LinkedHashMap<String, InputRecord> inputs = new LinkedHashMap<String, InputRecord>();
+
+	// jobId is set for operations that are still running and null for completed
+	// operations
+	private String jobId;
 	
+	private Date startTime;
+	private Date endTime;
 	
+	public Date getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(Date startTime) {
+		this.startTime = startTime;
+	}
+
+	public Date getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(Date endTime) {
+		this.endTime = endTime;
+	}
+
 	public OperationRecord(Operation operation) {
 		
 		// name
@@ -106,7 +130,7 @@ public class OperationRecord {
 	 * Iteration order of the parameters is determined.
 	 * @return
 	 */
-	public Collection<InputRecord> getInputs() {
+	public Collection<InputRecord> getInputRecords() {
 		return inputs.values();
 	}
 
@@ -265,5 +289,21 @@ public class OperationRecord {
 		record.setCategoryColor(ToolCategory.UNKNOWN_CATEGORY_COLOR);
 		record.setSourceCode("Source code not available.");
 		return record;
+	}
+
+	public Iterable<DataBean> getInputDataBeans() {
+		LinkedList<DataBean> beans = new LinkedList<DataBean>();
+		for (InputRecord input : getInputRecords()) {
+			beans.add(input.getValue());
+		}
+		return beans;
+	}
+
+	public void setJobId(String jobId) {
+		this.jobId = jobId;
+	}
+	
+	public String getJobId() {
+		return this.jobId;
 	}
 }

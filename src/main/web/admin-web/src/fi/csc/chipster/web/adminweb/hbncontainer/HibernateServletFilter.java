@@ -9,16 +9,13 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-
+import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.StaleObjectStateException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 public class HibernateServletFilter implements Filter
 {
-	private static final Logger logger = LoggerFactory.getLogger(HibernateServletFilter.class);
+	private static final Logger logger = Logger.getLogger(HibernateServletFilter.class);
 
 	public void init(FilterConfig filterConfig) throws ServletException
 	{

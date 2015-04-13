@@ -1,4 +1,4 @@
-# TOOL annotate-ensembl-ids.R: "Annotate Ensembl-IDs" (Annotates Ensembl IDs with gene symbols and descriptions, creates a new table containing these and the values in the original input file. The Ensembl IDs need to be either the rownames or in the first column of the input table.)
+# TOOL annotate-ensembl-ids.R: "Annotate Ensembl identifiers" (Annotates Ensembl IDs with gene symbols and descriptions, creates a new table containing these and the values in the original input file. The Ensembl IDs need to be either the rownames or in the first column of the input table.)
 # INPUT genelist.tsv: genelist.tsv TYPE GENERIC
 # OUTPUT annotated.tsv: annotated.tsv 
 # PARAMETER species: Species TYPE [human: human, mouse: mouse, rat: rat] DEFAULT human (The species needs to be specified in order to annotate the Ensembl IDs.)
