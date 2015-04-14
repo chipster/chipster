@@ -71,38 +71,6 @@ function compare_to_current_and_latest()
     compare_to_latest $1
 }
 
-function update_tools()
-{
-    echo ""
-    echo "Tools package has to be updated manually"
-    echo ""
-    echo "This update contains significant changes in the tools package, which has "
-    echo "to be downloaded again. Because of the size of the package, it is not "
-    echo "downloaded in this update script, but you have to do it manually. Required steps: "
-    echo ""
-    echo "1. Rename the old tools directory"
-    echo "    mv /mnt/tools /mnt/tools_old"
-    echo ""
-    echo "2. Download the new tools package. If you have a fast and reliable internet "
-    echo "connection, use the following command. Otherwise follow the instructions in "
-    echo "https://github.com/chipster/chipster/wiki/TechnicalManual#download-tools-package-manually."
-    echo "    bash download-tools.sh"
-    echo ""
-    echo "3. Run this update script again to update Chipster itself"
-    echo ""
-    echo "4. Remove the old tools directory, when you have checked that everything is working again. "
-    echo "    rm -rf /mnt/tools_old"
-    echo "" 
-    echo "Have you done the steps 1 and 2 above?"
-    select yn in "Yes" "No"; do
-        case $yn in
-            Yes ) echo "** Continue update"; break;;
-            No ) echo "** Update aborted"; exit;;
-        esac
-    done
-}
-
-
 # Make sure user has sudo rights
 echo ""
 echo "Some parts of the update may need root privileges. These parts are run using sudo."
@@ -171,17 +139,20 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   echo ""
 fi
 
-# 3.2.0
-compare_to_current_and_latest "3.2.0"
+# 3.3.0
+compare_to_current_and_latest "3.3.0"
 if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
-  # genomes from the new Ensembl release
-  update_tools
 
-  echo "enable importing of example sessions"
-  cd /opt/chipster; sudo bash configure.sh edit fileserver set filebroker/example-session-path example-sessions
-  
-  #fix a missing symlink (in 3.1.1 root image)
-  sudo ln -sf /opt/chipster/genomes/genomebrowser /opt/chipster/fileserver/file-root/public/genomebrowser
+    echo ""
+    echo "Download the latest virtual machine"
+    echo ""
+    echo "Because of the following changes, an automatic update isn't available for this version: "
+    echo "- update genomes in tools package to latest Ensembl release"
+    echo "- install jobmanager to support long running jobs"
+    echo ""
+    echo "Please download the latest virtual machine from http://chipster.github.io/chipster/"
+    echo ""
+    exit 0
 fi
 
 #####################################
