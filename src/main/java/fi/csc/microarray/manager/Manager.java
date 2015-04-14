@@ -113,7 +113,7 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 		");";
 	
 	private static final String CREATE_JOBS_INDEXES = 
-			"create index if not exists INDEX_ADMIN_WEB_STARTTIMEDESC_ID on JOBS(STARTTIME DESC, ID);" + 
+			"create index if not exists INDEX_ADMIN_WEB_ENDTIMEDESC_ID on JOBS(ENDTIME DESC, ID);" + 
 			"create index if not exists INDEX_ADMIN_WEB_USERNAME on JOBS(USERNAME);" + 
 			"create index if not exists INDEX_ADMIN_WEB_OPERATION on JOBS(OPERATION);" + 
 			"create index if not exists INDEX_ADMIN_WEB_STATUS on JOBS(STATUS);";

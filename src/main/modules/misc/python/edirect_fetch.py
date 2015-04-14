@@ -8,7 +8,7 @@
 # PARAMETER OPTIONAL log_op: "Logical operator" TYPE [AND: AND, OR: OR, NOT: NOT] DEFAULT AND (Logical operators used to combine the search terms)
 # PARAMETER OPTIONAL q2field: "Search field for second query term" TYPE [ALL: "All fields", TITL: Title, KYWD: Keywords, AUTH: Author, ORGN: Organism, ACCN: Accession, GENE: "Gene name", PROT: "Protein name", SLEN: "Sequence length"] DEFAULT ALL (Select the search field )
 # PARAMETER OPTIONAL q2term: "Second search term" TYPE STRING (Search term or word.)
-# PARAMETER OPTIONAL q3field: "Search field for third query term" TYPE [ALL: "All fields", TITL: Title, KYWD: Keywords, AUTH: Author, ORGN: Organism, ACCN: Accession, GENE: "Gene name", PROT: "Protein name"] DEFAULT ALL (Select the search field.)
+# PARAMETER OPTIONAL q3field: "Search field for third query term" TYPE [ALL: "All fields", TITL: Title, KYWD: Keywords, AUTH: Author, ORGN: Organism, ACCN: Accession, GENE: "Gene name", PROT: "Protein name", SLEN: "Sequence length"] DEFAULT ALL (Select the search field.)
 # PARAMETER OPTIONAL q3term: "Third search term" TYPE STRING (Search term or word.)
 # PARAMETER outformat: "Output format" TYPE [fasta: FASTA, gp: "Genbank proteins", gb: "Genbank"] DEFAULT fasta (Logical operators used to build the search terms)
 
@@ -61,7 +61,7 @@ def main():
         raise Exception("CHIPSTER-NOTE: No hits found for query: esearch " + " ".join(query))
 
     elif num_hits > 50000:
-        raise Exception("CHIPSTER-NOTE: Query produced more than 50000 hits.")
+        raise Exception("CHIPSTER-NOTE: Query produced more than 50000 hits. Number of hits " + str_hits)
         
     # fetch sequences
     # read standard input from a variable xml and write output to a file, because it may be big
