@@ -96,6 +96,8 @@ public class KeyAndTrustManager {
 				trustStorePath = configuration.getString("security", "server-truststore");
 				if ("".equals(trustStorePath)) {
 					trustStorePath = null;
+				} else if (!new File(trustStorePath).exists()) {
+					throw new RuntimeException("configured trust store file " + trustStorePath + " doesn't exist");
 				}
 			}
 
