@@ -6,6 +6,7 @@
 # Agilent miRNA annotation
 # JTT 20.3.2009
 # modified MG 21.10.2009
+# AMS 15.04.2015 Fixed links in output
 
 #Reads the data
 dat<-read.table("normalized.tsv", sep="\t", header=T)
@@ -25,11 +26,16 @@ write(x="<CAPTION> Annotations </CAPTION>", file="annot.html", append=T)
 write(x="<TR> <TH>miRBase</TH> <TH>MicroCosm predictions</TH> <TH>TargetScan predictions</TH></TR>", file="annot.html", append=T)
 
 for(i in 1:length(id)) {
-   mirbase<-paste("http://microrna.sanger.ac.uk/cgi-bin/sequences/mirna_entry.pl?acc=", id2[i], sep="")
-   miranda<-paste("http://microrna.sanger.ac.uk/cgi-bin/targets/v5/hit_list.pl?genome_id=native&mirna_id=", id2[i], sep="")
-   targetscan<-paste("http://www.targetscan.org/cgi-bin/vert_50/targetscan.cgi?mirg=", id2[i], sep="")
+	# remove -3p, -5p from end of name
+	shortid <- strsplit(id2[i], "-.p$")
+	# remove also version number from end of name
+	shorterid <- strsplit(as.character(shortid[1]), "-.$")
+	
+	mirbase<-paste("http://www.mirbase.org/cgi-bin/mirna_entry.pl?acc=", shortid[1], sep="")
+	miranda<-paste("http://www.ebi.ac.uk/enright-srv/microcosm/cgi-bin/targets/v5/hit_list.pl?genome_id=native&mirna_id=", shorterid[1], sep="")
+	targetscan<-paste("http://www.targetscan.org/cgi-bin/vert_50/targetscan.cgi?mirg=", shorterid[1], sep="")
 
-   write(x=paste("<TR> <TD><A HREF=", '"', mirbase, '"', ">", id[i], "</A> </TD> <TD><A HREF=", '"', miranda, '"', ">", id[i], "</A> </TD> <TD><A HREF=", '"', targetscan, '"', ">", id[i], "</A> </TD> </TR>", sep=""), file="annot.html", append=T)
+   	write(x=paste("<TR> <TD><A HREF=", '"', mirbase, '"', ">", id[i], "</A> </TD> <TD><A HREF=", '"', miranda, '"', ">", id[i], "</A> </TD> <TD><A HREF=", '"', targetscan, '"', ">", id[i], "</A> </TD> </TR>", sep=""), file="annot.html", append=T)
 }
 
 write(x="</TABLE>", file="annot.html", append=T)
