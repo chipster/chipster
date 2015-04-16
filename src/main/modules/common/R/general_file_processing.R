@@ -3,7 +3,7 @@
 # OUTPUT OPTIONAL selected.tsv
 # OUTPUT OPTIONAL selected.txt
 # OUTPUT OPTIONAL file_operation.log
-# PARAMETER operation: "Operation" TYPE [select: "Select rows with a regular expression", exclude: "Exclude rows with a regular expression", replace: "Replace text", delete: "Remove selected character", pick_rows: "Select a set of rows from the file" ] DEFAULT replace (Operation to be performed for the selected text or table file)
+# PARAMETER operation: "Operation" TYPE [select: "Select rows with a regular expression", exclude: "Exclude rows with a regular expression", replace: "Replace text", pick_rows: "Select a set of rows from the file" ] DEFAULT replace (Operation to be performed for the selected text or table file)
 # PARAMETER OPTIONAL sstring: "Search string" TYPE STRING (Search expression)
 # PARAMETER OPTIONAL rstring: "Replacement string" TYPE STRING (Replacement string)
 # PARAMETER OPTIONAL startrow: "First row to select" TYPE INTEGER DEFAULT 1 (Number of the first row to be selected. Note that in table files, the header row is considered as the first row.)
@@ -13,7 +13,6 @@
 
 # KM 10.4.2015
 
-#Add tabulator to the first rwo if this is a R-style table
 
 if ( nchar(sstring)>50 ){
 stop(paste("CHIPSTER-NOTE:", "Too long search string"))
@@ -24,11 +23,11 @@ if ( nchar(rstring)>50 ){
 }
 
 if (operation=="select"){
-	command <- paste("grep '",sstring, "' input > output.tmp", sep="")
+	command <- paste("grep '\\",sstring, "' input > output.tmp", sep="")
 }
 
 if (operation=="exclude"){
-	command <- paste("grep -v '",sstring, "' input > output.tmp", sep="")
+	command <- paste("grep -v '\\",sstring, "' input > output.tmp", sep="")
 }
 if (operation=="replace"){
 	command <- paste('sed -e s/"',sstring, '"/"', rstring, '"/g input > output.tmp', sep="")
@@ -51,9 +50,9 @@ system(command.full)
 if ( save_log == "no"){
 	system ("rm -f file_operation.log")
 }else{
-	system ('echo "Number of rows in input file:" >> file_operation.log  ' )
+	system ('echo "Number of rows in the input file:" >> file_operation.log  ' )
 	system ("wc -l input >> file_operation.log" )
-	system ('echo "Number of rows in output file:" >> file_operation.log  ' )
+	system ('echo "Number of rows in the output file:" >> file_operation.log  ' )
 	system ("wc -l output.tmp >> file_operation.log" )
 }
 

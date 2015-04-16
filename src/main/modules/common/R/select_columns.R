@@ -6,7 +6,7 @@
 # PARAMETER OPTIONAL sep: "Column separator in input file" TYPE [tab: "tabulator", space: "space or tabulator", semic: "semicolon (\;\)", doubp: "colon (\:\)", comma: "comma (\,\)", pipe: "pipe (\|\)"] DEFAULT tab (Select the column separator used to parse the input data. By default, Chipster uses tabulator.)  
 # PARAMETER OPTIONAL startrow: "First row to read" TYPE INTEGER DEFAULT 1 (Skip the first few lines of the input dataset. Note that in table files, the header row is considered as the first row)
 # PARAMETER OPTIONAL skiprows: "Number of rows to remove from the end of the file" TYPE INTEGER DEFAULT 0 (Remove the given number number of lines from the end of the file or table )
-# PARAMETER OPTIONAL rstyle: "First row has row names" TYPE [yes: Yes, no: No] DEFAULT no (Choose Yes if the table uses formatting where the first column contains rownames.)
+# PARAMETER OPTIONAL rstyle: "First column has row names" TYPE [yes: Yes, no: No] DEFAULT no (Choose Yes if the table uses formatting where the first column contains rownames.)
 
 # KM 8.11.2013
 
@@ -72,6 +72,12 @@ command.full <- paste(command.full,"}' input >> selected.tsv1  2>&1")
 system(command.full)
 
 system('sed -e s/"\t$"/""/g selected.tsv1 > selected.tsv' )
+
+#Remove the added tabulator on the first rwo if this is a R-style table
+if (rstyle=="yes"){
+	system(" sed -i -e '0,/\t/s/\t//' selected.tsv ")
+}
+
 
 if ( skiprows > 0 ){
   num.rows.str <- system("cat selected.tsv | wc -l", intern = TRUE )
