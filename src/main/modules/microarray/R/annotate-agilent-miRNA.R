@@ -35,7 +35,7 @@ for(i in 1:length(id)) {
 	miranda<-paste("http://www.ebi.ac.uk/enright-srv/microcosm/cgi-bin/targets/v5/hit_list.pl?genome_id=native&mirna_id=", shorterid[1], sep="")
 	targetscan<-paste("http://www.targetscan.org/cgi-bin/vert_50/targetscan.cgi?mirg=", shorterid[1], sep="")
 
-   	write(x=paste("<TR> <TD><A HREF=", '"', mirbase, '"', ">", id[i], "</A> </TD> <TD><A HREF=", '"', miranda, '"', ">", id[i], "</A> </TD> <TD><A HREF=", '"', targetscan, '"', ">", id[i], "</A> </TD> </TR>", sep=""), file="annot.html", append=T)
+	write(x=paste("<TR> <TD><A HREF=", '"', mirbase, '"', ">", shortid[1], "</A> </TD> <TD><A HREF=", '"', miranda, '"', ">", shorterid[1], "</A> </TD> <TD><A HREF=", '"', targetscan, '"', ">", shorterid[1], "</A> </TD> </TR>", sep=""), file="annot.html", append=T)
 }
 
 write(x="</TABLE>", file="annot.html", append=T)
