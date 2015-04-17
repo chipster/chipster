@@ -7,26 +7,26 @@
 
 <h3>Description</h3>
 
-<p>Fetches predicted gene targets from a selected database given a list of miRNA:s.</p>
+<p>Fetches predicted gene targets from a miRNA selected database.</p>
 
 <h3>Parameters</h3>
 
 <ul>
-<li>species (human, mouse, rat) [human]</li>
-<li>database (miranda) mirbase, mirtarget2, pictar, tarbase, targetscan) [mirtarget2]</li>
+<li>species (human) [human]</li>
+<li>database (miranda, mirbase, mirtarget2, pictar, tarbase, targetscan) [mirtarget2]</li>
 </ul>
 
 
 <h3>Details</h3>
 
-<p>Given a list of miRNA:s, which have identifiers recognized by the miRNA database (such as hsa-let-7a or MIMAT0004481),
+<p>Given a list of miRNA which have identifiers recognized by the miRNA database (such as hsa-let-7a or MIMAT0004481),
 this tool searches one of the specified databases to fetch the predicted gene targets.
-Currently, the following databases are supported: miRanda, miRbase, miRtarget2, PicTar, TarBase or targetScan.
 </p>
 
 <h3>Output</h3>
 
-<p>A table listing the miRNA:s in one column and their predicted target genes in another.</p>
+<p>A table listing the miRNAs and their predicted target genes. The first column contains as identifiers miRNA-target pairs, which allows you to intersect result lists from different databases through the interactive Venn diagram visualization.
+Genes are listed with an Entrez gene identifiers, gene symbol, and a description obtained from the Ensembl database.</p>
 
 <h3>References</h3>
 <p>

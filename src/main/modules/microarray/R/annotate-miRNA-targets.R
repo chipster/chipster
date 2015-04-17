@@ -5,7 +5,7 @@
 # PARAMETER database: Database TYPE [miranda: miRanda, mirbase: miRBase, mirtarget2: miRtarget2, pictar: PicTar, tarbase: TarBase, targetscan: targetScan] DEFAULT mirtarget2 (The database from which to search for predicted target genes.)
 
 # MG, 22.02.2010
-# IS, 13.10.2010, added rownames of miRNA-target-pairs to allow intersecting through Venn diagrams
+# IS, 13.10.2010, added rownames of miRNA-target pairs to allow intersecting through Venn diagrams
 # MK, 09.12.2013, performance of the script improved. Because of this, information associated with the first matching row is used instead of the last matching row 
 
 # Load the required libraries
