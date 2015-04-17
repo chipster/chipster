@@ -22,12 +22,12 @@
 <h3>Details</h3>
 
 <p>This tool normalizes Illumina summary probe and summary control probe profile files. 
-Import the files DIRECTLY. Note that the decimal separated in the files needs to be a dot, not a comma.
-This tool performs the limma-packages normexp background correction.</p>
+Import the files DIRECTLY, not via the Import tool. Note that the decimal separator in the files needs to be a dot, not a comma.
+This tool performs the normexp background correction using the limma Bioconductor package.</p>
 
-<p>Within array normalization methods offer basic options, such as scaling the chips to the same
-median, quantile normalizing the chips to make the expression value follow the same distribution on
-all chips, and variance stabilizing normalization. Please note that during normalization the data is also log2-transformed.</p>
+<p>Within array normalization method options include scaling the chips to the same
+median, and quantile normalizing the chips to make the expression value follow the same distribution on
+all chips. Please note that during normalization the data is also log2-transformed.</p>
 
 <p>If the flags are produced, the Illumina detection values are added to the output table.</p>
 
