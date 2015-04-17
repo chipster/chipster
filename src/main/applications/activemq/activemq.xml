@@ -98,7 +98,8 @@
       		<simpleAuthenticationPlugin>
          		<users>
            			<authenticationUser groups="clients,all" password="client" username="client"/>
-           			<authenticationUser groups="analysers,all" password="comp" username="comp"/>
+				<authenticationUser groups="analysers,all" password="comp" username="comp"/>
+				<authenticationUser groups="jobmanagers,all" password="jobmanager" username="jobmanager"/>
            			<authenticationUser groups="authenticators,all" password="auth" username="auth"/>
            			<authenticationUser groups="managers,all" password="manager" username="manager"/>
            			<authenticationUser groups="filebrokers,all" password="filebroker" username="filebroker"/>
@@ -109,14 +110,17 @@
          		<map>
            			<authorizationMap>
              			<authorizationEntries>
-               				<authorizationEntry admin="all" read="analysers" topic="authorised-request-topic" write="authenticators"/>
+               				<authorizationEntry admin="all" read="jobmanagers" topic="authorised-request-topic" write="authenticators"/>
                				<authorizationEntry admin="all" read="authenticators" topic="request-topic" write="clients"/>
                				<authorizationEntry admin="all" read="filebrokers" topic="authorised-filebroker-topic" write="analysers,authenticators"/>
                				<authorizationEntry admin="all" read="authenticators" topic="filebroker-topic" write="clients"/>
-               				<authorizationEntry admin="all" read="filebrokers" topic="filebroker-admin-topic" write="managers"/>
-               				<authorizationEntry admin="all" read="analysers" topic="comp-admin-topic" write="managers"/>
+							<authorizationEntry admin="all" read="filebrokers" topic="filebroker-admin-topic" write="managers"/>
+							<authorizationEntry admin="all" read="analysers" topic="authorized-managed-request-topic" write="jobmanagers"/>
+							<authorizationEntry admin="all" read="analysers,jobmanagers" topic="comp-admin-topic" write="managers,jobmanagers"/>
+							<authorizationEntry admin="all" read="jobmanagers" topic="jobmanager-admin-topic" write="managers"/>
                				<authorizationEntry admin="all" read="managers" topic="job-log-topic" write="analysers,authenticators"/>
                				<authorizationEntry admin="all" read="authenticators" topic="feedback-topic" write="clients"/>
+							<authorizationEntry admin="all" read="jobmanagers" topic="jobmanager-topic" write="analysers"/>
                				<authorizationEntry admin="all" read="managers" topic="authorised-feedback-topic" write="authenticators"/>
                				<authorizationEntry admin="all" read="all" topic="admin-topic" write="all"/>
                				<authorizationEntry admin="all" read="all" topic="test-topic" write="all"/>
@@ -132,6 +136,7 @@
 	    	<!-- enabled SSL protocols, separated by a comma if there is more than one -->
             <!-- DOS protection, limit concurrent connections to 1000 and frame size to 100MB -->
 		    <transportConnector name="openwire" uri="ssl://0.0.0.0:61616?transport.enabledProtocols=TLSv1,TLSv1.1,TLSv1.2&amp;maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600" />  
+            <transportConnector name="stomp" uri="stomp://127.0.0.1:61613"/>
     	</transportConnectors>
 
         <!-- destroy the spring context on shutdown to stop jetty -->

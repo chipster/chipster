@@ -1,7 +1,6 @@
 package fi.csc.chipster.web.adminweb.ui;
 
 import java.io.IOException;
-import java.util.concurrent.locks.Lock;
 
 import javax.jms.JMSException;
 
@@ -19,7 +18,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Panel;
-import com.vaadin.ui.ProgressIndicator;
+import com.vaadin.ui.ProgressBar;
 
 import fi.csc.chipster.web.adminweb.ChipsterAdminUI;
 import fi.csc.chipster.web.adminweb.data.StorageAggregateContainer;
@@ -45,15 +44,13 @@ public class StorageView extends AsynchronousView implements ClickListener, Valu
 	private StorageEntryContainer entryDataSource;
 	private StorageAggregateContainer aggregateDataSource;
 
-	private ChipsterAdminUI app;
-	private ProgressIndicator diskUsageBar;
+	private ProgressBar diskUsageBar;
 	private HorizontalLayout storagePanels;
 	
 	private StorageAdminAPI adminEndpoint;
 
 	public StorageView(ChipsterAdminUI app) {
-
-		this.app = app;
+		super(app);
 
 		this.addComponent(getToolbar());
 		
@@ -99,7 +96,7 @@ public class StorageView extends AsynchronousView implements ClickListener, Valu
 		
 		try {
 			
-			adminEndpoint = new StorageAdminAPI();
+			adminEndpoint = new StorageAdminAPI(app.getEndpoint());
 			entryDataSource = new StorageEntryContainer(adminEndpoint);
 			aggregateDataSource = new StorageAggregateContainer(adminEndpoint);
 			
@@ -122,21 +119,18 @@ public class StorageView extends AsynchronousView implements ClickListener, Valu
 	 * @param usedSpace
 	 * @param freeSpace
 	 */
-	public void setDiskUsage(long usedSpace, long freeSpace) {
-		
-		//maybe null if the UI thread hasn't initialized this yet
-		if (diskUsageBar.getUI() != null) {
-			Lock barLock = diskUsageBar.getUI().getSession().getLockInstance();
-			barLock.lock();
-			try {
+	public void setDiskUsage(final long usedSpace, final long freeSpace) {
+
+		this.updateUI(new Runnable() {
+			public void run() {
 				long used = usedSpace;
 				long total = usedSpace + freeSpace;
 				float division = used / (float)total;
-				
+
 				diskUsageBar.setValue(division);
 				diskUsageBar.setCaption(DISK_USAGE_BAR_CAPTION + " ( " + 
 						StringUtils.getHumanReadable(used) + " / " + StringUtils.getHumanReadable(total) + " )");
-				
+
 				if (division > 0.7) {
 					diskUsageBar.removeStyleName("ok");
 					diskUsageBar.addStyleName("fail");
@@ -144,12 +138,10 @@ public class StorageView extends AsynchronousView implements ClickListener, Valu
 					diskUsageBar.removeStyleName("fail");
 					diskUsageBar.addStyleName("ok");
 				}
-				
+
 				diskUsageBar.markAsDirty();
-			} finally {
-				barLock.unlock();
 			}
-		}
+		});
 	}
 
 	public HorizontalLayout getToolbar() {
@@ -163,16 +155,15 @@ public class StorageView extends AsynchronousView implements ClickListener, Valu
 			toolbarLayout.addComponent(spaceEater);
 			toolbarLayout.setExpandRatio(spaceEater, 1);
 			
-			diskUsageBar = new ProgressIndicator(0f);
+			diskUsageBar = new ProgressBar(0f);
 			diskUsageBar.setCaption(DISK_USAGE_BAR_CAPTION);
 			diskUsageBar.setStyleName("big");
-			diskUsageBar.setPollingInterval(Integer.MAX_VALUE);
 			
 			diskUsageBar.setWidth(300, Unit.PIXELS);
 			toolbarLayout.addComponent(diskUsageBar);
 			toolbarLayout.setExpandRatio(diskUsageBar, 1);
 					
-			toolbarLayout.addComponent(app.getTitle());	
+			toolbarLayout.addComponent(super.getApp().getTitle());	
 
 			toolbarLayout.setWidth("100%");
 			toolbarLayout.setStyleName("toolbar");
@@ -224,13 +215,14 @@ public class StorageView extends AsynchronousView implements ClickListener, Valu
 	}
 	
 	private void updateStorageTotals() {
+		
 		super.submitUpdate(new Runnable() {
 
 			@Override
 			public void run() {								
 				try {
-					Long[] totals = adminEndpoint.getStorageUsage();	
-					
+					Long[] totals = adminEndpoint.getStorageUsage();
+										
 					if (totals != null) {
 						StorageView.this.setDiskUsage(totals[0], totals[1]);
 					} else {
@@ -243,10 +235,6 @@ public class StorageView extends AsynchronousView implements ClickListener, Valu
 				}			
 			}			
 		}, this);
-	}
-	
-	public ChipsterAdminUI getApp() {
-		return app;
 	}
 
 	public void delete(Object itemId) {
@@ -265,46 +253,17 @@ public class StorageView extends AsynchronousView implements ClickListener, Valu
 		updateStorageTotals();
 	}
 	
-	/**
-	 * Calling from background threads allowed
-	 */
 	@Override
 	public void updateDone() {
-					
 				
-		if (entryTable.getUI() != null) {
-			Lock entryTableLock = entryTable.getUI().getSession().getLockInstance();
-			entryTableLock.lock();
-			try {
+		entryTable.setVisibleColumns(StorageEntryContainer.NATURAL_COL_ORDER);
+		entryTable.setColumnHeaders(StorageEntryContainer.COL_HEADERS_ENGLISH);
 
-				entryTable.setVisibleColumns(StorageEntryContainer.NATURAL_COL_ORDER);
-				entryTable.setColumnHeaders(StorageEntryContainer.COL_HEADERS_ENGLISH);
-
-			} finally {
-				entryTableLock.unlock();
-			}
-		}
-		
-		if (aggregateTable.getUI() != null) {
-			Lock aggregateTableLock = aggregateTable.getUI().getSession().getLockInstance();
-			aggregateTableLock.lock();
-			try {						
-				aggregateTable.setVisibleColumns(StorageAggregateContainer.NATURAL_COL_ORDER);
-				aggregateTable.setColumnHeaders(StorageAggregateContainer.COL_HEADERS_ENGLISH);				
-
-			} finally {
-				aggregateTableLock.unlock();
-			}
-		}
+		aggregateTable.setVisibleColumns(StorageAggregateContainer.NATURAL_COL_ORDER);
+		aggregateTable.setColumnHeaders(StorageAggregateContainer.COL_HEADERS_ENGLISH);	
 	}
 
 	public AbstractClientConnector getEntryTable() {
 		return entryTable;
-	}
-
-	public void clean() {
-		if (adminEndpoint != null) {
-			adminEndpoint.clean();
-		}
 	}
 }

@@ -1,5 +1,6 @@
 package fi.csc.microarray.messaging.admin;
 
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
@@ -14,6 +15,7 @@ import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.admin.AdminAPI.NodeStatus.Status;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
+import fi.csc.microarray.util.Strings;
 
 /**
  * AdminAPI objects should be used only from a one thread.
@@ -22,6 +24,9 @@ import fi.csc.microarray.messaging.message.ChipsterMessage;
  *
  */
 public class AdminAPI {
+	
+	private Lock mutex = new ReentrantLock();
+	
 	/**
 	 * Logger for this class
 	 */
@@ -40,15 +45,21 @@ public class AdminAPI {
 	public static class NodeStatus {
 
 		public final String name;
-		public String host = null;
+		private HashSet<String> hosts = new HashSet<>();
 		public Status status = Status.UNKNOWN;
-		public int count = 0;
 		public int requiredCount = 0;
 
 		public enum Status {
 			UP,
 			DOWN,
 			UNKNOWN;
+		}
+		
+		public NodeStatus(NodeStatus other) {
+			this.name = other.name;
+			this.hosts = new HashSet<>(other.hosts);
+			this.status = other.status;
+			this.requiredCount = other.requiredCount;
 		}
 		
 		public NodeStatus(String name) {
@@ -59,11 +70,27 @@ public class AdminAPI {
 			this(name);
 			this.requiredCount = requiredCount;
 		}
+
+		public void addHost(String host) {
+			hosts.add(host);
+		}
+
+		public int getCount() {
+			return hosts.size();
+		}
+
+		public HashSet<String> getHosts() {
+			return hosts;
+		}
+		
+		public String toString() {
+			return getClass().getSimpleName() +  " " + name + ": " + status + "(" + getCount() + " hosts)";
+		}
 	}
 
 	private MessagingListener adminListener = new MessagingListener() {
 		
-		private Lock mutex = new ReentrantLock();
+		
 		
 		public void onChipsterMessage(ChipsterMessage msg) {
 			mutex.lock(); 
@@ -75,13 +102,9 @@ public class AdminAPI {
 					logger.debug(name + " is up");
 					NodeStatus status = nodeStatuses.get(name);
 					if (status != null) {
-						if (status.host == null) {
-							status.host = host;
-						} else {
-							status.host += ", " + host;
-						}
-						status.count += 1;
-						if (status.count >= status.requiredCount) {
+						status.addHost(host);
+						
+						if (status.getCount() >= status.requiredCount) {
 							status.status = Status.UP;
 						}
 						notifyListener();
@@ -102,15 +125,27 @@ public class AdminAPI {
 		this.listener = listener;
 		this.adminTopic = adminTopic;
 		adminTopic.setListener(adminListener);
-		this.nodeStatuses.put("authenticator", new NodeStatus("authenticator"));
-		this.nodeStatuses.put("analyser", new NodeStatus("analyser"));
-		this.nodeStatuses.put("filebroker", new NodeStatus("filebroker"));
-		this.nodeStatuses.put("manager", new NodeStatus("manager"));
-		this.nodeStatuses.put("client", new NodeStatus("client"));
+		
+		mutex.lock();
+		try {
+			this.nodeStatuses.put("authenticator", new NodeStatus("authenticator"));
+			this.nodeStatuses.put("analyser", new NodeStatus("analyser"));
+			this.nodeStatuses.put("filebroker", new NodeStatus("filebroker"));
+			this.nodeStatuses.put("manager", new NodeStatus("manager"));
+			this.nodeStatuses.put("jobmanager", new NodeStatus("jobmanager"));
+			this.nodeStatuses.put("client", new NodeStatus("client"));
+		} finally {
+			mutex.unlock();
+		}
 	}
 
 	public void setRequiredCountFor(String nodeName, int requiredCount) {
-		this.nodeStatuses.get(nodeName).requiredCount = requiredCount;
+		mutex.lock();
+		try {
+			this.nodeStatuses.get(nodeName).requiredCount = requiredCount;
+		} finally {
+			mutex.unlock();
+		}
 	}
 	
 	public String getErrorStatus() {
@@ -149,10 +184,15 @@ public class AdminAPI {
 		}
 
 		// update unknown statuses
-		for (NodeStatus nodeStatus : nodeStatuses.values()) {
-			if (nodeStatus.status == NodeStatus.Status.UNKNOWN) {
-				nodeStatus.status = NodeStatus.Status.DOWN;
+		mutex.lock();
+		try {
+			for (NodeStatus nodeStatus : nodeStatuses.values()) {
+				if (nodeStatus.status == NodeStatus.Status.UNKNOWN) {
+					nodeStatus.status = NodeStatus.Status.DOWN;
+				}
 			}
+		} finally {
+			mutex.unlock();
 		}
 			
 		return allServicesUp;
@@ -160,8 +200,13 @@ public class AdminAPI {
 	
 	public String generateStatusReport() {
 		String report = "";
-		for (NodeStatus status : nodeStatuses.values()) {
-			report += status.name + ": count " + status.count + ", host(s) " + status.host + "\n";
+		mutex.lock();
+		try {
+			for (NodeStatus status : nodeStatuses.values()) {
+				report += status.name + ": count " + status.getCount() + ", host(s) " + Strings.delimit(status.getHosts(), ", ") + "\n";
+			}
+		} finally {
+			mutex.unlock();
 		}
 		return report;
 	}
@@ -170,19 +215,29 @@ public class AdminAPI {
 		errorStatus = "";
 		boolean areUp = true;
 
-		if (nodeStatuses.get("filebroker").status != NodeStatus.Status.UP) {
-			errorStatus += " filebroker(s) not up ";
-			areUp = false;
-		} 
+		mutex.lock();
+		try {
+			if (nodeStatuses.get("filebroker").status != NodeStatus.Status.UP) {
+				errorStatus += " filebroker(s) not up ";
+				areUp = false;
+			} 
 
-		if (nodeStatuses.get("analyser").status != NodeStatus.Status.UP) {
-			errorStatus += " analyser(s) not up ";
-			areUp = false;
-		} 
-		
-		if (nodeStatuses.get("authenticator").status != NodeStatus.Status.UP) {
-			errorStatus += " authenticator(s) not up ";
-			areUp = false;
+			if (nodeStatuses.get("analyser").status != NodeStatus.Status.UP) {
+				errorStatus += " analyser(s) not up ";
+				areUp = false;
+			} 
+
+			if (nodeStatuses.get("authenticator").status != NodeStatus.Status.UP) {
+				errorStatus += " authenticator(s) not up ";
+				areUp = false;
+			}
+
+			if (nodeStatuses.get("jobmanager").status != NodeStatus.Status.UP) {
+				errorStatus += " jobmanager not up ";
+				areUp = false;
+			}
+		} finally {
+			mutex.unlock();
 		}
 		
 		return areUp;
@@ -190,7 +245,17 @@ public class AdminAPI {
 	
 	private void notifyListener() {
 		if (listener != null) {
-			listener.statusUpdated(nodeStatuses);
+			mutex.lock();
+			try {
+				// create the copy of the map to avoid concurrent access 
+				Map<String, NodeStatus> copy = new LinkedHashMap<String, NodeStatus>();
+				for (String key : nodeStatuses.keySet()) {
+					copy.put(key, new NodeStatus(nodeStatuses.get(key)));
+				}
+				listener.statusUpdated(copy);
+			} finally {
+				mutex.unlock();
+			}
 		}
 	}
 	

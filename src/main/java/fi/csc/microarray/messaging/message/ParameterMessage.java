@@ -57,6 +57,7 @@ public abstract class ParameterMessage extends ChipsterMessage {
 	public static final String PARAMETER_DATE_LIST = "date-list";
 	public static final String PARAMETER_STATUS_REPORT = "status-report";
 	public static final String PARAMETER_HOST = "host";
+	public static final String PARAMETER_JSON = "json";
 	public static final String PARAMETER_QUOTA = "quota";
 	public static final String PARAMETER_QUOTA_WARNING = "quota-warning";
 	

@@ -3,7 +3,6 @@ package fi.csc.chipster.web.adminweb.data;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.locks.Lock;
 
 import javax.jms.JMSException;
 
@@ -55,21 +54,8 @@ public class StorageEntryContainer extends BeanItemContainer<StorageEntry> imple
 			
 			if (entries != null) {
 
-				//Following is null if data loading was faster than UI initialisation in another thread
-				if (view.getEntryTable().getUI() != null) {
-					Lock tableLock = view.getEntryTable().getUI().getSession().getLockInstance();
-					tableLock.lock();
-					try {
-						removeAllItems();
-
-						for (StorageEntry entry : entries) {
-							addBean(entry);
-						}
-
-					} finally {
-						tableLock.unlock();
-					}
-				}
+				updateUI(view, entries);
+				
 			} else {
 				Notification.show("Timeout", "Chipster filebroker server doesn't respond", Type.ERROR_MESSAGE);
 				logger.error("timeout while waiting storage usage of sessions");
@@ -77,5 +63,18 @@ public class StorageEntryContainer extends BeanItemContainer<StorageEntry> imple
 		} catch (JMSException | InterruptedException e) {
 			logger.error(e);
 		}
+	}
+
+	private void updateUI(StorageView view, final List<StorageEntry> entries) {
+		view.updateUI(new Runnable() {
+			@Override
+			public void run() {
+				removeAllItems();
+
+				for (StorageEntry entry : entries) {
+					addBean(entry);
+				}
+			}
+		});
 	}
 }

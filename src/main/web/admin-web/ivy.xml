@@ -1,11 +1,10 @@
 <?xml version="1.0"?>
 <!DOCTYPE ivy-module [
-	<!ENTITY vaadin.version "7.0.0">
-	<!ENTITY guava.version "13.0.1">
-	<!ENTITY hibernate.version "4.1.7.Final">
-	<!ENTITY slf4j.version "1.6.6">
-	<!ENTITY log4j.version "1.2.17">
-	<!ENTITY hsqldb.version "2.2.8">
+	<!ENTITY vaadin.version "7.4.3">
+	<!ENTITY guava.version "18.0">
+	<!ENTITY hibernate.version "4.3.8.Final">
+	<!ENTITY log4j.version "2.2">
+	<!ENTITY hsqldb.version "2.3.2">
 ]>
 <ivy-module version="2.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -17,22 +16,33 @@
 		<!-- A configuration only needed when compiling the widget set. Should 
 			not be deployed to the server -->
 		<conf name="widgetset-compile" />
+		<!-- A configuration used in compilation of server side classes only.
+			Should be deployed to the server -->
+		<conf name="nodeploy" />
 	</configurations>
-	<dependencies>
-		<!-- VAADIN -->
+	<dependencies defaultconf="default" defaultconfmapping="default->default">
 		<!-- The core server part of Vaadin -->
-		<dependency org="com.vaadin" name="vaadin-server" rev="&vaadin.version;"
-			conf="default->default" />
+		<dependency org="com.vaadin" name="vaadin-server" rev="&vaadin.version;" />
 
 		<!-- Vaadin themes -->
 		<dependency org="com.vaadin" name="vaadin-themes" rev="&vaadin.version;" />
+
+		<!-- Push support -->
+		<dependency org="com.vaadin" name="vaadin-push" rev="&vaadin.version;" />
+
+		<!-- Servlet 3.0 API -->
+		<dependency org="javax.servlet" name="javax.servlet-api" rev="3.0.1" conf="nodeploy->default" />
+
+		<!-- TestBench 4 -->
+		<dependency org="com.vaadin" name="vaadin-testbench-api" rev="latest.release" conf="nodeploy -> default" />
 
 		<!-- Precompiled DefaultWidgetSet -->
 		<dependency org="com.vaadin" name="vaadin-client-compiled"
 			rev="&vaadin.version;" />
 
 		<!-- Vaadin client side, needed for widget set compilation -->
-		<dependency org="com.vaadin" name="vaadin-client" rev="&vaadin.version;" />
+		<dependency org="com.vaadin" name="vaadin-client" rev="&vaadin.version;"
+			 conf="widgetset-compile->default" />
 
 		<!-- Compiler for custom widget sets. Should not be deployed -->
 		<dependency org="com.vaadin" name="vaadin-client-compiler"
@@ -47,8 +57,8 @@
 		<dependency org="org.hibernate" name="hibernate-c3p0" rev="&hibernate.version;"/>
 		
 		<!-- Apache Logging -->
-		<dependency org="org.slf4j" name="slf4j-log4j12" rev="&slf4j.version;"/>
-		<dependency org="log4j" name="log4j" rev="&log4j.version;"/>
+		<dependency org="org.apache.logging.log4j" name="log4j-api" rev="&log4j.version;" />
+		<dependency org="org.apache.logging.log4j" name="log4j-core" rev="&log4j.version;" />		
 		
 		<!-- HyperSQL Database -->
 		<dependency org="org.hsqldb" name="hsqldb" rev="&hsqldb.version;"/>

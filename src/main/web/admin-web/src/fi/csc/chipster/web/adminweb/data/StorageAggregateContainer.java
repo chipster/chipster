@@ -2,7 +2,6 @@ package fi.csc.chipster.web.adminweb.data;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.concurrent.locks.Lock;
 
 import javax.jms.JMSException;
 
@@ -47,36 +46,35 @@ public class StorageAggregateContainer extends BeanItemContainer<StorageAggregat
 		this.adminEndpoint = adminEndpoint;
 	}
 	
-	public void update(final StorageView view) {
+	public void update(StorageView view) {
 		
 		List<StorageAggregate> entries;
 		try {
-			entries = adminEndpoint.listStorageUsageOfUsers();		
+			entries = adminEndpoint.listStorageUsageOfUsers();
 
-			if (entries != null) {
-				//Following is null if data loading in this thread
-				//was faster than UI initialisation in another thread
-				if (view.getEntryTable().getUI() != null) {
-					Lock tableLock = view.getEntryTable().getUI().getSession().getLockInstance();
-					tableLock.lock();
-					try {
-						removeAllItems();
-
-						for (StorageAggregate entry : entries) {
-							addBean(entry);
-						}
-
-					} finally {
-						tableLock.unlock();
-					}
-				}		
+			if (entries != null) {				
+				updateUI(view, entries);
 			} else {
 				Notification.show("Timeout", "Chipster filebroker server doesn't respond", Type.ERROR_MESSAGE);
 				logger.error("timeout while waiting storage usage of users");
 			}
 			
 		} catch (JMSException | InterruptedException e) {
-			logger.error(e);
+			logger.error("unable to list users' storage usage", e);
 		}			
+	}
+
+	private void updateUI(StorageView view, final List<StorageAggregate> entries) {
+
+		view.updateUI(new Runnable() {
+			@Override
+			public void run() {				
+				removeAllItems();
+				
+				for (StorageAggregate entry : entries) {
+					addBean(entry);
+				}
+			}
+		});
 	}
 }

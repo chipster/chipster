@@ -16,11 +16,13 @@ public interface Topics {
 		AUTHORISED_FILEBROKER_TOPIC("authorised-filebroker-topic"),
 		FILEBROKER_ADMIN_TOPIC("filebroker-admin-topic"),
 		COMP_ADMIN_TOPIC("comp-admin-topic"),
+		JOBMANAGER_ADMIN_TOPIC("jobmanager-admin-topic"),
 		ADMIN_TOPIC("admin-topic"),
 		JOB_LOG_TOPIC("job-log-topic"),
 		FEEDBACK_TOPIC("feedback-topic"),
 		AUTHORISED_FEEDBACK_TOPIC("authorised-feedback-topic"),
-		AUTH_LOG_TOPIC("auth-log-topic")
+		AUTH_LOG_TOPIC("auth-log-topic"),
+		AUTHORIZED_MANAGED_REQUEST_TOPIC("authorized-managed-request-topic")
 		;
 
 		private String topicName;

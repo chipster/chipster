@@ -31,7 +31,7 @@ public class LocalTaskExecutor extends TaskExecutor {
 
 
 		Runnable taskRunnable = new LocalNGSPreprocess(task);
-		Session.getSession().getApplication().runBlockingTask("running " + task.getNamePrettyPrinted(), taskRunnable);
+		Session.getSession().getApplication().runBlockingTask("running " + task.getFullName(), taskRunnable);
 		
 		
 	}

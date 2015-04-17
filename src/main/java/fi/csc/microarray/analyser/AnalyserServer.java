@@ -70,6 +70,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	private int scheduleTimeout;
 	private int offerDelay;
 	private int timeoutCheckInterval;
+	private int heartbeatInterval;
 	private boolean sweepWorkDir;
 	private int maxJobs;
 	
@@ -103,10 +104,10 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 
 	// synchronize with this object when accessing the job maps below
 	private Object jobsLock = new Object(); 
-	private LinkedHashMap<String, AnalysisJob> receivedJobs = new LinkedHashMap<String, AnalysisJob>();
 	private LinkedHashMap<String, AnalysisJob> scheduledJobs = new LinkedHashMap<String, AnalysisJob>();
 	private LinkedHashMap<String, AnalysisJob> runningJobs = new LinkedHashMap<String, AnalysisJob>();
 	private Timer timeoutTimer;
+	private Timer heartbeatTimer;
 	private String localFilebrokerPath;
 	private String overridingFilebrokerIp;
 	
@@ -127,6 +128,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		this.scheduleTimeout = configuration.getInt("comp", "schedule-timeout");
 		this.offerDelay = configuration.getInt("comp", "offer-delay");
 		this.timeoutCheckInterval = configuration.getInt("comp", "timeout-check-interval");
+		this.heartbeatInterval = configuration.getInt("comp", "job-heartbeat-interval");
 		this.sweepWorkDir= configuration.getBoolean("comp", "sweep-work-dir");
 		this.maxJobs = configuration.getInt("comp", "max-jobs");
 		this.localFilebrokerPath = nullIfEmpty(configuration.getString("comp", "local-filebroker-user-data-path"));
@@ -151,11 +153,13 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		timeoutTimer = new Timer(true);
 		timeoutTimer.schedule(new TimeoutTimerTask(), timeoutCheckInterval, timeoutCheckInterval);
 		
+		heartbeatTimer = new Timer(true);
+		heartbeatTimer.schedule(new JobHeartbeatTask(), heartbeatInterval, heartbeatInterval);
 		
 		// initialize communications
 		this.endpoint = new JMSMessagingEndpoint(this);
 		
-		MessagingTopic analyseTopic = endpoint.createTopic(Topics.Name.AUTHORISED_REQUEST_TOPIC, AccessMode.READ);
+		MessagingTopic analyseTopic = endpoint.createTopic(Topics.Name.AUTHORIZED_MANAGED_REQUEST_TOPIC, AccessMode.READ);
 		analyseTopic.setListener(this);
 		
 		managerTopic = endpoint.createTopic(Topics.Name.JOB_LOG_TOPIC, AccessMode.WRITE);
@@ -165,13 +169,13 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		
 		fileBroker = new JMSFileBrokerClient(this.endpoint.createTopic(Topics.Name.AUTHORISED_FILEBROKER_TOPIC, AccessMode.WRITE), this.localFilebrokerPath, this.overridingFilebrokerIp);
 		
+		
 		// create keep-alive thread and register shutdown hook
 		KeepAliveShutdownHandler.init(this);
 		
 		logger.info("analyser is up and running [" + ApplicationConstants.VERSION + "]");
 		logger.info("[mem: " + SystemMonitorUtil.getMemInfo() + "]");
 	}
-	
 
 	private String nullIfEmpty(String value) {
 		if ("".equals(value.trim())) {
@@ -244,19 +248,12 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 					}
 				}
 				
-				// client chose some other as, forget this job
+				// client chose some other as, forget this job if we have it as scheduled
 				else {
 					logger.debug("Removing scheduled job " + jobId);
 					synchronized(jobsLock) {
-						AnalysisJob jobToBeForgotten = receivedJobs.remove(jobId);
-						
-						// job was in the receivedQueue
-						if (jobToBeForgotten != null) {
-							receivedJobs.remove(jobToBeForgotten);
-						} 
-						
-						// job was scheduled
-						else {
+
+						if (scheduledJobs.containsKey(jobId)) {
 							scheduledJobs.remove(jobId);
 							activeJobRemoved();
 						}
@@ -305,7 +302,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 			else if (CommandMessage.COMMAND_CANCEL.equals(commandMessage.getCommand())) {
 				String jobId = commandMessage.getParameters().get(0);
 				
-				cancelJob(jobId, false);			
+				cancelJob(jobId);			
 			}
 			updateStatus();
 		}		
@@ -318,24 +315,18 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	}
 
 
-	private void cancelJob(String jobId, boolean reportToClient) {
+	private void cancelJob(String jobId) {
 		AnalysisJob job;
 		synchronized(jobsLock) {
-			if (receivedJobs.containsKey(jobId)) {
-				job = receivedJobs.remove(jobId);
-			} else if (scheduledJobs.containsKey(jobId)) {
+			if (scheduledJobs.containsKey(jobId)) {
 				job = scheduledJobs.remove(jobId);
 			} else {
-				job = runningJobs.get(jobId);
+				job = runningJobs.remove(jobId);
 			}
 		}
 		
 		if (job != null) {
 			job.cancel();
-		}
-		
-		if (reportToClient) {
-			job.updateStateToClient(JobState.ERROR, "canceled by server administrator");
 		}
 	}
 
@@ -377,7 +368,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	private void checkStopGracefully() {
 		if (stopGracefully) {
 			synchronized(jobsLock) {
-				if (this.receivedJobs.size() == 0 && this.scheduledJobs.size() == 0 && this.runningJobs.size() == 0) {
+				if (this.scheduledJobs.size() == 0 && this.runningJobs.size() == 0) {
 					shutdown();
 					System.exit(0);
 				}
@@ -389,7 +380,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	public void sendJobLogMessage(AnalysisJob job) {
 		JobLogMessage jobLogMessage;		
 		
-		jobLogMessage = jobToMesage(job);
+		jobLogMessage = jobToMessage(job);
 		
 		try {
 			managerTopic.sendMessage(jobLogMessage);
@@ -399,7 +390,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	}
 	
 	
-	private JobLogMessage jobToMesage(AnalysisJob job) {
+	private JobLogMessage jobToMessage(AnalysisJob job) {
 		
 		String hostname = getHost();
 		
@@ -471,14 +462,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 
 
 	private void activeJobRemoved() {
-		synchronized (jobsLock) {
-			if (!receivedJobs.isEmpty() && ((runningJobs.size() + scheduledJobs.size() < maxJobs))) {
-				AnalysisJob job = receivedJobs.values().iterator().next();
-				receivedJobs.remove(job.getId());
-				scheduleJob(job);
-			}
-			this.updateStatus();
-		}
+		this.updateStatus();
 	}
 	
 	private void receiveJob(JobMessage jobMessage) {
@@ -536,17 +520,11 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 				scheduleJob(job);
 			}
 			
-			// run later
+			// no slot to run it now, ignore it
 			else {
-				
-				receivedJobs.put(job.getId(), job);
-				// try to send the ack message
-				try {
-					sendAckMessage(job);
-				} catch (Exception e) {
-					receivedJobs.remove(job.getId());
-					logger.error("Could not send ACK for job " + job.getId());
-				}
+				ResultMessage resultMessage = new ResultMessage(jobMessage.getJobId(), JobState.COMP_BUSY, "", "", "", jobMessage.getReplyTo());
+				sendReplyMessage(jobMessage, resultMessage);
+				return;
 			}
 		}
 		updateStatus();
@@ -592,20 +570,6 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		updateStatus();
 	}
 
-	
-	
-	
-	private void sendAckMessage(AnalysisJob job) throws JMSException {
-		// create ack message
-		CommandMessage offerMessage = new CommandMessage(CommandMessage.COMMAND_ACK);
-		offerMessage.addNamedParameter(ParameterMessage.PARAMETER_AS_ID, this.id);
-		offerMessage.addNamedParameter(ParameterMessage.PARAMETER_JOB_ID, job.getId());
-
-		// try to send the message
-		sendReplyMessage(job.getInputMessage(), offerMessage);
-
-	}
-	
 	private void sendOfferMessage(AnalysisJob job) throws JMSException {
 		// create offer message
 		CommandMessage offerMessage = new CommandMessage(CommandMessage.COMMAND_OFFER);
@@ -641,8 +605,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	
 	private void updateStatus() {
 		synchronized(jobsLock) {
-			loggerStatus.info("received jobs: " + receivedJobs.size() + 
-					", scheduled jobs: " + scheduledJobs.size() + 
+			loggerStatus.info("scheduled jobs: " + scheduledJobs.size() + 
 					", running jobs: " + runningJobs.size());
 		}
 	}
@@ -681,11 +644,23 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 					scheduledJobs.remove(job.getId());
 					logger.debug("Removing old scheduled job: " + job.getId());
 					activeJobRemoved();
-					logger.debug("Jobs received: " + receivedJobs.size() + ", scheduled: " + scheduledJobs.size() + ", running: " + runningJobs.size());
 				}
 			}
 		}
 	}
+	
+	public class JobHeartbeatTask extends TimerTask {
+
+		@Override
+		public void run() {
+			synchronized (jobsLock) {
+				for (AnalysisJob job : getAllJobs()) {
+					job.updateStateToClient();
+				}
+			}
+		}	
+	}
+	
 
 	/* 
 	 * Service wrapper's "stop" command
@@ -701,6 +676,14 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		}
 
 		logger.info("shutting down");
+	}
+	
+	private synchronized ArrayList<AnalysisJob> getAllJobs() {
+		ArrayList<AnalysisJob> allJobs = new ArrayList<AnalysisJob>();
+		allJobs.addAll(scheduledJobs.values());
+		allJobs.addAll(runningJobs.values());	
+
+		return allJobs;
 	}
 	
 	private class CompAdminMessageListener implements MessagingListener {		
@@ -719,7 +702,6 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 					if (stopGracefully) {
 						reply.setStatus("Stopping gracefully...");
 					}
-					reply.setReceivedJobs(receivedJobs.size());
 					reply.setScheduledJobs(scheduledJobs.size());
 					reply.setRunningJobs(runningJobs.size());
 					reply.setHost(getHost());
@@ -734,14 +716,9 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 					CommandMessage requestMessage = (CommandMessage) msg;
 					
 					synchronized (jobsLock) {
-						
-						ArrayList<AnalysisJob> allJobs = new ArrayList<AnalysisJob>();
-						allJobs.addAll(receivedJobs.values());
-						allJobs.addAll(scheduledJobs.values());
-						allJobs.addAll(runningJobs.values());
-																		
-						for (AnalysisJob job : allJobs) {
-							JobLogMessage reply = jobToMesage(job);
+									
+						for (AnalysisJob job : getAllJobs()) {
+							JobLogMessage reply = jobToMessage(job);
 							endpoint.replyToMessage(requestMessage, reply);
 						}						
 					}
@@ -776,7 +753,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 					
 					logger.info("Request from CompAdminAPI to cancel a job " + jobId);
 					
-					cancelJob(jobId, true);
+					cancelJob(jobId);
 
 					SuccessMessage reply = new SuccessMessage(true);									
 
@@ -788,6 +765,6 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 			} catch (Exception e) {
 				logger.error(e, e);
 			}
-		}
+		}	
 	}
 }

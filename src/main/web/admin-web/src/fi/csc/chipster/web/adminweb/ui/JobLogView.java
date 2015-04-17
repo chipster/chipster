@@ -2,6 +2,7 @@ package fi.csc.chipster.web.adminweb.ui;
 
 import java.util.LinkedList;
 
+import org.apache.log4j.Logger;
 import org.hibernate.exception.GenericJDBCException;
 
 import com.vaadin.data.Property;
@@ -20,9 +21,12 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
 import fi.csc.chipster.web.adminweb.ChipsterAdminUI;
+import fi.csc.chipster.web.adminweb.data.DateContainerFilter;
 import fi.csc.chipster.web.adminweb.data.JobLogContainer;
 
-public class JobLogView extends VerticalLayout implements ClickListener, ValueChangeListener  {
+public class JobLogView extends VerticalLayout implements ClickListener  {
+	
+	private static final Logger logger = Logger.getLogger(JobLogView.class);
 	
 	private HorizontalLayout toolbarLayout;
 
@@ -44,51 +48,41 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 	public JobLogView(ChipsterAdminUI app) {
 
 		this.app = app;
-		init();
-	}
-
-	public void init() {
-		
-		//dataSourceWrapper has to be initialized here because of the transactionListener, so lets init everything else 
-		//here as well (and not in the constructor like elsewhere)		
-		
 		// do this before data source is attached to avoid one data update
 		setSizeFull();
-		
-		try {
-			dataSource = new JobLogContainer(this);			
-//			dataSource.init();
-			
-			table = new JobLogTable(this);		
-			
-			table.setContainerDataSource(dataSource);					
-			
-		} catch (GenericJDBCException e) {
-			//FIXME Show exception message and hide or disable all database based content 
-			return;
-		}
-		
-		table.setVisibleColumns(JobLogContainer.NATURAL_COL_ORDER);
-		table.setColumnHeaders(JobLogContainer.COL_HEADERS_ENGLISH);
-		
-		table.setSortAscending(false);
-		table.setSortContainerPropertyId(JobLogContainer.START_TIME);
+		table = new JobLogTable(this);
 		
 		this.addComponent(getToolbar());
 		this.addComponent(table);
 
 		this.setExpandRatio(table, 1);
+		
+		try {
+			dataSource = new JobLogContainer(this);			
+			table.setContainerDataSource(dataSource);					
+
+			table.setVisibleColumns(JobLogContainer.NATURAL_COL_ORDER);
+			table.setColumnHeaders(JobLogContainer.COL_HEADERS_ENGLISH);
+
+			table.setSortAscending(false);
+			table.setSortContainerPropertyId(JobLogContainer.END_TIME);
+			
+			addFilter(JobLogContainer.END_TIME, DateContainerFilter.getToday());
+			
+		} catch (GenericJDBCException e) {
+			logger.error("unable to read job database", e);
+			//FIXME Show exception message and hide or disable all database based content 
+			return;
+		}		
 	}
-
-
+	
 	public HorizontalLayout getToolbar() {
 
 		if (toolbarLayout == null) {
 			
 			toolbarLayout = new HorizontalLayout();
-			
 			filterLayout = new HorizontalLayout();
-			addFilter();
+			
 			toolbarLayout.addComponent(filterLayout);
 			addFilterButton.addClickListener((ClickListener)this);
 			addFilterButton.setIcon(new ThemeResource("crystal/edit_add.png"));
@@ -109,25 +103,24 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 
 				public void buttonClick(ClickEvent event) {
 
-					applyFilters();
+					update();
 				}
 			});
 			
 			/*
-			 * Don't filter test accounts by default. Current way of filtering
+			 * Current way of filtering
 			 * strings is slow, because H2 doesn't use index for these SQL
 			 * queries (WHERE NOT username = '').
 			 */
 			ignoreTestAccounts = new CheckBox("Ignore test accounts", false);
 			ignoreTestAccounts.addStyleName("toolbar-component");
 			toolbarLayout.addComponent(ignoreTestAccounts);
-			dataSource.setIgnoreTestAccounts(ignoreTestAccounts.getValue());
 						
 			ignoreTestAccounts.addValueChangeListener(new ValueChangeListener() {
 
 				@Override
 				public void valueChange(ValueChangeEvent arg0) {
-					applyFilters();
+					update();
 				}
 			});
 			
@@ -144,11 +137,11 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 		return toolbarLayout;
 	}
 
-	private void addFilter() {
+	private void addFilter(String column, String value) {
 		if (filters == null) {
 			filters = new LinkedList<JobLogFilter>();
 		}
-		JobLogFilter filter = new JobLogFilter(this);
+		JobLogFilter filter = new JobLogFilter(this, column, value);
 		filters.add(filter);
 		filterLayout.addComponent(filter);
 	}
@@ -157,21 +150,11 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 		final Button source = event.getButton();
 
 		if (source == addFilterButton) {
-			addFilter();
+			addFilter(null, null);
 		}
 	}
 
-	public void valueChange(ValueChangeEvent event) {
-		Property<?> property = event.getProperty();
-		if (property == table) {
-			//			Item item = personList.getItem(personList.getValue());
-			//			if (item != personForm.getItemDataSource()) {
-			//				personForm.setItemDataSource(item);
-			//			}
-		}
-	}
-
-	public void applyFilters() {
+	public void update() {
 
 		updateContainerFilters();
 
@@ -192,7 +175,7 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 		table.refreshRowCache();
 	}
 
-	public void clearFilters(JobLogFilter filter) {
+	public void clearFilter(JobLogFilter filter) {
 
 		if (filters.size() > 1) {
 			filterLayout.removeComponent(filter);

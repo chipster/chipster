@@ -13,6 +13,7 @@ import org.joda.time.format.ISODateTimeFormat;
 
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.SuccessMessageListener;
 import fi.csc.microarray.messaging.TempTopicMessagingListenerBase;
@@ -39,8 +40,8 @@ public class StorageAdminAPI extends ServerAdminAPI {
 		public void process(List<StorageEntry> entries);
 	}
 	
-	public StorageAdminAPI() throws IOException, IllegalConfigurationException, MicroarrayException, JMSException {
-		super(Topics.Name.FILEBROKER_ADMIN_TOPIC, "filebroker-admin");
+	public StorageAdminAPI(MessagingEndpoint endpoint) throws IOException, IllegalConfigurationException, MicroarrayException, JMSException {
+		super(Topics.Name.FILEBROKER_ADMIN_TOPIC, endpoint);
 	}
 	
 	public Long[] getStorageUsage() throws JMSException, InterruptedException {
@@ -65,18 +66,13 @@ public class StorageAdminAPI extends ServerAdminAPI {
 	public void deleteRemoteSession(String sessionID) throws JMSException, MicroarrayException {
 		SuccessMessageListener replyListener = new SuccessMessageListener();  
 		
-		
-		try {
-			CommandMessage removeRequestMessage = new CommandMessage(CommandMessage.COMMAND_REMOVE_SESSION);
-			removeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID, sessionID); 
-			getTopic().sendReplyableMessage(removeRequestMessage, replyListener);
+		CommandMessage removeRequestMessage = new CommandMessage(CommandMessage.COMMAND_REMOVE_SESSION);
+		removeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID, sessionID); 
+		getTopic().sendReplyableMessage(removeRequestMessage, replyListener);
 
-			SuccessMessage reply = replyListener.waitForReply(TIMEOUT, TIMEOUT_UNIT);
-			
-			checkSuccessMessage(reply, "delete session");
-		} finally {
-			replyListener.cleanUp();
-		}
+		SuccessMessage reply = replyListener.waitForReply(TIMEOUT, TIMEOUT_UNIT);
+
+		checkSuccessMessage(reply, "delete session");		
 	}
 	
 	private class StorageTotalsMessageListener extends TempTopicMessagingListenerBase {
@@ -89,15 +85,20 @@ public class StorageAdminAPI extends ServerAdminAPI {
 
 			latch = new CountDownLatch(1);
 
-			CommandMessage request = new CommandMessage(CommandMessage.COMMAND_GET_STORAGE_USAGE_TOTALS);
+			try {
+				CommandMessage request = new CommandMessage(CommandMessage.COMMAND_GET_STORAGE_USAGE_TOTALS);
 
-			getTopic().sendReplyableMessage(request, this);
-			latch.await(TIMEOUT, TIMEOUT_UNIT);
+				getTopic().sendReplyableMessage(request, this);
+				latch.await(TIMEOUT, TIMEOUT_UNIT);
 
-			if (usedSpace != null && freeSpace != null) {
-				return new Long[] { usedSpace, freeSpace };
-			} else {
-				return null;
+				if (usedSpace != null && freeSpace != null) {
+					return new Long[] { usedSpace, freeSpace };
+				} else {
+					return null;
+				}
+			} finally {
+				// close temp topic
+				this.cleanUp();
 			}
 		}
 
@@ -200,7 +201,7 @@ public class StorageAdminAPI extends ServerAdminAPI {
 
 			latch.countDown();
 		}
-	}	
+	}
 
 	private class StorageAggregateMessageListener extends TempTopicMessagingListenerBase {
 
@@ -211,12 +212,17 @@ public class StorageAdminAPI extends ServerAdminAPI {
 
 			latch = new CountDownLatch(1);
 
-			CommandMessage request = new CommandMessage(CommandMessage.COMMAND_LIST_STORAGE_USAGE_OF_USERS);
+			try {
+				CommandMessage request = new CommandMessage(CommandMessage.COMMAND_LIST_STORAGE_USAGE_OF_USERS);
 
-			getTopic().sendReplyableMessage(request, this);
-			latch.await(TIMEOUT, TIMEOUT_UNIT);
+				getTopic().sendReplyableMessage(request, this);
+				latch.await(TIMEOUT, TIMEOUT_UNIT);
 
-			return entries;
+				return entries;
+			} finally {
+				// close temp topic
+				this.cleanUp();
+			}
 		}
 
 

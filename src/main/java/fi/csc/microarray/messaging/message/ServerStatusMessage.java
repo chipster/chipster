@@ -29,7 +29,6 @@ public class ServerStatusMessage extends ChipsterMessage {
 	public static final String KEY_DISK_USED = "diskUsed";
 	public static final String KEY_DISK_TOTAL = "diskTotal";
 	public static final String KEY_DISK_PERCENTS = "diskSpace";	
-	public static final String KEY_RECEIVED_JOBS = "receivedJobs";
 	public static final String KEY_SCHEDULED_JOBS = "scheduledJobs";
 	public static final String KEY_RUNNING_JOBS = "runningJobs";
 	public static final String KEY_HOST = "host";
@@ -45,7 +44,6 @@ public class ServerStatusMessage extends ChipsterMessage {
 	private long diskUsed;
 	private long diskTotal;
 	private int diskPercents;
-	private int receivedJobs;
 	private int scheduledJobs;
 	private int runningJobs;
 	private String host;
@@ -84,7 +82,6 @@ public class ServerStatusMessage extends ChipsterMessage {
 		this.diskUsed = from.getLong(KEY_DISK_USED);		
 		this.diskTotal = from.getLong(KEY_DISK_TOTAL);
 		this.diskPercents = from.getInt(KEY_DISK_PERCENTS);
-		this.receivedJobs = from.getInt(KEY_RECEIVED_JOBS);
 		this.scheduledJobs = from.getInt(KEY_SCHEDULED_JOBS);
 		this.runningJobs = from.getInt(KEY_RUNNING_JOBS);
 		this.host = from.getString(KEY_HOST);
@@ -104,7 +101,6 @@ public class ServerStatusMessage extends ChipsterMessage {
 		mapMessage.setLong(KEY_DISK_USED, this.diskUsed);
 		mapMessage.setLong(KEY_DISK_TOTAL, this.diskTotal);			
 		mapMessage.setInt(KEY_DISK_PERCENTS, this.diskPercents);
-		mapMessage.setInt(KEY_RECEIVED_JOBS, this.receivedJobs);
 		mapMessage.setInt(KEY_SCHEDULED_JOBS, this.scheduledJobs);
 		mapMessage.setInt(KEY_RUNNING_JOBS, this.runningJobs);
 		mapMessage.setString(KEY_HOST, this.host);
@@ -117,7 +113,6 @@ public class ServerStatusMessage extends ChipsterMessage {
 		if (status != null) {
 			string += status + "\n";			
 		}
-		string += "Jobs received    \t" + receivedJobs + "\n";
 		string += "Jobs scheduled   \t" + scheduledJobs + "\n";
 		string += "Jobs running     \t" + runningJobs + " \n";
 
@@ -136,7 +131,6 @@ public class ServerStatusMessage extends ChipsterMessage {
 
 	public String toStringLine() {
 		String[] array = new String[] {				
-				"" + receivedJobs,				
 				"" + scheduledJobs,
 				"" + runningJobs,
 				"" + cpuPercents,
@@ -156,7 +150,6 @@ public class ServerStatusMessage extends ChipsterMessage {
 	
 	public static String getStringLineHeaders() {
 		String[] array = new String[] {
-				"RECEIVED",
 				"SCHEDULED",
 				"RUNNING",
 				"CPU %",
@@ -260,14 +253,6 @@ public class ServerStatusMessage extends ChipsterMessage {
 
 	public void setScheduledJobs(int scheduledJobs) {
 		this.scheduledJobs = scheduledJobs;
-	}
-
-	public int getReceivedJobs() {
-		return receivedJobs;
-	}
-
-	public void setReceivedJobs(int receivedJobs) {
-		this.receivedJobs = receivedJobs;
 	}
 
 	public String getHost() {

@@ -51,7 +51,7 @@ class ToolTestResult {
 		
 		this.toolId = task.getOperationID();
 		this.toolName = task.getName();
-		this.toolFullName = task.getNamePrettyPrinted();
+		this.toolFullName = task.getFullName();
 		
 		this.sessionFile = sessionFile;
 		this.testErrorMessage = testErrorMessage;

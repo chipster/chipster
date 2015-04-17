@@ -8,7 +8,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.messaging.message.ChipsterMessage;
-import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.UrlListMessage;
 
 /**
@@ -41,6 +40,9 @@ public class UrlListMessageListener extends TempTopicMessagingListenerBase {
 			latch.await(timeout, unit);
 		} catch (InterruptedException e) {
 			logger.warn("interrupted while waiting for latch", e);
+		} finally {
+			// close temp topic
+			this.cleanUp();
 		}
 		return this.urlList;
 	}

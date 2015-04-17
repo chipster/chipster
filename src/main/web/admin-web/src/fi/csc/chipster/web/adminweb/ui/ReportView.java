@@ -25,90 +25,83 @@ public class ReportView extends AsynchronousView implements ClickListener {
 	protected static final int UPDATE_WAIT = 5; // seconds
 	private VerticalLayout filebrokerLayout = new VerticalLayout();
 	private VerticalLayout compLayout = new VerticalLayout();
+	private VerticalLayout jobmanagerLayout = new VerticalLayout();
 	private Label filebrokerLabel;
 	private Label compLabel;
+	private Label jobmanagerLabel;
 	
 	private TabSheet tabSheet;
 	
 	private HorizontalLayout toolbarLayout;
 
 	private ReportDataSource dataSource;
-
-	private ChipsterAdminUI app;
 	
 	public ReportView(ChipsterAdminUI app) {
 		
-		super(UPDATE_WAIT);
-		
-		this.app = app;
+		super(app, UPDATE_WAIT);
 					
 		this.addComponent(getToolbar());
 		
 		this.addComponent(super.getProggressIndicator());
 
 		tabSheet = new TabSheet();
+		
+		dataSource = new ReportDataSource(app.getEndpoint());
 				
 		tabSheet.setSizeFull();
-		tabSheet.addSelectedTabChangeListener(new SelectedTabChangeListener() {
-
-			@Override
-			public void selectedTabChange(SelectedTabChangeEvent e) {
-				updateData();
-			}
-		});
 		
         this.addComponent(tabSheet);        
         this.setExpandRatio(tabSheet, 1);
 		this.setSizeFull();
 		
-		filebrokerLabel = new Label("waiting for status report...", ContentMode.PREFORMATTED);
-		filebrokerLabel.addStyleName("report-text");
-		compLabel = createReportLabel("waiting for status report..."); 			
+		filebrokerLabel = createReportLabel("waiting for status report...");
+		compLabel = createReportLabel("waiting for status report...");
+		jobmanagerLabel = createReportLabel("waiting for status report...");
 		
 		filebrokerLayout.addComponent(filebrokerLabel);
 		tabSheet.addTab(filebrokerLayout, "Filebroker");
 		compLayout.addComponent(compLabel);
-		tabSheet.addTab(compLayout, "Comp");        
+		tabSheet.addTab(compLayout, "Comp");
+		jobmanagerLayout.addComponent(jobmanagerLabel);
+		tabSheet.addTab(jobmanagerLayout, "Jobmanager");
+		
+		tabSheet.addSelectedTabChangeListener(new SelectedTabChangeListener() {
+
+			@Override
+			public void selectedTabChange(SelectedTabChangeEvent e) {
+				update();
+			}
+		});
 	}
 	
-	public void updateData() {
-
-		if (dataSource == null) {
-			dataSource = new ReportDataSource();
-		}
+	public void update() {
 
 		if (tabSheet.getSelectedTab() == filebrokerLayout) {
-			updateFileBrokerData();
+			super.submitUpdate(new Runnable() {			
+				@Override
+				public void run() {				
+					dataSource.updateFilebrokerReport(ReportView.this);
+				}			
+			});
 		}
 
 		if (tabSheet.getSelectedTab() == compLayout) {
-			updateCompData();
+			super.submitUpdateAndWait(new Runnable() {
+				@Override
+				public void run() {				
+					dataSource.updateCompReport(ReportView.this, (int) getTimeout());					
+				}			
+			});
 		}
-	}
-	
-	private void updateCompData() {
 		
-		// comp						
-		super.submitUpdateAndWait(new Runnable() {
-			
-			@Override
-			public void run() {				
-				dataSource.updateCompReport(ReportView.this);					
-			}			
-		});
-	}
-
-	private void updateFileBrokerData() {
-
-		// filebroker
-		super.submitUpdate(new Runnable() {
-			
-			@Override
-			public void run() {				
-				dataSource.updateFilebrokerReport(ReportView.this);
-			}			
-		});
-		
+		if (tabSheet.getSelectedTab() == jobmanagerLayout) {
+			super.submitUpdate(new Runnable() {			
+				@Override
+				public void run() {				
+					dataSource.updateJobmanagerReport(ReportView.this);
+				}			
+			});
+		}
 	}
 
 	public Label createReportLabel(String text) {
@@ -137,7 +130,7 @@ public class ReportView extends AsynchronousView implements ClickListener {
 			toolbarLayout.addComponent(spaceEater);
 			toolbarLayout.setExpandRatio(spaceEater, 1);
 
-			toolbarLayout.addComponent(app.getTitle());	
+			toolbarLayout.addComponent(getApp().getTitle());	
 			
 			toolbarLayout.setWidth("100%");
 			toolbarLayout.setStyleName("toolbar");
@@ -148,7 +141,7 @@ public class ReportView extends AsynchronousView implements ClickListener {
 
 	public void buttonClick(ClickEvent event) {
 		if (super.isRefreshButton(event.getSource())) {			
-			updateData();			
+			update();			
 		}
 	}
 
@@ -158,5 +151,9 @@ public class ReportView extends AsynchronousView implements ClickListener {
 	
 	public VerticalLayout getCompLayout() {
 		return compLayout;
+	}
+	
+	public VerticalLayout getJobmanagerLayout() {
+		return jobmanagerLayout;
 	}
 }

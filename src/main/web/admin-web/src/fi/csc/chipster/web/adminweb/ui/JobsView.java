@@ -6,9 +6,6 @@ import javax.jms.JMSException;
 
 import org.apache.log4j.Logger;
 
-import com.vaadin.data.Property;
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -20,31 +17,28 @@ import fi.csc.chipster.web.adminweb.data.JobsContainer;
 import fi.csc.chipster.web.adminweb.util.Notificationutil;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.messaging.admin.CompAdminAPI;
+import fi.csc.microarray.messaging.admin.JobmanagerAdminAPI;
 import fi.csc.microarray.messaging.admin.JobsEntry;
 
-public class JobsView extends AsynchronousView implements ClickListener, ValueChangeListener {
+public class JobsView extends AsynchronousView implements ClickListener {
 	
 	private static final Logger logger = Logger.getLogger(JobsView.class);
 	
-	public static final int WAIT_SECONDS = 1;
+	public static final int WAIT_SECONDS = 5;
 	
 	private HorizontalLayout toolbarLayout;
 
 	private JobsTable table;
-	private CompAdminAPI compAdminAPI;
+	private JobmanagerAdminAPI jobmanagerAdminAPI;
 	private JobsContainer dataSource;
-
-	private ChipsterAdminUI app;
 
 	public JobsView(ChipsterAdminUI app) {
 		
-		super(WAIT_SECONDS);
+		super(app, WAIT_SECONDS);
 		
-		this.app = app;
 		try {
-			compAdminAPI = new CompAdminAPI();
-			dataSource = new JobsContainer(this, compAdminAPI);
+			jobmanagerAdminAPI = new JobmanagerAdminAPI(app.getEndpoint());
+			dataSource = new JobsContainer(this, jobmanagerAdminAPI);
 
 			table = new JobsTable(this);
 			table.setContainerDataSource(dataSource);
@@ -76,7 +70,7 @@ public class JobsView extends AsynchronousView implements ClickListener, ValueCh
 			toolbarLayout.addComponent(spaceEater);
 			toolbarLayout.setExpandRatio(spaceEater, 1);
 			
-			toolbarLayout.addComponent(app.getTitle());	
+			toolbarLayout.addComponent(super.getApp().getTitle());	
 			
 			toolbarLayout.setWidth("100%");
 			toolbarLayout.setStyleName("toolbar");
@@ -95,7 +89,7 @@ public class JobsView extends AsynchronousView implements ClickListener, ValueCh
 	
 	public void update() {
 		
-		super.submitUpdateAndWait(new Runnable() {
+		super.submitUpdate(new Runnable() {
 
 			@Override
 			public void run() {				
@@ -104,23 +98,13 @@ public class JobsView extends AsynchronousView implements ClickListener, ValueCh
 		});				
 	}
 
-	public void valueChange(ValueChangeEvent event) {
-		Property<?> property = event.getProperty();
-		if (property == table) {
-			//			Item item = personList.getItem(personList.getValue());
-			//			if (item != personForm.getItemDataSource()) {
-			//				personForm.setItemDataSource(item);
-			//			}
-		}
-	}
-
 	public void cancel(JobsEntry job) {
 		try {
-			compAdminAPI.cancelJob(job.getJobId());
+			jobmanagerAdminAPI.cancelJob(job.getJobId());
+			table.removeItem(job);
 		} catch (MicroarrayException e) {
 			Notificationutil.showFailNotification(e.getClass().getSimpleName(), e.getMessage());
 		}
-		update();
 	}
 
 	public JobsTable getEntryTable() {

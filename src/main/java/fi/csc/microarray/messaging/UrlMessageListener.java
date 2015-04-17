@@ -59,6 +59,9 @@ public class UrlMessageListener extends TempTopicMessagingListenerBase {
 			latch.await(timeout, unit);
 		} catch (InterruptedException e) {
 			logger.warn("interrupted while waiting for latch", e);
+		} finally {
+			// close temp topic
+			this.cleanUp();
 		}
 		
 		if (exception != null) {

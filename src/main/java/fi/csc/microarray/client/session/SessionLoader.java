@@ -2,10 +2,12 @@ package fi.csc.microarray.client.session;
 
 import java.io.File;
 import java.io.InputStreamReader;
+import java.util.List;
 
 import org.w3c.dom.Document;
 
 import de.schlichtherle.truezip.zip.ZipFile;
+import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.IOUtils;
@@ -19,6 +21,7 @@ public class SessionLoader {
 	private boolean isDatalessSession;
 	private Integer xOffset;
 	private String sessionNotes;
+	private List<OperationRecord> unfinishedJobs;
 
 	public SessionLoader(File sessionFile, boolean isDatalessSession, DataManager dataManager) throws MicroarrayException {
 		this.sessionFile = sessionFile;
@@ -35,6 +38,12 @@ public class SessionLoader {
 	}
 
 	
+	/**
+	 * @return a list of OperationRecords for tasks that were running when the
+	 *         session was saved
+	 *         
+	 * @throws Exception
+	 */
 	public void loadSession() throws Exception {
 		
 		ZipFile zipFile = null;
@@ -58,6 +67,7 @@ public class SessionLoader {
 			// old format, use old loader
 			SessionLoaderImpl1 impl = new SessionLoaderImpl1(sessionFile, dataManager, isDatalessSession);
 			impl.loadSession();
+			return;
 			
 		} else {
 			// use new loader
@@ -70,6 +80,7 @@ public class SessionLoader {
 			impl.setXOffset(xOffset);
 			impl.loadSession();
 			sessionNotes = impl.getSessionNotes();
+			unfinishedJobs = impl.getUnfinishedOperations();
 		}
 	}
 
@@ -79,5 +90,9 @@ public class SessionLoader {
 
 	public String getSessionNotes() {
 		return this.sessionNotes;
+	}
+
+	public List<OperationRecord> getUnifinishedJobs() {
+		return unfinishedJobs;
 	}
 }

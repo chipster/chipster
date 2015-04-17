@@ -32,7 +32,8 @@ import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.dialog.TaskImportDialog;
 import fi.csc.microarray.client.operation.Operation;
-import fi.csc.microarray.client.operation.Operation.DataBinding;
+import fi.csc.microarray.client.operation.OperationRecord;
+import fi.csc.microarray.client.operation.OperationRecord.InputRecord;
 import fi.csc.microarray.client.selection.IntegratedEntity;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
@@ -370,7 +371,7 @@ public class MicroarrayModule implements Module {
 	}
 
 	@Override
-	public void postProcessOutputMetadata(Operation oper, DataBean metadataOutput) throws MicroarrayException, IOException {
+	public void postProcessOutputMetadata(OperationRecord oper, DataBean metadataOutput) throws MicroarrayException, IOException {
 		
 		// FIXME how this should actually work in the new type system?
 		
@@ -387,13 +388,15 @@ public class MicroarrayModule implements Module {
 				String sample = editableTable.getValue(PhenodataEditor.PHENODATA_SAMPLE_COLUMN, ri);
 				boolean correctRowFound = false;
 				String originalName = null;
-				for (DataBinding binding : oper.getBindings()) {
-					if (binding.getName().equals(sample)) {
-						DataBean ancestor = binding.getData().getUniqueAncestorRecursively(binding.getData());
-						if (!ancestor.equals(binding.getData())) {
-							originalName = binding.getData().getName() + " ( " + ancestor.getName() + " )";
+				for (InputRecord input : oper.getInputRecords()) {
+					String internalName = input.getNameID().getID();
+					DataBean bean = input.getValue();
+					if (internalName.equals(sample)) {
+						DataBean ancestor = bean.getUniqueAncestorRecursively(bean);
+						if (!ancestor.equals(bean)) {
+							originalName = bean.getName() + " ( " + ancestor.getName() + " )";
 						} else {
-							originalName = binding.getData().getName();
+							originalName = bean.getName();
 						}
 						correctRowFound = true;
 						break;

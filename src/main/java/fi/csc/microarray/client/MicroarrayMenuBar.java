@@ -506,11 +506,11 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem getTaskListMenuItem() {
 		if (taskListMenuItem == null) {
 			taskListMenuItem = new JMenuItem();
-			taskListMenuItem.setText("Jobs...");
+			taskListMenuItem.setText("View jobs...");
 			taskListMenuItem.setAccelerator(KeyStroke.getKeyStroke('T', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
 			taskListMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					application.flipTaskListVisibility(false);
+					application.viewTasks();
 				}
 			});
 		}

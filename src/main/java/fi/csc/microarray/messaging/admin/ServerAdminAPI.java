@@ -1,5 +1,7 @@
 package fi.csc.microarray.messaging.admin;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,12 +11,12 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.jms.JMSException;
+import javax.swing.Timer;
 
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.messaging.JMSMessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
@@ -23,12 +25,14 @@ import fi.csc.microarray.messaging.TempTopicMessagingListenerBase;
 import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.CommandMessage;
+import fi.csc.microarray.messaging.message.JsonMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
 import fi.csc.microarray.messaging.message.ServerStatusMessage;
 import fi.csc.microarray.messaging.message.SuccessMessage;
 
 public class ServerAdminAPI {
 	
+	@SuppressWarnings("unused")
 	private static final Logger logger = Logger.getLogger(ServerAdminAPI.class);
 	
 	public static interface StatusReportListener {
@@ -54,12 +58,10 @@ public class ServerAdminAPI {
 
 	private MessagingEndpoint messagingEndpoint;
 
-	public ServerAdminAPI(Topics.Name topic, String nodeName) throws IOException, IllegalConfigurationException, MicroarrayException, JMSException {
+	public ServerAdminAPI(Topics.Name topic, MessagingEndpoint endpoint) throws IOException, IllegalConfigurationException, MicroarrayException, JMSException {
 
-		ManagerConfiguration.init();
-		nodeSupport = new AdminNodeBase(nodeName);
-		messagingEndpoint = new JMSMessagingEndpoint(nodeSupport);
-		serverAdminTopic = messagingEndpoint.createTopic(topic, AccessMode.WRITE);
+		this.messagingEndpoint = endpoint;
+		this.serverAdminTopic = messagingEndpoint.createTopic(topic, AccessMode.WRITE);
 	}
 	
 	/**
@@ -81,13 +83,14 @@ public class ServerAdminAPI {
 	 * 
 	 * It's not possible to wait for all status reports, because it is not know how many servers 
 	 * there are. Therefore, a listener is called always when a new status report is received.
+	 * @param wait 
 	 * 
 	 * @param listener
 	 * @throws JMSException
 	 * @throws InterruptedException
 	 */
-	public void getStatusReports(StatusReportListener listener) throws JMSException, InterruptedException {
-		new AsyncStatusReportMessageListener(listener).query();
+	public void getStatusReports(StatusReportListener listener, int wait) throws JMSException, InterruptedException {
+		new AsyncStatusReportMessageListener(listener, wait).query();
 	}
 	
 	private class BlockingStatusReportMessageListener extends TempTopicMessagingListenerBase {
@@ -99,18 +102,28 @@ public class ServerAdminAPI {
 
 			latch = new CountDownLatch(1);
 
-			CommandMessage request = new CommandMessage(CommandMessage.COMMAND_GET_STATUS_REPORT);
+			try {
+				CommandMessage request = new CommandMessage(CommandMessage.COMMAND_GET_STATUS_REPORT);
 
-			getTopic().sendReplyableMessage(request, this);
-			latch.await(TIMEOUT, TIMEOUT_UNIT);
+				getTopic().sendReplyableMessage(request, this);
+				latch.await(TIMEOUT, TIMEOUT_UNIT);
 
-			return report;
+				return report;
+			} finally {
+				// close temp topic
+				this.cleanUp();
+			}
 		}
 
 
 		public void onChipsterMessage(ChipsterMessage msg) {
-			ParameterMessage resultMessage = (ParameterMessage) msg;
-			report = resultMessage.getNamedParameter(ParameterMessage.PARAMETER_STATUS_REPORT);
+			if (msg instanceof JsonMessage) {
+				JsonMessage jsonMessage = (JsonMessage)msg;
+				report = jsonMessage.getJson();
+			} else if (msg instanceof ParameterMessage) {
+				ParameterMessage resultMessage = (ParameterMessage) msg;
+				report = resultMessage.getNamedParameter(ParameterMessage.PARAMETER_STATUS_REPORT);
+			}
 			latch.countDown();
 		}
 	}
@@ -120,14 +133,20 @@ public class ServerAdminAPI {
 	 * 
 	 * @author klemela
 	 */
-	private class AsyncStatusReportMessageListener extends TempTopicMessagingListenerBase {
+	public class AsyncStatusReportMessageListener extends TempTopicMessagingListenerBase {
 
 		private Lock mutex = new ReentrantLock();
 		private ArrayList<ServerStatusMessage> statuses;
 		private StatusReportListener listener;
+		private int cleanUpDelay;
 
-		public AsyncStatusReportMessageListener(StatusReportListener listener) {
+		/**
+		 * @param listener
+		 * @param cleanUpDelay in seconds
+		 */
+		public AsyncStatusReportMessageListener(StatusReportListener listener, int cleanUpDelay) {
 			this.listener = listener;
+			this.cleanUpDelay = cleanUpDelay;
 		}
 
 
@@ -139,9 +158,26 @@ public class ServerAdminAPI {
 				
 				CommandMessage request = new CommandMessage(CommandMessage.COMMAND_GET_COMP_STATUS);
 				getTopic().sendReplyableMessage(request, this);
+				
 			} finally {
 				mutex.unlock();
 			}
+			
+			// clean up the topic simply after a fixed delay, because
+			// we don't know when all the serves have replied
+			Timer cleanUpTimer = new Timer(cleanUpDelay * 1000, new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					mutex.lock();
+					try {
+						cleanUp();
+					} finally {
+						mutex.unlock();
+					}		
+				}
+			});				
+			cleanUpTimer.setRepeats(false);
+			cleanUpTimer.start();
 		}
 
 
@@ -155,8 +191,8 @@ public class ServerAdminAPI {
 				
 				listener.statusUpdated(statuses);
 				
-			} finally {
-				mutex.unlock();
+			} finally {			
+				mutex.unlock();				
 			}
 		}
 	}
@@ -167,23 +203,6 @@ public class ServerAdminAPI {
 	
 	public MessagingEndpoint getEndpoint() {
 		return this.messagingEndpoint;
-	}
-	
-	public void clean() {
-		if (serverAdminTopic != null) {
-			try {
-				serverAdminTopic.delete();
-			} catch (JMSException e) {
-				logger.error(e);
-			}
-		}
-		if (messagingEndpoint != null) {
-			try {
-				messagingEndpoint.close();
-			} catch (JMSException e) {
-				logger.error(e);
-			}
-		}
 	}
 	
 	public void checkSuccessMessage(SuccessMessage reply, String context) throws MicroarrayException {

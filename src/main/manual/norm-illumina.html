@@ -12,11 +12,12 @@
 <h3>Parameters</h3>
 
 <ul>
-<li>Within array normalization method (none, scale, quantile, vsn) [quantile]</li>
-<!--<li>Produce flags (yes, no) [no]</li>-->
-<li>BeadStudio version (1,2,3) [1]</li>
+<li>Normalization method (none, scale, quantile, vsn) [quantile]</li>
+<li>Illumina software version (GenomeStudio or BeadStudio3, BeadStudio 2, BeadStudio 1) [GenomeStudio or BeadStudio3]</li>
 <li>Chip type (empty, ...) [empty]</li>
-<li>ID type (TargetID, ProbeID) [TargetID]</li>
+<li>Identifier type (TargetID, ProbeID) [ProbeID]</li>
+<li>Produce flags (yes, no) [no]</li>
+<li>Include original annotations (yes, no) [no]</li>
 </ul>
 
 <h3>Details</h3>
@@ -27,23 +28,26 @@ to normalize together, or to exclude from the analysis.</p>
 
 <p>Within array normalization methods offer basic options, such as scaling the chips to the same
 median, quantile normalizing the chips to make the expression value follow the same distribution on
-all chips, and variance stabilizing normalization. Please note that during normalization the data is also log2-transformed</p>
+all chips, and variance stabilizing normalization. Please note that during normalization the data is also log2-transformed.</p>
 
 <p>If the flags are produced, the Illumina detection values are automatically recoded into P/M/A flags.</p>
 
-<p>Beadstudio versions differ in the data format they produce. Therefore you need to select the correct
-BeadStudio version in order to be able to get the right results.
+<p>You can choose to include the original probe annotations to the results. Please keep in mind that these can be very outdated.</p>
+
+
+<p>GenomeStudio/BeadStudio versions differ in the data format they produce. Therefore you need to select the correct
+software version in order to be able to get the right results. </p>
 
 <p>It is obligatory to enter the chiptype. Otherwise annotation-based analyses do not work.</p>
 
-<p>ID type specifies how the data was generated in BeadStdio. There are typically several probes per each 
+<p>Identifier type specifies how the data was generated in GenomeStudio/BeadStudio. There are typically several probes per each 
 gene. TargetIDs summarize all these probes as an expression estimate for one gene. ProbeID does not make
 this summarization, and several probes per gene remain in the dataset. TargetIDs are alphanumeric codes, 
 such as 0610005A07RIK or GI_10047089-S, whereas ProbeIDs are numerical codes, such as 5570647.</p>
 
 <h3>Output</h3>
 
-<p>A tab-delimited text file containing gene names, expression estimates and call values ("flags"). 
+<p>A tab-delimited text file containing gene names, expression estimates and optionally call values ("flags") and original annotations. 
 This file is suitable for all further analyses.</p>
 
 <h3>References</h3>

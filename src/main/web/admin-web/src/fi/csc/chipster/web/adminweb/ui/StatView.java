@@ -3,7 +3,6 @@ package fi.csc.chipster.web.adminweb.ui;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.locks.Lock;
 
 import org.hibernate.Session;
 import org.hibernate.exception.GenericJDBCException;
@@ -45,26 +44,16 @@ public class StatView extends AsynchronousView implements ClickListener {
 
 	private Session session;
 	private StatDataSource dataSource;
-
-	private ChipsterAdminUI app;
 	
 	public StatView(ChipsterAdminUI app) {
 		
-		super(TIMEOUT);
-		
-		this.app = app;
+		super(app, TIMEOUT);
 					
 		this.addComponent(getToolbar());
 		this.addComponent(super.getProggressIndicator());
 
 		tabSheet = new TabSheet();
 		tabSheet.setSizeFull();
-		tabSheet.addSelectedTabChangeListener(new SelectedTabChangeListener() {
-			@Override
-			public void selectedTabChange(SelectedTabChangeEvent e) {				
-				update();
-			}
-		});
 		
         this.addComponent(tabSheet);        
         this.setExpandRatio(tabSheet, 1);
@@ -76,6 +65,13 @@ public class StatView extends AsynchronousView implements ClickListener {
         tabSheet.addTab(topUsers, "Top users (1 year)");
         tabSheet.addTab(toolFails, "Tool fails (1 year)");
         tabSheet.addTab(moduleUsage, "Module job counts (beta)");
+        
+		tabSheet.addSelectedTabChangeListener(new SelectedTabChangeListener() {
+			@Override
+			public void selectedTabChange(SelectedTabChangeEvent e) {				
+				update();
+			}
+		});
 	}
 	
 	private Session getHibernateSession() {
@@ -133,18 +129,14 @@ public class StatView extends AsynchronousView implements ClickListener {
 		});
 	}
 
-	protected void setData(List<Map<Object, Object>> stats, Table table, Object[] columnOrder) {
-		if (table.getUI() != null) {
-			Lock lock = table.getUI().getSession().getLockInstance();
-			lock.lock();
-			try {
+	protected void setData(final List<Map<Object, Object>> stats, final Table table, final Object[] columnOrder) {
+
+		this.updateUI(new Runnable() {
+			public void run() {				
 				mapListToTable(stats, table);
 				table.setVisibleColumns(columnOrder);
 			}
-			finally {
-				lock.unlock();
-			}
-		}
+		});
 	}
 
 	public HorizontalLayout getToolbar() {
@@ -171,7 +163,7 @@ public class StatView extends AsynchronousView implements ClickListener {
 			toolbarLayout.addComponent(spaceEater);
 			toolbarLayout.setExpandRatio(spaceEater, 1);
 
-			toolbarLayout.addComponent(app.getTitle());	
+			toolbarLayout.addComponent(getApp().getTitle());	
 			
 			toolbarLayout.setWidth("100%");
 			toolbarLayout.setStyleName("toolbar");

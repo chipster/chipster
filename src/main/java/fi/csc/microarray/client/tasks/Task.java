@@ -4,15 +4,16 @@
  */
 package fi.csc.microarray.client.tasks;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
-import fi.csc.microarray.client.operation.Operation;
-import fi.csc.microarray.client.operation.Operation.DataBinding;
-import fi.csc.microarray.client.operation.parameter.Parameter;
+import fi.csc.microarray.client.operation.OperationRecord;
+import fi.csc.microarray.client.operation.OperationRecord.InputRecord;
+import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.ThreadUtils;
@@ -89,90 +90,71 @@ public class Task {
 
 	
 	
-	private Operation operation;
+	private OperationRecord operationRecord;
 	private String id; 
 	private State state = State.NEW;
 	private String stateDetail = "";
 	private int completionPercentage = -1;
-	private long startTime;
-	private long endTime;
+	private Date startTime;
+	private Date endTime;
 	private String errorMessage;
 	private String screenOutput;
 	private String sourceCode;
-	private Map<String, DataBean> outputs = new HashMap<String, DataBean>();
-	private boolean hasBeenRetried = false;
+	private ArrayList<DataBean> outputs = new ArrayList<>();
 	private boolean hidden = false;
 	
 	private List<TaskEventListener> listeners = new LinkedList<TaskEventListener>();
 	private boolean isLocal;	
 	
-	public Task(Operation operation) {
-		this.operation = operation;
+	public Task(OperationRecord operationRecord, boolean local) {
+		this.operationRecord = operationRecord;
 		this.id = generateId();
-		this.isLocal = operation.getDefinition().isLocal();
+		this.isLocal = local;
 	}
-	
-	/**
-	 * @return Returns the name.
-	 */
-	public String getName() {
-		return operation.getDefinition().getFullName();
-	}	
+
+	public Task(OperationRecord operationRecord, String jobId, Date startTime, Date endTime, boolean local) {
+		this.operationRecord = operationRecord;
+		this.id = jobId;
+		this.isLocal = local;
+		this.startTime = startTime;
+		this.endTime = endTime;
+	}
 
 	public String getOperationID() {
-		return operation.getID();
+		return operationRecord.getNameID().getID();
 	}
 	
-	
-	public String getNamePrettyPrinted() {
-		return operation.getDefinition().getFullName();
+	public String getName() {
+		return operationRecord.getNameID().getDisplayName();
 	}
 	
-	public Iterable<DataBean> getInputs() {
-		LinkedList<DataBean> beans = new LinkedList<DataBean>();
-		for (DataBinding binding : operation.getBindings()) {
-			beans.add(binding.getData());
-		}
-		return beans;
+	public String getFullName() {
+		return operationRecord.getCategoryName() + " / " + operationRecord.getNameID().getDisplayName();
 	}
 	
+	public Collection<InputRecord> getInputRecords() {
+		return operationRecord.getInputRecords();
+	}
+	
+	public Iterable<DataBean> getInputDataBeans() {
+		return operationRecord.getInputDataBeans();
+	}
 	
 	public List<String> getParameters() throws TaskException, MicroarrayException {
 		List<String> parameterStrings;
 		parameterStrings = new LinkedList<String>();
-		for (Parameter parameter: operation.getParameters()) {
-			parameterStrings.add(parameter.getValueAsString());
+		for (ParameterRecord parameter: operationRecord.getParameters()) {
+			parameterStrings.add(parameter.getValue());
 		}
 		return parameterStrings;
 	}
-	
-	public DataBean getOutput(String name) {
-		return outputs.get(name);
-	}
-	
-	public DataBean getInput(String name) {
-		DataBinding binding = operation.getBinding(name);
-		if (binding != null) {
-			return binding.getData();
-		} else {
-			return null;
-		}
-	}
-	
-	public Iterable<String> getInputNames() {
-		LinkedList<String> bindingNames = new LinkedList<String>();
-		for (DataBinding binding : operation.getBindings()) {
-			bindingNames.add(binding.getName());
-		}
-		return bindingNames;
-	}
 
 	public int getInputCount() {
-		return operation.getBindings().size();
+		return operationRecord.getInputRecords().size();
 	}
 	
-	public void addOutput(String outputName, DataBean bean) {
-		this.outputs.put(outputName, bean);
+	public void addOutput(DataBean bean) {
+		this.outputs.add(bean);
 	}
 	
 	
@@ -218,12 +200,8 @@ public class Task {
 		return errorMessage;
 	}
 
-	public Iterable<String> outputNames() {
-		return outputs.keySet();
-	}
-
-	public Iterable<DataBean> outputs() {
-		return outputs.values();
+	public Iterable<DataBean> getOutputs() {
+		return outputs;
 	}
 
 	public String getScreenOutput() {
@@ -264,42 +242,50 @@ public class Task {
 		this.id = generateId();
 	}
 
-	public boolean hasBeenRetried() {
-		return hasBeenRetried;
-	}
-
-	public void setHasBeenRetried(boolean hasBeenRetried) {
-		this.hasBeenRetried = hasBeenRetried;
-	}
-
-	public long getStartTime() {
+	public Date getStartTime() {
 		return startTime;
 	}
 
-	public void setStartTime(long startTime) {
+	public void setStartTime(Date startTime) {
 		this.startTime = startTime;
+		if (this.operationRecord != null) {
+			this.operationRecord.setStartTime(startTime);
+		}
 	}
 
-	public long getEndTime() {
+	public Date getEndTime() {
 		return endTime;
 	}
 
-	public void setEndTime(long endTime) {
+	public void setEndTime(Date endTime) {
 		this.endTime = endTime;
+		if (this.operationRecord != null) {
+			this.operationRecord.setEndTime(endTime);
+		}
 	}
 
 	/**
 	 * Execution time is the time between passing a message corresponding 
 	 * to this task to JMS layer and receiving+parsing a reply message.
+	 * @return current time - start time if not finished, -1 if finished but start time or end time not available
 	 */
 	public long getExecutionTime() {
-		if (endTime > startTime) {
-			return endTime - startTime;
-		} else if (startTime > 0) {
-			return System.currentTimeMillis() - startTime;
-		} else {
-			return 0;
+		// finished
+		if (this.state.isFinished()) {
+			if (startTime != null && endTime != null) {
+				return endTime.getTime() - startTime.getTime();
+			}
+		} 
+		
+		// still running
+		else {
+			if (startTime != null) {
+				return System.currentTimeMillis() - startTime.getTime();	
+			}
 		}
+
+		// something missing
+		return -1;
 	}
 
 	private String generateId() {
@@ -336,4 +322,7 @@ public class Task {
 		return isLocal;
 	}
 
+	public OperationRecord getOperationRecord() {
+		return operationRecord;
+	}
 }
