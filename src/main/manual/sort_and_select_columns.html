@@ -3,21 +3,31 @@
 <head><title></title></head>
 <body>
 
-<h2>Sort table by column value</h2>
+<h2>Sort table by column</h2>
+
+Sorts tables based on a selected column.
+
+<h3>Parameters</h3>
+
+<ul>
+<li>Column to sort by []</li>
+<li>Sorting order (ascending, descending) [ascending]</li>
+<li>First column has rownames (yes, no) [no]</li>
+</ul>
 
 <h3>Description</h3>
 
 <p>
-This tool sorts a table based on a selected column. The sorting is done either based on 
-numerical order or alphabetical order, depending on the data type of the column.
-The sorting order can be selected to be ascending or descending. </p>
+This tool sorts a table based on a selected column. Depending on the data type of the column, the sorting is done either in 
+numerical or alphabetical order. You can select either ascending or descending sorting order. If your table has rownames (meaning that the first columns does not have a title), 
+you need to indicate this.</p>
 <p>
 You can sort a table using several columns by running several sorting operations in 
-cascade so that the primary sorting criteria is used in the last sorting operation.
+cascade, so that the primary sorting criteria is used in the last sorting operation.
 </p>
 <h3>Output</h3>
 <p>
-The tool produces a new file containing the sorted rows of the input table. 
+The input table sorted as specified. 
 </p>
 </body>
 

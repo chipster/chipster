@@ -1,19 +1,15 @@
-# ANALYSIS Utilities/"Merge tables" (Merge two tables using row, i.e., gene names.)
-# INPUT GENERIC normalized.tsv, GENERIC normalized-too.tsv OUTPUT combined.tsv
-# PARAMETER include.everything [yes, no] DEFAULT no (include not matching lines into result)
+# TOOL merge-tables.R: "Merge tables" (Merges two tables using identifiers in the first column.)
+# INPUT table1.tsv: "Table 1" TYPE GENERIC
+# INPUT table2.tsv: "Table 2" TYPE GENERIC
+# OUTPUT combined.tsv: "Merged table"
+# PARAMETER OPTIONAL include.everything: "Include all the rows in the result file" TYPE [yes, no] DEFAULT no (Include also the non-matching lines in the result file.)
 
-# Combines two different tables using gene names
 # JTT 22.10.2007
-
-# Name of the first table
-name1<-c("normalized.tsv")
-
-# Name of the second table
-name2<-c("normalized-too.tsv")
+# EK 20.4.2015 clarified the script
 
 # Loads the tables
-table1<-read.table(file=name1, sep="\t", header=T, row.names=1)
-table2<-read.table(file=name2, sep="\t", header=T, row.names=1)
+table1<-read.table(file="table1.tsv", sep="\t", header=T, row.names=1)
+table2<-read.table(file="table2.tsv", sep="\t", header=T, row.names=1)
 
 for (i in 1:ncol(table1)) {
 	table1[,i] <- gsub("\t+", " ", table1[,i], perl=T)

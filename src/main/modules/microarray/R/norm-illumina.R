@@ -28,11 +28,6 @@ columns<-list(R="sample", Rb="sample", G="sample", Gb="sample")
 annotation<-c("identifier")
 columns.other<-c("flag", "annotation")	
 
-# tarvitaanko tätä...?
-#if(annotations=="yes") {
-#	columns.other<-c("flag", "annotation")	
-#}
-
 files<-dir()
 files<-files[files!="phenodata.tsv"]
 dat<-read.maimages(files=files, columns=columns, annotation=annotation, other.columns=columns.other) 
