@@ -2,10 +2,10 @@
 # INPUT normalized_mirna.tsv: normalized_mirna.tsv TYPE GENE_EXPRS 
 # OUTPUT mirna_targets.tsv: mirna_targets.tsv 
 # PARAMETER species: Species TYPE [human: human] DEFAULT human (The species for which the miRNA:s have been analyzed. Mouse and rat will be supported as soon as the RmiR package from Bioconductor supports this.)
-# PARAMETER database: Database TYPE [miranda: miRanda, mirbase: miRbase, mirtarget2: miRtarget2, pictar: PicTar, tarbase: TarBase, targetscan: targetScan] DEFAULT mirtarget2 (The database from which to search for predicted target genes.)
+# PARAMETER database: Database TYPE [miranda: miRanda, mirbase: miRBase, mirtarget2: miRtarget2, pictar: PicTar, tarbase: TarBase, targetscan: targetScan] DEFAULT mirtarget2 (The database from which to search for predicted target genes.)
 
 # MG, 22.02.2010
-# IS, 13.10.2010, added rownames of miRNA-target-pairs to allow intersecting through Venn diagrams
+# IS, 13.10.2010, added rownames of miRNA-target pairs to allow intersecting through Venn diagrams
 # MK, 09.12.2013, performance of the script improved. Because of this, information associated with the first matching row is used instead of the last matching row 
 
 # Load the required libraries
@@ -37,7 +37,7 @@ if (species=="rat") {
 ensembl <- useMart("ensembl", dataset=dataset)
 annotated_genes <- getBM(mart=ensembl, attributes=c("entrezgene","hgnc_symbol","description"), filters="entrezgene", values=gene_id)
 
-# Match the list of transcripts with the annotations
+# Match the list of genes with the annotations
 result_table <- data.frame(cbind(mirna_id_2, gene_id, matrix("", nrow=length(gene_id), ncol=2)), stringsAsFactors = FALSE)
 names(result_table) <- c("miRNA","entrez_id","symbol","description")
 # match function reports the first match in annotated genes, not the last as done previously 

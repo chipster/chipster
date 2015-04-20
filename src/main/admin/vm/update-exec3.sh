@@ -7,7 +7,7 @@
 
 # Latest version, matching tar-packages must be available 
 ##
-LATEST_VERSION=3.1.0
+LATEST_VERSION=3.4.0
 R_VERSION=3.0.2
 
 # Exit immediately if some command fails
@@ -139,8 +139,8 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   echo ""
 fi
 
-# 3.3.0
-compare_to_current_and_latest "3.3.0"
+# 3.4.0
+compare_to_current_and_latest "3.4.0"
 if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
 
     echo ""
