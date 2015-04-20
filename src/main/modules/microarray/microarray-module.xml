@@ -177,6 +177,7 @@
 		<tool runtime="R-3.0"><resource>import-ArrayExpress.R</resource></tool>
 		<tool runtime="R-3.0"><resource>intersect-lists.R</resource></tool>
 		<tool runtime="R-3.0"><resource>output_test.R</resource></tool>
+		<tool runtime="R-3.0"><resource>join_tsv_files.R</resource></tool>
 	</category>
 	
 	<category name="Hidden" hidden="true" color="#0">
