@@ -1,0 +1,41 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en">
+<head><title></title></head>
+<body>
+
+<h2>Utilities / Join tables</h2>
+
+<h3>Description</h3>
+
+<p>
+Joins TSV format tables into one file. The input files must be in same format.
+</p>
+
+
+<h3>Parameters</h3>
+
+<ul>
+<li>Tables contain a header row (yes, no) [yes]</li>
+<li>Remove duplicate rows (yes, no) [no]</li>
+</ul>
+
+<h3>Details</h3>
+
+<p>
+Tool joins TSV or CSV format tables into one file. The input files must be in same format, i.e. the same number of 
+columns in the same order.
+</p>
+<p>
+There is an option to remove any duplicate rows. This may be helpful if you are joining partially overlapping tables. 
+The rows are removed only if the whole row (i.e all values) is an exact duplicate.
+<p>
+
+<h3>Output</h3>
+
+<p>
+<ul>
+<li>merged.tsv: The joined tsv file</li> 
+</p>
+
+
+
