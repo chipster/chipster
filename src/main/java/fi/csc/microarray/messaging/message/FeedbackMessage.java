@@ -18,7 +18,7 @@ import fi.csc.microarray.util.Strings;
  * @author naktinis
  *
  */
-public class FeedbackMessage extends PayloadMessage {
+public class FeedbackMessage extends ParameterMessage {
 
     private static final Logger logger = Logger
             .getLogger(JobMessage.class);

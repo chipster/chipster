@@ -4,12 +4,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.Proxy;
 import java.net.ProxySelector;
 import java.net.SocketAddress;
+import java.net.SocketException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.zip.Deflater;
@@ -181,5 +184,10 @@ public class UrlTransferUtil {
 		} finally {
 			IOUtils.disconnectIfPossible(connection);
 		}
+	}
+	
+	public static boolean isLocalhost(String host) throws SocketException, UnknownHostException {
+		InetAddress address = InetAddress.getByName(host);
+		return address.isAnyLocalAddress() || address.isLoopbackAddress();
 	}
 }
