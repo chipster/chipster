@@ -67,6 +67,12 @@
 		</tool>
 		<tool runtime="R-3.0" module="common"><resource>sort_and_select_columns.R</resource>
 		</tool>
+		<tool runtime="R-3.0" module="common">
+			<resource>join_tsv_files.R</resource>
+		</tool>
+		<tool runtime="R-3.0" module="common">
+			<resource>uncompress-gtf-or-fasta.R</resource>
+		</tool>
 		<tool runtime="R-3.0">
 			<resource>annotate-ensembl-ids.R</resource>
 		</tool>	
@@ -156,9 +162,6 @@
 		</tool>
 		<tool runtime="java">
 			<resource>fi.csc.chipster.tools.common.DownloadFile</resource>
-		</tool>
-		<tool runtime="R-3.0" module="common">
-			<resource>join_tsv_files.R</resource>
 		</tool>
 	</category>
 
