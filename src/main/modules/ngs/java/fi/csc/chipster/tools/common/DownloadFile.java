@@ -16,7 +16,7 @@ import fi.csc.microarray.util.UrlTransferUtil;
 
 public class DownloadFile extends JavaAnalysisJobBase {
 	
-	public static final int CONNECTION_TIMEOUT = 60*1000; //ms
+	public static final int CONNECTION_TIMEOUT = 15*1000; //ms
 	public static final int READ_TIMEOUT = 7*24*60*60*1000; //ms
 	
 	/*
