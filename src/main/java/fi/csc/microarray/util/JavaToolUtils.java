@@ -12,6 +12,11 @@ import fi.csc.microarray.exception.MicroarrayException;
 
 public class JavaToolUtils {
 	
+	/*
+	 * Allow only word characters and a few special characters in dataset names.
+	 */
+	public static String NAME_PATTERN = "[\\w+\\-_:\\.,() ]*";
+	
 	/**
 	 * 
 	 * Write additional information about input datasets to a file
@@ -27,11 +32,15 @@ public class JavaToolUtils {
 			writer.write("# \n");
 			writer.write("# Additional columns may be added later, so don't assume that there will be only two of them.\n");
 			writer.write("# Comment lines are allowed only in the beginning of file, but the number of them may vary.\n");
+			writer.write("# Avoid using dataset names as file names on the server side, although those go through a cursory sanitization.\n");
 			writer.write("# \n");
 			writer.write("# INPUT_NAME	DATASET_NAME\n");
 			
 			for (String input : nameMap.keySet()) {
 				String name = nameMap.get(input);
+				if (!name.matches(NAME_PATTERN)) {
+					throw new IllegalArgumentException("Dataset name " + name + " contains illegal characters. Please rename the dataset.");
+				}
 				writer.write(input + "\t" + name + "\n");
 			}
 		}
