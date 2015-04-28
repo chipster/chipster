@@ -6,6 +6,7 @@
 # PARAMETER OPTIONAL show.names: "Show names in plot" TYPE [yes, no] DEFAULT yes (Show sample names in plot. In more cpmplex cases this may make the plot too cluttered.)
 
 # EK 3.2.2015 
+# AMS 22.4.2015 Added option for sample names in plot
 
 # Loads the libraries
 library(DESeq2)
