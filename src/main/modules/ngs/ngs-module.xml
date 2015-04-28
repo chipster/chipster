@@ -112,7 +112,7 @@
 		<tool runtime="R-3.0">
 			<resource>unique-alignments-from-bam.R</resource>
 		</tool>
-				<tool runtime="R-3.0">
+		<tool runtime="R-3.0">
 			<resource>bedtools-bamtobed.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
@@ -153,7 +153,10 @@
 		</tool>
 		<tool runtime="python">
 			<resource>test-data-in-out.py</resource>
-		</tool>		
+		</tool>
+		<tool runtime="java">
+			<resource>fi.csc.chipster.tools.common.DownloadFile</resource>
+		</tool>
 		<tool runtime="R-3.0" module="common">
 			<resource>join_tsv_files.R</resource>
 		</tool>

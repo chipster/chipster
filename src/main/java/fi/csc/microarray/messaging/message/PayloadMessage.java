@@ -7,6 +7,7 @@ package fi.csc.microarray.messaging.message;
 
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,9 +33,11 @@ public class PayloadMessage extends ParameterMessage {
 
 	private static final Logger logger = Logger.getLogger(PayloadMessage.class);
 
-	private static final String KEY_PAYLOAD_PREFIX = "payload_";
+	private static final String KEY_ID_PREFIX = "payload_id_";
+	private static final String KEY_NAME_PREFIX = "payload_name_";
 	
-	private Map<String, String> payloads = new HashMap<String, String>();
+	private Map<String, String> ids = new HashMap<String, String>();
+	private Map<String, String> names = new HashMap<String, String>();
 	
 	/**
 	 * For reflection compatibility (newInstance). DO NOT REMOVE!
@@ -54,14 +57,20 @@ public class PayloadMessage extends ParameterMessage {
 
 		// load payload ids
 		try {
-			for (Enumeration<String> names = from.getMapNames(); names.hasMoreElements(); ) {
-				String name = names.nextElement();
+			for (Enumeration<String> keys = from.getMapNames(); keys.hasMoreElements(); ) {
+				String name = keys.nextElement();
 				logger.debug("examining " + name);
-				if (name.startsWith(KEY_PAYLOAD_PREFIX)) {
-					String payloadName = name.substring(KEY_PAYLOAD_PREFIX.length());
-					String id  = from.getString(name);
-					payloads.put(payloadName, id);
-					logger.debug("Unmarshalled " + name + " -> " + payloadName + ", " + id);
+				if (name.startsWith(KEY_ID_PREFIX)) {
+					String payloadName = name.substring(KEY_ID_PREFIX.length());
+					String value  = from.getString(name);
+					ids.put(payloadName, value);
+					logger.debug("Unmarshalled " + name + " -> " + payloadName + ", " + value);
+				}
+				if (name.startsWith(KEY_NAME_PREFIX)) {
+					String payloadName = name.substring(KEY_NAME_PREFIX.length());
+					String value  = from.getString(name);
+					names.put(payloadName, value);
+					logger.debug("Unmarshalled " + name + " -> " + payloadName + ", " + value);
 				}
 			}
 		} catch (Exception e) {
@@ -78,9 +87,15 @@ public class PayloadMessage extends ParameterMessage {
 		String key;
 		String idString;
 		try {
-			for (String name : payloadNames()) {
-				key = KEY_PAYLOAD_PREFIX + name;
-				idString = payloads.get(name);
+			for (String name : ids.keySet()) {
+				key = KEY_ID_PREFIX + name;
+				idString = ids.get(name);
+				mapMessage.setString(key, idString);
+				logger.debug("Marshalled " + name + " -> " + key + " " + idString);
+			}
+			for (String name : names.keySet()) {
+				key = KEY_NAME_PREFIX + name;
+				idString = names.get(name);
 				mapMessage.setString(key, idString);
 				logger.debug("Marshalled " + name + " -> " + key + " " + idString);
 			}
@@ -95,11 +110,13 @@ public class PayloadMessage extends ParameterMessage {
 	 * Add the id of an already uploaded payload to the payloads.
 	 * 
 	 * 
-	 * @param payloadName name of the payload (the input name of the operation, not the name of the databean)
-	 * @param payloadId the id of the payload on the filebroker
+	 * @param key name of the payload (the input name of the operation, not the name of the databean)
+	 * @param id the id of the payload on the filebroker
+	 * @param name the dataset name
 	 */
-	public void addPayload(String payloadName, String payloadId) {
-		payloads.put(payloadName, payloadId);
+	public void addPayload(String key, String id, String name) {
+		ids.put(key, id);
+		names.put(key, name);
 	}
 
 
@@ -110,38 +127,44 @@ public class PayloadMessage extends ParameterMessage {
 	 * @return
 	 * @throws JMSException
 	 */
-	public String getPayload(String name) throws JMSException {
-		if (payloads.containsKey(name)) {
-			return payloads.get(name);
+	public String getId(String key) throws JMSException {
+		if (ids.containsKey(key)) {
+			return ids.get(key);
 		} else {
-			throw new IllegalArgumentException("No payload with name: " + name);
+			throw new IllegalArgumentException("No payload with name: " + key);
+		}
+	}
+
+	/**
+	 * Return the name for the payload content.
+	 * 
+	 * @param name
+	 * @return
+	 * @throws JMSException
+	 */
+	public String getName(String key) throws JMSException {
+		if (names.containsKey(key)) {
+			return names.get(key);
+		} else {
+			throw new IllegalArgumentException("No payload with name: " + key);
 		}
 	}
 	
-	
 	/**
-	 * Get all payload names.
+	 * Get all payload keys.
 	 * 
 	 * @return
 	 */
-	public Set<String> payloadNames() {
-		return payloads.keySet();
+	public Set<String> getKeys() {
+		HashSet<String> keys = new HashSet<>();
+		keys.addAll(ids.keySet());
+		keys.addAll(names.keySet());
+		return keys;
 	}
-
-	
-	/**
-	 * Get all payload URLs.
-	 *  
-	 * @return
-	 */
-	public Map<String, String> getPayloads() {
-		return payloads;
-	}
-
 	
 	@Override
 	public String toString() {
-		return super.toString() + ", payload count: " + payloadNames().size();		
+		return super.toString() + ", payload count: " + getKeys().size();		
 	}
 
 }
