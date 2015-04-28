@@ -241,6 +241,14 @@ public class PythonAnalysisJob extends OnDiskAnalysisJobBase {
 			i++;
 		}
 
+		/*
+		 * Enable importing of common scripts. Python won't know the dir of the
+		 * script file, because it gets it from standard input.
+		 */
+		String setCommonsDir = 
+				"import sys\n"
+				+ "sys.path.append(chipster_common_path)\n";
+		inputReaders.add(new BufferedReader(new StringReader(setCommonsDir)));
 		
 		// load input script
 		String script = (String)analysis.getImplementation();

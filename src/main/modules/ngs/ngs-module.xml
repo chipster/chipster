@@ -154,11 +154,17 @@
 		<tool runtime="python">
 			<resource>test-data-in-out.py</resource>
 		</tool>
+		<tool runtime="R-3.0" module="common">
+			<resource>join_tsv_files.R</resource>
+		</tool>
 		<tool runtime="java">
 			<resource>fi.csc.chipster.tools.common.DownloadFile</resource>
 		</tool>
-		<tool runtime="R-3.0" module="common">
-			<resource>join_tsv_files.R</resource>
+		<tool runtime="python" module="common">
+			<resource>extract_gzip_tar.py</resource>
+		</tool>
+		<tool runtime="python" module="common">
+			<resource>gunzip.py</resource>
 		</tool>
 	</category>
 
