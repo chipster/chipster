@@ -33,7 +33,7 @@ public class DownloadFile extends JavaAnalysisJobBase {
 		return 	"TOOL DownloadFile.java: \"Download file\" (Download a file from an URL address to the Chipster server. The URL must be visible to Chipster server. If it's not, use client's 'Import from URL' functionality instead.)" + "\n" +
 				"OUTPUT downloaded_file: \"Downloaded file\"" + "\n" +
 				"PARAMETER paramUrl: \"URL\" TYPE STRING (URL to download)" + 
-				"PARAMETER paramFileExtension: \"Add a file extension\" TYPE [" + CURRENT + ": \"Keep current\", fa: \"FASTA\", gtf: \"GTF\"] DEFAULT " + CURRENT + " (The output file is named according to the last part of the URL. If it doesn't contain a correct file extension, select it here so that the file type is recognized correctly.)";
+				"PARAMETER paramFileExtension: \"Add a file extension\" TYPE [" + CURRENT + ": \"Keep current\", bam: \"BAM\", fa: \"FASTA\", fastq: \"FASTQ\", gtf: \"GTF\"] DEFAULT " + CURRENT + " (The output file is named according to the last part of the URL. If it doesn't contain a correct file extension, select it here so that the file type is recognized correctly.)";
 	}
 	
 	@Override
