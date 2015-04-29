@@ -25,7 +25,7 @@ public class ChecksumInputStreamTest {
 	};
 	
 	@Test
-	public void test() throws IOException, ChecksumException {
+	public void test() throws IOException, ChecksumException, ContentLengthException {
 		
 		for (String[] example : examples) {
 			// example md5 is calculated from bytes, not from hex String, 
@@ -58,7 +58,7 @@ public class ChecksumInputStreamTest {
 		return md5;
 	}
 	
-	private String testVerification(byte[] data, String exampleMd5) throws IOException, ChecksumException {
+	private String testVerification(byte[] data, String exampleMd5) throws IOException, ChecksumException, ContentLengthException {
 		
 		ChecksumInputStream stream = preprocess(data, new TestURLConnection(exampleMd5));		
 		String md5 =  stream.verifyChecksums();		

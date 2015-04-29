@@ -142,14 +142,14 @@ public class ChecksumInputStream extends DigestInputStream {
 	/**
 	 * Verify that checksums in both ends of network transmission are equal.
 	 * 
-	 * @return locally calculated checksum or null id calculation is disabled
+	 * @return locally calculated checksum or null if calculation is disabled
 	 * @throws ChecksumException
 	 */
-	public String verifyChecksums() throws ChecksumException {
+	public String verifyChecksums() throws ChecksumException, ContentLengthException {
 		
 		if (useChecksums) {
 			String localChecksum = getChecksum();
-			Md5FileUtils.verify(getRemoteChecksum(), localChecksum);
+			Md5FileUtils.verify(getRemoteChecksum(), localChecksum, null, null, null, null );
 			return localChecksum;
 		}
 		return null;
@@ -163,8 +163,9 @@ public class ChecksumInputStream extends DigestInputStream {
 	 * @throws ContentLengthException 
 	 */
 	public void verifyContentLength(Long contentLength) throws ChecksumException, ContentLengthException {				
-		
-		Md5FileUtils.verify(bytes, contentLength);
+		String localChecksum = getChecksum();
+		String remoteChecksum = getRemoteChecksum();
+		Md5FileUtils.verify(localChecksum,remoteChecksum, null, bytes, contentLength, null );
 	}
 
 	/**

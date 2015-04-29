@@ -113,6 +113,36 @@ public class Md5FileUtils {
 			return md5Stream.getChecksum();
 		}
 	}
+
+	/**
+	 * Compare two checksums and throw ChecksumException if both checksums aren't equal.
+	 * Null values are always accepted.
+	 * 
+	 * @param checksum1
+	 * @param checksum2
+	 */
+	public static void verify(
+		String checksum1,
+		String checksum2,
+		String checksum3,
+		Long long1,
+		Long long2,
+		Long long3
+		) throws ChecksumException, ContentLengthException
+	{
+		if( checksum1 != null && checksum1.equals("MAGIC_DO_NOT_CHECK_THIS_FILE_MD5") ) {
+			return;
+		}
+		if( checksum2 != null && checksum2.equals("MAGIC_DO_NOT_CHECK_THIS_FILE_MD5") ) {
+			return;
+		}
+		if( checksum3 != null && checksum3.equals("MAGIC_DO_NOT_CHECK_THIS_FILE_MD5") ) {
+			return;
+		}
+		verify(checksum1,checksum2,checksum3);
+		verify(long1,long2,long3);
+		return;
+	}
 	
 	/**
 	 * Compare two checksums and throw ChecksumException if both checksums aren't equal.

@@ -96,6 +96,8 @@ public class CliClient {
 	private static final String OPT_WORKING_COPY = "working-copy";
 	private static final String OPT_LOCAL = "local";
 	private static final String OPT_CLOUD = "cloud";
+
+	private static final String OPT_SAVE_AS_USER = "save-as-user";
 	
 	private static final String CMD_INTERACTIVE = "interactive";
 	private static final String CMD_EXIT = "exit";
@@ -131,6 +133,8 @@ public class CliClient {
 	private static final String CMD_CLEAR_SESSION = "clear-session";
 		
 	private static final String DEFAULT_WORKING_COPY = "cli-working-copy.zip";
+
+	private static final String DEFAULT_SAVE_AS_USER = "";
 	
 	// without headless mode OSX will show this process in the dock and grab the focus
     static {
@@ -198,6 +202,8 @@ public class CliClient {
         addStringOption(parser, "-u", OPT_USERNAME, "chipster username");
         addStringOption(parser, "-p", OPT_PASSWORD, "chipster password");
         addStringOption(parser, "-W", OPT_WORKING_COPY, "name of the working copy session, either zip or cloud session").setDefault(DEFAULT_WORKING_COPY);        
+
+        addStringOption(parser, "-s", OPT_SAVE_AS_USER, "save cloud session as this user. Logged in user must have save-as-user rights.").setDefault(DEFAULT_SAVE_AS_USER);        
         
         addBooleanOption(parser, "-v", OPT_VERBOSE, "more verbose output");
         addBooleanOption(parser, "-q", OPT_QUIET, "uppress status messages and print only requested data");
@@ -376,7 +382,7 @@ public class CliClient {
 			listSessions(yaml);
 			
 		} else if (isCommand(CMD_DELETE_SESSION)) {
-			deleteSession(nameSpace.getString(ARG_DATASET));			
+			deleteSession(nameSpace.getString(ARG_SESSION));			
 			
 		} else if (isCommand(CMD_PRINT)) {
 			String dataset = nameSpace.getString(ARG_DATASET);
@@ -531,7 +537,8 @@ public class CliClient {
 			app.getSessionManager().saveSessionAndWait(false, new File(workingCopy), null);
 		} else {
 			checkCloudConfiguration();
-			app.getSessionManager().saveSessionAndWait(true, null, workingCopy);
+			String saveAsUser = nameSpace.getString(OPT_SAVE_AS_USER);
+			app.getSessionManager().saveSessionAndWait(true, null, workingCopy, saveAsUser);
 		}
 	}
 
@@ -1099,7 +1106,7 @@ public class CliClient {
 		List<DbSession> sessions = app.getSessionManager().listRemoteSessions();
 		
 		for (DbSession session : sessions) {
-			if (sessionName.equals(session.getName())) {
+			if ( sessionName.equals(session.getName())) {
 				return session.getDataId();
 			}
 		}

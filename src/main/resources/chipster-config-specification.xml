@@ -89,6 +89,9 @@
 	
 	
 	<configuration-module moduleId="filebroker" description="file broker">
+		<entry entryKey="save-as-user" type="string" description="A user name who is allowed to save cloud session as another user name from the command line client">
+			<value></value>
+		</entry>
 	
 		<entry entryKey="file-root-path" type="string" description="path to file broker root directory">
 			<value>file-root</value>

@@ -68,6 +68,7 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 	private String publicPath;
 	private String host;
 	private int port;
+	private String allowedSaveAsUser;
 	
 	private DiskCleanUp cacheCleanUp;
 	
@@ -107,6 +108,7 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
     		this.host = configuration.getString("filebroker", "url");
     		this.port = configuration.getInt("filebroker", "port");    	
     		this.defaultUserQuota = configuration.getInt("filebroker", "default-user-quota");
+    		this.allowedSaveAsUser = configuration.getString("filebroker", "save-as-user");
     		// initialise filebroker areas
     		this.filebrokerAreas = new FileBrokerAreas(fileRepository, CACHE_PATH, STORAGE_PATH);
     		
@@ -392,11 +394,9 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 			sizeInDb = dbFile.getSize();
 		}
 		
-		Md5FileUtils.verify(size, sizeOnDisk, sizeInDb);
-		
 		String checksumOnDisk = filebrokerAreas.getChecksum(fileId, area);
-		
-		Md5FileUtils.verify(checksum, checksumOnDisk);
+		Md5FileUtils.verify(checksum, checksumOnDisk, null, size, sizeOnDisk, sizeInDb);
+		//Md5FileUtils.verify(size, sizeOnDisk, sizeInDb);
 		
 		return true;
 		
@@ -462,15 +462,35 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 		String username = requestMessage.getUsername();
 		String name = requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME);		
 		String sessionId = AuthorisedUrlRepository.stripCompressionSuffix(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID));
+		String saveAsUser = requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SAVE_AS_USER);
 		List<String> fileIds = Arrays.asList(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_FILE_ID_LIST).split("\t"));
 		
 		ChipsterMessage reply; 
 		try {
-									
-			storeSession(username, name, sessionId, fileIds);			
-			
-			// everything went fine
-			reply = new CommandMessage(CommandMessage.COMMAND_FILE_OPERATION_SUCCESSFUL);
+			if( saveAsUser.length()>0 ) {
+				if( ! username.equals(this.allowedSaveAsUser) ) {
+					reply = new CommandMessage(CommandMessage.COMMAND_FILE_OPERATION_DENIED);
+				}
+				else {
+					// check if we are overwriting previous session
+					String previousSessionUuid = metadataServer.fetchSession(saveAsUser, name);
+					if (previousSessionUuid != null ) {
+						reply = new CommandMessage(CommandMessage.COMMAND_FILE_OPERATION_DENIED);
+					}
+					else {
+						username=saveAsUser;
+						storeSession(username, name, sessionId, fileIds );
+				
+						// everything went fine
+						reply = new CommandMessage(CommandMessage.COMMAND_FILE_OPERATION_SUCCESSFUL);
+					}
+				}
+			}
+			else {
+				storeSession(username, name, sessionId, fileIds );
+				// everything went fine
+				reply = new CommandMessage(CommandMessage.COMMAND_FILE_OPERATION_SUCCESSFUL);
+			}
 			
 		} catch (Exception e) {
 			reply = new CommandMessage(CommandMessage.COMMAND_FILE_OPERATION_FAILED);
@@ -479,7 +499,7 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 		endpoint.replyToMessage(requestMessage, reply);
 	}
 
-	private void storeSession(String username, String name, String sessionId, List<String> fileIds) throws SQLException {
+	private void storeSession(String username, String name, String sessionId, List<String> fileIds ) throws SQLException {
 				
 		// check if we are overwriting previous session
 		String previousSessionUuid = metadataServer.fetchSession(username, name);

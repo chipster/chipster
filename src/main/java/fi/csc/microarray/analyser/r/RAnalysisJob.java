@@ -241,7 +241,11 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 			inputReaders.add(new BufferedReader(new StringReader(rSnippet)));
 			i++;
 		}
-
+		//making frontend username available to the script
+		String value = this.getInputMessage().getUsername();
+		String rSnippet = transformVariable("chipster.R.job.calling.user",value, false);
+		logger.debug("added parameter (" +  rSnippet + ")");
+		inputReaders.add(new BufferedReader(new StringReader(rSnippet)));
 		
 		// load input script
 		String script = (String)analysis.getImplementation();

@@ -18,6 +18,7 @@ import java.util.zip.DeflaterOutputStream;
 import javax.jms.JMSException;
 
 import fi.csc.microarray.filebroker.ChecksumException;
+import fi.csc.microarray.filebroker.ContentLengthException;
 import fi.csc.microarray.filebroker.ChecksumInputStream;
 
 public class UrlTransferUtil {
@@ -54,7 +55,7 @@ public class UrlTransferUtil {
 	 * @throws IOException
 	 * @throws ChecksumException 
 	 */
-    public static String uploadStream(URL url, InputStream fis, boolean useChunked, boolean compress, boolean useChecksums, IOUtils.CopyProgressListener progressListener) throws IOException, ChecksumException {
+    public static String uploadStream(URL url, InputStream fis, boolean useChunked, boolean compress, boolean useChecksums, IOUtils.CopyProgressListener progressListener) throws IOException, ChecksumException, ContentLengthException {
 
     	HttpURLConnection connection = null;
     	String checksum = null;

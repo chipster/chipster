@@ -230,7 +230,11 @@ public class SessionManager {
 		return buffer.toString();
 	}
 
-	public String saveStorageSession(String name) throws Exception {
+	public String saveStorageSession(String name ) throws Exception {
+		return saveStorageSession( name, "" );
+	}
+
+	public String saveStorageSession(String name, String saveAsUser ) throws Exception {
 						
 		String sessionId = CryptoKey.generateRandom();
 		SessionSaver sessionSaver = new SessionSaver(sessionId, dataManager);
@@ -239,12 +243,10 @@ public class SessionManager {
 		LinkedList<String> dataIds = sessionSaver.saveStorageSession();
 		
 		// add metadata to file broker database (make session visible)
-		fileBrokerClient.saveRemoteSession(name, sessionId, dataIds);
+		fileBrokerClient.saveRemoteSession(name, sessionId, dataIds, saveAsUser );
 		
 		return sessionId;
 	}
-
-	
 	
 	
 	/**
@@ -406,12 +408,16 @@ public class SessionManager {
 	}
 
 	public boolean saveSessionAndWait(boolean isRemote, File localFile, String remoteSessionName) {
+		return saveSessionAndWait( isRemote, localFile, remoteSessionName, "" );
+	}
+
+	public boolean saveSessionAndWait(boolean isRemote, File localFile, String remoteSessionName, String saveAsUser) {
 		
 		try {
 			String sessionId = null;
 			
 			if (isRemote) {
-				sessionId = saveStorageSession(remoteSessionName);				
+				sessionId = saveStorageSession(remoteSessionName,saveAsUser);				
 			} else {
 				saveSession(localFile);
 			}

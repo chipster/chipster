@@ -90,7 +90,7 @@ public class SimpleFileBrokerClient implements FileBrokerClient {
 	}
 
 	@Override
-	public void saveRemoteSession(String name, String dataId, LinkedList<String> dataIds)
+	public void saveRemoteSession(String name, String dataId, LinkedList<String> dataIds, String saveAsUser)
 			throws JMSException {
 		throw new UnsupportedOperationException();
 	}

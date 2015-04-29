@@ -90,7 +90,7 @@ public interface FileBrokerClient {
 	 * @throws JMSException 
 	 * @throws ChecksumException 
 	 */
-	public abstract void getFile(String dataId, File destFile) throws IOException, JMSException, ChecksumException;	
+	public abstract void getFile(String dataId, File destFile) throws IOException, JMSException, ChecksumException, ContentLengthException;	
 
 	/**
 	 * Retrieves the list of public files or folders from the file broker. Method blocks until result is
@@ -109,7 +109,7 @@ public interface FileBrokerClient {
 	 * @param dataIds dataIds of other files in session
 	 * @throws JMSException
 	 */
-	public abstract void saveRemoteSession(String name, String sessionId, LinkedList<String> dataIds) throws JMSException;
+	public abstract void saveRemoteSession(String name, String sessionId, LinkedList<String> dataIds, String saveAsUser) throws JMSException;
 	
 	/**
 	 * Returns storage sessions (remote sessions) available at server. Returned array contains human readable names and corresponding URL's.

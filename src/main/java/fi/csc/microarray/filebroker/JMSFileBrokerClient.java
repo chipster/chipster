@@ -131,6 +131,9 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 			} catch (ChecksumException e) {
 				// corrupted data or data id collision
 				throw new IOException(e);
+			} catch (ContentLengthException e) {
+				// corrupted data or data id collision
+				throw new IOException(e);
 			} finally {
 				IOUtils.closeIfPossible(stream);
 			}
@@ -171,6 +174,9 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		try {
 			md5 = UrlTransferUtil.uploadStream(url, file, useChunked, useCompression, useChecksums, progressListener);
 		} catch (ChecksumException e) {
+			// corrupted data or data id collision
+			throw new IOException(e);
+		} catch (ContentLengthException e) {
 			// corrupted data or data id collision
 			throw new IOException(e);
 		}
@@ -230,7 +236,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	 * @see fi.csc.microarray.filebroker.FileBrokerClient#getFile(File, URL)
 	 */
 	@Override
-	public void getFile(String dataId, File destFile) throws IOException, JMSException, ChecksumException {
+	public void getFile(String dataId, File destFile) throws IOException, JMSException, ChecksumException, ContentLengthException {
 		
 		// Try to find the file locally and symlink/copy it
 		if (localFilebrokerCache != null && localFilebrokerStorage != null) {
@@ -381,12 +387,13 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	}
 
 	@Override
-	public void saveRemoteSession(String sessionName, String sessionId, LinkedList<String> dataIds) throws JMSException {
+	public void saveRemoteSession(String sessionName, String sessionId, LinkedList<String> dataIds, String saveAsUser ) throws JMSException {
 		ReplyMessageListener replyListener = new ReplyMessageListener();  
 		try {
 			CommandMessage storeRequestMessage = new CommandMessage(CommandMessage.COMMAND_STORE_SESSION);
 			storeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME, sessionName);
 			storeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID, sessionId);
+			storeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_SAVE_AS_USER, saveAsUser);
 			storeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_FILE_ID_LIST, Strings.delimit(dataIds, "\t"));
 			
 			filebrokerTopic.sendReplyableMessage(storeRequestMessage, replyListener);
