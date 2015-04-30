@@ -35,6 +35,11 @@
 	</configuration-module>
 
 	<configuration-module moduleId="filebroker">
+
+		<!-- This user is allowed to use the save-as-user parameter of the command line client -->
+		<entry entryKey="save-as-user" type="string">
+			<value>your-special-user-name-here</value>
+		</entry>
 	
 	    <!-- url of this file broker instance -->
 		<entry entryKey="url">
