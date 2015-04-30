@@ -54,14 +54,14 @@ public class DownloadFile extends JavaAnalysisJobBase {
 			
 			if (!allowedProtocols.contains(url.getProtocol())) {
 				
-				getResultMessage().setErrorMessage("CHIPSTER-NOTE: unsupported protocol: " + url.getProtocol());
+				getResultMessage().setErrorMessage("Unsupported protocol: " + url.getProtocol());
 				updateState(JobState.FAILED_USER_ERROR, "");
 				return;
 			}
 			
 			if (UrlTransferUtil.isLocalhost(url.getHost())) {
 
-				getResultMessage().setErrorMessage("CHIPSTER-NOTE: not allowed to connect localhost: " + url.getHost());
+				getResultMessage().setErrorMessage("Not allowed to connect localhost: " + url.getHost());
 				updateState(JobState.FAILED_USER_ERROR, "");
 				return;
 			}
