@@ -15,7 +15,10 @@
 		</tool>
 		<tool runtime="R-3.1.2">
 			<resource>deseq2-pca-heatmap.R</resource>
-		</tool>		
+		</tool>	
+		<tool runtime="R-3.1.2">
+			<resource>deseq2-normalized-counts-for-gene.R</resource>
+		</tool>	
 	</category>
 	
 	<category name="Preprocessing" color="#e7df70">	
