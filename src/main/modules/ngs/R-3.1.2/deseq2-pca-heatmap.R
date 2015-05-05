@@ -2,7 +2,7 @@
 # INPUT data.tsv: "Count table" TYPE GENERIC
 # INPUT phenodata.tsv: "Phenodata file" TYPE GENERIC
 # OUTPUT OPTIONAL PCA_and_heatmap_deseq2.pdf
-# PARAMETER column: "Column describing groups" TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the experimental groups.)
+# PARAMETER column: "Phenodata column for coloring samples" TYPE METACOLUMN_SEL DEFAULT group (Phenodata column by which the samples will be colored in the plot.)
 # PARAMETER OPTIONAL show.names: "Show names in plot" TYPE [yes, no] DEFAULT yes (Show sample names in plot. In more cpmplex cases this may make the plot too cluttered.)
 
 # EK 3.2.2015 
