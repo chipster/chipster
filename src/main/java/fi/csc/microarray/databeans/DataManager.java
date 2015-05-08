@@ -186,6 +186,8 @@ public class DataManager {
 	private LocalFileContentHandler localFileContentHandler = new LocalFileContentHandler();
 	private RemoteContentHandler remoteContentHandler = new RemoteContentHandler();
 	
+	private ExecutorService executor = Executors.newCachedThreadPool();
+	
 	public DataManager() throws Exception {
 		rootFolder = createFolder(DataManager.ROOT_NAME);
 
@@ -1086,18 +1088,17 @@ public class DataManager {
 		// add
 		parent.children.add(child);
 
-		// add type tags to data beans
+		// add type tags to data bean in background thread
 		if (child instanceof DataBean) {
-			try {
-				addTypeTags((DataBean) child);
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-		}
-
-		// dispatch events if needed
-		if (!wasConnected) {
-			dispatchEvent(new DataItemCreatedEvent(child));
+					
+			// run callable and and dispatch event after it when needed
+			/* 
+			 * command line client will continue before this completes, but it
+			 * shouldn't matter:
+			 * - session opening waits for tagging
+			 * - session saving doesn't need tags
+			 */
+			executor.submit(new AddTypeTagsCallable((DataBean) child, !wasConnected, new DataItemCreatedEvent(child)));
 		}
 	}
 
@@ -1113,7 +1114,7 @@ public class DataManager {
 	}
 
 
-	public void addTypeTags(DataBean data) throws IOException {
+	public void addTypeTagsOfEachModule(DataBean data) throws IOException {
 
 		if (!data.isTagsSet()) {
 			for (Module module : modules) {
@@ -1379,7 +1380,6 @@ public class DataManager {
 			callables.add(new InitDataBeanCallable(dataBean));
 		}
 				
-		ExecutorService executor = Executors.newCachedThreadPool();
 		try {
 			// run callables and wait until all have finished
 			List<Future<Object>> futures = executor.invokeAll(callables);
@@ -1407,8 +1407,34 @@ public class DataManager {
 			try {
 				Long size = getContentLength(dataBean);
 				setOrVerifyContentLength(dataBean, size);
-				addTypeTags(dataBean);
+				addTypeTagsOfEachModule(dataBean);
 			} catch (IOException | ContentLengthException e) {
+				Session.getSession().getApplication().reportExceptionThreadSafely(e);
+			}
+			return null;
+		}
+	}
+	
+	public class AddTypeTagsCallable implements Callable<Object> {
+
+		private DataBean dataBean;
+		private boolean dispatchEnabled;
+		private DataItemCreatedEvent completedEvent;
+
+		public AddTypeTagsCallable(DataBean dataBean, boolean dispatchEnabled, DataItemCreatedEvent completedEvent) {
+			this.dataBean = dataBean;
+			this.dispatchEnabled = dispatchEnabled;
+			this.completedEvent = completedEvent;
+		}
+
+		@Override
+		public Object call() throws Exception {
+			try {
+				addTypeTagsOfEachModule(dataBean);
+				if (dispatchEnabled) {
+					dispatchEvent(completedEvent);
+				}
+			} catch (IOException e) {
 				Session.getSession().getApplication().reportExceptionThreadSafely(e);
 			}
 			return null;
