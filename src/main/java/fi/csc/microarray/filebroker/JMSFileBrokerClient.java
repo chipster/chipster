@@ -199,7 +199,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 			// make sure http cache is disabled
 			connection = url.openConnection();
 			connection.setUseCaches(false);
-			KeyAndTrustManager.configureSSL(connection);			
+			KeyAndTrustManager.configureForChipsterCertificate(connection);			
 			connection.connect();
 
 			// open stream
@@ -572,6 +572,6 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		if (url == null) {
 			return null;
 		}
-		return UrlTransferUtil.getContentLength(url);
+		return UrlTransferUtil.getContentLength(url, true);
 	}
 }

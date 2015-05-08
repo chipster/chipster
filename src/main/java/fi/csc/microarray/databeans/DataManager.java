@@ -630,16 +630,15 @@ public class DataManager {
 	/**
 	 * Convenience method for creating a remote url DataBean. Initialises the DataBean with the url
 	 * location. The url is used directly, the contents are not copied anywhere.
+	 * @throws IOException 
+	 * @throws ContentLengthException 
 	 * 
 	 */
-	public DataBean createDataBean(String name, URL url) throws MicroarrayException {		
+	public DataBean createDataBean(String name, URL url) throws MicroarrayException, ContentLengthException, IOException {		
 		DataBean bean = createDataBean(name);
-		try {
-			addContentLocationForDataBean(bean, StorageMethod.REMOTE_ORIGINAL, url);
-		} catch (ContentLengthException e) {
-			// shouldn't happen, because newly created bean doesn't have size set
-			logger.error(e,e);
-		}
+		
+		addContentLocationForDataBean(bean, StorageMethod.REMOTE_ORIGINAL, url);
+		
 		return bean;
 	}
 	
@@ -647,21 +646,21 @@ public class DataManager {
 	 * Convenience method for creating a local temporary file DataBean with content.
 	 * Content stream is read into a temp file and location of the file is stored
 	 * to DataBean.
+	 * @throws IOException 
 	 */
-	public DataBean createDataBean(String name, InputStream content) throws MicroarrayException {
+	public DataBean createDataBean(String name, InputStream content) throws MicroarrayException, IOException {
 
 		// copy the data from the input stream to the file in repository
 		File contentFile;
+		contentFile = createNewRepositoryFile(name);
+		InputStream input = new BufferedInputStream(content);
+		OutputStream output = new BufferedOutputStream(new FileOutputStream(contentFile));
 		try {
-			contentFile = createNewRepositoryFile(name);
-			InputStream input = new BufferedInputStream(content);
-			OutputStream output = new BufferedOutputStream(new FileOutputStream(contentFile));
 			IO.copy(input, output);
-			input.close();
 			output.flush();
-			output.close();
-		} catch (IOException ioe) {
-			throw new MicroarrayException(ioe);
+		} finally {
+			IOUtils.closeIfPossible(input);
+			IOUtils.closeIfPossible(output);
 		}
 
 		// create and return the bean
@@ -1151,12 +1150,12 @@ public class DataManager {
 		}
 	}
 	
-	public void addContentLocationForDataBean(DataBean bean, StorageMethod method, URL url) throws ContentLengthException {
+	public void addContentLocationForDataBean(DataBean bean, StorageMethod method, URL url) throws ContentLengthException, IOException {
 		ContentLocation location = new ContentLocation(method, getHandlerFor(method), url);
 		try {
 			setOrVerifyContentLength(bean, getContentLength(location));
 		} catch (IOException e) {
-			logger.error("content length not available: " + e);
+			throw new IOException("content length not available: " + e);
 		} catch (ContentLengthException e) {
 			try {
 				DataManager manager = Session.getSession().getDataManager();

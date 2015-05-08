@@ -71,7 +71,7 @@ public class ByteDataSource extends DataSource {
 			try {
 
 				connection = (HttpURLConnection)url.openConnection();
-				KeyAndTrustManager.configureSSL(connection);
+				KeyAndTrustManager.configureForChipsterCertificate(connection);
 				connection.setRequestProperty("Range", "bytes=" + filePosition + "-" + endFilePosition);
 				
 				try (InputStream in = connection.getInputStream();				
@@ -115,7 +115,7 @@ public class ByteDataSource extends DataSource {
 				HttpURLConnection connection = null;
 				try {
 					connection = (HttpURLConnection)url.openConnection();
-					KeyAndTrustManager.configureSSL(connection);
+					KeyAndTrustManager.configureForChipsterCertificate(connection);
 					// connection.getContentLength() returns int, which is not enough
 					String string = connection.getHeaderField("content-length");
 					if (string == null) {

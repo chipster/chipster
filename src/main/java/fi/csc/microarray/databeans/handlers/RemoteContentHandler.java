@@ -48,7 +48,8 @@ public class RemoteContentHandler implements ContentHandler {
 	public InputStream getInputStream(ContentLocation location) throws IOException {
 		checkCompatibility(location);
 		HttpURLConnection connection = (HttpURLConnection)location.getUrl().openConnection();
-		KeyAndTrustManager.configureSSL(connection);
+		// filebroker isn't a ContentLocation, so use CA certs
+		KeyAndTrustManager.configureForCACertificates(connection);
 		return connection.getInputStream();
 	}
 
@@ -60,8 +61,8 @@ public class RemoteContentHandler implements ContentHandler {
 	@Override
 	public Long getContentLength(ContentLocation location) throws IOException {
 		checkCompatibility(location);
-		
-		return UrlTransferUtil.getContentLength(location.getUrl());
+		// filebroker isn't a ContentLocation, so use CA certs
+		return UrlTransferUtil.getContentLength(location.getUrl(), false);
 	}
 
 	/**
@@ -107,7 +108,8 @@ public class RemoteContentHandler implements ContentHandler {
 				return false; // do not check blacklisted hosts
 				
 			} else {
-				return UrlTransferUtil.isAccessible(url);
+				// filebroker isn't a ContentLocation, so use CA certs
+				return UrlTransferUtil.isAccessible(url, false);
 			}
 			
 		} catch (IOException e) {
