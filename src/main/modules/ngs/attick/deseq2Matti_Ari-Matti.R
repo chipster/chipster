@@ -1,6 +1,6 @@
 # TOOL deseq2.R: "Differential expression using DESeq2" (Differential expression analysis using the DESeq2 Bioconductor package. You can create the input count table and phenodata file using the tool \"Utilities - Define NGS experiment\". If using DESeq2 for finding differentially expressed genes between more than two experimental groups, note that output figures sum up information from all pairwise comparisons.)
 # INPUT data.tsv TYPE GENERIC
-# INPUT phenodata.tsv TYPE GENERIC
+# INPUT META phenodata.tsv TYPE GENERIC
 # OUTPUT OPTIONAL de-list-deseq2.tsv
 # OUTPUT OPTIONAL de-list-deseq2.bed
 # OUTPUT OPTIONAL ma-plot-deseq2.pdf

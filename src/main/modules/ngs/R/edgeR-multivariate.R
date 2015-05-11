@@ -1,6 +1,6 @@
 # TOOL edgeR-multivariate.R: "Differential expression using edgeR for multivariate experiments" (Differential expression analysis for multifactor experiments using the generalized linear models based statistical methods of the edgeR Bioconductor package. You can create the input count table and phenodata file using the tool "\Utilities - Define NGS experiment\".)
 # INPUT data.tsv TYPE GENERIC
-# INPUT phenodata.tsv TYPE GENERIC
+# INPUT META phenodata.tsv TYPE GENERIC
 # OUTPUT OPTIONAL edger-glm.tsv
 # OUTPUT OPTIONAL dispersion-edger-glm.pdf
 # PARAMETER main.effect1: "Main effect 1" TYPE METACOLUMN_SEL DEFAULT group (Main effect 1)
