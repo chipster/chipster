@@ -1,7 +1,6 @@
 package fi.csc.microarray.databeans.features;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Iterator;
 
@@ -66,7 +65,7 @@ public class FeatureTest {
 	}
 	
 	@Test
-	public void testTableColumnIterable() throws MicroarrayException, FileNotFoundException {
+	public void testTableColumnIterable() throws MicroarrayException, IOException {
 		DataBean affyMicroarray = manager.createDataBean("affy.cel", new FileInputStream(TestConstants.AFFY_RESOURCE));
 		QueryResult mean = affyMicroarray.queryFeatures("/column/MEAN");
 		Iterable[] iterables = new Iterable[] {

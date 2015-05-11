@@ -354,7 +354,7 @@ public class AnnotationManager {
 		try {
 			Yaml yaml = new Yaml(new Constructor(GenomeInfo.class));
 			URLConnection connection = file.openConnection();
-			KeyAndTrustManager.configureSSL(connection);
+			KeyAndTrustManager.configureForChipsterCertificate(connection);
 			GenomeInfo info = (GenomeInfo) yaml.load(connection.getInputStream());
 			
 			if (info != null) {
@@ -582,7 +582,7 @@ public class AnnotationManager {
 		InputStream in = null;
 		try {
 			URLConnection connection = annotation.url.openConnection();
-			KeyAndTrustManager.configureSSL(connection);
+			KeyAndTrustManager.configureForChipsterCertificate(connection);
 			in = connection.getInputStream();
 			IOUtils.copy(in, localFile);
 		} finally {

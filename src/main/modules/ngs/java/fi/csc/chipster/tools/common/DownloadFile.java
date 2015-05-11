@@ -1,7 +1,9 @@
 package fi.csc.chipster.tools.common;
 
 import java.io.File;
+import java.io.InputStream;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -12,6 +14,7 @@ import fi.csc.microarray.analyser.java.JavaAnalysisJobBase;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.JavaToolUtils;
+import fi.csc.microarray.util.KeyAndTrustManager;
 import fi.csc.microarray.util.UrlTransferUtil;
 
 public class DownloadFile extends JavaAnalysisJobBase {
@@ -27,13 +30,16 @@ public class DownloadFile extends JavaAnalysisJobBase {
 	public static final List<String> allowedProtocols = Arrays.asList(new String[] {"http", "https", "ftp"});
 	
 	public static final String CURRENT = "current";
+	public static final String YES = "yes";
+	public static final String NO = "no";
 	
 	@Override
 	public String getSADL() {
 		return 	"TOOL DownloadFile.java: \"Download file\" (Download a file from an URL address to the Chipster server. The URL must be visible to Chipster server. If it's not, use client's 'Import from URL' functionality instead.)" + "\n" +
-				"OUTPUT downloaded_file: \"Downloaded file\"" + "\n" +
-				"PARAMETER paramUrl: \"URL\" TYPE STRING (URL to download)" + 
-				"PARAMETER paramFileExtension: \"Add a file extension\" TYPE [" + CURRENT + ": \"Keep current\", bam: \"BAM\", fa: \"FASTA\", fastq: \"FASTQ\", gtf: \"GTF\"] DEFAULT " + CURRENT + " (The output file is named according to the last part of the URL. If it doesn't contain a correct file extension, select it here so that the file type is recognized correctly.)";
+				"OUTPUT downloaded_file: \"Downloaded file\"\n" +
+				"PARAMETER paramUrl: \"URL\" TYPE STRING (URL to download)\n" + 
+				"PARAMETER paramFileExtension: \"Add a file extension\" TYPE [" + CURRENT + ": \"Keep current\", bam: \"BAM\", fa: \"FASTA\", fastq: \"FASTQ\", gtf: \"GTF\"] DEFAULT " + CURRENT + " (The output file is named according to the last part of the URL. If it doesn't contain a correct file extension, select it here so that the file type is recognized correctly.)\n" + 
+				"PARAMETER paramCheckCerts: \"Require valid SSL certificate\" TYPE [" + YES + ": \"Yes\", " + NO + ": \"No\"] DEFAULT " + YES + " (Disable if the server has a self-signed ssl certificate.)\n";	
 	}
 	
 	@Override
@@ -48,6 +54,10 @@ public class DownloadFile extends JavaAnalysisJobBase {
 			List<String> parameters = inputMessage.getParameters(JAVA_PARAMETER_SECURITY_POLICY, analysis);
 			String urlString = parameters.get(0);
 			String fileExtension = parameters.get(1);
+			boolean checkCerts = true;
+			if (NO.equals(parameters.get(2))) {
+				checkCerts = false;
+			}
 			
 			URL url = new URL(urlString);
 			
@@ -71,8 +81,17 @@ public class DownloadFile extends JavaAnalysisJobBase {
 			if (!CURRENT.equals(fileExtension)) {
 				datasetName += "." + fileExtension;
 			}
-
-			FileUtils.copyURLToFile(url, outputFile, CONNECTION_TIMEOUT, READ_TIMEOUT);
+			
+			URLConnection connection = url.openConnection();
+			if (checkCerts) {
+				KeyAndTrustManager.configureForCACertificates(connection);
+			} else {
+				KeyAndTrustManager.configureForTrustAllCertificates(connection);
+			}
+			connection.setConnectTimeout(CONNECTION_TIMEOUT);
+	        connection.setReadTimeout(READ_TIMEOUT);
+			InputStream stream = connection.getInputStream();
+			FileUtils.copyInputStreamToFile(stream, outputFile);
 			
 			LinkedHashMap<String, String> nameMap = new LinkedHashMap<>();
 			nameMap.put(outputFile.getName(), datasetName);

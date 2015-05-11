@@ -11,18 +11,22 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.exception.MicroarrayException;
@@ -37,7 +41,20 @@ public class KeyAndTrustManager {
 	
 	private static boolean initialised;
 
-	private static SSLSocketFactory sslFactory;
+	/**
+	 * SSLSocketFactory with a truststore containing Chipster server's 
+	 * self-signed certificate, or null when the server has a certificate signed
+	 * by a CA.
+	 */
+	private static SSLSocketFactory selfSignedFactory;
+
+	/**
+	 * Default SSLSocketFactory provided by Java with all the default CA root 
+	 * certificates.
+	 */
+	private static SSLSocketFactory caFactory;
+
+	private static SSLSocketFactory trustAllFactory;
 
 	public static String getClientTrustStore(Configuration configuration, String password)
 			throws NoSuchAlgorithmException, CertificateException,
@@ -82,6 +99,9 @@ public class KeyAndTrustManager {
 			FileNotFoundException, IOException, KeyStoreException, KeyManagementException {
 
 		if (!initialised) {
+			
+			// take a copy of the default factory accepting CA certificates
+			caFactory = getSocketFactory(null);
 
 			Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
 
@@ -101,7 +121,8 @@ public class KeyAndTrustManager {
 				}
 			}
 
-			if (trustStorePath != null) {					
+			if (trustStorePath != null) {
+				
 				// configure trust store
 				// this should be enough, but see comment about sslFactory below
 				System.setProperty("javax.net.ssl.keyStorePassword", password);
@@ -111,32 +132,31 @@ public class KeyAndTrustManager {
 					// init sslFactory (hides complaints about untrusted certificates
 					// when started with web-start)
 					KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
-
+					
 					try (FileInputStream inputStream = new FileInputStream(trustStorePath)) {
 						trustStore.load(inputStream, password.toCharArray());
 					}
-
+					
 					TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
 					tmf.init(trustStore);
-					SSLContext ctx = SSLContext.getInstance("TLS");
-					ctx.init(null, tmf.getTrustManagers(), null);
-					sslFactory = ctx.getSocketFactory();
+					selfSignedFactory = getSocketFactory(tmf.getTrustManagers());
 				}
 			}
 
 
 			if (!configuration.getBoolean("security", "verify-hostname")) {
 				// Accept all hostnames (do not try to match certificate hostname (CN) to observed hostname)
-				HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
-					@Override
-					public boolean verify(String hostname, SSLSession session) {
-						return true; 
-					}
-				});
+				HttpsURLConnection.setDefaultHostnameVerifier(new TrustAllHostnameVerifier());
 			}
 
 			initialised = true;
 		}
+	}
+
+	private static SSLSocketFactory getSocketFactory(TrustManager[] trustManagers) throws NoSuchAlgorithmException, KeyManagementException {		
+		SSLContext ctx = SSLContext.getInstance("TLS");
+		ctx.init(null, trustManagers, null);
+		return ctx.getSocketFactory();
 	}
 
 	/**
@@ -171,12 +191,49 @@ public class KeyAndTrustManager {
 	 * 
 	 * @param connection
 	 */
-	public static void configureSSL(URLConnection connection) {
+	public static void configureForChipsterCertificate(URLConnection connection) {
 		// only in client config
-		if (sslFactory != null) {
+		if (selfSignedFactory != null) {
 			if (connection instanceof HttpsURLConnection) {
-				((HttpsURLConnection)connection).setSSLSocketFactory(sslFactory);
+				((HttpsURLConnection)connection).setSSLSocketFactory(selfSignedFactory);
 			}
 		}
+	}
+	
+	public static void configureForCACertificates(URLConnection connection) {
+		if (connection instanceof HttpsURLConnection) {
+			((HttpsURLConnection)connection).setSSLSocketFactory(caFactory);
+		}
+	}
+	
+	public static void configureForTrustAllCertificates(URLConnection connection) throws NoSuchAlgorithmException, KeyManagementException {
+		if (trustAllFactory == null) {
+			trustAllFactory = getSocketFactory(new TrustManager[] { new TrustAllX509TrustManager() }); 
+		}
+		if (connection instanceof HttpsURLConnection) {
+			((HttpsURLConnection) connection).setSSLSocketFactory(trustAllFactory);
+			((HttpsURLConnection) connection).setHostnameVerifier(new TrustAllHostnameVerifier());
+		}
+	}
+	
+	public static class TrustAllX509TrustManager implements X509TrustManager {
+	    public X509Certificate[] getAcceptedIssuers() {
+	        return new X509Certificate[0];
+	    }
+
+	    public void checkClientTrusted(java.security.cert.X509Certificate[] certs,
+	            String authType) {
+	    	throw new NotImplementedException();
+	    }
+
+	    public void checkServerTrusted(java.security.cert.X509Certificate[] certs,
+	            String authType) {
+	    }
+	}
+	
+	public static class TrustAllHostnameVerifier implements HostnameVerifier {
+	    public boolean verify(String string,SSLSession ssls) {
+	        return true;
+	    }
 	}
 }

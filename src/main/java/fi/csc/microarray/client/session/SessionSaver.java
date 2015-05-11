@@ -361,9 +361,10 @@ public class SessionSaver {
 	 * After the session file has been saved, update the urls and handlers in the client
 	 * to point to the data inside the session file.
 	 * @throws ContentLengthException when content length information conflicts
+	 * @throws IOException 
 	 *
 	 */
-	private void updateDataBeanURLsAndHandlers() throws ContentLengthException {
+	private void updateDataBeanURLsAndHandlers() throws ContentLengthException, IOException {
 		for (DataBean bean: newURLs.keySet()) {
 			// set new url and handler and type
 			dataManager.addContentLocationForDataBean(bean, StorageMethod.LOCAL_SESSION_ZIP, newURLs.get(bean));

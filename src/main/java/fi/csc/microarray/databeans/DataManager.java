@@ -186,6 +186,8 @@ public class DataManager {
 	private LocalFileContentHandler localFileContentHandler = new LocalFileContentHandler();
 	private RemoteContentHandler remoteContentHandler = new RemoteContentHandler();
 	
+	private ExecutorService executor = Executors.newCachedThreadPool();
+	
 	public DataManager() throws Exception {
 		rootFolder = createFolder(DataManager.ROOT_NAME);
 
@@ -630,16 +632,15 @@ public class DataManager {
 	/**
 	 * Convenience method for creating a remote url DataBean. Initialises the DataBean with the url
 	 * location. The url is used directly, the contents are not copied anywhere.
+	 * @throws IOException 
+	 * @throws ContentLengthException 
 	 * 
 	 */
-	public DataBean createDataBean(String name, URL url) throws MicroarrayException {		
+	public DataBean createDataBean(String name, URL url) throws MicroarrayException, ContentLengthException, IOException {		
 		DataBean bean = createDataBean(name);
-		try {
-			addContentLocationForDataBean(bean, StorageMethod.REMOTE_ORIGINAL, url);
-		} catch (ContentLengthException e) {
-			// shouldn't happen, because newly created bean doesn't have size set
-			logger.error(e,e);
-		}
+		
+		addContentLocationForDataBean(bean, StorageMethod.REMOTE_ORIGINAL, url);
+		
 		return bean;
 	}
 	
@@ -647,21 +648,21 @@ public class DataManager {
 	 * Convenience method for creating a local temporary file DataBean with content.
 	 * Content stream is read into a temp file and location of the file is stored
 	 * to DataBean.
+	 * @throws IOException 
 	 */
-	public DataBean createDataBean(String name, InputStream content) throws MicroarrayException {
+	public DataBean createDataBean(String name, InputStream content) throws MicroarrayException, IOException {
 
 		// copy the data from the input stream to the file in repository
 		File contentFile;
+		contentFile = createNewRepositoryFile(name);
+		InputStream input = new BufferedInputStream(content);
+		OutputStream output = new BufferedOutputStream(new FileOutputStream(contentFile));
 		try {
-			contentFile = createNewRepositoryFile(name);
-			InputStream input = new BufferedInputStream(content);
-			OutputStream output = new BufferedOutputStream(new FileOutputStream(contentFile));
 			IO.copy(input, output);
-			input.close();
 			output.flush();
-			output.close();
-		} catch (IOException ioe) {
-			throw new MicroarrayException(ioe);
+		} finally {
+			IOUtils.closeIfPossible(input);
+			IOUtils.closeIfPossible(output);
 		}
 
 		// create and return the bean
@@ -1087,18 +1088,17 @@ public class DataManager {
 		// add
 		parent.children.add(child);
 
-		// add type tags to data beans
+		// add type tags to data bean in background thread
 		if (child instanceof DataBean) {
-			try {
-				addTypeTags((DataBean) child);
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-		}
-
-		// dispatch events if needed
-		if (!wasConnected) {
-			dispatchEvent(new DataItemCreatedEvent(child));
+					
+			// run callable and and dispatch event after it when needed
+			/* 
+			 * command line client will continue before this completes, but it
+			 * shouldn't matter:
+			 * - session opening waits for tagging
+			 * - session saving doesn't need tags
+			 */
+			executor.submit(new AddTypeTagsCallable((DataBean) child, !wasConnected, new DataItemCreatedEvent(child)));
 		}
 	}
 
@@ -1114,7 +1114,7 @@ public class DataManager {
 	}
 
 
-	public void addTypeTags(DataBean data) throws IOException {
+	public void addTypeTagsOfEachModule(DataBean data) throws IOException {
 
 		if (!data.isTagsSet()) {
 			for (Module module : modules) {
@@ -1151,12 +1151,12 @@ public class DataManager {
 		}
 	}
 	
-	public void addContentLocationForDataBean(DataBean bean, StorageMethod method, URL url) throws ContentLengthException {
+	public void addContentLocationForDataBean(DataBean bean, StorageMethod method, URL url) throws ContentLengthException, IOException {
 		ContentLocation location = new ContentLocation(method, getHandlerFor(method), url);
 		try {
 			setOrVerifyContentLength(bean, getContentLength(location));
 		} catch (IOException e) {
-			logger.error("content length not available: " + e);
+			throw new IOException("content length not available: " + e);
 		} catch (ContentLengthException e) {
 			try {
 				DataManager manager = Session.getSession().getDataManager();
@@ -1380,7 +1380,6 @@ public class DataManager {
 			callables.add(new InitDataBeanCallable(dataBean));
 		}
 				
-		ExecutorService executor = Executors.newCachedThreadPool();
 		try {
 			// run callables and wait until all have finished
 			List<Future<Object>> futures = executor.invokeAll(callables);
@@ -1408,8 +1407,34 @@ public class DataManager {
 			try {
 				Long size = getContentLength(dataBean);
 				setOrVerifyContentLength(dataBean, size);
-				addTypeTags(dataBean);
+				addTypeTagsOfEachModule(dataBean);
 			} catch (IOException | ContentLengthException e) {
+				Session.getSession().getApplication().reportExceptionThreadSafely(e);
+			}
+			return null;
+		}
+	}
+	
+	public class AddTypeTagsCallable implements Callable<Object> {
+
+		private DataBean dataBean;
+		private boolean dispatchEnabled;
+		private DataItemCreatedEvent completedEvent;
+
+		public AddTypeTagsCallable(DataBean dataBean, boolean dispatchEnabled, DataItemCreatedEvent completedEvent) {
+			this.dataBean = dataBean;
+			this.dispatchEnabled = dispatchEnabled;
+			this.completedEvent = completedEvent;
+		}
+
+		@Override
+		public Object call() throws Exception {
+			try {
+				addTypeTagsOfEachModule(dataBean);
+				if (dispatchEnabled) {
+					dispatchEvent(completedEvent);
+				}
+			} catch (IOException e) {
 				Session.getSession().getApplication().reportExceptionThreadSafely(e);
 			}
 			return null;

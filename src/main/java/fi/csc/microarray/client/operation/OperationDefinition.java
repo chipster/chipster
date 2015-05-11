@@ -361,13 +361,20 @@ public class OperationDefinition implements ExecutionItem {
 			boundDatas.add(binding.getData());
 		}	
 
-		// check that all selected datasets are bound
-		for (DataBean data : datas) {
-			if (!boundDatas.contains(data)) {
-				logger.debug("  concrete input " + data.getName() + " was not bound");
-				return Suitability.EMPTY_REQUIRED_PARAMETERS;
+		/*
+		 * Special case: Don't care about selected datasets if the tools doesn't
+		 * take any inputs, because in this case it's not obvious that users
+		 * should clear the selection.
+		 */
+		if (!inputs.isEmpty()) {
+			// check that all selected datasets are bound
+			for (DataBean data : datas) {
+				if (!boundDatas.contains(data)) {
+					logger.debug("  concrete input " + data.getName() + " was not bound");
+					return Suitability.EMPTY_REQUIRED_PARAMETERS;
+				}
 			}
-		}		
+		}
         
         return Suitability.SUITABLE;
 	}
