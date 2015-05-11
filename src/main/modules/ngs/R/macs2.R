@@ -10,7 +10,7 @@
 # PARAMETER file.format: "Input file format" TYPE [ELAND, BAM, BED] DEFAULT BAM (The format of the input files.)
 # PARAMETER precalculated.size: "Mappable genome size" TYPE [2.7e9: "human hg18 (2.7e9\)", 2.72e9: "human hg19 (2.72e9\)", 1.87e9: "mouse mm9 (1.87e9\)", 1.89e9: "mouse mm10 (1.89e9\)", 2.32e9: "rat rn5 (2.32e9\)", user_specified: "User specified"] DEFAULT 2.72e9 (Mappable genome size. You can use one of the precalculated ones or choose User specified and provide the size in the field below.)
 # PARAMETER OPTIONAL userspecified.size: "User specified mappable genome size" TYPE STRING (You can also use scientific notation, e.g. 1.23e9 . Remember to select User specified as Mappable genome size.)
-# PARAMETER OPTIONAL q.value.threshold: "q-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.01 (The minimum FDR for peak detection.)
+# PARAMETER OPTIONAL q.value.threshold: "q-value cutoff" TYPE DECIMAL FROM 0 TO 0.99 DEFAULT 0.01 (The minimum FDR for peak detection.)
 # PARAMETER OPTIONAL read.length: "Read length" TYPE INTEGER FROM 0 TO 200 DEFAULT 0 (The read length in nucleotides. Read length is autodetected if you set this to 0.)
 # PARAMETER OPTIONAL keep.dup: "Keep duplicate reads" TYPE [auto, all, 1] DEFAULT auto (Procedure used to handle duplicate reads. If auto, MACS computes the maximum reads at the exact same location based on binomal distribution using 1e-5 p-value cutoff. The option All option keeps all reads, while 1 keeps only one read per site.)
 # PARAMETER OPTIONAL build.model: "Build peak model" TYPE [yes, no] DEFAULT yes (If enabled, a peak model is built from the data. Disabling model building means the extension size has to be guessed and set with the parameter.)
