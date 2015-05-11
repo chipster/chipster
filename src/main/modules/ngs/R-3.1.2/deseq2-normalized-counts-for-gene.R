@@ -1,6 +1,6 @@
 # TOOL deseq2-normalized-counts-for-gene.R: "Plot normalized counts for a gene" (Plot normalized counts for a gene using the DESeq2 Bioconductor package.)
 # INPUT data.tsv: "Count table" TYPE GENERIC
-# INPUT phenodata.tsv: "Phenodata file" TYPE GENERIC
+# INPUT META phenodata.tsv: "Phenodata file" TYPE GENERIC
 # OUTPUT OPTIONAL normalized_counts.pdf
 # PARAMETER gene.name: "Gene name" TYPE STRING (Gene name.)
 # PARAMETER OPTIONAL show.names: "Show names in plot" TYPE [yes, no] DEFAULT no (Show sample names in plot. In more cpmplex cases this may make the plot too cluttered.)

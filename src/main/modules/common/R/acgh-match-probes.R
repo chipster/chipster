@@ -1,8 +1,8 @@
 # TOOL acgh-match-probes.R: "Match copy number and expression features" (Matches the data points of a copy number data set with data points of an expression data set using their chromosomal locations. Running this tool is a prerequisite for testing copy-number-induced effects on expression. See manual page for more details.)
 # INPUT aberrations.tsv: "copy number data" TYPE GENE_EXPRS 
 # INPUT normalized.tsv: "expression data" TYPE GENE_EXPRS 
-# INPUT phenodata_cgh.tsv: "copy number phenodata" TYPE GENERIC 
-# INPUT phenodata_exp.tsv: "expression phenodata" TYPE GENERIC 
+# INPUT META phenodata_cgh.tsv: "copy number phenodata" TYPE GENERIC 
+# INPUT META phenodata_exp.tsv: "expression phenodata" TYPE GENERIC 
 # OUTPUT matched-cn-and-expression.tsv: matched-cn-and-expression.tsv 
 # OUTPUT matched-cn-and-expression-heatmap.pdf: matched-cn-and-expression-heatmap.pdf 
 # OUTPUT META phenodata-matched.tsv: phenodata-matched.tsv 

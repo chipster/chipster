@@ -1,6 +1,6 @@
 # TOOL DEXSeq.R: "Differential exon expression using DEXSeq" (Infers differential exon usage from RNA-seq data using the Bioconductor package DEXSeq. Replicates are necessary for this tool to work properly. In order to prepare the input, run the tool \"Count aligned reads per exons for DEXSeq\" for your BAM files and combine the results to a count table using the tool \"Utilities - Define NGS experiment\". Please use the group column of the phenodata file to indicate your experimental groups.)
 # INPUT countfile.tsv: "Count table" TYPE GENERIC 
-# INPUT phenodata.tsv: "Phenodata" TYPE GENERIC
+# INPUT META phenodata.tsv: "Phenodata" TYPE GENERIC
 # OUTPUT dexseq-all-genes.tsv: dexseq-all-genes.tsv
 # OUTPUT OPTIONAL dexseq-genes-with-significant-exons.tsv: dexseq-genes-with-significant-exons.tsv
 # OUTPUT OPTIONAL dexseq-exons.pdf: dexseq-exons.pdf
