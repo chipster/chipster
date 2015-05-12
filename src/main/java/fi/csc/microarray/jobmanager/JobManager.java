@@ -6,17 +6,13 @@ import javax.jms.JMSException;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.analyser.AnalyserServer;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.ApplicationConstants;
 import fi.csc.microarray.messaging.JMSMessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingListener;
-import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.MonitoredNodeBase;
-import fi.csc.microarray.messaging.Topics;
-import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.service.KeepAliveShutdownHandler;
 import fi.csc.microarray.service.ShutdownCallback;
