@@ -1,4 +1,4 @@
-# TOOL extract_gzip_tar.py: "Extract .tar.gz file" (Extract a gzipped tar file (usually has a file extension .tar.gz)
+# TOOL extract_gzip_tar.py: "Extract .tar.gz file" (Extract a gzipped tar file, which usually has a file extension .tar.gz)
 # INPUT input_file: ".tar.gz file" TYPE GENERIC (Gzip compressed tar file)
 # OUTPUT output_file{...}: "Extracted file(s)"
 

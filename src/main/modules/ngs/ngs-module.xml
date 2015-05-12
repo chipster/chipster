@@ -160,7 +160,7 @@
 		<tool runtime="R-3.0" module="common">
 			<resource>join_tsv_files.R</resource>
 		</tool>
-		<tool runtime="java">
+<!-- 	<tool runtime="java">
 			<resource>fi.csc.chipster.tools.common.DownloadFile</resource>
 		</tool>
 		<tool runtime="python" module="common">
@@ -168,7 +168,7 @@
 		</tool>
 		<tool runtime="python" module="common">
 			<resource>gunzip.py</resource>
-		</tool>
+		</tool>  -->
 	</category>
 
 	<category name="Matching sets of genomic regions" color="#e7881c">

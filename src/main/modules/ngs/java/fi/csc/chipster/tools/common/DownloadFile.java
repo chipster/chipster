@@ -13,7 +13,7 @@ import org.apache.commons.io.FileUtils;
 import fi.csc.microarray.analyser.java.JavaAnalysisJobBase;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.util.Exceptions;
-import fi.csc.microarray.util.JavaToolUtils;
+import fi.csc.microarray.util.ToolUtils;
 import fi.csc.microarray.util.KeyAndTrustManager;
 import fi.csc.microarray.util.UrlTransferUtil;
 
@@ -38,8 +38,8 @@ public class DownloadFile extends JavaAnalysisJobBase {
 		return 	"TOOL DownloadFile.java: \"Download file\" (Download a file from an URL address to the Chipster server. The URL must be visible to Chipster server. If it's not, use client's 'Import from URL' functionality instead.)" + "\n" +
 				"OUTPUT downloaded_file: \"Downloaded file\"\n" +
 				"PARAMETER paramUrl: \"URL\" TYPE STRING (URL to download)\n" + 
-				"PARAMETER paramFileExtension: \"Add a file extension\" TYPE [" + CURRENT + ": \"Keep current\", bam: \"BAM\", fa: \"FASTA\", fastq: \"FASTQ\", gtf: \"GTF\"] DEFAULT " + CURRENT + " (The output file is named according to the last part of the URL. If it doesn't contain a correct file extension, select it here so that the file type is recognized correctly.)\n" + 
-				"PARAMETER paramCheckCerts: \"Require valid SSL certificate\" TYPE [" + YES + ": \"Yes\", " + NO + ": \"No\"] DEFAULT " + YES + " (Disable if the server has a self-signed ssl certificate.)\n";	
+				"PARAMETER OPTIONAL paramFileExtension: \"Add a file extension\" TYPE [" + CURRENT + ": \"Keep current\", bam: \"BAM\", fa: \"FASTA\", fastq: \"FASTQ\", gtf: \"GTF\"] DEFAULT " + CURRENT + " (The output file is named according to the last part of the URL. If it doesn't contain a correct file extension, select it here so that the file type is recognized correctly.)\n" + 
+				"PARAMETER OPTIONAL paramCheckCerts: \"Require valid SSL certificate\" TYPE [" + YES + ": \"Yes\", " + NO + ": \"No\"] DEFAULT " + YES + " (Disable if the server has a self-signed ssl certificate.)\n";	
 	}
 	
 	@Override
@@ -96,7 +96,7 @@ public class DownloadFile extends JavaAnalysisJobBase {
 			LinkedHashMap<String, String> nameMap = new LinkedHashMap<>();
 			nameMap.put(outputFile.getName(), datasetName);
 			
-			JavaToolUtils.writeOutputDescription(jobWorkDir, nameMap);
+			ToolUtils.writeOutputDescription(jobWorkDir, nameMap);
 						
 		} catch (Exception e) {
 			getResultMessage().setErrorMessage(Exceptions.getStackTrace(e));
