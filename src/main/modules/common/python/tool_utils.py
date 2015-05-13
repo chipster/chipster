@@ -1,6 +1,6 @@
 def read_input_definitions():
     input_names = {}
-    with open('inputs.tsv') as inputs:
+    with open('chipster-inputs.tsv') as inputs:
         for line in inputs:
             # remove \n
             line = line[:-1]
@@ -14,7 +14,7 @@ def read_input_definitions():
     return input_names
 
 def write_output_definitions(output_names):
-    with open('outputs.tsv', 'w') as outputs:
+    with open('chipster-outputs.tsv', 'w') as outputs:
         for output_name in output_names:
             dataset_name = output_names[output_name]
             outputs.write(output_name + '\t' + dataset_name + '\n')

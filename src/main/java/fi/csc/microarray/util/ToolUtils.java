@@ -10,7 +10,7 @@ import java.util.LinkedHashMap;
 
 import fi.csc.microarray.exception.MicroarrayException;
 
-public class JavaToolUtils {
+public class ToolUtils {
 	
 	/*
 	 * Allow only word characters and a few special characters in dataset names.
@@ -73,7 +73,7 @@ public class JavaToolUtils {
 		/* the format of input and output description files is the same, so 
 		 * we can use the same code that writes the input descriptions.
 		 */
-		writeInputDescription(new File(jobWorkDir, "outputs.tsv"), nameMap);
+		writeInputDescription(new File(jobWorkDir, "chipster-outputs.tsv"), nameMap);
 	}
 
 }

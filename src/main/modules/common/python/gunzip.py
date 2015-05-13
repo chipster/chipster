@@ -1,4 +1,4 @@
-# TOOL gunzip.py: "Extract .gz file" (Extract a gzip file (usually has a file extension .gz)
+# TOOL gunzip.py: "Extract .gz file" (Extract a gzip file, which usually has a file extension .gz)
 # INPUT input_file: "Gzip file" TYPE GENERIC (Gzip compressed file)
 # OUTPUT output_file: "Extracted file"
 
