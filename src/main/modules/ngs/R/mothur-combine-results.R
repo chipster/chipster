@@ -1,9 +1,9 @@
 # TOOL mothur-combine-results.R: mothur-combine-results (Combine results from two or more sequence processing runs.)
 # INPUT file.txt: "Groups and taxonomy files from mothur runs" TYPE GENERIC
-# INPUT phenodata.tsv: "Phenodata files for the mothur runs" TYPE GENERIC  
+# INPUT META phenodata.tsv: "Phenodata files for the mothur runs" TYPE GENERIC  
 # OUTPUT all.tax: all.tax
 # OUTPUT all.grp: all.grp
-# OUTPUT phenodata-merged.tsv: phenodata.tsv
+# OUTPUT META phenodata-merged.tsv: phenodata.tsv
 
 
 # JTT 2012-11-05

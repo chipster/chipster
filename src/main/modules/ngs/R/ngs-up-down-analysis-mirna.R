@@ -1,8 +1,8 @@
 # TOOL ngs-up-down-analysis-mirna.R: "Up-down analysis of miRNA target genes with array data" (Given a dataset of miRNA expression and gene expression array data for a two-group comparison experiment, this tool identifies the genes whose expression is upregulated in response to an downregulated miRNA, or vice-versa. It is recommended that the two data sets have been filtered to exclude low quality and or invariable data and subjected to statistical testing for significant differences in expression between the two experiment groups. NOTE you need to assign a higher number to the samples belonging to the treatment grop in the column describing the experiment group for the calculations to be correct.)
 # INPUT normalized_mirna.tsv: normalized_mirna.tsv TYPE GENE_EXPRS 
 # INPUT normalized_gene.tsv: normalized_gene.tsv TYPE GENE_EXPRS 
-# INPUT phenodata_mirna.tsv: phenodata_mirna.tsv TYPE GENERIC 
-# INPUT phenodata_gene.tsv: phenodata_gene.tsv TYPE GENERIC 
+# INPUT META phenodata_mirna.tsv: phenodata_mirna.tsv TYPE GENERIC 
+# INPUT META phenodata_gene.tsv: phenodata_gene.tsv TYPE GENERIC 
 # OUTPUT mirna-up-gene-down.tsv: mirna-up-gene-down.tsv 
 # OUTPUT mirna-down-gene-up.tsv: mirna-down-gene-up.tsv 
 # PARAMETER average.method: "Average method" TYPE [mean: mean, median: median] DEFAULT median (The method to calculate the average of samples in each experiment group.)

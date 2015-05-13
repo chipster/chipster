@@ -1,6 +1,6 @@
 # TOOL ngs-dea-edger-RNA.R: "Differential expression using edgeR" (Differential gene expression analysis using the exact test of the edgeR Bioconductor package. You can create the input count table and phenodata file using the tool \"Utilities - Define NGS experiment\". You should set the filtering parameter to the number of samples in your smallest experimental group. Please note that this tool is suitable only for two group comparisons. For multifactor experiments please use the tool \"Differential expression using edgeR for multivariate experiments\".)
 # INPUT data.tsv TYPE GENERIC
-# INPUT phenodata.tsv TYPE GENERIC
+# INPUT META phenodata.tsv TYPE GENERIC
 # OUTPUT OPTIONAL de-list-edger.tsv
 # OUTPUT OPTIONAL de-list-edger.bed
 # OUTPUT OPTIONAL edger-log.txt
