@@ -6,12 +6,11 @@ import java.net.URL;
 
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.nio.SelectChannelConnector;
-import org.eclipse.jetty.server.ssl.SslSocketConnector;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 /**
  * 
@@ -41,20 +40,20 @@ public class HttpRangeTest {
 	private static void jetty() throws Exception {
 		System.setProperty("org.eclipse.jetty.LEVEL", "DEBUG");
 		
-		 Server jettyInstance = new Server();
-		jettyInstance.setThreadPool(new QueuedThreadPool());
+		Server jettyInstance = new Server();
 		
-		Connector connector = null;
+		ServerConnector connector = null;
 		switch (protocol) {
 		case "http":
-			connector= new SelectChannelConnector();
+			connector = new ServerConnector(jettyInstance);        
 			break;
 			
 		case "https":			
-			connector = new SslSocketConnector(KeyAndTrustManager.createSslContextFactory("../chipster-environment/security/filebroker.ks", "password", new String[] {"TLSv1.2"}));
+			SslContextFactory contextFactory = KeyAndTrustManager.createSslContextFactory("../chipster-environment/security/filebroker.ks", "password", new String[] {"TLSv1.2"});
+			connector = new ServerConnector(jettyInstance, contextFactory);
 			break;		
 		}
-		connector.setServer(jettyInstance);
+
 		connector.setPort(8080);
 		jettyInstance.setConnectors(new Connector[]{ connector });
 
