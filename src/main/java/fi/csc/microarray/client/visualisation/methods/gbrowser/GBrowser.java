@@ -17,9 +17,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.BamToCoverageConversion;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.BamToCoverageEstimateConversion;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.BamToDetailsConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.GtfToFeatureConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.IndexedFastaConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager;
@@ -47,11 +44,11 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.CnaCallsTra
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.CnaFrequenciesTrackGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.CnaLogRatiosTrackGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.CytobandTrack;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.RegionTrackGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SampleTrackGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeparatorTrack3D;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackFactory;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.RegionTrackGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.UnsortedDataException;
 import fi.csc.microarray.util.BrowserLauncher;
@@ -237,9 +234,10 @@ public class GBrowser {
 				
 			case REFERENCE:
 				// if not shown already as reference sequence
-				if (!getCustomGenome(getGenome()).equals(interpretation)) {
+				// getcustomGenome() is null if user has selected a fasta file, but still selected one of the internal genomes
+				if (getCustomGenome(getGenome()) == null || !getCustomGenome(getGenome()).equals(interpretation)) {
 					IndexedFastaConversion fastaConversion = interpretation.getFastaDataThread(this);								
-					TrackGroup fastaGroup = new SampleTrackGroup(dataView, null, null, null, fastaConversion, getTitle(interpretation));							
+					TrackGroup fastaGroup = new SampleTrackGroup(dataView, null, fastaConversion, getTitle(interpretation), this);							
 					analyses.addTrackGroup(fastaGroup);				
 				}
 				break;
@@ -292,11 +290,7 @@ public class GBrowser {
 				//A separate data thread for each sample to avoid concurrency
 				DataThread refSeqRequestHandler = Interpretation.getReferenceDataThread(this);											
 
-				BamToDetailsConversion details = interpretation.getBamDetailsDataThread(this);
-				BamToCoverageConversion coverage = interpretation.getBamCoverageDataThread(this);
-				BamToCoverageEstimateConversion estimate = interpretation.getBamCoverageEstimateDataThread(this);
-				
-				SampleTrackGroup readGroup = new SampleTrackGroup(dataView, details, coverage, estimate, refSeqRequestHandler, title);
+				SampleTrackGroup readGroup = new SampleTrackGroup(dataView, interpretation, refSeqRequestHandler, title, this);
 				readGroup.initialise();
 
 				samples.addTrackGroup(readGroup);
@@ -313,7 +307,7 @@ public class GBrowser {
 			if (refSeqRequestHandler != null) {
 				
 				SampleTrackGroup readGroup = new SampleTrackGroup(
-						dataView, null, null, null, refSeqRequestHandler, settings.getGenome().toString());
+						dataView, null, refSeqRequestHandler, settings.getGenome().toString(), this);
 				
 				readGroup.initialise();
 
