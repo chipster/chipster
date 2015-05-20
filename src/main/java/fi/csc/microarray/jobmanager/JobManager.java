@@ -12,7 +12,10 @@ import fi.csc.microarray.constants.ApplicationConstants;
 import fi.csc.microarray.messaging.JMSMessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingListener;
+import fi.csc.microarray.messaging.MessagingTopic;
+import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.MonitoredNodeBase;
+import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.service.KeepAliveShutdownHandler;
 import fi.csc.microarray.service.ShutdownCallback;
@@ -37,6 +40,21 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 
 		// initialize communications
 		this.endpoint = new JMSMessagingEndpoint(this);
+		
+
+		MessagingTopic clientTopic = endpoint.createTopic(Topics.Name.AUTHORISED_REQUEST_TOPIC, AccessMode.READ);
+		clientTopic.setListener(this);
+
+		MessagingTopic jobmanagerAdminTopic = endpoint.createTopic(Topics.Name.JOBMANAGER_ADMIN_TOPIC, AccessMode.READ);
+		jobmanagerAdminTopic.setListener(this);
+		
+		
+//      TOPICS['jobmanager_topic'],
+//		MessagingTopic jobmanagerTopic = endpoint.createTopic(Topics.Name., AccessMode.READ);
+//		jobManagerTopic.setListener(this);
+		
+//        TOPICS['admin_topic'],
+		
 		
 //		MessagingTopic analyseTopic = endpoint.createTopic(Topics.Name.AUTHORIZED_MANAGED_REQUEST_TOPIC, AccessMode.READ);
 //		analyseTopic.setListener(this);
