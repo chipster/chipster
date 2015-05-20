@@ -53,7 +53,7 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 	
 	@Override
 	public void onChipsterMessage(ChipsterMessage msg) {
-		// TODO Auto-generated method stub
+		logger.info("got message: " + msg.toString());
 	}
 	
 	@Override
