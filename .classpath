@@ -63,7 +63,7 @@
 	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-client-9.2.10.v20150310.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-continuation-9.2.10.v20150310.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-deploy-9.2.10.v20150310.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-http-9.2.10.v20150310.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-http-9.2.10.v20150310.jar" sourcepath="ext/lib-src/jetty-9.2.10-src.zip"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-io-9.2.10.v20150310.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-jaas-9.2.10.v20150310.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-jaspi-9.2.10.v20150310.jar"/>
@@ -75,13 +75,13 @@
 	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-rewrite-9.2.10.v20150310.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-schemas-3.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-security-9.2.10.v20150310.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-server-9.2.10.v20150310.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-servlet-9.2.10.v20150310.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-servlets-9.2.10.v20150310.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-util-9.2.10.v20150310.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-server-9.2.10.v20150310.jar" sourcepath="ext/lib-src/jetty-9.2.10-src.zip"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-servlet-9.2.10.v20150310.jar" sourcepath="ext/lib-src/jetty-9.2.10-src.zip"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-servlets-9.2.10.v20150310.jar" sourcepath="ext/lib-src/jetty-9.2.10-src.zip"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-util-9.2.10.v20150310.jar" sourcepath="ext/lib-src/jetty-9.2.10-src.zip"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-webapp-9.2.10.v20150310.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-xml-9.2.10.v20150310.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/servlet-api-3.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/servlet-api-3.1.jar" sourcepath="ext/lib-src/servlet-api-3.1-src.zip"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/argparse4j-0.4.3.jar" sourcepath="ext/lib-src/argparse4j-0.4.3-sources.jar"/>
 	<classpathentry kind="output" path="bin/eclipse"/>

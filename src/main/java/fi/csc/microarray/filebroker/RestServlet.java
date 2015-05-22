@@ -87,7 +87,7 @@ public class RestServlet extends DefaultServlet {
 		}
 	};
 	
-	private boolean isValidRequest(HttpServletRequest request) {
+	private boolean isValidRequest(HttpServletRequest request) throws ServletException {
 
 		// allow welcome page
 		if (isWelcomePage(request)) {
@@ -382,8 +382,13 @@ public class RestServlet extends DefaultServlet {
 		response.setStatus(HttpURLConnection.HTTP_BAD_METHOD);
 	};
 	
-	private File locateFile(HttpServletRequest request) {		
-		return new File(getServletContext().getRealPath(URIUtil.addPaths(request.getServletPath(), request.getPathInfo())));		
+	private File locateFile(HttpServletRequest request) throws ServletException {
+		String requestPath = URIUtil.addPaths(request.getServletPath(), request.getPathInfo());
+		String realPath = getServletContext().getRealPath(requestPath);
+		if (realPath == null) {
+			throw new ServletException("Servlet context refused to convert a request path to a real path. Make sure that serving files through symlinks is enabled");
+		}
+		return new File(realPath);		
 	}
 	
 	private URL constructUrl(HttpServletRequest request) throws MalformedURLException {

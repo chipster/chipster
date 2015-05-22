@@ -3,6 +3,7 @@ package fi.csc.microarray.filebroker;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.handler.AllowSymLinkAliasChecker;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
@@ -62,9 +63,10 @@ public class JettyFileServer {
 
 		connector.setPort(port);
 		jettyInstance.setConnectors(new Connector[]{ connector });
-
+		
 		ServletContextHandler root = new ServletContextHandler(jettyInstance, "/", false, false);
-		root.getInitParams().put("org.eclipse.jetty.servlet.Default.aliases", "true");
+		// file-root and some public files are symlinks
+		root.addAliasCheck(new AllowSymLinkAliasChecker());
 		root.setResourceBase(resourceBase);
 		root.addServlet(new ServletHolder(new RestServlet(urlRepository.getRootUrl(), urlRepository, metadataServer, cacheCleanUp)), "/*");
 		jettyInstance.start();
