@@ -500,7 +500,6 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 					DataItem data = ((DataChangeEvent) event).getDataItem();
 					if (data instanceof DataBean) {
 						// only beans are shown in graph
-
 						if (event instanceof DataItemCreatedEvent) {
 							insertData((DataBean) data);
 
@@ -565,7 +564,7 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 		GraphVertex sourceVertex = vertexMap.get(source);
 		GraphVertex targetVertex = vertexMap.get(target);
 		if (sourceVertex == null || targetVertex == null) {
-			throw new RuntimeException("source or target vertex not found: source " + sourceVertex + ", target " + targetVertex);
+			throw new RuntimeException("source or target vertex not found: source " + source + ": " + sourceVertex + ", target " + target + ": " + targetVertex);
 		}
 
 		insertLink(sourceVertex, targetVertex, type, source);
