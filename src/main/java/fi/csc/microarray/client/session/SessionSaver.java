@@ -669,14 +669,13 @@ public class SessionSaver {
 			String streamChecksum = null;
 
 			// write bean contents to zip
-			try {
-				ChecksumInputStream in = Session.getSession().getDataManager().getContentStream(entry.getKey(), DataNotAvailableHandling.EXCEPTION_ON_NA);
+			try (ChecksumInputStream in = Session.getSession().getDataManager().getContentStream(entry.getKey(), DataNotAvailableHandling.EXCEPTION_ON_NA)) {
 				writeFile(zipOutputStream, entryName, in);
 				streamLength = in.getContentLength();
 				streamChecksum = in.getChecksum();
 				in.verifyContentLength(bean.getSize());
 				dataManager.setOrVerifyChecksum(bean, streamChecksum);
-				
+
 			} catch (IllegalStateException e) {
 				throw new IllegalStateException("could not access dataset for saving: " + entryName); // in future we should skip these and just warn
 				

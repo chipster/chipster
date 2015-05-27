@@ -86,42 +86,44 @@ public class Heatmap extends ChipVisualisation implements PropertyChangeListener
 
 			// Create heatmap
 			QueryResult heatMapFeature = data.queryFeatures("/column/chip.*");
-			Table heatMapDataIterator = heatMapFeature.asTable();
-
-			// Count heatmap rows
-			rowCount = 0;
-			while (heatMapDataIterator.nextRow()) {
-				rowCount++;
-			}
-
-			// Count columns that contain expression values
 			LinkedList<String> columns = new LinkedList<String>();
-			for (String columnName : heatMapDataIterator.getColumnNames()) {
-				columns.add(columnName);
+			try (Table heatMapDataIterator = heatMapFeature.asTable()) {
+
+				// Count heatmap rows
+				rowCount = 0;
+				while (heatMapDataIterator.nextRow()) {
+					rowCount++;
+				}
+
+				// Count columns that contain expression values
+				for (String columnName : heatMapDataIterator.getColumnNames()) {
+					columns.add(columnName);
+				}
 			}
 			int columnCount = columns.size();
 
 			HeatMap heatMap = new HeatMap("Heatmap", rowCount, columnCount);
 
-			Table heatMapData = data.queryFeatures("/column/*").asTable(); // fetch all columns to get row names
+			try (Table heatMapData = data.queryFeatures("/column/*").asTable()) { // fetch all columns to get row names
 
-			int row = -1; // This is increased to 0 in the beginning of the
-			// loop
+				int row = -1; // This is increased to 0 in the beginning of the
+				// loop
 
-			while (heatMapData.nextRow()) {
+				while (heatMapData.nextRow()) {
 
-				row++;
+					row++;
 
-				String geneName = heatMapData.getStringValue(" ");
-				geneName = annotationProvider.getAnnotatedRowname(geneName);
-				heatMap.setRowName(row, geneName);
+					String geneName = heatMapData.getStringValue(" ");
+					geneName = annotationProvider.getAnnotatedRowname(geneName);
+					heatMap.setRowName(row, geneName);
 
-				int i = -1;
-				for (String columnName : columns) {
+					int i = -1;
+					for (String columnName : columns) {
 
-					i++;
+						i++;
 
-					heatMap.update(row, i, heatMapData.getFloatValue(columnName));
+						heatMap.update(row, i, heatMapData.getFloatValue(columnName));
+					}
 				}
 			}
 

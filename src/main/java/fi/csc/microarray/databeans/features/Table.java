@@ -7,7 +7,7 @@ package fi.csc.microarray.databeans.features;
  * @author akallio
  *
  */
-public interface Table {
+public interface Table extends AutoCloseable {
 
 	/**
 	 * Iterates to next table row and return true iff we are still on a valid

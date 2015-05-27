@@ -186,7 +186,8 @@ public class DataManager {
 	private LocalFileContentHandler localFileContentHandler = new LocalFileContentHandler();
 	private RemoteContentHandler remoteContentHandler = new RemoteContentHandler();
 	
-	private ExecutorService executor = Executors.newCachedThreadPool();
+	// by default there are max 5 simultaneous http connections
+	private ExecutorService executor = Executors.newFixedThreadPool(10);
 	
 	public DataManager() throws Exception {
 		rootFolder = createFolder(DataManager.ROOT_NAME);
@@ -1473,13 +1474,14 @@ public class DataManager {
 
 			} else {
 				// count rows
-				Table rowCounter = data.queryFeatures("/column/*").asTable();
-				long rowCount = 0;
-				while (rowCounter != null && rowCounter.nextRow() && rowCount < MAX_ROWS_TO_COUNT) {
-					rowCount++;
+				try (Table rowCounter = data.queryFeatures("/column/*").asTable()) {
+					long rowCount = 0;
+					while (rowCounter != null && rowCounter.nextRow() && rowCount < MAX_ROWS_TO_COUNT) {
+						rowCount++;
+					}
+					data.putToContentBoundCache(AT_LEAST_ROWS_CACHENAME, (Long)rowCount);
+					return rowCount;
 				}
-				data.putToContentBoundCache(AT_LEAST_ROWS_CACHENAME, (Long)rowCount);
-				return rowCount;
 			}			
 		}
 		return null;

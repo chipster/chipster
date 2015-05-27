@@ -54,29 +54,30 @@ public class ClusteredProfiles extends Visualisation {
 		
 		TableAnnotationProvider annotationProvider = new TableAnnotationProvider(data);
 		
-		Table samples = data.queryFeatures("/column/*").asTable();		
-		int[] rowNumbers = new int[clusterCount];
-		while (samples.nextRow()) {
-			int cluster = samples.getIntValue("cluster");
-			boolean firstSample = true;
-			for (String sample : samples.getColumnNames()) {
-				if (sample.startsWith("chip.")) {
-					
-					// order by first chip
-					if (firstSample) {
-						ProfileRow row = new ProfileRow();
-						row.value = samples.getFloatValue(sample);
-						row.series = rowNumbers[cluster-1];
-						firstSample = false;
-						rows.get(cluster-1).add(row);
+		try (Table samples = data.queryFeatures("/column/*").asTable()) {		
+			int[] rowNumbers = new int[clusterCount];
+			while (samples.nextRow()) {
+				int cluster = samples.getIntValue("cluster");
+				boolean firstSample = true;
+				for (String sample : samples.getColumnNames()) {
+					if (sample.startsWith("chip.")) {
+
+						// order by first chip
+						if (firstSample) {
+							ProfileRow row = new ProfileRow();
+							row.value = samples.getFloatValue(sample);
+							row.series = rowNumbers[cluster-1];
+							firstSample = false;
+							rows.get(cluster-1).add(row);
+						}
+						String sampleName = data.queryFeatures("/phenodata/linked/describe/" + sample.substring("chip.".length())).asString();
+						datasets.get(cluster-1).addValue((double)samples.getFloatValue(sample), samples.getStringValue(" "), sampleName);
+						String rowName = annotationProvider.getAnnotatedRowname(samples.getStringValue(" "));
+						datasets.get(cluster-1).addValue((double)samples.getFloatValue(sample), rowName, sampleName);
 					}
-					String sampleName = data.queryFeatures("/phenodata/linked/describe/" + sample.substring("chip.".length())).asString();
-					datasets.get(cluster-1).addValue((double)samples.getFloatValue(sample), samples.getStringValue(" "), sampleName);
-					String rowName = annotationProvider.getAnnotatedRowname(samples.getStringValue(" "));
-					datasets.get(cluster-1).addValue((double)samples.getFloatValue(sample), rowName, sampleName);
 				}
+				rowNumbers[cluster-1]++;
 			}
-			rowNumbers[cluster-1]++;
 		}
 		
 		// draw plots
