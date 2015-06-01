@@ -20,6 +20,7 @@ import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.JobLogMessage;
 import fi.csc.microarray.messaging.message.JobMessage;
+import fi.csc.microarray.messaging.message.ParameterMessage;
 import fi.csc.microarray.messaging.message.ResultMessage;
 import fi.csc.microarray.service.KeepAliveShutdownHandler;
 import fi.csc.microarray.service.ShutdownCallback;
@@ -108,7 +109,43 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 		}
 
 		private void handleCompCommandMessage(CommandMessage msg) {
-			// TODO Auto-generated method stub
+			String jobID = msg.getNamedParameter(ParameterMessage.PARAMETER_JOB_ID);
+			if (jobID == null || jobID.isEmpty()) {
+				logger.error("jobmanger got command message with no job id from comp");
+			}
+			
+			if (CommandMessage.COMMAND_OFFER.equals(msg.getCommand())) {
+				// TODO
+//	            with self.session_scope() as session:
+//	                job = get_job(session, job_id)
+//	            schedule_job = False
+//	            if not job.submitted:  # New job, never submitted before
+//	                schedule_job = True
+//	            elif job.seconds_since_created() > JOB_DEAD_AFTER and not job.seen:  # Job has never reported by any analysis server
+//	                schedule_job = True
+//	            elif job.seconds_since_last_seen() > JOB_DEAD_AFTER:  # The job has not recently been reported by any analysis server
+//	                schedule_job = True
+//
+//	            if schedule_job:
+//	                job_id = job.job_id
+//	                as_id = msg.get('as-id')
+//	                with self.session_scope() as session:
+//	                    try:
+//	                        update_job_comp(session, job_id, as_id)
+//	                    except:
+//	                        logger.exception("update_job_comp failed")
+//	                body = populate_msg_body('choose', as_id, job_id)
+//	                headers = populate_headers(TOPICS['comp_topic'], CMD_MESSAGE,
+//	                                           session_id=job.session_id,
+//	                                           reply_to=TOPICS['jobmanager_topic'])
+//	                self.send_to(TOPICS['comp_topic'], headers, body=body)
+
+				
+				
+			} else {
+				// TODO
+				// get job reply-to and send there
+			}
 			
 		}
 
