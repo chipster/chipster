@@ -2,7 +2,6 @@ package fi.csc.microarray.filebroker;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.URLConnection;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
@@ -213,21 +212,6 @@ public class ChecksumInputStream extends DigestInputStream {
 	@Override
 	public void close() throws IOException {
 		this.isClosed = true;
-		if (this.available() > 0) {
-			/*
-			 * The entire response body wasn't read. When we do a lot of this,
-			 * like we do in session loading, Jetty complains
-			 * "Idle timeout expired". Calling disconnect before close() seems
-			 * to help. It slows down sequential requests a bit (maybe 30%),
-			 * but doesn't affect parallel requests.
-			 * 
-			 * ParallelDownloadTest.java offers a playground for testing this.
-			 */
-			if (connection instanceof HttpURLConnection) {
-				HttpURLConnection http = (HttpURLConnection) connection;
-				http.disconnect();
-			}
-		}
 		super.close();
 	}
 }

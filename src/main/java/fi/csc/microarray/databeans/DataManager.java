@@ -187,7 +187,7 @@ public class DataManager {
 	private RemoteContentHandler remoteContentHandler = new RemoteContentHandler();
 	
 	// by default there are max 5 simultaneous http connections
-	private ExecutorService executor = Executors.newFixedThreadPool(10);
+	private ExecutorService executor = Executors.newFixedThreadPool(5);
 	
 	public DataManager() throws Exception {
 		rootFolder = createFolder(DataManager.ROOT_NAME);
