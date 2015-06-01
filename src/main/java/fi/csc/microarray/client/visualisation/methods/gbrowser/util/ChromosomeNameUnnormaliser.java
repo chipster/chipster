@@ -56,7 +56,21 @@ public class ChromosomeNameUnnormaliser {
 	 */
 	public ChromosomeNameUnnormaliser(List<String> unnormalisedNames) {
 		
-		this(unnormalisedNames.get(0));
+		String prefixCandidate = Chromosome.getPrefix(unnormalisedNames.get(0));
+		String postfixCandidate = Chromosome.getPostfix(unnormalisedNames.get(0));
+		
+		// accept candidates only if all chromosomes have it
+		for (String name : unnormalisedNames) {
+			if (!prefixCandidate.equals(Chromosome.getPrefix(name))) {
+				prefixCandidate = "";
+			}
+			if (!postfixCandidate.equals(Chromosome.getPostfix(name))) {
+				postfixCandidate = "";
+			}
+		}
+					
+		this.prefix = prefixCandidate;
+		this.postfix = postfixCandidate;
 		
 		List<String> normalisedNames = new LinkedList<>();
 		

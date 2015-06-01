@@ -54,8 +54,9 @@ public class VisualisationUtilities {
 				// Get list of columns names from every dataset
 				for (DataBean data : datas) {
 					if (application.getSelectionManager().getSelectionManager(data).getSelectionAsRows().length > 0) {
-
-						allColumns.add(data.queryFeatures("/column/*").asTable().getColumnNames());
+						try (Table table = data.queryFeatures("/column/*").asTable()) {
+							allColumns.add(table.getColumnNames());
+						}
 					}
 				}
 
@@ -145,32 +146,33 @@ public class VisualisationUtilities {
 		// Collect all rows to row maps, add all columns of duplicate identifiers to same row map
 
 		for (DataBean data : datas) {
-			Table columns = data.queryFeatures("/column/*").asTable();
+			try (Table columns = data.queryFeatures("/column/*").asTable()) {
 
-			int[] indexes = application.getSelectionManager().getSelectionManager(data).getSelectionAsRows();
+				int[] indexes = application.getSelectionManager().getSelectionManager(data).getSelectionAsRows();
 
-			Arrays.sort(indexes);
+				Arrays.sort(indexes);
 
-			for (int i = 0; columns.nextRow(); i++) {
+				for (int i = 0; columns.nextRow(); i++) {
 
-				if (Arrays.binarySearch(indexes, i) < 0) {
-					continue;
+					if (Arrays.binarySearch(indexes, i) < 0) {
+						continue;
+					}
+
+					Map<String, String> newColumns = new HashMap<String, String>();
+
+					for (String columnName : columns.getColumnNames()) {
+						newColumns.put(columnName, columns.getValue(columnName).toString());
+					}
+
+					// TODO should use Feature API for this, but it is not that easy...
+					String id = newColumns.containsKey(" ") ? newColumns.get(" ") : newColumns.get("identifier");
+
+					if (!lines.containsKey(id)) {
+						lines.put(id, newColumns);
+					}
+
+					lines.get(id).putAll(newColumns);
 				}
-
-				Map<String, String> newColumns = new HashMap<String, String>();
-
-				for (String columnName : columns.getColumnNames()) {
-					newColumns.put(columnName, columns.getValue(columnName).toString());
-				}
-
-				// TODO should use Feature API for this, but it is not that easy...
-				String id = newColumns.containsKey(" ") ? newColumns.get(" ") : newColumns.get("identifier");
-
-				if (!lines.containsKey(id)) {
-					lines.put(id, newColumns);
-				}
-
-				lines.get(id).putAll(newColumns);
 			}
 		}
 		return lines;
@@ -180,8 +182,7 @@ public class VisualisationUtilities {
 		String exprHeader = "/column/";
 
 		LinkedList<Variable> vars = new LinkedList<Variable>();
-		try {
-			Table columns = dataBean.queryFeatures("/column/*").asTable();
+		try (Table columns = dataBean.queryFeatures("/column/*").asTable()) {
 
 			for (String columnName : columns.getColumnNames()) {
 				if (columnName.startsWith(startsWith)) {

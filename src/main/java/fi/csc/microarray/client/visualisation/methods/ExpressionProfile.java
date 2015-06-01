@@ -191,43 +191,45 @@ implements PropertyChangeListener, SelectionChangeListener {
 
 		
 		// make a lookup table for sample names
-		Table chips = data.queryFeatures("/column/chip.*").asTable();
 		HashMap<String, String> sampleNameLookup = new HashMap<String, String>();
-		for (String chip : chips.getColumnNames()) {
-			String sampleName = data.queryFeatures("/phenodata/linked/describe/" + chip.substring("chip.".length())).asString();
-			sampleNameLookup.put(chip, sampleName);
+		try (Table chips = data.queryFeatures("/column/chip.*").asTable()) {
+			for (String chip : chips.getColumnNames()) {
+				String sampleName = data.queryFeatures("/phenodata/linked/describe/" + chip.substring("chip.".length())).asString();
+				sampleNameLookup.put(chip, sampleName);
+			}
 		}
 		
 		// fetch data
-		Table samples = data.queryFeatures("/column/*").asTable();
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-		
-		// read through data
-		rows = new LinkedList<ProfileRow>();
-		int rowNumber = 0;
-		while (samples.nextRow()) {
-			boolean firstSample = true;
-			for (String sample : samples.getColumnNames()) {
-				// collect all chip columns
-				if (sample.startsWith("chip.")) {
-					
-					// order by first chip
-					if (firstSample) {
-						ProfileRow row = new ProfileRow();
-						row.value = samples.getFloatValue(sample);
-						row.series = rowNumber;
-						firstSample = false;
-						rows.add(row);
-					}
+		try (Table samples = data.queryFeatures("/column/*").asTable()) {
 
-					// insert into dataset 
-					String sampleName = sampleNameLookup.get(sample);
-					String rowName = annotationProvider.getAnnotatedRowname(samples.getStringValue(" "));
-					IndividualizedColumn column = new IndividualizedColumn(sample, sampleName);
-					dataset.addValue((double)samples.getFloatValue(sample), rowName, column);
+			// read through data
+			rows = new LinkedList<ProfileRow>();
+			int rowNumber = 0;
+			while (samples.nextRow()) {
+				boolean firstSample = true;
+				for (String sample : samples.getColumnNames()) {
+					// collect all chip columns
+					if (sample.startsWith("chip.")) {
+
+						// order by first chip
+						if (firstSample) {
+							ProfileRow row = new ProfileRow();
+							row.value = samples.getFloatValue(sample);
+							row.series = rowNumber;
+							firstSample = false;
+							rows.add(row);
+						}
+
+						// insert into dataset 
+						String sampleName = sampleNameLookup.get(sample);
+						String rowName = annotationProvider.getAnnotatedRowname(samples.getStringValue(" "));
+						IndividualizedColumn column = new IndividualizedColumn(sample, sampleName);
+						dataset.addValue((double)samples.getFloatValue(sample), rowName, column);
+					}
 				}
+				rowNumber++;
 			}
-			rowNumber++;
 		}
 
 		return dataset;

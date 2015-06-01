@@ -754,11 +754,12 @@ public abstract class ClientApplication {
 			}
 
 			newFile.createNewFile();		
-			FileOutputStream out = new FileOutputStream(newFile);
-			ChecksumInputStream in = Session.getSession().getDataManager().getContentStream(data, DataNotAvailableHandling.EXCEPTION_ON_NA);
-			IO.copy(in, out);
-			out.close();
-			manager.setOrVerifyChecksum(data, in.verifyChecksums());
+			try (ChecksumInputStream in = Session.getSession().getDataManager().getContentStream(data, DataNotAvailableHandling.EXCEPTION_ON_NA)) {
+				try (FileOutputStream out = new FileOutputStream(newFile)) {
+					IO.copy(in, out);
+				}
+				manager.setOrVerifyChecksum(data, in.verifyChecksums());
+			}
 		} catch (ChecksumException e) {
 			reportExceptionThreadSafely(new ChecksumException("checksum validation of the exported file failed", e));
 		} catch (Exception e) {

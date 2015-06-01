@@ -7,6 +7,7 @@ import java.util.List;
 import net.sf.samtools.SAMRecord;
 import net.sf.samtools.util.CloseableIterator;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserSettings.CoverageType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
@@ -15,8 +16,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResul
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
+import fi.csc.microarray.util.BamUtils;
 
 /**
  * This conversion reads bam files with Picard and creates a RegionContent object for each read.
@@ -29,11 +30,14 @@ public class BamToDetailsConversion extends DataThread {
 
 	private BamDataSource dataSource;
 
-	public BamToDetailsConversion(BamDataSource file, final GBrowser browser) {
+	private CoverageType coverageType;
+
+	public BamToDetailsConversion(BamDataSource file, CoverageType coverageType, final GBrowser browser) {
 	    
 		super(browser, file);
 		
 		this.dataSource = file;
+		this.coverageType = coverageType;
 	}
 		
 	@Override
@@ -82,7 +86,7 @@ public class BamToDetailsConversion extends DataThread {
 				}
 
 				if (request.getRequestedContents().contains(DataType.STRAND)) {
-					values.put(DataType.STRAND, record.getReadNegativeStrandFlag() ? Strand.REVERSE : Strand.FORWARD);
+					values.put(DataType.STRAND, BamUtils.getStrand(record, coverageType));					
 				}
 
 				if (request.getRequestedContents().contains(DataType.QUALITY)) {

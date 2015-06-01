@@ -186,7 +186,8 @@ public class DataManager {
 	private LocalFileContentHandler localFileContentHandler = new LocalFileContentHandler();
 	private RemoteContentHandler remoteContentHandler = new RemoteContentHandler();
 	
-	private ExecutorService executor = Executors.newCachedThreadPool();
+	// by default there are max 5 simultaneous http connections
+	private ExecutorService executor = Executors.newFixedThreadPool(5);
 	
 	public DataManager() throws Exception {
 		rootFolder = createFolder(DataManager.ROOT_NAME);
@@ -1081,7 +1082,7 @@ public class DataManager {
 		
 		// was it already connected?
 		boolean wasConnected = child.getParent() != null;
-
+		
 		// connect to this
 		child.setParent(parent);
 
@@ -1090,15 +1091,26 @@ public class DataManager {
 
 		// add type tags to data bean in background thread
 		if (child instanceof DataBean) {
-					
-			// run callable and and dispatch event after it when needed
-			/* 
-			 * command line client will continue before this completes, but it
-			 * shouldn't matter:
-			 * - session opening waits for tagging
-			 * - session saving doesn't need tags
-			 */
-			executor.submit(new AddTypeTagsCallable((DataBean) child, !wasConnected, new DataItemCreatedEvent(child)));
+			if (((DataBean) child).isTagsSet()) {
+				/*
+				 * Tags are already set, so we are opening a session. Send
+				 * events from this thread to make sure databeans exist, when we
+				 * start to link them
+				 */
+				if (!wasConnected) {
+					dispatchEvent(new DataItemCreatedEvent(child));
+				}
+			} else {
+				/*
+				 * Tags aren't set, so the dataset comes from a tool. Run
+				 * callable and and dispatch event after it when needed. Command
+				 * line client will continue before this completes, but it
+				 * shouldn't matter: 
+				 * - session opening waits for tagging 
+				 * - session saving doesn't need tags
+				 */
+				executor.submit(new AddTypeTagsCallable((DataBean) child, !wasConnected, new DataItemCreatedEvent(child)));
+			}
 		}
 	}
 
@@ -1462,13 +1474,14 @@ public class DataManager {
 
 			} else {
 				// count rows
-				Table rowCounter = data.queryFeatures("/column/*").asTable();
-				long rowCount = 0;
-				while (rowCounter != null && rowCounter.nextRow() && rowCount < MAX_ROWS_TO_COUNT) {
-					rowCount++;
+				try (Table rowCounter = data.queryFeatures("/column/*").asTable()) {
+					long rowCount = 0;
+					while (rowCounter != null && rowCounter.nextRow() && rowCount < MAX_ROWS_TO_COUNT) {
+						rowCount++;
+					}
+					data.putToContentBoundCache(AT_LEAST_ROWS_CACHENAME, (Long)rowCount);
+					return rowCount;
 				}
-				data.putToContentBoundCache(AT_LEAST_ROWS_CACHENAME, (Long)rowCount);
-				return rowCount;
 			}			
 		}
 		return null;

@@ -116,62 +116,64 @@ public class Spreadsheet extends Visualisation {
 		int rowCount;
 		int columnCount;
 		QueryResult columnsFeature = data.queryFeatures("restrict(/column/*)");
-		Table columns = columnsFeature.asTable();
+		try (Table columns = columnsFeature.asTable()) {
 
-		if (columns == null) {
-			columnTitles = new String[] { "Info" };
-			rowData = new String[][] { new String[] { DataManager.DATA_NA_INFOTEXT }};
-			linkableFlags = new LinkedList<Boolean>();
-			linkableFlags.add(false);
-			rowCount = 1;
-			columnCount = 1;
+			if (columns == null) {
+				columnTitles = new String[] { "Info" };
+				rowData = new String[][] { new String[] { DataManager.DATA_NA_INFOTEXT }};
+				linkableFlags = new LinkedList<Boolean>();
+				linkableFlags.add(false);
+				rowCount = 1;
+				columnCount = 1;
 
-		} else {
+			} else {
 
-			columnTitles = new String[columns.getColumnCount()];
-			int counter = 0;
-			for (String column : columns.getColumnNames()) {
-				columnTitles[counter] = column;
-				counter++;
-			}
-			columnCount = columns.getColumnCount();
-
-			// Check which columns need hyperlinking
-			linkableFlags = primaryModule.flagLinkableColumns(columns, data);
-
-			// Count data rows
-			Table rowCounter = data.queryFeatures("/column/*").asTable();
-			rowCount = 0;
-			while (rowCounter.nextRow()) {
-				rowCount++;
-			}
-
-			// Create actual tabular data
-			rowData = new Object[RestrictModifier.RESTRICT_TO_ROWS < rowCount ? RestrictModifier.RESTRICT_TO_ROWS : rowCount][columns.getColumnCount()];
-			int row = 0;
-			while (columns.nextRow()) {
-				int column = 0;
-				for (String columnName : columns.getColumnNames()) {
-
-					Object value = columns.getValue(columnName);
-					ExtendedCellValue cell;
-
-					IntegratedEntity linkedEntity = null;
-					if (linkableFlags.get(column)) {
-						// This cell value is linkable
-						linkedEntity = primaryModule.createLinkableEntity(columns, data);
-					}
-
-					if (value instanceof Float) {
-						cell = new ExtendedCellValue(columns.getStringValue(columnName), (Float)value, linkedEntity);
-
-					} else {
-						cell = new ExtendedCellValue(columns.getStringValue(columnName), null, linkedEntity);
-					}
-					rowData[row][column] = cell;
-					column++;
+				columnTitles = new String[columns.getColumnCount()];
+				int counter = 0;
+				for (String column : columns.getColumnNames()) {
+					columnTitles[counter] = column;
+					counter++;
 				}
-				row++;
+				columnCount = columns.getColumnCount();
+
+				// Check which columns need hyperlinking
+				linkableFlags = primaryModule.flagLinkableColumns(columns, data);
+
+				// Count data rows
+				try (Table rowCounter = data.queryFeatures("/column/*").asTable()) {
+					rowCount = 0;
+					while (rowCounter.nextRow()) {
+						rowCount++;
+					}
+				}
+
+				// Create actual tabular data
+				rowData = new Object[RestrictModifier.RESTRICT_TO_ROWS < rowCount ? RestrictModifier.RESTRICT_TO_ROWS : rowCount][columns.getColumnCount()];
+				int row = 0;
+				while (columns.nextRow()) {
+					int column = 0;
+					for (String columnName : columns.getColumnNames()) {
+
+						Object value = columns.getValue(columnName);
+						ExtendedCellValue cell;
+
+						IntegratedEntity linkedEntity = null;
+						if (linkableFlags.get(column)) {
+							// This cell value is linkable
+							linkedEntity = primaryModule.createLinkableEntity(columns, data);
+						}
+
+						if (value instanceof Float) {
+							cell = new ExtendedCellValue(columns.getStringValue(columnName), (Float)value, linkedEntity);
+
+						} else {
+							cell = new ExtendedCellValue(columns.getStringValue(columnName), null, linkedEntity);
+						}
+						rowData[row][column] = cell;
+						column++;
+					}
+					row++;
+				}
 			}
 		}
 
