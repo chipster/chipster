@@ -29,9 +29,9 @@ public class SocketFactoryCache {
 
 	/*
 	 * By default there are only 5 concurrent HTTP connections in Java
-	 * HttpURLConnection, so there is no point to cache much more.
+	 * HttpURLConnection, but the genome browser uses many more threads.
 	 */
-	private static final int CACHE_SIZE = 10;
+	private static final int CACHE_SIZE = 100;
 	private TrustManager[] trustManagers;
 	private LinkedHashMap<Thread, SSLSocketFactory> cache = new LinkedHashMap<>();
 	private String protocol;
@@ -45,12 +45,14 @@ public class SocketFactoryCache {
 			throws NoSuchAlgorithmException, KeyManagementException {
 		synchronized (this) {
 			if (!cache.containsKey(Thread.currentThread())) {
+				// make space
+				while (cache.size() > CACHE_SIZE - 1) {
+					removeLast(cache);
+				}
+
 				SSLContext ctx = SSLContext.getInstance(protocol);
 				ctx.init(null,trustManagers, null);
 				cache.put(Thread.currentThread(), ctx.getSocketFactory());
-				while (cache.size() > CACHE_SIZE) {
-					removeLast(cache);
-				}
 			}
 			return cache.get(Thread.currentThread());
 		}

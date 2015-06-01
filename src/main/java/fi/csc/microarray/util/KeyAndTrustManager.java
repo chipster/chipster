@@ -63,8 +63,7 @@ public class KeyAndTrustManager {
 			CertificateException, FileNotFoundException, IOException,
 			KeyStoreException {
 
-		String trustStoreFilename = configuration.getString("security",
-				"client-truststore");
+		String trustStoreFilename = configuration.getString("security", "client-truststore");
 
 		if (trustStoreFilename == null || "".equals(trustStoreFilename)) {
 			// CA signed certificate
@@ -90,8 +89,7 @@ public class KeyAndTrustManager {
 			logger.info("keystore file missing, downloading it");
 			// rename file only when it's complete to avoid problems when there
 			// are parallel instances of SessionReplayTest
-			File downloadTemp = File.createTempFile(localTrustStore.getName(),
-					"", localTrustStore.getParentFile());
+			File downloadTemp = File.createTempFile(localTrustStore.getName(), "", localTrustStore.getParentFile());
 			FileUtils.copyURLToFile(remoteTrustStore, downloadTemp);
 			if (!downloadTemp.renameTo(localTrustStore)) {
 				logger.info("renaming keystore file failed, maybe other client is running at the same time? (error ignored)");
@@ -117,8 +115,7 @@ public class KeyAndTrustManager {
 			// take a copy of the default factory accepting CA certificates
 			caFactory = getSocketFactory(null);
 
-			Configuration configuration = DirectoryLayout.getInstance()
-					.getConfiguration();
+			Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
 
 			String password = configuration.getString("security", "storepass");
 			String trustStorePath;
@@ -128,13 +125,11 @@ public class KeyAndTrustManager {
 
 			} else {
 				// server
-				trustStorePath = configuration.getString("security",
-						"server-truststore");
+				trustStorePath = configuration.getString("security", "server-truststore");
 				if ("".equals(trustStorePath)) {
 					trustStorePath = null;
 				} else if (!new File(trustStorePath).exists()) {
-					throw new RuntimeException("configured trust store file "
-							+ trustStorePath + " doesn't exist");
+					throw new RuntimeException("configured trust store file " + trustStorePath + " doesn't exist");
 				}
 			}
 
@@ -149,32 +144,24 @@ public class KeyAndTrustManager {
 					// init sslFactory (hides complaints about untrusted
 					// certificates
 					// when started with web-start)
-					KeyStore trustStore = KeyStore.getInstance(KeyStore
-							.getDefaultType());
+					KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
 
-					try (FileInputStream inputStream = new FileInputStream(
-							trustStorePath)) {
+					try (FileInputStream inputStream = new FileInputStream(trustStorePath)) {
 						trustStore.load(inputStream, password.toCharArray());
 					}
 
-					TrustManagerFactory tmf = TrustManagerFactory
-							.getInstance(TrustManagerFactory
-									.getDefaultAlgorithm());
+					TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
 					tmf.init(trustStore);
-					selfSignedFactoryCache = new SocketFactoryCache(
-							tmf.getTrustManagers(), protocol);
+					selfSignedFactoryCache = new SocketFactoryCache(tmf.getTrustManagers(), protocol);
 				}
 			}
 
-			trustAllFactoryCache = new SocketFactoryCache(
-					new TrustManager[] { new TrustAllX509TrustManager() },
-					protocol);
+			trustAllFactoryCache = new SocketFactoryCache(new TrustManager[] { new TrustAllX509TrustManager() }, protocol);
 
 			if (!configuration.getBoolean("security", "verify-hostname")) {
 				// Accept all hostnames (do not try to match certificate
 				// hostname (CN) to observed hostname)
-				HttpsURLConnection
-						.setDefaultHostnameVerifier(new TrustAllHostnameVerifier());
+				HttpsURLConnection.setDefaultHostnameVerifier(new TrustAllHostnameVerifier());
 			}
 
 			initialised = true;
@@ -184,6 +171,7 @@ public class KeyAndTrustManager {
 	private static SSLSocketFactory getSocketFactory(
 			TrustManager[] trustManagers) throws NoSuchAlgorithmException,
 			KeyManagementException {
+		
 		SSLContext ctx = SSLContext.getInstance("TLS");
 		ctx.init(null, trustManagers, null);
 		return ctx.getSocketFactory();
@@ -227,9 +215,7 @@ public class KeyAndTrustManager {
 		if (selfSignedFactoryCache != null) {
 			if (connection instanceof HttpsURLConnection) {
 				try {
-					((HttpsURLConnection) connection)
-							.setSSLSocketFactory(selfSignedFactoryCache
-									.getSocketFactoryForThisThread());
+					((HttpsURLConnection) connection).setSSLSocketFactory(selfSignedFactoryCache.getSocketFactoryForThisThread());
 				} catch (KeyManagementException | NoSuchAlgorithmException e) {
 					// client can't fix these
 					new RuntimeException(e);
@@ -251,12 +237,10 @@ public class KeyAndTrustManager {
 
 	public static void configureForTrustAllCertificates(URLConnection connection)
 			throws NoSuchAlgorithmException, KeyManagementException {
+		
 		if (connection instanceof HttpsURLConnection) {
-			((HttpsURLConnection) connection)
-					.setSSLSocketFactory(trustAllFactoryCache
-							.getSocketFactoryForThisThread());
-			((HttpsURLConnection) connection)
-					.setHostnameVerifier(new TrustAllHostnameVerifier());
+			((HttpsURLConnection) connection).setSSLSocketFactory(trustAllFactoryCache.getSocketFactoryForThisThread());
+			((HttpsURLConnection) connection).setHostnameVerifier(new TrustAllHostnameVerifier());
 		}
 	}
 
