@@ -33,7 +33,7 @@ public class SocketFactoryCache {
 	 */
 	private static final int CACHE_SIZE = 100;
 	private TrustManager[] trustManagers;
-	private LinkedHashMap<Thread, SSLSocketFactory> cache = new LinkedHashMap<>();
+	private LinkedHashMap<Long, SSLSocketFactory> cache = new LinkedHashMap<>();
 	private String protocol;
 
 	public SocketFactoryCache(TrustManager[] trustManagers, String protocol) {
@@ -44,7 +44,12 @@ public class SocketFactoryCache {
 	public SSLSocketFactory getSocketFactoryForThisThread()
 			throws NoSuchAlgorithmException, KeyManagementException {
 		synchronized (this) {
-			if (!cache.containsKey(Thread.currentThread())) {
+			/*
+			 * Don't use thread object as a key, because that would prevent
+			 * the garbage collection of old threads.
+			 */
+			Long thread = Thread.currentThread().getId();
+			if (!cache.containsKey(thread)) {
 				// make space
 				while (cache.size() > CACHE_SIZE - 1) {
 					removeLast(cache);
@@ -52,9 +57,9 @@ public class SocketFactoryCache {
 
 				SSLContext ctx = SSLContext.getInstance(protocol);
 				ctx.init(null,trustManagers, null);
-				cache.put(Thread.currentThread(), ctx.getSocketFactory());
+				cache.put(thread, ctx.getSocketFactory());
 			}
-			return cache.get(Thread.currentThread());
+			return cache.get(thread);
 		}
 	}
 

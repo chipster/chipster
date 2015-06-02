@@ -306,32 +306,32 @@ public class HierarchicalClustering extends Visualisation implements PropertyCha
 						// iteration
 						row++;
 					}
-				}
 
-				String geneName = heatMapData.getStringValue(" ");
-				geneName = annotationProvider.getAnnotatedRowname(geneName);
-
-				if (!reversed) {
-					heatMap.setRowName(row, geneName);
-				} else {
-					heatMap.setColumnName(row, geneName);
-				}
-
-				int i = -1;
-				for (String columnName : columns) {
+					String geneName = heatMapData.getStringValue(" ");
+					geneName = annotationProvider.getAnnotatedRowname(geneName);
 
 					if (!reversed) {
-						// column index, just use the order from the iteration
-						i++;
+						heatMap.setRowName(row, geneName);
 					} else {
-						i = orders.idToTree(columnName);
-						logger.debug("Adding a new row to heatmap (reversed), name: " + columnName + "\tto row: " + i);
+						heatMap.setColumnName(row, geneName);
 					}
 
-					if (!reversed) {
-						heatMap.update(row, i, heatMapData.getFloatValue(columnName));
-					} else {
-						heatMap.update(i, row, heatMapData.getFloatValue(columnName));
+					int i = -1;
+					for (String columnName : columns) {
+
+						if (!reversed) {
+							// column index, just use the order from the iteration
+							i++;
+						} else {
+							i = orders.idToTree(columnName);
+							logger.debug("Adding a new row to heatmap (reversed), name: " + columnName + "\tto row: " + i);
+						}
+
+						if (!reversed) {
+							heatMap.update(row, i, heatMapData.getFloatValue(columnName));
+						} else {
+							heatMap.update(i, row, heatMapData.getFloatValue(columnName));
+						}
 					}
 				}
 			}
