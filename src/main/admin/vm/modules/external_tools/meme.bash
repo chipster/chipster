@@ -10,7 +10,7 @@
 #cd ..
 #rm -rf ${TMPDIR_PATH}/meme_4.2.0
 
-curl -s http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/meme_4.2.0-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/
+curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/meme_4.2.0-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
 ln -s meme_4.2.0 ${TOOLS_PATH}/meme
 	
