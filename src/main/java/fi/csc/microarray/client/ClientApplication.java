@@ -18,6 +18,8 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.Icon;
@@ -76,6 +78,7 @@ import fi.csc.microarray.module.chipster.MicroarrayModule;
 import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.SwingTools;
+import fi.csc.microarray.util.ThreadUtils;
 
 
 /**
@@ -172,6 +175,7 @@ public abstract class ClientApplication {
     protected DataSelectionManager selectionManager;
     protected ServiceAccessor serviceAccessor;
 	protected TaskExecutor taskExecutor;
+	protected ExecutorService backgroundExecutor = Executors.newCachedThreadPool();
 	private AuthenticationRequestListener overridingARL;
 
     protected ClientConstants clientConstants;
@@ -512,76 +516,86 @@ public abstract class ClientApplication {
 	 * @throws MicroarrayException 
 	 * @throws IOException 
 	 */
-	public void onFinishedTask(Task task, ResultListener resultListener, State state) throws MicroarrayException, IOException {
+	public void onFinishedTask(final Task task, final ResultListener resultListener, State state) throws MicroarrayException, IOException {	
 		
-		LinkedList<DataBean> newBeans = new LinkedList<DataBean>();	
-		
-		try {
+		logger.debug("operation finished, state is " + state);
 
-			logger.debug("operation finished, state is " + state);
+		if (state == State.CANCELLED) {
+			// task cancelled, do nothing
+			// notify result listener
+			if (resultListener != null) {
+				resultListener.noResults();
+			}
+
+		} else if (!state.finishedSuccesfully()) {
+			// task unsuccessful, report it
+			reportTaskError(task);
+			// notify result listener
+			if (resultListener != null) {
+				resultListener.noResults();
+			}
+
+		} else {
+			// task completed, create datasets etc.
+
+			// read operated datas
+			Module primaryModule = Session.getSession().getPrimaryModule();
+			final LinkedList<DataBean> sources = new LinkedList<DataBean>();
+			for (DataBean bean : task.getInputDataBeans()) {
+				// do not create derivation links for metadata datasets
+				// also do not create links for sources without parents
+				// this happens when creating the input databean for example
+				// for import tasks
+				// FIXME should such a source be deleted here?
+				if (!primaryModule.isMetadata(bean) && (bean.getParent() != null)) {
+					sources.add(bean);
+
+				}
+			}
+
+			// decide output folder
+			final DataFolder folder = manager.getRootFolder();
 			
-			if (state == State.CANCELLED) {
-				// task cancelled, do nothing
-				
-			} else if (!state.finishedSuccesfully()) {
-				// task unsuccessful, report it
-				reportTaskError(task);
-				
-			} else {
-				// task completed, create datasets etc.
-				newBeans = new LinkedList<DataBean>();
+			// read outputs and create derivational links for non-metadata beans
+			
+			for (DataBean output : task.getOutputs()) {
+			
+				output.setOperationRecord(task.getOperationRecord());
 
-				// read operated datas
+				// set sources
+				for (DataBean source : sources) {
+					output.addLink(Link.DERIVATION, source);
+				}
+			}
+
+			// create outputs and notify result listener
+			backgroundExecutor.execute(new Runnable() {
+				@Override
+				public void run() {
+					createOutputs(task, sources, folder, resultListener);
+				}
+			});
+		}			
+	}
+	
+	private void createOutputs(final Task task, LinkedList<DataBean> sources, DataFolder folder, final ResultListener resultListener) {
+
+		// connect data (events are generated and it becomes visible)
+		manager.connectChildren(task.getOutputs(), folder);
+
+		ThreadUtils.runInEDT(new Runnable() {
+			@Override
+			public void run() {
 				Module primaryModule = Session.getSession().getPrimaryModule();
-				LinkedList<DataBean> sources = new LinkedList<DataBean>();
-				for (DataBean bean : task.getInputDataBeans()) {
-					// do not create derivation links for metadata datasets
-					// also do not create links for sources without parents
-					// this happens when creating the input databean for example
-					// for import tasks
-					// FIXME should such a source be deleted here?
-					if (!primaryModule.isMetadata(bean) && (bean.getParent() != null)) {
-						sources.add(bean);
-
-					}
-				}
-
-				// decide output folder
-				DataFolder folder = null;
-				if (sources.size() > 0) {
-					for (DataBean source : sources) {
-						if (source.getParent() != null) {
-							folder = source.getParent();
-						}
-					}
-				}
-				// use root if no better option 
-				if (folder == null) {
-					folder = manager.getRootFolder();
-				}
-
-
-				// read outputs and create derivational links for non-metadata beans
+				LinkedList<DataBean> newBeans = new LinkedList<DataBean>();
 				DataBean metadataOutput = null;
-				
 				for (DataBean output : task.getOutputs()) {
-				
-					output.setOperationRecord(task.getOperationRecord());
-
-					// set sources
-					for (DataBean source : sources) {
-						output.addLink(Link.DERIVATION, source);
-					}
-
-					// connect data (events are generated and it becomes visible)
-					manager.connectChild(output, folder);
-
 					// check if this is metadata
 					// for now this must be after folder.addChild(), as type tags are added there
 					if (primaryModule.isMetadata(output)) {
 						metadataOutput = output;				
 					}
-					
+
 					newBeans.add(output);
 				}
 
@@ -593,24 +607,22 @@ public abstract class ClientApplication {
 						}
 					}
 
-					primaryModule.postProcessOutputMetadata(task.getOperationRecord(), metadataOutput);				
+					try {
+						primaryModule.postProcessOutputMetadata(task.getOperationRecord(), metadataOutput);
+					} catch (MicroarrayException | IOException e) {
+						reportException(e);
+					}				
 				}
 
-			}			
-	
-		} finally {
-			
-			// notify result listener
-			if (resultListener != null) {
-				if (state.finishedSuccesfully()) {
-					resultListener.resultData(newBeans);
-				} else {
-					resultListener.noResults();
-				}
+				// notify result listener
+				if (resultListener != null) {
+					if (task.getState().finishedSuccesfully()) {
+						resultListener.resultData(newBeans);
+					}
+				}			
 			}
-		}
+		});
 	}
-	
 	public void quit() {		
 		logger.debug("quitting client");
 		
