@@ -1,4 +1,4 @@
-# TOOL qc-affy.R: "Affymetrix basic" (Affymetrix quality control for RNA degradation and general quality parameters, such as scaling factor. This tool should be run on RAW data, i.e., CEL-files. Can only be used for Affymetrix chips with PM and MM probes)
+# TOOL qc-affy.R: "Affymetrix basic" (Affymetrix quality control for RNA degradation and general quality parameters, such as scaling factor. This tool should be run on CEL files. Can only be used for Affymetrix chips with PM and MM probes)
 # INPUT microarray{...}.cel: microarray{...}.cel TYPE AFFY 
 # OUTPUT RNA-degradation-plot.pdf: RNA-degradation-plot.pdf 
 # OUTPUT simpleaffy-plot.pdf: simpleaffy-plot.pdf 
