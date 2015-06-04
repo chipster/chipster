@@ -26,11 +26,15 @@ normba<-normalize.chips
 # Reading data
 columns<-list(R="sample", Rb="sample", G="sample", Gb="sample")
 annotation<-c("identifier")
-columns.other<-c("flag", "annotation")	
 
-files<-dir()
-files<-files[files!="phenodata.tsv"]
+files<-dir(pattern = "microarray")
+#files<-files[files!="phenodata.tsv"]
+#files<-files[files!="chipster-input-definitions.tsv"]
+
+
+columns.other<-c("flag", "annotation")
 dat<-read.maimages(files=files, columns=columns, annotation=annotation, other.columns=columns.other) 
+
 
 # Normalization
 if(normba!="vsn") {

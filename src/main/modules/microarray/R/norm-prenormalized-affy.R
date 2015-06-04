@@ -21,8 +21,7 @@ columns<-list(R="sample")
 annotation<-c("identifier")
 columns.other<-c("flag", "Flag", "FLAG", "annotation", "Annotation", "ANNOTATION")
 
-files<-dir()
-files<-files[files!="phenodata.tsv"]
+files<-dir(pattern = "microarray")
 #seems to check columns from the first file only. If the column is not there, attribute is ignored. If the column is there, but not
 #in the others, function crashes
 dat<-read.maimages(files=files, columns=columns, annotation=annotation, other.columns=columns.other) 
