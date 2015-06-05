@@ -174,7 +174,7 @@ public class EmbossAnalysisJob extends ShellAnalysisJobBase {
         }
         
         // Inputs
-        for (String name : inputMessage.payloadNames()) {
+        for (String name : inputMessage.getKeys()) {
             params.add("-" + name);
             params.add(name);
         }

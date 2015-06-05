@@ -17,6 +17,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.GtfToFe
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.IndexedFastaConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager.Genome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager.GenomeAnnotation;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserSettings.CoverageType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.BedLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.BedTabixToRegionConversion;
@@ -214,7 +215,7 @@ public class Interpretation {
 		throw new IllegalStateException("requested DataThread is not compatible with the Interpreation type: " + getType());
 	}
 
-	public BamToDetailsConversion getBamDetailsDataThread(GBrowser browser) throws URISyntaxException, IOException {
+	public BamToDetailsConversion getBamDetailsDataThread(GBrowser browser, CoverageType coverageType) throws URISyntaxException, IOException {
 
 		if (getType() == TrackType.READS) {
 
@@ -222,24 +223,24 @@ public class Interpretation {
 
 			//Create always a new data source, because picard doesn't support concurrent access
 			dataSource = new BamDataSource(getPrimaryData(), getIndexData());
-			return new BamToDetailsConversion(dataSource, browser);
+			return new BamToDetailsConversion(dataSource, coverageType, browser);
 		}
 		throw new IllegalStateException("requested DataThread is not compatible with the Interpreation type: " + getType());
 	}
 
-	public BamToCoverageConversion getBamCoverageDataThread(GBrowser browser) throws URISyntaxException, IOException {
+	public BamToCoverageConversion getBamCoverageDataThread(GBrowser browser, CoverageType coverageType) throws URISyntaxException, IOException {
 
 		if (getType() == TrackType.READS) {
 
 			//Create always a new data source, because picard doesn't support concurrent access
 			BamDataSource dataSource;
 			dataSource = new BamDataSource(getPrimaryData(), getIndexData());
-			return new BamToCoverageConversion(dataSource, browser);				
+			return new BamToCoverageConversion(dataSource, coverageType, browser);				
 		}
 		throw new IllegalStateException("requested DataThread is not compatible with the Interpreation type: " + getType());
 	}
 
-	public BamToCoverageEstimateConversion getBamCoverageEstimateDataThread(GBrowser browser) throws URISyntaxException, IOException {
+	public BamToCoverageEstimateConversion getBamCoverageEstimateDataThread(GBrowser browser, CoverageType coverageType) throws URISyntaxException, IOException {
 
 		if (getType() == TrackType.READS) {
 			
@@ -247,7 +248,7 @@ public class Interpretation {
 			
 			//Create always a new data source, because picard doesn't support concurrent access
 			dataSource = new BamDataSource(getPrimaryData(), getIndexData());
-			return new BamToCoverageEstimateConversion(dataSource, browser);		
+			return new BamToCoverageEstimateConversion(dataSource, coverageType, browser);		
 		}
 		throw new IllegalStateException("requested DataThread is not compatible with the Interpreation type: " + getType());
 	}

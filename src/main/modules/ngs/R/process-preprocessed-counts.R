@@ -9,8 +9,9 @@
 # MK 11.04.2013 Support for multiple annotation columns added
 
 # Read files
-files<-dir()
-files<-files[files!="phenodata.tsv"]
+#files<-dir()
+#files<-files[files!="phenodata.tsv"]
+files<-dir(pattern = "ngs")
 
 # Loads the limma library
 library(limma)

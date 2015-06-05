@@ -39,7 +39,7 @@ public class LineDataSource extends DataSource {
 			if (reader == null) {
 
 				HttpURLConnection connection = (HttpURLConnection)url.openConnection();
-				KeyAndTrustManager.configureSSL(connection);
+				KeyAndTrustManager.configureForChipsterCertificate(connection);
 				reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 			}
 		}

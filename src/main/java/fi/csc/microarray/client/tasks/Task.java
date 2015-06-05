@@ -200,7 +200,7 @@ public class Task {
 		return errorMessage;
 	}
 
-	public Iterable<DataBean> getOutputs() {
+	public List<DataBean> getOutputs() {
 		return outputs;
 	}
 

@@ -229,21 +229,22 @@ public class HierarchicalClustering extends Visualisation implements PropertyCha
 
 			// Create heatmap
 			QueryResult heatMapFeature = data.queryFeatures("/clusters/hierarchical/heatmap");
-			Table heatMapDataIterator = heatMapFeature.asTable();
-
-			// Count heatmap rows
-			int rowCount = 0;
-			while (heatMapDataIterator.nextRow()) {
-				rowCount++;
-			}
-
-			// Count columns that contain expression values
 			LinkedList<String> columns = new LinkedList<String>();
-			for (String columnName : heatMapDataIterator.getColumnNames()) {
-				if (columnName.startsWith("chip.")) {
-					columns.add(columnName);
-				} else {
-					logger.debug("Column skipped in HC: " + columnName);
+			int rowCount = 0;
+			try (Table heatMapDataIterator = heatMapFeature.asTable()) {
+
+				// Count heatmap rows
+				while (heatMapDataIterator.nextRow()) {
+					rowCount++;
+				}
+
+				// Count columns that contain expression values
+				for (String columnName : heatMapDataIterator.getColumnNames()) {
+					if (columnName.startsWith("chip.")) {
+						columns.add(columnName);
+					} else {
+						logger.debug("Column skipped in HC: " + columnName);
+					}
 				}
 			}
 			int columnCount = columns.size();
@@ -276,60 +277,61 @@ public class HierarchicalClustering extends Visualisation implements PropertyCha
 			orders = new OrderSuperviser();
 			orders.setTreeToId(treeToId);
 
-			Table heatMapData = data.queryFeatures("/clusters/hierarchical/heatmap").asTable();
-
 			List<Integer> treeToBean = new ArrayList<Integer>();
-			treeToBean.addAll(Collections.nCopies(rowCount, -1));
+			try (Table heatMapData = data.queryFeatures("/clusters/hierarchical/heatmap").asTable()) {
 
-			int row = -1; // This is increased to 0 in the beginning of the
-			// loop
-			int originalRow = 0;
+				treeToBean.addAll(Collections.nCopies(rowCount, -1));
 
-			while (heatMapData.nextRow()) {
+				int row = -1; // This is increased to 0 in the beginning of the
+				// loop
+				int originalRow = 0;
 
-				if (!reversed) {
-					// Find the row number in heatMap corresponding the name of
-					// this row
-
-					String key = translate(heatMapData.getStringValue(" "));
-					if (orders.idToTree(key) != -1) { // if the id is found
-						row = orders.idToTree(key);
-						treeToBean.set(row, originalRow);
-						originalRow++;
-					} else {
-						continue;
-					}
-					logger.debug("Adding a new row to heatmap, name: " + heatMapData.getStringValue(" ") + "\tto row: " + row);
-				} else {
-					// reversed row is a column, just use the order from the
-					// iteration
-					row++;
-				}
-
-				String geneName = heatMapData.getStringValue(" ");
-				geneName = annotationProvider.getAnnotatedRowname(geneName);
-
-				if (!reversed) {
-					heatMap.setRowName(row, geneName);
-				} else {
-					heatMap.setColumnName(row, geneName);
-				}
-
-				int i = -1;
-				for (String columnName : columns) {
+				while (heatMapData.nextRow()) {
 
 					if (!reversed) {
-						// column index, just use the order from the iteration
-						i++;
+						// Find the row number in heatMap corresponding the name of
+						// this row
+
+						String key = translate(heatMapData.getStringValue(" "));
+						if (orders.idToTree(key) != -1) { // if the id is found
+							row = orders.idToTree(key);
+							treeToBean.set(row, originalRow);
+							originalRow++;
+						} else {
+							continue;
+						}
+						logger.debug("Adding a new row to heatmap, name: " + heatMapData.getStringValue(" ") + "\tto row: " + row);
 					} else {
-						i = orders.idToTree(columnName);
-						logger.debug("Adding a new row to heatmap (reversed), name: " + columnName + "\tto row: " + i);
+						// reversed row is a column, just use the order from the
+						// iteration
+						row++;
 					}
 
+					String geneName = heatMapData.getStringValue(" ");
+					geneName = annotationProvider.getAnnotatedRowname(geneName);
+
 					if (!reversed) {
-						heatMap.update(row, i, heatMapData.getFloatValue(columnName));
+						heatMap.setRowName(row, geneName);
 					} else {
-						heatMap.update(i, row, heatMapData.getFloatValue(columnName));
+						heatMap.setColumnName(row, geneName);
+					}
+
+					int i = -1;
+					for (String columnName : columns) {
+
+						if (!reversed) {
+							// column index, just use the order from the iteration
+							i++;
+						} else {
+							i = orders.idToTree(columnName);
+							logger.debug("Adding a new row to heatmap (reversed), name: " + columnName + "\tto row: " + i);
+						}
+
+						if (!reversed) {
+							heatMap.update(row, i, heatMapData.getFloatValue(columnName));
+						} else {
+							heatMap.update(i, row, heatMapData.getFloatValue(columnName));
+						}
 					}
 				}
 			}

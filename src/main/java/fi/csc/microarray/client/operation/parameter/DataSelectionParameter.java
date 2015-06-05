@@ -31,9 +31,10 @@ public abstract class DataSelectionParameter extends EnumParameter {
 		LinkedList<String> colNames = new LinkedList<String>();
 		
 		if(data != null){
-			Table columns = data.queryFeatures("/column/*").asTable();
-			for (String columnName : columns.getColumnNames()) {
-				colNames.add(columnName);
+			try (Table columns = data.queryFeatures("/column/*").asTable()) {
+				for (String columnName : columns.getColumnNames()) {
+					colNames.add(columnName);
+				}
 			}
 		}
 		colNames.add("EMPTY");

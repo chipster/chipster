@@ -359,13 +359,14 @@ public class MicroarrayModule implements Module {
 		
 		// R can't handle spaces in column titles. Terminate job if there are any white space characters.
 		
-		Table table = metadataInput.queryFeatures("/column/*").asTable();
-		
-		Pattern pattern = Pattern.compile("\\s"); // whitespace characters: space, tab and new line
-		for (String column : table.getColumnNames()) {						
-			Matcher matcher = pattern.matcher(column);
-			if (matcher.find()) { 
-				throw new MicroarrayException("Phenodata columnn titles must not contain white space characters (space, tab and new line)");
+		try (Table table = metadataInput.queryFeatures("/column/*").asTable()) {
+
+			Pattern pattern = Pattern.compile("\\s"); // whitespace characters: space, tab and new line
+			for (String column : table.getColumnNames()) {						
+				Matcher matcher = pattern.matcher(column);
+				if (matcher.find()) { 
+					throw new MicroarrayException("Phenodata columnn titles must not contain white space characters (space, tab and new line)");
+				}
 			}
 		}
 	}
@@ -786,62 +787,62 @@ public class MicroarrayModule implements Module {
 			return;
 		}
 
-		Table chips = data.queryFeatures("/column/chip.*").asTable();
+		try (Table chips = data.queryFeatures("/column/chip.*").asTable()) {
 
-		if (data.isContentTypeCompatitible("application/cel")) {
-			data.addTypeTag(MicroarrayModule.TypeTags.RAW_AFFYMETRIX_EXPRESSION_VALUES);
+			if (data.isContentTypeCompatitible("application/cel")) {
+				data.addTypeTag(MicroarrayModule.TypeTags.RAW_AFFYMETRIX_EXPRESSION_VALUES);
 
-		} else if (data.queryFeatures("/column/sample").exists() && !data.queryFeatures("/phenodata").exists()) {
-			data.addTypeTag(MicroarrayModule.TypeTags.RAW_EXPRESSION_VALUES);
+			} else if (data.queryFeatures("/column/sample").exists() && !data.queryFeatures("/phenodata").exists()) {
+				data.addTypeTag(MicroarrayModule.TypeTags.RAW_EXPRESSION_VALUES);
 
-		} else if (chips != null && chips.getColumnCount() > 0) {
-			data.addTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
-		} 
+			} else if (chips != null && chips.getColumnCount() > 0) {
+				data.addTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
+			} 
 
-		if (data.queryFeatures("/identifier").exists()) {
-			data.addTypeTag(MicroarrayModule.TypeTags.GENENAMES);
-		} 
+			if (data.queryFeatures("/identifier").exists()) {
+				data.addTypeTag(MicroarrayModule.TypeTags.GENENAMES);
+			} 
 
 
-		// Tag additional typing information
-		if (data.queryFeatures("/phenodata").exists()) {
-			data.addTypeTag(MicroarrayModule.TypeTags.PHENODATA);
-		}
-
-		if (data.queryFeatures("/column/p.*").exists() && data.queryFeatures("/column/FC*").exists()) {
-			data.addTypeTag(MicroarrayModule.TypeTags.SIGNIFICANT_EXPRESSION_FOLD_CHANGES);
-		}
-
-		if (data.getOperationRecord().getNameID().getID().equals("ordination-pca.R")) {
-			data.addTypeTag(MicroarrayModule.TypeTags.EXPRESSION_PRIMARY_COMPONENTS_CHIPWISE);
-		}
-
-		if (chips != null && chips.getColumnNames().length > 1 && data.queryFeatures("/column/cluster").exists()) {
-			data.addTypeTag(MicroarrayModule.TypeTags.CLUSTERED_EXPRESSION_VALUES);
-		}
-
-		if (data.queryFeatures("/clusters/som").exists()) {
-			data.addTypeTag(MicroarrayModule.TypeTags.SOM_CLUSTERED_EXPRESSION_VALUES);
-		}
-
-		// Finally, set NGS related tags
-		if (data.isContentTypeCompatitible("text/bed") 
-				|| (data.isContentTypeCompatitible("application/octet-stream")) && (data.getName().contains(".bam-summary")) 
-				|| (data.isContentTypeCompatitible("application/octet-stream")) && (data.getName().endsWith(".bam") || data.getName().endsWith(".sam"))
-				|| (data.isContentTypeCompatitible("application/octet-stream")) && (data.getName().endsWith(".bai"))) {
-
-			data.addTypeTag(MicroarrayModule.TypeTags.ORDERED_GENOMIC_ENTITIES);
-			
-		} else if (data.isContentTypeCompatitible("text/tab")) {
-			
-			// require .tsv to have columns for genomic coordinates
-			String line = readFirstLine(data); 
-			if (line != null && line.contains("chr") && line.contains("start") && line.contains("end")) { 
-				data.addTypeTag(MicroarrayModule.TypeTags.ORDERED_GENOMIC_ENTITIES);
+			// Tag additional typing information
+			if (data.queryFeatures("/phenodata").exists()) {
+				data.addTypeTag(MicroarrayModule.TypeTags.PHENODATA);
 			}
-			
-		}
 
+			if (data.queryFeatures("/column/p.*").exists() && data.queryFeatures("/column/FC*").exists()) {
+				data.addTypeTag(MicroarrayModule.TypeTags.SIGNIFICANT_EXPRESSION_FOLD_CHANGES);
+			}
+
+			if (data.getOperationRecord().getNameID().getID().equals("ordination-pca.R")) {
+				data.addTypeTag(MicroarrayModule.TypeTags.EXPRESSION_PRIMARY_COMPONENTS_CHIPWISE);
+			}
+
+			if (chips != null && chips.getColumnNames().length > 1 && data.queryFeatures("/column/cluster").exists()) {
+				data.addTypeTag(MicroarrayModule.TypeTags.CLUSTERED_EXPRESSION_VALUES);
+			}
+
+			if (data.queryFeatures("/clusters/som").exists()) {
+				data.addTypeTag(MicroarrayModule.TypeTags.SOM_CLUSTERED_EXPRESSION_VALUES);
+			}
+
+			// Finally, set NGS related tags
+			if (data.isContentTypeCompatitible("text/bed") 
+					|| (data.isContentTypeCompatitible("application/octet-stream")) && (data.getName().contains(".bam-summary")) 
+					|| (data.isContentTypeCompatitible("application/octet-stream")) && (data.getName().endsWith(".bam") || data.getName().endsWith(".sam"))
+					|| (data.isContentTypeCompatitible("application/octet-stream")) && (data.getName().endsWith(".bai"))) {
+
+				data.addTypeTag(MicroarrayModule.TypeTags.ORDERED_GENOMIC_ENTITIES);
+
+			} else if (data.isContentTypeCompatitible("text/tab")) {
+
+				// require .tsv to have columns for genomic coordinates
+				String line = readFirstLine(data); 
+				if (line != null && line.contains("chr") && line.contains("start") && line.contains("end")) { 
+					data.addTypeTag(MicroarrayModule.TypeTags.ORDERED_GENOMIC_ENTITIES);
+				}
+
+			}
+		}
 	}
 	
 	private String readFirstLine(DataBean data) {

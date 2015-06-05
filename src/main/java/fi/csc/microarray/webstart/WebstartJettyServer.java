@@ -7,12 +7,11 @@ import org.apache.log4j.Logger;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.HandlerCollection;
-import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
 
 import fi.csc.microarray.config.Configuration;
@@ -52,9 +51,7 @@ public class WebstartJettyServer implements ShutdownCallback {
 
 			// initialise jetty
 			jettyInstance = new Server();
-			jettyInstance.setThreadPool(new QueuedThreadPool());
-			Connector connector = new SelectChannelConnector();
-			connector.setServer(jettyInstance);
+			ServerConnector connector = new ServerConnector(jettyInstance);
 			connector.setPort(configuration.getInt("webstart", "port"));
 			jettyInstance.setConnectors(new Connector[]{ connector });
 

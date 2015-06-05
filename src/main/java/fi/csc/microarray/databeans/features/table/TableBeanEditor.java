@@ -40,19 +40,19 @@ public class TableBeanEditor {
 	}
 	
 	private EditableTable toEditable() throws MicroarrayException {
-		Table table = bean.queryFeatures(COLUMNS_FEATURE).asTable();
 		LinkedHashMap<String, List<String>> columns = new LinkedHashMap<String, List<String>>();  
-		for (String columnName : table.getColumnNames()) {
-			columns.put(columnName, new LinkedList<String>());
-		}
-		while (table.nextRow()) {
+		try (Table table = bean.queryFeatures(COLUMNS_FEATURE).asTable()) {
 			for (String columnName : table.getColumnNames()) {
-				String value = table.getStringValue(columnName);
-				logger.debug("set editable column " + columnName + " to " + value);
-				columns.get(columnName).add(value);
+				columns.put(columnName, new LinkedList<String>());
+			}
+			while (table.nextRow()) {
+				for (String columnName : table.getColumnNames()) {
+					String value = table.getStringValue(columnName);
+					logger.debug("set editable column " + columnName + " to " + value);
+					columns.get(columnName).add(value);
+				}
 			}
 		}
-		
 		// create editable table
 		EditableTable editablePhenodataTable = new EditableTable();
 		editablePhenodataTable.addColumns(columns);

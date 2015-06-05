@@ -71,8 +71,8 @@ public class EmbossRoundtripTest {
 
         resultCallback.getFileBrokerClient().addFile(firstDataId, FileBrokerArea.CACHE, firstInput, -1, null);
         resultCallback.getFileBrokerClient().addFile(secondDataId, FileBrokerArea.CACHE, secondInput, -1, null);
-        jobMessage.addPayload("asequence", firstDataId);
-        jobMessage.addPayload("bsequence", secondDataId);
+        jobMessage.addPayload("asequence", firstDataId, "aname");
+        jobMessage.addPayload("bsequence", secondDataId, "bname");
         
         // Process the job at compute server side
         executeJob("water.acd", jobMessage);

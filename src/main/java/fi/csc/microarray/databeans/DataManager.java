@@ -11,7 +11,6 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -55,6 +54,7 @@ import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.IOUtils.CopyProgressListener;
 import fi.csc.microarray.util.Strings;
+import fi.csc.microarray.util.ThreadUtils;
 
 public class DataManager {
 
@@ -185,6 +185,10 @@ public class DataManager {
 	private ZipContentHandler zipContentHandler = new ZipContentHandler();
 	private LocalFileContentHandler localFileContentHandler = new LocalFileContentHandler();
 	private RemoteContentHandler remoteContentHandler = new RemoteContentHandler();
+	
+	// by default there are max 5 simultaneous http connections, but type tagging
+	// creates also JMS traffic
+	private ExecutorService executor = Executors.newFixedThreadPool(10);
 	
 	public DataManager() throws Exception {
 		rootFolder = createFolder(DataManager.ROOT_NAME);
@@ -630,16 +634,15 @@ public class DataManager {
 	/**
 	 * Convenience method for creating a remote url DataBean. Initialises the DataBean with the url
 	 * location. The url is used directly, the contents are not copied anywhere.
+	 * @throws IOException 
+	 * @throws ContentLengthException 
 	 * 
 	 */
-	public DataBean createDataBean(String name, URL url) throws MicroarrayException {		
+	public DataBean createDataBean(String name, URL url) throws MicroarrayException, ContentLengthException, IOException {		
 		DataBean bean = createDataBean(name);
-		try {
-			addContentLocationForDataBean(bean, StorageMethod.REMOTE_ORIGINAL, url);
-		} catch (ContentLengthException e) {
-			// shouldn't happen, because newly created bean doesn't have size set
-			logger.error(e,e);
-		}
+		
+		addContentLocationForDataBean(bean, StorageMethod.REMOTE_ORIGINAL, url);
+		
 		return bean;
 	}
 	
@@ -647,21 +650,21 @@ public class DataManager {
 	 * Convenience method for creating a local temporary file DataBean with content.
 	 * Content stream is read into a temp file and location of the file is stored
 	 * to DataBean.
+	 * @throws IOException 
 	 */
-	public DataBean createDataBean(String name, InputStream content) throws MicroarrayException {
+	public DataBean createDataBean(String name, InputStream content) throws MicroarrayException, IOException {
 
 		// copy the data from the input stream to the file in repository
 		File contentFile;
+		contentFile = createNewRepositoryFile(name);
+		InputStream input = new BufferedInputStream(content);
+		OutputStream output = new BufferedOutputStream(new FileOutputStream(contentFile));
 		try {
-			contentFile = createNewRepositoryFile(name);
-			InputStream input = new BufferedInputStream(content);
-			OutputStream output = new BufferedOutputStream(new FileOutputStream(contentFile));
 			IO.copy(input, output);
-			input.close();
 			output.flush();
-			output.close();
-		} catch (IOException ioe) {
-			throw new MicroarrayException(ioe);
+		} finally {
+			IOUtils.closeIfPossible(input);
+			IOUtils.closeIfPossible(output);
 		}
 
 		// create and return the bean
@@ -1076,30 +1079,81 @@ public class DataManager {
 		this.modules = modules;
 	}
 	
-	public void connectChild(DataItem child, DataFolder parent) {
+	public void connectChildren(final List<? extends DataItem> children, final DataFolder parent) {
 		
-		// was it already connected?
-		boolean wasConnected = child.getParent() != null;
+		final ArrayList<AddTypeTagsCallable> callables = new ArrayList<>();
+		final ArrayList<DataItemCreatedEvent> events = new ArrayList<>();
+		
+		// edit databeans in EDT
+		ThreadUtils.runInEDT(new Runnable() {					
+			@Override
+			public void run() {
+				for (DataItem child : children) {
+					// was it already connected?
+					boolean wasConnected = child.getParent() != null;
+					if (!wasConnected) {
+						// prepare event, but don't send it yet
+						events.add(new DataItemCreatedEvent(child));
+					}
+					
+					// connect to this
+					child.setParent(parent);
 
-		// connect to this
-		child.setParent(parent);
+					// add
+					parent.children.add(child);
 
-		// add
-		parent.children.add(child);
+					// prepare type tagging callables
+					if (child instanceof DataBean) {
+						callables.add(new AddTypeTagsCallable((DataBean) child));
+					}
+				}
 
-		// add type tags to data beans
-		if (child instanceof DataBean) {
-			try {
-				addTypeTags((DataBean) child);
-			} catch (IOException e) {
-				throw new RuntimeException(e);
 			}
+		});
+			
+		// run type tagging in parallel in background threads
+		try {
+			// run callables and wait until all have finished
+			List<Future<Object>> futures = executor.invokeAll(callables);
+			
+			for (Future<Object> future : futures) {
+				// check callable for exception, and throw if found
+				future.get();
+			}
+			
+			// dispatch events in EDT
+			ThreadUtils.runInEDT(new Runnable() {					
+				@Override
+				public void run() {
+					for (DataItemCreatedEvent event : events) {
+						dispatchEvent(event);
+					}
+				}
+			});
+			
+		} catch (InterruptedException | ExecutionException e) {
+			Session.getSession().getApplication().reportExceptionThreadSafely(e);
+		}
+	}
+	
+	public class AddTypeTagsCallable implements Callable<Object> {
+		private DataBean child;
+
+		public AddTypeTagsCallable(DataBean child) {
+			this.child = child;
 		}
 
-		// dispatch events if needed
-		if (!wasConnected) {
-			dispatchEvent(new DataItemCreatedEvent(child));
+		@Override
+		public Object call() throws Exception {
+			addTypeTagsOfEachModule(child);
+			return null;
 		}
+	}
+	
+	public void connectChild(DataItem child, DataFolder parent) {
+		ArrayList<DataItem> list = new ArrayList<>();
+		list.add(child);
+		connectChildren(list, parent);
 	}
 
 	public void disconnectChild(DataItem child, DataFolder parent) {
@@ -1114,7 +1168,7 @@ public class DataManager {
 	}
 
 
-	public void addTypeTags(DataBean data) throws IOException {
+	public void addTypeTagsOfEachModule(DataBean data) throws IOException {
 
 		if (!data.isTagsSet()) {
 			for (Module module : modules) {
@@ -1151,12 +1205,12 @@ public class DataManager {
 		}
 	}
 	
-	public void addContentLocationForDataBean(DataBean bean, StorageMethod method, URL url) throws ContentLengthException {
+	public void addContentLocationForDataBean(DataBean bean, StorageMethod method, URL url) throws ContentLengthException, IOException {
 		ContentLocation location = new ContentLocation(method, getHandlerFor(method), url);
 		try {
 			setOrVerifyContentLength(bean, getContentLength(location));
 		} catch (IOException e) {
-			logger.error("content length not available: " + e);
+			throw new IOException("content length not available: " + e);
 		} catch (ContentLengthException e) {
 			try {
 				DataManager manager = Session.getSession().getDataManager();
@@ -1356,67 +1410,6 @@ public class DataManager {
 	}
 
 	/**
-	 * Optimization to speed up session loading
-	 * 
-	 * Normally TypeTags are added when a DataBean is put to a folder and
-	 * content length may be queried from filebroker when the DataBean is
-	 * created. All this happens sequentially and takes some time when many
-	 * DataBeans are created at once. This method does the aforementioned
-	 * queries in parallel.
-	 * 
-	 * Parallel processing needs some caution though. Each DataBean has its own
-	 * thread and must modify only its own tag list. Otherwise it should be safe
-	 * to read from DataBeans and Operations and there should be no need to
-	 * modify them. This creates also concurrent calls to JMSFileBrokerClient,
-	 * which is illegal according to JMS spec, but has been working ok in
-	 * ActiveMQ.
-	 * 
-	 * @param dataBeans
-	 */
-	public void addTypeTagsAndVerifyContentLength(Collection<DataBean> dataBeans) {
-
-		ArrayList<InitDataBeanCallable> callables = new ArrayList<>();
-		for (DataBean dataBean : dataBeans) {
-			callables.add(new InitDataBeanCallable(dataBean));
-		}
-				
-		ExecutorService executor = Executors.newCachedThreadPool();
-		try {
-			// run callables and wait until all have finished
-			List<Future<Object>> futures = executor.invokeAll(callables);
-			
-			for (Future<Object> future : futures) {
-				// check callable for exception, and throw if found
-				future.get();
-			}
-			
-		} catch (InterruptedException | ExecutionException e) {
-			Session.getSession().getApplication().reportExceptionThreadSafely(e);
-		}
-	}
-	
-	public class InitDataBeanCallable implements Callable<Object> {
-
-		private DataBean dataBean;
-
-		public InitDataBeanCallable(DataBean dataBean) {
-			this.dataBean = dataBean;
-		}
-
-		@Override
-		public Object call() throws Exception {
-			try {
-				Long size = getContentLength(dataBean);
-				setOrVerifyContentLength(dataBean, size);
-				addTypeTags(dataBean);
-			} catch (IOException | ContentLengthException e) {
-				Session.getSession().getApplication().reportExceptionThreadSafely(e);
-			}
-			return null;
-		}
-	}
-
-	/**
 	 * Get a approximate row count of files under MAX_BYTES_TO_COUNT in size.
 	 * If there are more than MAX_ROWS_TO_COUNT, this number is returned. 
 	 * 
@@ -1437,13 +1430,14 @@ public class DataManager {
 
 			} else {
 				// count rows
-				Table rowCounter = data.queryFeatures("/column/*").asTable();
-				long rowCount = 0;
-				while (rowCounter != null && rowCounter.nextRow() && rowCount < MAX_ROWS_TO_COUNT) {
-					rowCount++;
+				try (Table rowCounter = data.queryFeatures("/column/*").asTable()) {
+					long rowCount = 0;
+					while (rowCounter != null && rowCounter.nextRow() && rowCount < MAX_ROWS_TO_COUNT) {
+						rowCount++;
+					}
+					data.putToContentBoundCache(AT_LEAST_ROWS_CACHENAME, (Long)rowCount);
+					return rowCount;
 				}
-				data.putToContentBoundCache(AT_LEAST_ROWS_CACHENAME, (Long)rowCount);
-				return rowCount;
 			}			
 		}
 		return null;

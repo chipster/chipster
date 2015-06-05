@@ -8,6 +8,7 @@ import java.util.List;
 import net.sf.samtools.SAMRecord;
 import net.sf.samtools.util.CloseableIterator;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserSettings.CoverageType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataRequest;
@@ -20,6 +21,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.BaseStorage;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.BaseStorage.Base;
+import fi.csc.microarray.util.BamUtils;
 
 /**
  * This conversion class uses Picard to read Bam files and calculates a coverage.
@@ -30,12 +32,15 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.util.BaseStorage.
 public class BamToCoverageConversion extends DataThread {
 	
 	private BamDataSource dataSource;
+
+	private CoverageType coverageType;
 	
-	public BamToCoverageConversion(BamDataSource file, final GBrowser browser) {
+	public BamToCoverageConversion(BamDataSource file, CoverageType coverageType, final GBrowser browser) {
 	    
 		super(browser, file);
 		
 		this.dataSource = file;
+		this.coverageType = coverageType;
 	}
 		
 	@Override
@@ -88,7 +93,7 @@ public class BamToCoverageConversion extends DataThread {
 
 			values.put(DataType.ID, record.getReadName());
 			
-			values.put(DataType.STRAND, record.getReadNegativeStrandFlag() ? Strand.REVERSE : Strand.FORWARD);
+			values.put(DataType.STRAND, BamUtils.getStrand(record, coverageType));
 			
 			Cigar cigar = new Cigar(read, record.getCigar());
 			values.put(DataType.CIGAR, cigar);

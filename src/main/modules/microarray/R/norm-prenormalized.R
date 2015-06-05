@@ -20,8 +20,7 @@ columns<-list(R="sample", Rb="sample", G="sample", Gb="sample")
 annotation<-c("identifier", "Identifier")
 columns.other<-c("flag", "annotation", "Flag", "Annotation")
 
-files<-dir()
-files<-files[files!="phenodata.tsv"]
+files<-dir(pattern = "microarray")
 dat<-read.maimages(files=files, columns=columns, annotation=annotation, other.columns=columns.other) 
 
 # Extract annotations

@@ -50,7 +50,7 @@ public class SimpleFileBrokerClient implements FileBrokerClient {
 		
 		try {
 			URLConnection connection = filesListing.openConnection();
-			KeyAndTrustManager.configureSSL(connection);
+			KeyAndTrustManager.configureForChipsterCertificate(connection);
 			BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 
 			String line;

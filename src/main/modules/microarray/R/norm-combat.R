@@ -1,10 +1,10 @@
-# TOOL norm-combat.R: "ComBat - batch normalisation" (Batch normalisation using Phenotype file. You may use this method after the ordinary normalisation to remove batch effects from the data.)
+# TOOL norm-combat.R: "ComBat - batch normalisation" (Batch normalisation using the Phenodata file. You can use this method after the ordinary normalisation to remove batch effects from the data.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT batch_corrected.tsv: batch_corrected.tsv
 # PARAMETER batch1: batch1 TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing the main batch to correct)
-# PARAMETER batch2: batch2 TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing addittional batches to correct.)
-# PARAMETER batch3: batch3 TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing addittional batches to correct.)
+# PARAMETER batch2: batch2 TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing additional batches to correct.)
+# PARAMETER batch3: batch3 TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing additional batches to correct.)
 
 # ComBat batch correction analysis
 # MK 25.06.2013

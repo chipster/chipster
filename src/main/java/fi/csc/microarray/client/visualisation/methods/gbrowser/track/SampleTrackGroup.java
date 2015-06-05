@@ -1,10 +1,17 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 
 import java.awt.Color;
+import java.io.IOException;
+import java.net.URISyntaxException;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.BamToCoverageConversion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.BamToCoverageEstimateConversion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.BamToDetailsConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserSettings.CoverageType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Interpretation;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.LayoutMode;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
@@ -39,9 +46,9 @@ public class SampleTrackGroup extends TrackGroup {
     protected SeparatorTrack separatorCoverageEstimate;
     
     private DataThread referenceSequenceFile;
-	private DataThread detailsDataThread;
-	private DataThread coverageDataThread;
-	private DataThread estimateDataThread;
+	private BamToDetailsConversion detailsDataThread;
+	private BamToCoverageConversion coverageDataThread;
+	private BamToCoverageEstimateConversion estimateDataThread;
 
 	private boolean strandSpecific;
 
@@ -59,22 +66,49 @@ public class SampleTrackGroup extends TrackGroup {
 
 	private boolean markMultimappingReads;
 
+	private Interpretation interpretation;
 
-    public SampleTrackGroup(GBrowserView view, DataThread details, DataThread coverage, DataThread estimate,
-    		DataThread seqFile, String title) {
+	private GBrowser browser;
+
+	private CoverageType coverageType = CoverageType.STRAND;
+
+
+    public SampleTrackGroup(GBrowserView view, Interpretation interpretation,
+    		DataThread seqFile, String title, GBrowser browser) {
         super(view);
         
         super.setName(title);
         
-        this.detailsDataThread = details;
-        this.coverageDataThread = coverage;
-        this.estimateDataThread = estimate;
         this.referenceSequenceFile = seqFile;
+        this.interpretation = interpretation;
+        this.browser = browser;
         
         setSettingsEnabled(true);
     }
+    
+    public void initDataThreads() throws URISyntaxException, IOException {
+    	
+    	if (detailsDataThread != null) {
+    		detailsDataThread.clean();
+    	}
+    	if (coverageDataThread != null) {
+    		coverageDataThread.clean();
+    	}
+    	if (estimateDataThread != null) {
+    		estimateDataThread.clean();
+    	}
+    	// no need to clean up listeners, because View.reloadData() will do it
+    	// null when showing only the reference sequence
+    	if (interpretation != null) {
+    		this.detailsDataThread = interpretation.getBamDetailsDataThread(browser, CoverageType.STRAND);
+    		this.coverageDataThread = interpretation.getBamCoverageDataThread(browser, coverageType);
+    		this.estimateDataThread = interpretation.getBamCoverageEstimateDataThread(browser, coverageType);
+    	}
+    }
 
-    public void initialise() {
+    public void initialise() throws URISyntaxException, IOException {
+    	
+    	initDataThreads();
         
         if (detailsDataThread != null) {
 
@@ -212,8 +246,12 @@ public class SampleTrackGroup extends TrackGroup {
 		tracks.clear();
 		
 		if (!isMinimized()) {
-			fullMode = isShowMore();						
-			initialise();
+			fullMode = isShowMore();
+			try {
+				initialise();
+			} catch (URISyntaxException | IOException e) {
+				browser.reportException(e);
+			}
 		}
 	}
 
@@ -229,6 +267,26 @@ public class SampleTrackGroup extends TrackGroup {
 			this.coverage = true;
 			this.coverageEstimate = true;
 			this.strandSpecific = true;
+			this.coverageType = type;
+			// recreate data threads to make sure that we don't get data with
+			// wrong strand type
+			try {
+				initDataThreads();
+			} catch (URISyntaxException | IOException e) {
+				browser.reportException(e);
+			}
+		} else 	if (type == CoverageType.STRAND_XS) {			
+			this.coverage = true;
+			this.coverageEstimate = true;
+			this.strandSpecific = true;
+			this.coverageType = type;
+			// recreate data threads to make sure that we don't get data with
+			// wrong strand type			
+			try {
+				initDataThreads();
+			} catch (URISyntaxException | IOException e) {
+				browser.reportException(e);
+			}
 		}
 		addTracks();
 	}
