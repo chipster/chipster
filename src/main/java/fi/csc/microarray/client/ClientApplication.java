@@ -18,8 +18,10 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.Icon;
@@ -441,7 +443,7 @@ public abstract class ClientApplication {
 			public void onStateChange(Task job, State oldState, State newState) {
 				if (newState.isFinished()) {
 					try {
-						onFinishedTask(job, operation.getResultListener(), newState);
+						onFinishedTask(job, operation.getResultListener(), newState, false);
 					} catch (Exception e) {
 						reportException(e);
 					}
@@ -471,7 +473,7 @@ public abstract class ClientApplication {
 				if (newState.isFinished()) {
 					try {						
 						// result listener is always null for continued tasks
-						onFinishedTask(job, null, newState);
+						onFinishedTask(job, null, newState, false);
 					} catch (Exception e) {
 						reportException(e);
 					}
@@ -516,7 +518,7 @@ public abstract class ClientApplication {
 	 * @throws MicroarrayException 
 	 * @throws IOException 
 	 */
-	public void onFinishedTask(final Task task, final ResultListener resultListener, State state) throws MicroarrayException, IOException {	
+	public void onFinishedTask(final Task task, final ResultListener resultListener, State state, boolean wait) throws MicroarrayException, IOException {	
 		
 		logger.debug("operation finished, state is " + state);
 
@@ -569,12 +571,20 @@ public abstract class ClientApplication {
 			}
 
 			// create outputs and notify result listener
-			backgroundExecutor.execute(new Runnable() {
+			Future<?> future = backgroundExecutor.submit(new Runnable() {
 				@Override
 				public void run() {
 					createOutputs(task, sources, folder, resultListener);
 				}
 			});
+			
+			if (wait) {
+				try {
+					future.get();
+				} catch (InterruptedException | ExecutionException e) {
+					throw new MicroarrayException("error when creating outputs", e);
+				}
+			}
 		}			
 	}
 	
