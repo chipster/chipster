@@ -54,7 +54,7 @@ if(!is.na(pmatch("ENS", dat[2,1]))) {
 }
 if(!is.na(pmatch("ENS",  rownames(dat)[2] ))) {
 	results <- cbind(genes, ensembl_table[,3:4], dat);
-	colnames(results) <- c("Ensembl ID","symbol", "description",  colnames(dat));
+	colnames(results) <- c("identifier","symbol", "description",  colnames(dat));
 }
 
 # write result table to output
