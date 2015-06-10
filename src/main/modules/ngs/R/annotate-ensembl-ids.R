@@ -48,17 +48,22 @@ rownames(ensembl_table)	<- genes;
 colnames(ensembl_table) <- colnames(genes_ensembl_org);
 
 # Build the table:
+# if identifiers in the first column:
 if(!is.na(pmatch("ENS", dat[2,1]))) {
 	results <- cbind(dat[,1], ensembl_table[,3:4], dat[,2:ncol(dat)]);
 	colnames(results) <- c(colnames(dat)[1], "symbol", "description", colnames(dat)[2:ncol(dat)])
+	# write result table to output
+	write.table(results, file="annotated.tsv", col.names=T, quote=F, sep="\t", row.names=F)
 }
+# if identifiers = rownames:
 if(!is.na(pmatch("ENS",  rownames(dat)[2] ))) {
-	results <- cbind(genes, ensembl_table[,3:4], dat);
-	colnames(results) <- c("identifier","symbol", "description",  colnames(dat));
+	#results <- cbind(genes, ensembl_table[,3:4], dat);
+	results <- cbind(ensembl_table[,3:4], dat);
+	colnames(results) <- c("symbol", "description",  colnames(dat));
+	rownames(results) <- rownames(dat)
+	# write result table to output
+	write.table(results, file="annotated.tsv", col.names=T, quote=F, sep="\t", row.names=T)
 }
-
-# write result table to output
-write.table(results, file="annotated.tsv", col.names=T, quote=F, sep="\t", row.names=F)
 
 
 
