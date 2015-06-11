@@ -107,8 +107,8 @@ if(main.effect3!="EMPTY" & interactions=="nested") {
 	
 	splitsubj<-split(tmp[[main.effect3]],tmp[[main.effect1]])
 	splitind<-lapply(splitsubj,FUN=function(ssubj) {as.numeric(factor(ssubj))} )
-	# in the anonymous function, call to factor will drop unused levels, 
-	# and as.numeric returns only the integer codes (so the result is not a factor) to problems in unsplit
+	## in the anonymous function, call to factor will drop unused levels, 
+	## and as.numeric returns only the integer codes (so the result is not a factor) to problems in unsplit
 	tmp[[main.effect3]]<-unsplit(splitind,tmp[[main.effect1]])
 	
 	phenodata <- tmp
@@ -116,6 +116,8 @@ if(main.effect3!="EMPTY" & interactions=="nested") {
 }
 
 design<-with(phenodata, model.matrix(as.formula(formula)))
+# remove zero columns:
+design <- design[, colSums(abs(design),na.rm = TRUE) != 0]
 
 # Estimate dispersions
 dge <- estimateGLMCommonDisp(dge, design)
