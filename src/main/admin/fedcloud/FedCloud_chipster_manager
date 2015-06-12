@@ -1,0 +1,478 @@
+#!/bin/bash
+#
+#
+
+##Instructions for using occi
+##https://wiki.egi.eu/wiki/Fedcloud-tf:CLI_Environment
+##https://wiki.egi.eu/wiki/HOWTO11
+
+# openjdk needed for vomsproxyinit
+# export PATH=/etc/alternatives/java_sdk_openjdk/bin:${PATH}
+#
+
+list_chipster_instances() {
+echo "Listing  Virtual Machines with name: chipster-vm-${user}"
+echo "in endpoint $endpoint" 
+echo "This may take some time."
+#echo "occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms -r compute -a list"
+echo ""
+for re in $(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms -r compute -a list )
+do
+ rline=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $re -a describe | awk '{if ( $3 == "chipster-vm-'$user'") print "'$re' "$0 }')
+ if [[ $rline != "" ]]
+ then
+    vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $re | grep occi.networkinterface.address| awk '{print $3}')
+    echo "$rline IP: $vmip"
+ fi
+#occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $re -a describe | awk 'BEGIN{id=0}{if ( $1 == "occi.core.id" ) id=$3 }{if ( $3 == "chipster-vm-'$user'") print "'$endpoint'/copute/"id }'
+done
+}
+
+
+check_chipster_instances() {
+echo "Listing  Virtual Machines with name: chipster-vm-${user}"
+echo "in endpoint $endpoint" 
+echo "This may take some time."
+#echo "occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms -r compute -a list"
+echo ""
+for re in $(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms -r compute -a list )
+do
+ echo ""
+ echo "-------------------------------------------------------------------------------------"
+ echo ""
+ rline=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $re -a describe | awk '{if ( $3 == "chipster-vm-'$user'") print "'$re' "$0 }')
+ if [[ $rline != "" ]]
+ then
+    vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $re | grep occi.networkinterface.address| awk '{print $3}')
+    echo "$rline IP: $vmip"
+    ssh -i $keyname ubuntu@$vmip "sudo service chipster status"
+ fi
+#occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $re -a describe | awk 'BEGIN{id=0}{if ( $1 == "occi.core.id" ) id=$3 }{if ( $3 == "chipster-vm-'$user'") print "'$endpoint'/copute/"id }'
+done
+} 
+
+restart_chipster_instance() {
+echo "Restarting chipster server running in instance: $re"
+echo "in endpoint $endpoint" 
+echo "This may take some time."
+#echo "occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms -r compute -a list"
+echo ""
+echo "-------------------------------------------------------------------------------------"
+echo ""
+rline=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $re -a describe | awk '{if ( $3 == "chipster-vm-'$user'") print "'$re' "$0 }')
+if [[ $rline != "" ]]
+then
+    vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $re | grep occi.networkinterface.address| awk '{print $3}')
+    echo "$rline IP: $vmip"
+    ssh -i $keyname ubuntu@$vmip "sudo rm -rf /opt/chipster/fileserver/db-root/ChipsterFilebrokerMetadataDatabase; sudo service chipster restart; sudo service chipster-comp restart; sudo service chipster status"
+fi
+#occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $re -a describe | awk 'BEGIN{id=0}{if ( $1 == "occi.core.id" ) id=$3 }{if ( $3 == "chipster-vm-'$user'") print "'$endpoint'/copute/"id }'
+} 
+
+delete_chipster_instance() {
+echo "Delieting  Virtual Machine: $1"
+echo "in endpoint $endpoint" 
+
+occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $1 -a delete
+if [[ -e ~/.chipster_fedcloud_vms ]]
+then
+  volcount=$(grep -c $1 ~/.chipster_fedcloud_vms)
+  if [[ $volcount -eq 1 ]]
+  then
+    volume=$(grep $1 ~/.chipster_fedcloud_vms | awk '{print $2}')
+    echo "Deleting volume $volume"
+    occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $volume -a delete
+  fi
+fi  
+
+}
+
+printhelp() {
+cat <<EOF
+FedCoud_Chipster_manager
+
+This tool can be used to manage chipster instances in EGI Fed Cloud.
+The syntax of the command is:
+
+   FedCoud_Chipster_manager -key keyfile.pem -operation
+
+The available operations are:
+
+  -launch  Launches a new virtual machine running a chipster server.
+           The VM will use the default Chipster VM image.
+           This option requires that the key file is defined with option -key keyfile.
+
+  -list    Lists the Chipster instances launched using FedCould_chipster_manager 
+           in the given endpoint (cluster).
+
+  -status  Lists the Chipster instances launched using FedCould_chipster_manager
+           in the given endpoint (cluster) and checks the status 
+           This option requires that the key file is defined with option -key keyfile.
+
+  -restart instance_ID   Restarts the Chipster server in the given instance.
+ 
+  -delete instance_ID    Deletes the given instance. 
+                       
+
+Other options:
+   -key keyfile  This option defines the key file that will be used either to launch a new server or  
+                 to connect the VM:s running chipster.
+
+   -help         Print this help.
+
+   -endpoint     Define alternative endpoint for the operation.
+                 Default is https://prisma-cloud.ba.infn.it:8787
+
+   -volume_size  Define size for the datavolume to be created.
+                 Defaut size is 100 GB
+
+EOF
+
+}
+
+check_dependencies()
+{
+#check that occi is in use
+if [[ $(which occi) == "occi: Command not found." || $(which occi) == ""  ]]
+then
+  echo "Occi command was not found!"
+  echo "Please make sure that occi command is included in your command path."
+  echo "   https://wiki.egi.eu/wiki/Fedcloud-tf:CLI_Environment"
+  exit 1
+fi
+
+#check that proxy is valid
+proxytime=$( voms-proxy-info  | grep "timeleft" | awk '{print $3}')
+if [[ "$proxytime" == "" || "$proxytime" == "00:00:00"  ]] 
+then
+     echo "---------------------------------------"
+     echo " Couldn't find a valid proxy."
+     echo " Please create a new proxy certificate with command:"
+     echo ""
+     echo "   voms-proxy-init --voms chipster.csc.fi --rfc --dont_verify_ac"
+     echo "---------------------------------------"
+     
+
+     #check that OpenJDK is in use  
+     ojdk=$(java -version 2>&1  | grep -c OpenJDK)
+     if [[ $ojdk -eq 0 ]]
+     then
+       echo ""
+       echo "The java to be used is not an OpenJDK java that is required by the voms-proxy commands!"
+       echo ""
+     fi
+
+
+     # Check for voms 
+     chipster_chek=$(grep chipster.csc.fi /etc/vomses | wc -l )
+     chipster_chek2=$(grep -c chipster.csc.fi /etc/vomses/* | wc -l )
+     (( c_chek = chipster_chek + chipster_chek2 ))
+     if [[ $c_chek == "0" ]]
+     then 
+cat <<EOF
+Chipster.csc.fi VO definition not found from /etc/vomses
+
+Instructions for setting up connection to chipster voms server:
+ 
+First create directory /etc/grid-security/vomsdir/chipster.csc.fi:
+  mkdir /etc/grid-security/vomsdir/chipster.csc.fi
+  cd /etc/grid-security/vomsdir/chipster.csc.fi
+
+Create a file "voms.fgi.csc.fi.lsc" and write inside the following 2 lines:
+/O=Grid/O=NorduGrid/CN=host/voms.fgi.csc.fi
+/O=Grid/O=NorduGrid/CN=NorduGrid Certification Authority
+
+If you have already have file /etc/vomses, move the file "/etc/vomses" to "/etc/vomses/old_vomses" (voms will be a directory now)
+Create a file "chipster.csc.fi-voms.fgi.csc.fi" in "/etc/vomses" and write inside the following line:
+
+"chipster.csc.fi" "voms.fgi.csc.fi" "15010" "/O=Grid/O=NorduGrid/CN=host/voms.fgi.csc.fi" "chipster.csc.fi"
+
+EOF
+     fi
+     exit 1
+fi
+echo "------------------------------------------------------------"
+echo " Remaining validity time for your proxy certificate:"
+echo " $proxytime"
+echo "------------------------------------------------------------"
+
+
+}
+
+# Variables
+#chipster_img=("os_tpl#fd298a07-3c47-4f33-a151-ca919bf824b1")
+#chipster_img=("os_tpl#9278115f-0320-4f40-8e12-3dd8d879f5a3")
+chipster_img=("os_tpl#87b6a944-007f-4f6d-b9ad-bba9dd4ff02f")
+user=$(voms-proxy-info | grep identity | awk '{print $5}' | sed s/'@'/"-at-"/g)
+usercred=$(ls /tmp/x509up_u${UID})
+volumesize=100
+keyflag=(0)
+listflag=(0)
+launchflag=(0)
+deleteflag=(0)
+statusflag=(0)
+re=(0)
+
+flavor=('resource_tpl#4cpu-8gb-20dsk')
+endpoint="https://prisma-cloud.ba.infn.it:8787/"
+
+
+#process the command line arguments
+while [[ $# -ge 1 ]]
+do
+  case "$1" in
+             '-key')
+             # key file
+                  keyname=($2)
+                  if [[ ! -e $keyname ]] 
+                  then
+		     echo ""
+		     echo "RSA-key $keyname not found"
+		     echo "Please create the key with command:"
+		     echo ""
+		     echo "   ssh-keygen -t rsa -b 2048 -f  $keyname"
+                     echo "-----------------------------------------------------------"
+                     exit 1
+                  fi
+                  keyflag=(1)
+                  shift
+                  shift
+                ;;
+             '-endpoint')
+                  endpoint=($2)
+                  shift
+                  shift
+              ;;
+              '-list')
+                  listflag=(1) 
+                  shift
+              ;;
+              '-launch')
+                  launchflag=(1) 
+                  shift 
+              ;;
+              '-delete')
+                  deleteflag=(1) 
+                  re=($2) 
+                  shift
+                  shift  
+              ;; 
+              '-restart')
+                  restartflag=(1)
+                  re=($2) 
+                  shift
+                  shift  
+              ;;  
+              '-status')
+                  statusflag=(1) 
+                  shift  
+              ;;
+              '-volume_size'|'-v')
+                  volumesize=($2)
+                  shift
+                  shift
+              ;;
+              '-flavor'|'-f')
+                  flavor=($2)
+                  shift
+                  shift
+              ;;
+
+              '-h'|'-help')
+                  printhelp
+                  exit 0
+                  shift 
+              ;;
+              *)
+              echo "Unknown option: $1"
+              exit 1 
+   esac
+done
+
+#Check that just one task is defined
+(( ntask = launchflag + listflag + deleteflag + statusflag + restartflag ))
+if [[ $ntask -ne 1 ]]
+then
+  printhelp
+  exit
+fi
+
+#check for occi and voms-proxy
+check_dependencies
+
+if [[ $listflag -eq 1 ]]
+then
+  list_chipster_instances
+  exit 0
+fi
+
+if [[ $statusflag -eq 1 ]]
+then
+#check if key was defined
+  if [[ $keyflag -eq 0 ]]
+  then
+    echo ""
+    echo "Please define RSA key with option"
+    echo " -key keyfile.pem"
+    echo ""
+    exit 1
+  fi
+  check_chipster_instances
+  exit 0
+fi
+
+if [[ $restartflag -eq 1 ]]
+then
+#check if key was defined
+  if [[ $keyflag -eq 0 ]]
+  then
+    echo ""
+    echo "Please define RSA key with option"
+    echo " -key keyfile.pem"
+    echo ""
+    exit 1
+  fi
+  restart_chipster_instance $re
+  exit 0
+fi
+
+
+if [[ $deleteflag -eq 1 ]]
+then
+  if [[ "$re" == 0 ]]
+  then 
+    echo "Error!"
+    echo ""
+    echo " Please define the resource to be deleted with option -delete resource_name"
+    echo ""
+    exit 0
+  fi
+  delete_chipster_instance $re
+  exit 0
+fi
+
+if [[ $launchflag -eq 1 ]]
+then
+#check if key was defined
+  if [[ $keyflag -eq 0 ]]
+  then
+    echo ""
+    echo "Please define RSA key with option"
+    echo " -key keyfile.pem"
+    echo ""
+    exit 1
+  fi
+fi
+
+
+#############################
+# make data volume
+#############################
+volume=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action create --resource storage -t 'occi.storage.size=num('$volumesize')' -t occi.core.title="chipster-data_$user")
+
+
+
+################
+#make user_data file for launching Chipster in VM
+################
+cat > /tmp/chipster_server_startup_$$.sh <<EOF
+#!/bin/bash
+
+echo "$(cat ${keyname}.pub)" >> /home/ubuntu/.ssh/authorized_keys
+
+sudo mv /mnt/data  /mnt/data_old
+
+sudo rm -rf /mnt/data
+sudo rm -rf /mnt/tools
+
+sudo mkdir /mnt/data
+sudo mkdir /mnt/tools
+cat /etc/fstab | grep -v LABEL=tools | grep -v LABEL=data  > fstab.tmp
+sudo mv fstab.tmp /etc/fstab
+
+#echo "chipsterex.cloud.ba.infn.it:/mnt/data /mnt/data nfs rw 0 0" | sudo tee -a /etc/fstab
+echo "chipsterex.cloud.ba.infn.it:/mnt/tools /mnt/tools nfs ro 0 0" | sudo tee -a /etc/fstab
+echo "/dev/vdb /mnt/data xfs defaults,nofail 0 0"  | sudo tee -a /etc/fstab
+
+
+#sudo mount /mnt/data
+sudo mount /mnt/tools
+
+while [ ! -e /dev/vdb ] 
+do 
+    echo Waiting for volume to attach
+    sleep 5
+done
+sudo mkfs.xfs -f /dev/vdb
+sudo mount /mnt/data
+sudo mv /mnt/data_old/* /mnt/data/
+sudo rm -rf /mnt/data_old
+
+sleep 5
+sudo chown -R chipster:chipster /mnt/data
+sudo chown ubuntu:ubuntu /mnt/tools
+sudo rm -rf /opt/chipster/fileserver/db-root/ChipsterFilebrokerMetadataDatabase
+sleep 5
+cd /opt/chipster
+sudo bash ./configure.sh auto
+sudo ln -s /mnt/data data
+sudo service chipster restart
+sudo service chipster-comp restart
+n=1
+while [[ $n -le 5 ]]
+do
+  check=$\( sudo service chipster status | grep "not running" -i -c \)
+  if [[ $check -ne 0 ]]
+  then
+    sleep 30    sudo service chipster-comp restart
+    let "n++"
+  else
+    n=6
+  fi
+done
+EOF
+
+userdata="file:///tmp/chipster_server_startup_$$.sh"
+
+#echo "Running launch command:"
+vmaddress=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action create \
+-r compute -M $chipster_img -M $flavor -t occi.core.title="chipster-vm_$user" --context user_data="$userdata" --link $volume)
+
+if [[ $vmaddress == "" ]]
+then
+  echo "Could not launch a VM"
+  exit 1
+fi
+
+echo "-------------------------------------------------------------------------------------"
+echo New virtual machine launched with following ID:
+echo $vmaddress
+echo "$vmaddress $volume $(date)" >> ~/.chipster_fedcloud_vms
+echo "Linked volume:"
+echo "$volume"
+echo "Resource template: "$flavor
+
+# Remove user data file
+rm -f /tmp/chipster_server_startup_$$.sh
+
+#get the IP address
+vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $vmaddress | grep occi.networkinterface.address| awk '{print $3}')
+
+echo ""
+echo "The IP-addess of the chipster virtual server is:"
+echo $vmip
+
+
+echo ""
+echo "After few minutes you can connect your virtual machine with command:"
+echo " "
+echo "  ssh -i $keyname ubuntu@$vmip"
+echo ""
+echo "The Chipster server can be connected with URL:"
+echo ""
+echo "  http://${vmip}:8081"
+echo ""
+exit 0
+
+#Command to delete a VM
+#occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action delete --resource $vmaddress
