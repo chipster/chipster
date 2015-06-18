@@ -1,7 +1,7 @@
 ##depends:none
 
-#R 3.2.1
-R_VER=3.2.1  
+#R 3.2.0
+R_VER=3.2.0  
 cd ${TMPDIR_PATH}/
 curl -s http://ftp.sunet.se/pub/lang/CRAN/src/base/R-3/R-${R_VER}.tar.gz | tar -xz
 cd R-${R_VER}/
