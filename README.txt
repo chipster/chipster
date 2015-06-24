@@ -31,7 +31,7 @@ also as a key password.
 Next, issue command "ant", and the project will be built and packages are available in "dist"
 directory.
 
-If you do not want to place your keystore to project directory, you can create
+If you do not want to place your keystore in the project directory, you can create
 a file called alternative-keystore-path.txt and place path to your keystore into it.
 Do not enter a newline after the path! The build script will read that file and
 use the alternative path into keystore. This is strongly recommended if you do also 
