@@ -24,7 +24,8 @@ rm -rf R-${R_VER}/
    #   ${TOOLS_PATH}/R-${R_VER}/bin/Rscript --vanilla ${CHIP_PATH}/comp/modules/admin/R/install-libs.R
 #fi
 
-${TOOLS_PATH}/R-${R_VER}/bin/Rscript --vanilla ${CHIP_PATH}/comp/modules/admin/R-${R_VER}/install-libs.R
+wget https://raw.githubusercontent.com/chipster/chipster/master/src/main/modules/admin/R-3.2.0/install-libs.R
+${TOOLS_PATH}/R-${R_VER}/bin/Rscript --vanilla install-libs.R
 
 
 #curl -L http://bio.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.1.2-vmbin/R-3.1.2-2015-02-05.tar.gz | tar -xz -C ${TOOLS_PATH}/
