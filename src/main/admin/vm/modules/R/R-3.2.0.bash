@@ -25,6 +25,7 @@ rm -rf R-${R_VER}/
 #fi
 
 wget https://raw.githubusercontent.com/chipster/chipster/master/src/main/modules/admin/R-3.2.0/install-libs.R
+wget https://raw.githubusercontent.com/chipster/chipster/master/src/main/modules/admin/R/install-libs.R
 ${TOOLS_PATH}/R-${R_VER}/bin/Rscript --vanilla install-libs.R
 
 
