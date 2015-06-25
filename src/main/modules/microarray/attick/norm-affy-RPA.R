@@ -16,6 +16,7 @@
 # Changes to custom.chiptype PARAMETER to account for changes in naming of custom CDF packages (version 12), 23.9.2009
 # Changes to cope with dropped custom package support for certain array types, 12.11.2009
 # RPA method added 4.1.2011 (Leo Lahti)
+# 25.6.2015 ML Moved the script to the "attick"
 
 # Renaming variables
 norm<-normalization.method
