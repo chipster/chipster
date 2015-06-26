@@ -14,6 +14,7 @@
 # EK 1.7.2014, clarified the script before moving it to production, and fixed a bug that disabled DESeq2's automatic independent filtering 
 # EK 9.2.2015, updated to R3.1.2, changed the MA plot, added summary
 # AMS 7.4.2015, Join pdf outputs to one
+# ML 25.6.2015, Fixed some problems with S4vectors
 
 #column <-"group"
 #ad_factor<-"EMPTY"
@@ -54,8 +55,14 @@ results_name <- NULL
 if (length(unique(groups)) == 2) {
 	dds <- DESeq(dds)
 	res <- results(nbinomWaldTest(dds))
-	sig <- cbind(dat, res)[res$padj <= p.value.cutoff, ]
+	
+	sig <- cbind(dat, res)
+	sig <- as.data.frame(sig)
+	#sig <- sig[! (is.na(sig$padj)), ]
+	sig <- sig[sig$padj <= p.value.cutoff, ]
+	
 	sig <- sig[! (is.na(sig$padj)), ]
+
 	sig <- sig[ order(sig$padj), ]
 	# Open pdf file for output
 	pdf(file="deseq2_report.pdf") 
