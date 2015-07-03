@@ -139,3 +139,36 @@ system("gzip *.fastq")
 system("gzip *.fasta")
 
 
+# Handle output names
+source(file.path(chipster.common.path, "tool-utils.R"))
+
+# read input names
+inputnames <- read_input_definitions()
+
+base1 <- strip_name(inputnames$fastqfile)
+if (is_paired_end) {
+	base2 <- strip_name(inputnames$matepair_fastqfile)
+}else{
+	base2 <- ""
+}
+
+# Make a matrix of output names
+outputnames <- matrix(NA, nrow=10, ncol=2)
+
+# SE fastq
+outputnames[1,] <- c("trimmed.fastq.gz", paste(base1, ".fastq.gz", sep =""))
+# SE fasta
+outputnames[2,] <- c("trimmed.fasta.gz", paste(base1, ".fasta.gz", sep =""))
+# PE fastq
+outputnames[3,] <- c("trimmed_1.fastq.gz", paste(base1, ".fastq.gz", sep =""))
+outputnames[4,] <- c("trimmed_1_singletons.fastq.gz", paste(base1, "_singletons.fastq.gz", sep =""))
+outputnames[5,] <- c("trimmed_2.fastq.gz", paste(base2, ".fastq.gz", sep =""))
+outputnames[6,] <- c("trimmed_2_singletons.fastq.gz", paste(base2, "_singletons.fastq.gz", sep =""))
+# PE fasta
+outputnames[7,] <- c("trimmed_1.fasta.gz", paste(base1, ".fasta.gz", sep =""))
+outputnames[8,] <- c("trimmed_1_singletons.fasta.gz", paste(base1, "_singletons.fasta.gz", sep =""))
+outputnames[9,] <- c("trimmed_2.fasta.gz", paste(base2, ".fasta.gz", sep =""))
+outputnames[10,] <- c("trimmed_2_singletons.fasta.gz", paste(base2, "_singletons.fasta.gz", sep =""))
+
+# Write output definitions file
+write_output_definitions(outputnames)
