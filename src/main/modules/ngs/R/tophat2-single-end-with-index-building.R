@@ -171,3 +171,5 @@ outputnames[2,] <- c("tophat.bam.bai", paste(basename, ".bam.bai", sep =""))
 
 # Write output definitions file
 write_output_definitions(outputnames)
+
+#EOF
