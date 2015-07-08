@@ -7,8 +7,8 @@
 # OUTPUT bowtie2.log 
 # OUTPUT OPTIONAL unaligned_1.fq
 # OUTPUT OPTIONAL unaligned_2.fq
-# OUTPUT OPTIONAL discocncordant_1.fq
-# OUTPUT OPTIONAL discocncordant_2.fq
+# OUTPUT OPTIONAL discordant_1.fq
+# OUTPUT OPTIONAL discordant_2.fq
 # PARAMETER strategy: "Alignment strategy to use" TYPE [--very-fast: "Very fast", --fast: "Fast", --sensitive: "Sensitive", --very-sensitive: "Very sensitive", --very-fast-local: "Very fast local", -fast-local: "Fast local", --sensitive-local: "Sensitive local", --very-sensitive-local: "Very sensitive local"] DEFAULT --sensitive (The alignment strategy to be used. Bowtie2 can map the reads using end-to-end or local alignments. When local alignment is used, Bowtie2 might "trim" or "clip" some read characters from one or both ends of the alignment if doing so maximizes the alignment score. Bowtie2 uses heuristics for mapping the reads to the reference genome. Several Bowtie2 parameters affect simultaneously both to the sensitivity and to computing time. In Chipster you can choose the sensitivity level from a set of pre-defined parameter combinations that allow you to tune the balance between the computing time and mapping sensitivity.)
 # PARAMETER quality.format: "Quality value format used" TYPE [--phred33: "Sanger - Phred+33", --phred64: "Illumina GA v1.3-1.5 - Phred+64", --ignore-quals: "Fixed 30 for all"] DEFAULT --phred33 (Quality scale used in the fastq-file.)
 # PARAMETER alignment.no: "How many valid alignments are reported per read" TYPE [0: "Best based on the mapping quality", 1: "1", 2: "2", 3: "3", 4: "4", 5: "5", 6: "All alignments"] DEFAULT 0 (By default, Bowtie2 reports only the best alignment of the read (based on the mapping quality\). Optionally, if there are several, equally good alignments, you can choose how many of them should be reported?)
@@ -142,3 +142,28 @@ if (discordant.file== "yes"){
 	system("mv discordant.1 discordant_1.fq")
 	system("mv discordant.2 discordant_2.fq")
 }
+
+# Handle output names
+#
+source(file.path(chipster.common.path, "tool-utils.R"))
+
+# read input names
+inputnames <- read_input_definitions()
+
+# Determine base name
+base1 <- strip_name(inputnames$reads1.fq)
+base2 <- strip_name(inputnames$reads2.fq)
+basename <- paired_name(base1, base2)
+
+# Make a matrix of output names
+outputnames <- matrix(NA, nrow=6, ncol=2)
+outputnames[1,] <- c("bowtie2.bam", paste(basename, ".bam", sep =""))
+outputnames[2,] <- c("bowtie2.bam.bai", paste(basename, ".bam.bai", sep =""))
+outputnames[3,] <- c("unaligned_1.fq", paste(base1, "_unaligned.fq", sep=""))
+outputnames[4,] <- c("unaligned_2.fq", paste(base2, "_unaligned.fq", sep=""))
+outputnames[5,] <- c("discordant_1.fq", paste(base1, "_discordant.fq", sep=""))
+outputnames[6,] <- c("discordant_2.fq", paste(base2, "_discordant.fq", sep=""))
+
+# Write output definitions file
+write_output_definitions(outputnames)
+

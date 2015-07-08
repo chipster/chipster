@@ -67,3 +67,6 @@ smart.install.packages(bioconductor.package="limma", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="VariantAnnotation", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="TxDb.Hsapiens.UCSC.hg19.knownGene", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="BSgenome.Hsapiens.UCSC.hg19", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="BSgenome.Hsapiens.UCSC.hg38", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="TxDb.Hsapiens.UCSC.hg38.knownGene", mirror=repo.bioc)
+

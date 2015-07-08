@@ -99,3 +99,23 @@ system(paste(samtools.binary, "index alignment.sorted.bam"))
 # rename result files
 system("mv alignment.sorted.bam bwa.bam")
 system("mv alignment.sorted.bam.bai bwa.bam.bai")
+
+# Handle output names
+#
+source(file.path(chipster.common.path, "tool-utils.R"))
+
+# read input names
+inputnames <- read_input_definitions()
+
+# Determine base name
+base1 <- strip_name(inputnames$reads1.txt)
+base2 <- strip_name(inputnames$reads2.txt)
+basename <- paired_name(base1, base2)
+
+# Make a matrix of output names
+outputnames <- matrix(NA, nrow=2, ncol=2)
+outputnames[1,] <- c("bwa.bam", paste(basename, ".bam", sep =""))
+outputnames[2,] <- c("bwa.bam.bai", paste(basename, ".bam.bai", sep =""))
+
+# Write output definitions file
+write_output_definitions(outputnames)
