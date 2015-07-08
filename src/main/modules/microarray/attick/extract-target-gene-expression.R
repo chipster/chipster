@@ -6,6 +6,9 @@
 # OUTPUT META phenodata-target-gene.tsv: phenodata-target-gene.tsv 
 # PARAMETER common.column: common.column TYPE STRING DEFAULT empty (The name of the column that is common to the data tables.)
 
+
+# 25.6.2015 ML Moved the script to the "attick"
+
 # Setting up test parameter settings
 # common.column <- "symbol"
 

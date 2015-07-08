@@ -13,7 +13,7 @@
 		<tool runtime="R-3.0">
 			<resource>rseqc.R</resource>
 		</tool>
-		<tool runtime="R-3.1.2">
+		<tool runtime="R-3.2.0">
 			<resource>deseq2-pca-heatmap.R</resource>
 		</tool>		
 	</category>
@@ -82,7 +82,7 @@
 		<tool runtime="R-3.0">
 			<resource>annotate-ensembl-ids.R</resource>
 		</tool>
-		<tool runtime="R-3.1.2">
+		<tool runtime="R-3.2.0">
 			<resource>deseq2-normalized-counts-for-gene.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
@@ -295,7 +295,7 @@
 		<tool runtime="R-3.0">
 			<resource>vcftools.R</resource>
 		</tool>
-		<tool runtime="R-2.15_bioc-2.11">
+		<tool runtime="R-3.2.0">
 			<resource>annotate-variant.R</resource>
 		</tool>
 	</category>
@@ -316,9 +316,9 @@
 		<tool runtime="R-3.0">
 			<resource>express.R</resource>
 		</tool>
-		<tool runtime="R-3.1.2">
+		<tool runtime="R-3.2.0">
 			<resource>deseq2.R</resource>
-		</tool>
+		</tool>	
 		<tool runtime="R-3.0">
 			<resource>dea-deseq.R</resource>
 		</tool>
@@ -363,7 +363,7 @@
 			<resource>fi.csc.chipster.tools.ngs.regions.FindOverlappingDatabaseTool</resource>
 		</tool>
 		-->
-		<tool runtime="R-3.1.2">
+		<tool runtime="R-3.2.0">
 			<resource>deseq2.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
