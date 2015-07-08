@@ -1,7 +1,6 @@
-# TOOL DEXSeq.R: "Differential exon expression using DEXSeq" (Infers differential exon usage from RNA-seq data using the Bioconductor package DEXSeq. Replicates are necessary for this tool to work properly. In order to prepare the input, run the tool \"Count aligned reads per exons for DEXSeq\" for your BAM files and combine the results to a count table using the tool \"Utilities - Define NGS experiment\". Please use the group column of the phenodata file to indicate your experimental groups.)
+# TOOL DEXSeq.R: "Differential exon expression using DEXSeq" (Infers differential exon usage from RNA-seq data using the Bioconductor package DEXSeq. In order to prepare the input, run the tool \"Count aligned reads per exons for DEXSeq\" for your BAM files and combine the results to a count table using the tool \"Utilities - Define NGS experiment\". Please use the group column of the phenodata file to indicate your experimental groups. You need to have at least two biological replicates in each group.)
 # INPUT countfile.tsv: "Count table" TYPE GENERIC 
 # INPUT META phenodata.tsv: "Phenodata" TYPE GENERIC
-# OUTPUT dexseq-all-genes.tsv: dexseq-all-genes.tsv
 # OUTPUT OPTIONAL dexseq-genes-with-significant-exons.tsv: dexseq-genes-with-significant-exons.tsv
 # OUTPUT OPTIONAL dexseq-exons.pdf: dexseq-exons.pdf
 # OUTPUT OPTIONAL dexseq-MAplot.pdf: dexseq-MAplot.pdf
@@ -12,7 +11,8 @@
 
 # 18.07.2013 JTT, Created
 # 25.04.2014 MK, Modified for R-3.0
-# AMS 04.07.2014 New genome/gtf/index locations & names
+# 04.07.2014 AMS, New genome/gtf/index locations & names
+# 08.07.2015 EK, Removed dexseq-all-genes.tsv from the results.
 
 # Loads the library 
 library(DEXSeq)
@@ -73,7 +73,7 @@ res <- DEUresultTable(ecs)
 siggenes<-as.character(unique(res$geneID[res$padjust<pvalue]))
 res2<-res[as.character(res$geneID) %in% siggenes,]
 
-write.table(res, "dexseq-all-genes.tsv", col.names=TRUE, row.names=TRUE, sep="\t", quote=FALSE)
+# write.table(res, "dexseq-all-genes.tsv", col.names=TRUE, row.names=TRUE, sep="\t", quote=FALSE)
 write.table(res2, "dexseq-genes-with-significant-exons.tsv", col.names=TRUE, row.names=TRUE, sep="\t", quote=FALSE)
 
 # Visualization
