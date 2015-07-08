@@ -5,33 +5,27 @@
 # PARAMETER genome: "Genome" TYPE [hg19: "Human (hg19\)"] DEFAULT hg19 (Reference sequence)
 
 
-# 31.8.2012 JTT
-# 15.11.2012 Uses VariantAnnotation package 1.4.3. JTT,EK 
-
-#input.vcf<-system.file("extdata", "chr22.vcf.gz", package="VariantAnnotation")
-#input.vcf<-"var.flt2.vcf"
-#genome<-"hg19"
-#setwd("C:/Users/Jarno Tuimala/Desktop/c")
+# 31.8.2012 	JTT
+# 15.11.2012 	JTT,EK  	Uses VariantAnnotation package 1.4.3. 
+# 01.06.2015 	ML 			Modifications to move the tool to new R version
 
 
 # Read data
 library(VariantAnnotation)
 vcf<-readVcf("input.vcf", genome)
 
-# Correct the chromosome names 
-#vcf@rowData@seqnames@values
-newnames<-c("1"="chr1", "2"="chr2", "3"="chr3", "4"="chr4", "5"="chr5", "6"="chr6", "7"="chr7", "8"="chr8", "9"="chr9", "10"="chr10",
-                                     "11"="chr11", "12"="chr12", "13"="chr13", "14"="chr14", "15"="chr15", "16"="chr16", "17"="chr17", "18"="chr18", "19"="chr19", "20"="chr20",
-                                     "21"="chr21", "22"="chr22", "Y"="chrY", "X"="chrX")
+# Correct the chromosome names: 
 if(length(grep("chr", vcf@rowData@seqnames@values))>=1) {
    vcf2<-vcf
    rd<-rowData(vcf)
 } else {
-   #vcf@rowData@seqnames@values<-paste("chr", vcf@rowData@seqnames@values, sep="")
    if(genome=="hg19") {
-      vcf2 <- renameSeqlevels(vcf, newnames)
-      rd<-rowData(vcf)
-      rd2  <- renameSeqlevels(rd, newnames)
+		vcf2 <- vcf
+		seqlevelsStyle(vcf2) <- "UCSC" 
+
+      	rd<-rowData(vcf)
+		rd2 <- rd
+		seqlevelsStyle(rd2) <- "UCSC" 
    }
 }
 
@@ -54,18 +48,18 @@ utr3var <- locateVariants(vcf2, txdb, ThreeUTRVariants())
 spsgvar <- locateVariants(vcf2, txdb, SpliceSiteVariants())
 promvar <- locateVariants(vcf2, txdb, PromoterVariants())
 allvar<-c(codvar, intvar, utr5var, utr3var, spsgvar, promvar)
-#rd<-rowData(vcf2)
 #allvar <- locateVariants(rd, txdb, AllVariants())
-allvar2<-as.data.frame(allvar)
+
+allvar2<-as.data.frame(allvar, row.names=1:length(allvar))
 colnames(allvar2)<-toupper(colnames(allvar2))
 
 # Get gene annotations from EntrezIDs
 ig<-allvar2[!is.na(allvar2$GENEID),]
 nig<-allvar2[is.na(allvar2$GENEID),]
 library(org.Hs.eg.db)
-symbol <- select(org.Hs.eg.db, keys=unique(ig[ig$LOCATION=="coding",]$GENEID), keytype="ENTREZID", cols="SYMBOL")
-genename <- select(org.Hs.eg.db, keys=unique(ig[ig$LOCATION=="coding",]$GENEID), keytype="ENTREZID", cols="GENENAME")
-ensg <- select(org.Hs.eg.db, keys=unique(ig[ig$LOCATION=="coding",]$GENEID), keytype="ENTREZID", cols="ENSEMBL")
+symbol <- select(org.Hs.eg.db, keys=unique(ig[ig$LOCATION=="coding",]$GENEID), keytype="ENTREZID", columns="SYMBOL")
+genename <- select(org.Hs.eg.db, keys=unique(ig[ig$LOCATION=="coding",]$GENEID), keytype="ENTREZID", columns="GENENAME")
+ensg <- select(org.Hs.eg.db, keys=unique(ig[ig$LOCATION=="coding",]$GENEID), keytype="ENTREZID", columns="ENSEMBL")
 ig2<-merge(ig, symbol, by.x="GENEID", by.y="ENTREZID", all.x=TRUE)
 ig3<-merge(ig2, genename, by.x="GENEID", by.y="ENTREZID", all.x=TRUE)
 ig4<-merge(ig3, ensg, by.x="GENEID", by.y="ENTREZID", all.x=TRUE)
@@ -82,9 +76,9 @@ cod2<-as.list(cod)
 names(cod2)<-toupper(names(cod2))
 #cod3<-data.frame(cod2$GENEID, cod2$CDSID, cod2$TXID, cod2$CONSEQUENCE, as.data.frame(cod2$PROTEINLOC), as.data.frame(cod2$CDSLOC)[1], as.data.frame(cod2$CDSLOC)[2], as.data.frame(cod2$CDSLOC)[3], as.data.frame(cod2$varAllele), as.data.frame(cod2$REFCODON), as.data.frame(cod2$VARCODON))
 cod3<-data.frame(geneID=cod2$GENEID, cdsID=cod2$CDSID, txID=cod2$TXID, consequence=cod2$CONSEQUENCE, cdsStart=as.data.frame(cod2$CDSLOC)[,1], cdsEnd=as.data.frame(cod2$CDSLOC)[,2], width=as.data.frame(cod2$CDSLOC)[,3], varAllele=as.data.frame(cod2$VARALLELE)[,1], refCodon=as.data.frame(cod2$REFCODON)[,1], varCodon=as.data.frame(cod2$VARCODON)[,1], refAA=as.data.frame(cod2$REFAA)[,1], varAA=as.data.frame(cod2$VARAA)[,1])
-symbol <- select(org.Hs.eg.db, keys=unique(cod3$geneID), keytype="ENTREZID", cols="SYMBOL")
-genename <- select(org.Hs.eg.db, keys=unique(cod3$geneID), keytype="ENTREZID", cols="GENENAME")
-ensg <- select(org.Hs.eg.db, keys=unique(cod3$geneID), keytype="ENTREZID", cols="ENSEMBL")
+symbol <- select(org.Hs.eg.db, keys=as.character(unique(cod3$geneID)), keytype="ENTREZID", columns="SYMBOL")
+genename <- select(org.Hs.eg.db, keys=as.character(unique(cod3$geneID)), keytype="ENTREZID", columns="GENENAME")
+ensg <- select(org.Hs.eg.db, keys=as.character(unique(cod3$geneID)), keytype="ENTREZID", columns="ENSEMBL")
 cod32<-merge(cod3, symbol, by.x="geneID", by.y="ENTREZID", all.x=TRUE)
 cod33<-merge(cod32, genename, by.x="geneID", by.y="ENTREZID", all.x=TRUE)
 cod34<-merge(cod33, ensg, by.x="geneID", by.y="ENTREZID", all.x=TRUE)
