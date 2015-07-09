@@ -154,6 +154,15 @@
 		<tool runtime="R-3.0">
 			<resource>fastx-collapser.R</resource>
 		</tool>
+		<tool runtime="R-3.0" module="common">
+			<resource>srafetch.R</resource>
+		</tool>
+	   <tool runtime="R-3.0" module="common">
+	   		<resource>srabamfetch.R</resource>
+	   </tool>
+       <tool runtime="R-3.0" module="common">
+       		<resource>ensemblfetch.R</resource>
+       	</tool>
 		<tool runtime="java">
 			<resource>fi.csc.chipster.tools.common.DownloadFile</resource>
 		</tool>
