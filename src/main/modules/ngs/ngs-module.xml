@@ -153,7 +153,7 @@
 		</tool>	
 		<tool runtime="R-3.0">
 			<resource>bedtools-fastafrombed.R</resource>
-
+		</tool>
 		<tool runtime="R-3.0" module="common">
 			<resource>srafetch.R</resource>
 		</tool>
