@@ -1,4 +1,4 @@
-# TOOL srabamfetch.R: "Retrieve read alignments from SRA database" (Tool to retrieve alignments in BAM format from SRA databases based on the entry ID or name)
+# TOOL srabamfetch.R: "Retrieve BAM files from SRA database" (Tool to retrieve alignments in BAM format from the SRA database based on the entry ID or name.)
 # OUTPUT OPTIONAL srafetch.log
 # OUTPUT OPTIONAL sra_aln.bam
 # OUTPUT OPTIONAL sra_aln.bam.bai
