@@ -171,9 +171,6 @@
 		</tool>
 		<tool runtime="python">
 			<resource>test-data-in-out.py</resource>
-		</tool>
-	- 	<tool runtime="java">
-			<resource>fi.csc.chipster.tools.common.DownloadFile</resource>
 		</tool> 
 	</category>
 
