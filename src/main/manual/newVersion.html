@@ -15,14 +15,47 @@ div.header-item {
 </head>
 <body>
 
+<h2>Version update 10.7.2015: What is new in Chipster 3.5</h2>
+
+ 	<p>
+		<b>Summary:</b> Result files from several NGS analysis tools are automatically named according to the original sample name, saving you the hassle of renaming files. Data can be imported directly to Chipster server from a url. 
+	</p>
+	<ul>
+		<li><div class=header-item>Improvements to the user interface</div>
+			<ul>
+				<li>Genome browser allows viewing strand-specific coverage for stranded RNA-seq data based on the XS tag in BAM files.</li>
+			</ul>
+		</li>	 
+		<li><div class=header-item>New NGS analysis tools</div>
+			<ul>
+				<li><a href="deseq2-normalized-counts-for-gene.html">Utilities / Plot normalized counts for a gene</a>. Plots normalized counts for a gene in a group-wise manner using the DESeq2 Bioconductor package.</li>
+				<li><a href="DownloadFile.html">Utilities / Download file from a url to server</a>. Allows you to move data and annotation information from a url directly to Chipster server for analysis.</li>
+				<li><a href="extract_gzip.html">Utilities / Extract .gz file</a>. Extracts gzipped files. Note that fastq and fasta files don't need to be unzipped for analysis.</li>
+				<li><a href="extract_gzip_tar.html">Utilities / Extract .tar.gz file</a>. Extracts tarred and gzipped files. Note that fastq and fasta files don't need to be unzipped for analysis.</li>
+			</ul>
+		</li>
+		<li><div class=header-item>Improvements to NGS analysis tools</div>		
+			<ul>
+				<li>Result files produced by PRINSEQ, Tophat, Bowtie2, BWA, Samtools and HTSeq have the original sample name.</li>
+				<li>DESeq2-based tools have been migrated to R3.2.0.</li>
+				<li><a href="select_columns.html">Variants / Annotate variants</a> has been migrated to R3.2.0.</li>
+				<li><a href="deseq2-pca-heatmap.html">Quality control / PCA and heatmap of samples with DESeq2</a> allows adding sample names to the PCA plot.</li>
+			</ul>
+		<li><div class=header-item>Improvements to microarray analysis tools</div>
+			<ul>
+				<li><a href="norm-illumina-backgroundcorr.html">Normalization / Illumina with normexp background correction</a> accepts now also TargetIDs.</li>
+			</ul>
+		</li>		
+	</ul>
+	<hr />
+
 <h2>Version update 20.4.2015: What is new in Chipster 3.4</h2>
 
   
 	<ul>
-
 		<li><div class=header-item>New analysis tools</div>
 			<ul>
-				<li><a href="general_file_processing.html">Utilities / Modify text</a>. This tool can be used to modify txt and tsv files. For example, you can replace text, or extract rows containing a given text.</li>
+				<li><a href="general_file_processing.html">Utilities / Modify text</a>. This tool can be used to modify txt and tsv files. For example, you can replace text or extract rows containing a given text.</li>
 				<li><a href="norm-illumina-backgroundcorr.html">Normalization / Illumina with normexp background correction</a>. This tool allows you to use the control probe information and 
 				perform background correction using the limma Bioconductor package.</li>
 			</ul>
@@ -81,8 +114,8 @@ div.header-item {
 
 		<li><div class=header-item>New NGS analysis tools</div>
 			<ul>
-				<li><a href="srafetch.html">Utilities / Retrieve reads from SRA database</a>.</li>
-				<li><a href="srabamfetch.html">Utilities / Retrieve read alignments from SRA database</a>.</li>
+				<li><a href="srafetch.html">Utilities / Retrieve FASTQ files from SRA database</a>.</li>
+				<li><a href="srabamfetch.html">Utilities / Retrieve BAM files from SRA database</a>.</li>
 				<li><a href="ensemblfetch.html">Utilities / Retrieve sequences for a given organism in Ensembl</a>.</li>
 				<li><a href="deseq2-pca-heatmap.html">Quality control / PCA and heatmap of samples with DESeq2</a>.</li>
 			</ul>
@@ -492,7 +525,7 @@ div.header-item {
 
 		<li><div class=header-item>Updates to NGS analysis tools</div>
 			<ul>
-				<li><a href="DEXSeq.R">RNA-seq / DEXSeq</a>. Dispersion plot, MA-plot and a visualization
+				<li><a href="DEXseq.html">RNA-seq / DEXSeq</a>. Dispersion plot, MA-plot and a visualization
 					of genes which contain differentially expressed exons have been added.</li>
 				<li><a href="mothur-classifyseqs.html">Metagenomics / Classify sequences to taxonomic
 						units using Mothur</a>. Generates now a count table and a phenodata file, which you can use for

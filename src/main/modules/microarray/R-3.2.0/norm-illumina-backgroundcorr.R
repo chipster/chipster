@@ -5,15 +5,13 @@
 # OUTPUT META phenodata.tsv: phenodata.tsv 
 # PARAMETER normalize.chips: "Normalization method" TYPE [none: none, scale: scale, quantile: quantile] DEFAULT quantile (Between arrays normalization method)
 # PARAMETER chiptype: "Chip type" TYPE [empty: empty, Human-6v1: Human-6v1, HumanRef-8v1: HumanRef-8v1, Human-6v2: Human-6v2, HumanRef-8v2: HumanRef-8v2, Human-6v3: Human-6v3, HumanRef-8v3: HumanRef-8v3, Human-HT12: Human-HT12, Human-HT12v4: Human-HT12v4, Mouse-6v1.0a: Mouse-6v1.0a, MouseRef-8v1.0a: MouseRef-8v1.0a, Mouse-6v1.1: Mouse-6v1.1, MouseRef-8v1.1: MouseRef-8v1.1, Mouse-6v2: Mouse-6v2, MouseRef-8v2: MouseRef-8v2, RatRef-12: RatRef-12] DEFAULT empty ()
-# PARAMETER id.type: "Identifier type" TYPE [ProbeID: ProbeID] DEFAULT ProbeID (Which identifiers to use)
+# PARAMETER id.type: "Identifier type" TYPE [ProbeID: ProbeID, TargetID: TargetID] DEFAULT ProbeID (Which identifiers to use)
 # PARAMETER OPTIONAL produce.flags: "Produce flags" TYPE [yes: yes, no: no] DEFAULT no (Automatic recording of Detection-value as flags)
 # PARAMETER OPTIONAL annotations: "Include original annotations" TYPE [yes: yes, no: no] DEFAULT no (Include the original probe annotations. Note that these might be very outdated.)
 
 
 # 10.4.2015 ML
-# ei oo nyt eri beadstudioversioita.
-# probeID:t ok, targetID -paketit puuttuu....
-# vsn -paketti puuttui! vsn-osio poistettu.
+# 24.6.2015 ML small adjustments
 
 library(limma)
 
@@ -60,39 +58,39 @@ training<-c(rep("", ncol(dat2)))
 time<-c(rep("", ncol(dat2)))
 random<-c(rep("", ncol(dat2)))
 
-## which file type:
-#if(id.type=="TargetID") {
-#	if(chiptype=="empty") {
-#		chiptype<-c("Illumina")
-#	}
-#	if(chiptype=="Human-6v1" | chiptype=="HumanRef-8v1") {
-#		chiptype<-c("illuminaHumanv1")
-#	}
-#	if(chiptype=="Human-6v2" | chiptype=="HumanRef-8v2") {
-#		chiptype<-c("illuminaHumanv2")
-#	}
-#	if(chiptype=="Human-6v3" | chiptype=="HumanRef-8v3") {
-#		chiptype<-c("illuminaHumanv3")
-#	}
-#	if(chiptype=="Human-HT12") {
-#		chiptype<-c("illuminaHumanv3")
-#	}
-#	if(chiptype=="Human-HT12v4") {
-#		chiptype<-c("illuminaHumanv4")
-#	}
-#	if(chiptype=="Mouse-6v1.0a" | chiptype=="MouseRef-8v1.0a") {
-#		chiptype<-c("illuminaMousev1")
-#	}
-#	if(chiptype=="Mouse-6v1.1" | chiptype=="MouseRef-8v1.1") {
-#		chiptype<-c("illuminaMousev1p1")
-#	}
-#	if(chiptype=="Mouse-6v2" | chiptype=="MouseRef-8v2") {
-#		chiptype<-c("illuminaMousev2")
-#	}
-#	if(chiptype=="RatRef-12") {
-#		chiptype<-c("illuminaRatv1")
-#	}
-#}
+# which file type:
+if(id.type=="TargetID") {
+	if(chiptype=="empty") {
+		chiptype<-c("Illumina")
+	}
+	if(chiptype=="Human-6v1" | chiptype=="HumanRef-8v1") {
+		chiptype<-c("illuminaHumanv1")
+	}
+	if(chiptype=="Human-6v2" | chiptype=="HumanRef-8v2") {
+		chiptype<-c("illuminaHumanv2")
+	}
+	if(chiptype=="Human-6v3" | chiptype=="HumanRef-8v3") {
+		chiptype<-c("illuminaHumanv3")
+	}
+	if(chiptype=="Human-HT12") {
+		chiptype<-c("illuminaHumanv3")
+	}
+	if(chiptype=="Human-HT12v4") {
+		chiptype<-c("illuminaHumanv4")
+	}
+	if(chiptype=="Mouse-6v1.0a" | chiptype=="MouseRef-8v1.0a") {
+		chiptype<-c("illuminaMousev1")
+	}
+	if(chiptype=="Mouse-6v1.1" | chiptype=="MouseRef-8v1.1") {
+		chiptype<-c("illuminaMousev1p1")
+	}
+	if(chiptype=="Mouse-6v2" | chiptype=="MouseRef-8v2") {
+		chiptype<-c("illuminaMousev2")
+	}
+	if(chiptype=="RatRef-12") {
+		chiptype<-c("illuminaRatv1")
+	}
+}
 
 if(id.type=="ProbeID") {
 	if(chiptype=="empty") {
