@@ -112,12 +112,13 @@ public class SADLDescriptionTest {
 					String moduleOverride = tool.getAttribute("module");
 					String toolSpecificModule = moduleOverride.isEmpty() ? moduleName : moduleOverride;
 					String resource = tool.getElementsByTagName("resource").item(0).getTextContent();
-					toolSpecs.add(new ToolSpec(moduleName, resource, runtimeName, runtimeDirMap.get(runtimeName), toolSpecificModule));
+					toolSpecs.add(new ToolSpec(moduleName, resource.trim(), runtimeName, runtimeDirMap.get(runtimeName), toolSpecificModule));
 				}
 			}
 		}
 		
 		// Load SADL from each resource
+		String missingManuals = "";
 		for (ToolSpec toolspec : toolSpecs) {
 			try {
 				String sadl = null;
@@ -131,7 +132,7 @@ public class SADLDescriptionTest {
 					// Is a class name
 
 					System.out.println("validating class " + toolspec.resource + " in " + toolspec.module);
-					JavaAnalysisJobBase jobBase = (JavaAnalysisJobBase)Class.forName(toolspec.resource.trim()).newInstance();
+					JavaAnalysisJobBase jobBase = (JavaAnalysisJobBase)Class.forName(toolspec.resource).newInstance();
 					sadl = jobBase.getSADL();
 					
 				} else { 
@@ -161,7 +162,7 @@ public class SADLDescriptionTest {
 						sadl = Files.fileToString(file);
 					}
 
-					System.out.println("validating file " + file.getCanonicalFile());
+					System.out.println("validating file " + file.getCanonicalFile() + " in " + toolspec.module);
 				}
 
 				// Finally, validate the description
@@ -170,6 +171,9 @@ public class SADLDescriptionTest {
 					Assert.assertEquals(1, descriptions.size());
 					if (isFile) {
 						Assert.assertEquals(toolspec.resource, descriptions.get(0).getName().getID());
+					}
+					if (!new File("src/main/manual/" + toolspec.resource.split("\\.")[0] + ".html").exists()) {
+						missingManuals += "\nManual page missing for " + toolspec.resource;
 					}
 					
 				} else {
@@ -181,6 +185,7 @@ public class SADLDescriptionTest {
 				Assert.fail("when parsing " + toolspec + ": " + e.getMessage() + " (" + e.getClass().getSimpleName() + ")");
 			}
 		}
+		System.out.println(missingManuals);
 
 	}
 }
