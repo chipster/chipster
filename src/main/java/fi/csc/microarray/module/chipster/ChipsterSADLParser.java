@@ -72,13 +72,6 @@ public class ChipsterSADLParser extends SADLParser {
 						throw new RuntimeException("non-enum parameter " + parameter.getName() + " has multiple default values");
 					}
 				}
-				
-				if (parameter.getType() == ParameterType.INTEGER) {
-					System.out.println("INTTI");
-					if (parameter.getDefaultValue().equals("3")) {
-						throw new RuntimeException("3 is illegal");
-					}
-				}
 			}
 			
 		}

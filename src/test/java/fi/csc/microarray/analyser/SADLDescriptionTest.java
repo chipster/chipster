@@ -4,8 +4,12 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Assert;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -38,7 +42,7 @@ public class SADLDescriptionTest {
 			"# PARAMETER OPTIONAL query_loc: \"Location on the query sequence\" TYPE STRING (Location of the search region on the query sequence. Format: start-stop, for example: 23-66.  Default: the whole query sequence)" + "\n" +
 			"# PARAMETER OPTIONAL strand: \"Query strand\" TYPE [both: Both, minus: Minus, plus: Plus] DEFAULT both ( Query strand or strands to search against the database.  Default: both strands.)" + "\n" +
 			"" + "\n" +
-			"echo('jee');" + "\n";
+			"echo('foo');" + "\n";
 		
 		SADLTool tool = new SADLTool("#");
 		ParsedScript parsedScript = tool.parseScript(new ByteArrayInputStream(rScript.getBytes()));
@@ -54,29 +58,54 @@ public class SADLDescriptionTest {
 		DirectoryLayout.uninitialise();
 		DirectoryLayout.initialiseUnitTestLayout();
 		
-		LinkedList<String> resources = new LinkedList<String>();
+		LinkedList<Pair<String, String>> resources = new LinkedList<Pair<String, String>>();
+
+		// Find all files to check
+		// We don't use ToolRepository to do all this because it assumes different directory layout
+
+		// Iterate over runtimes to get their dirs
+		Map<String, String> runtimeDirMap = new HashMap<String, String>();
+		Document runtimeDoc = XmlUtil.parseFile(new File("src/main/applications/wrapper/comp/conf/runtimes.xml"));
+		NodeList runtimes = runtimeDoc.getDocumentElement().getElementsByTagName("runtime");
+		for (int i = 0; i < runtimes.getLength(); i++) {
+			Element runtime = (Element)runtimes.item(i);
+			String name = runtime.getElementsByTagName("name").item(0).getTextContent();
+			String dir = null;
+			NodeList parameters = runtime.getElementsByTagName("parameter");
+			for (int j = 0; j < parameters.getLength(); j++) {
+				if ("toolPath".equals(((Element)parameters.item(j)).getElementsByTagName("name").item(0).getFirstChild().getTextContent())) {
+					dir = ((Element)parameters.item(j)).getElementsByTagName("value").item(0).getFirstChild().getTextContent();
+					break;
+				}
+			}
+			runtimeDirMap.put(name, dir);
+			
+		}
 		
 		// Iterate through all tools and collect their resource definitions (filename, classname etc.) 
-		for (File file : new File("src/main/applications/wrapper/comp/conf").listFiles()) {
+		for (File file : Files.listFilesRecursively(new File("src/main/modules/"))) {
 			if (file.getName().endsWith("-module.xml")) {
 				Document module = XmlUtil.parseFile(file);
+				String moduleName = module.getDocumentElement().getAttribute("name");
 				NodeList tools = module.getDocumentElement().getElementsByTagName("tool");
 				for (int i = 0; i < tools.getLength(); i++) {
 					Element tool = (Element)tools.item(i);
+					String runtimeName = tool.getAttribute("runtime");
+					String moduleOverride = tool.getAttribute("module");
+					String toolSpecificModule = moduleOverride.isEmpty() ? moduleName : moduleOverride;
 					String resource = tool.getElementsByTagName("resource").item(0).getTextContent();
-					
-					if (resource.endsWith(".acd")) {
-						// Refers to EMBOSS ACD, they are converted in the code level, so there is nothing to test
-						continue;
+					String dir = runtimeDirMap.get(runtimeName);
+					if (dir == null) {
+						resources.add(new ImmutablePair<String, String>(runtimeName, resource.trim()));
+					} else {
+						resources.add(new ImmutablePair<String, String>(runtimeName, toolSpecificModule + File.separator + dir + File.separator + resource));
 					}
-
-					resources.add(resource);
 				}
 			}
 		}
 		
 		// Load SADL from each resource
-		for (String resource : resources) {
+		for (Pair<String, String> resource : resources) {
 			try {
 				String sadl = null;
 				
@@ -84,63 +113,45 @@ public class SADLDescriptionTest {
 				// but for keeping the test code simple, we infer it from the resource name. Currently
 				// that is enough, in future we might need to use the actual module loading facility
 				// to parse the module files.
-				if (resource.split("\\.").length > 2) {
+				if ("java".equals(resource.getLeft())) {
 					// Is a class name
 
-					System.out.println("validating class " + resource);
-					JavaAnalysisJobBase jobBase = (JavaAnalysisJobBase)Class.forName(resource).newInstance();
+					System.out.println("validating class " + resource.getRight());
+					JavaAnalysisJobBase jobBase = (JavaAnalysisJobBase)Class.forName(resource.getRight()).newInstance();
 					sadl = jobBase.getSADL();
 					
 				} else { 
 					// Is a file name
 					
-					// Collect all possible files that the resource name might refer to
-					File[] dirsContainingDescriptions = new File[] {
-						new File("src/main/modules/chipster/bsh"),
-						new File("src/main/modules/sequence/shell"),
-						new File("src/main/modules/chipster/R-2.12"),
-						new File("src/main/modules/ngs/R-2.12"),
-					};
-					LinkedList<File> potentialFiles = new LinkedList<File>(); 
-
-					for (File dir : dirsContainingDescriptions) {
-						for (File file : dir.listFiles()) {
-							potentialFiles.add(file);
-						}
-					}
-					
 					// Determine which file it is
-					for (File file : potentialFiles) {
-						if (file.getName().endsWith(resource)) {
+					File file = new File(new File("src/main/modules"), resource.getRight());
 
-							// Found the file, determine the type and process it
-							if (resource.endsWith(".R")) {
-								// Is an R script
-								SADLTool.ParsedScript res = new SADLTool("#").parseScript(new FileInputStream(file));
-								
-								sadl = res.SADL;
+					// Determine file type and process it
+					if (file.getName().endsWith(".R") || file.getName().endsWith(".py")) {
+						// Is an R script
+						SADLTool.ParsedScript res = new SADLTool("#").parseScript(new FileInputStream(file));
 
-							} else if (resource.endsWith(".bsh")) {
-								// Is a BeanShell script
-								SADLTool.ParsedScript res = new SADLTool("//").parseScript(new FileInputStream(file));
-								sadl = res.SADL;
+						sadl = res.SADL;
 
-							} else {
-								// IS a plain SADL file
-								sadl = Files.fileToString(file);
-							}
+					} else if (file.getName().endsWith(".bsh")) {
+						// Is a BeanShell script
+						SADLTool.ParsedScript res = new SADLTool("//").parseScript(new FileInputStream(file));
+						sadl = res.SADL;
 
-							System.out.println("validating file " + file.getCanonicalFile());
-							
-							break; // we are done with this file
-						}
+					} else if (file.getName().endsWith(".acd")) {
+						continue; // nothing to validate in machine generated descriptions (EMBOSS)
+
+					} else {
+						// IS a plain SADL file
+						sadl = Files.fileToString(file);
 					}
-					
+
+					System.out.println("validating file " + file.getCanonicalFile());
 				}
 
 				// Finally, validate the description
 				if (sadl != null) {
-					new Validator().validate(resource, sadl);
+					new Validator().validate(resource.getRight(), sadl);
 					
 				} else {
 					throw new RuntimeException("don't know what to do with: " + resource);
