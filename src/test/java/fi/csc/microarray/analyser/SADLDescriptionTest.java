@@ -6,10 +6,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Assert;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -19,6 +18,7 @@ import org.w3c.dom.NodeList;
 import fi.csc.microarray.analyser.SADLTool.ParsedScript;
 import fi.csc.microarray.analyser.java.JavaAnalysisJobBase;
 import fi.csc.microarray.config.DirectoryLayout;
+import fi.csc.microarray.description.SADLDescription;
 import fi.csc.microarray.module.chipster.ChipsterSADLParser.Validator;
 import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.XmlUtil;
@@ -58,7 +58,25 @@ public class SADLDescriptionTest {
 		DirectoryLayout.uninitialise();
 		DirectoryLayout.initialiseUnitTestLayout();
 		
-		LinkedList<Pair<String, String>> resources = new LinkedList<Pair<String, String>>();
+		class ToolSpec {
+			String module;
+			String resource;
+			String runtime;
+			String runtimeDir;
+			String toolSpecificModule;
+			
+			public ToolSpec(String module, String resource, String runtime, String runtimeDir, 
+					String toolSpecificModule) {
+				this.module = module;
+				this.resource = resource;
+				this.runtime = runtime;
+				this.runtimeDir = runtimeDir;
+				this.toolSpecificModule = toolSpecificModule;
+			}
+		}
+		
+		LinkedList<ToolSpec> toolSpecs = new LinkedList<ToolSpec>();
+		
 
 		// Find all files to check
 		// We don't use ToolRepository to do all this because it assumes different directory layout
@@ -94,18 +112,13 @@ public class SADLDescriptionTest {
 					String moduleOverride = tool.getAttribute("module");
 					String toolSpecificModule = moduleOverride.isEmpty() ? moduleName : moduleOverride;
 					String resource = tool.getElementsByTagName("resource").item(0).getTextContent();
-					String dir = runtimeDirMap.get(runtimeName);
-					if (dir == null) {
-						resources.add(new ImmutablePair<String, String>(runtimeName, resource.trim()));
-					} else {
-						resources.add(new ImmutablePair<String, String>(runtimeName, toolSpecificModule + File.separator + dir + File.separator + resource));
-					}
+					toolSpecs.add(new ToolSpec(moduleName, resource, runtimeName, runtimeDirMap.get(runtimeName), toolSpecificModule));
 				}
 			}
 		}
 		
 		// Load SADL from each resource
-		for (Pair<String, String> resource : resources) {
+		for (ToolSpec toolspec : toolSpecs) {
 			try {
 				String sadl = null;
 				
@@ -113,18 +126,20 @@ public class SADLDescriptionTest {
 				// but for keeping the test code simple, we infer it from the resource name. Currently
 				// that is enough, in future we might need to use the actual module loading facility
 				// to parse the module files.
-				if ("java".equals(resource.getLeft())) {
+				boolean isFile = false;
+				if ("java".equals(toolspec.runtime)) {
 					// Is a class name
 
-					System.out.println("validating class " + resource.getRight());
-					JavaAnalysisJobBase jobBase = (JavaAnalysisJobBase)Class.forName(resource.getRight()).newInstance();
+					System.out.println("validating class " + toolspec.resource + " in " + toolspec.module);
+					JavaAnalysisJobBase jobBase = (JavaAnalysisJobBase)Class.forName(toolspec.resource.trim()).newInstance();
 					sadl = jobBase.getSADL();
 					
 				} else { 
 					// Is a file name
+					isFile = true;
 					
 					// Determine which file it is
-					File file = new File(new File("src/main/modules"), resource.getRight());
+					File file = new File(new File("src/main/modules"), toolspec.toolSpecificModule + File.separator + toolspec.runtimeDir + File.separator + toolspec.resource);
 
 					// Determine file type and process it
 					if (file.getName().endsWith(".R") || file.getName().endsWith(".py")) {
@@ -151,15 +166,19 @@ public class SADLDescriptionTest {
 
 				// Finally, validate the description
 				if (sadl != null) {
-					new Validator().validate(resource.getRight(), sadl);
+					List<SADLDescription> descriptions = new Validator().validate(toolspec.resource, sadl);
+					Assert.assertEquals(1, descriptions.size());
+					if (isFile) {
+						Assert.assertEquals(toolspec.resource, descriptions.get(0).getName().getID());
+					}
 					
 				} else {
-					throw new RuntimeException("don't know what to do with: " + resource);
+					throw new RuntimeException("don't know what to do with: " + toolspec);
 				}
 				
 			} catch (Exception e) {
 				e.printStackTrace();
-				Assert.fail("when parsing " + resource + ": " + e.getMessage() + " (" + e.getClass().getSimpleName() + ")");
+				Assert.fail("when parsing " + toolspec + ": " + e.getMessage() + " (" + e.getClass().getSimpleName() + ")");
 			}
 		}
 

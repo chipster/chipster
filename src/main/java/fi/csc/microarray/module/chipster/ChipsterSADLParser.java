@@ -32,12 +32,13 @@ public class ChipsterSADLParser extends SADLParser {
 	
 	public static class Validator {
 		
-		public void validate(String filename, String sadl) throws ParseException {
+		public List<SADLDescription> validate(String filename, String sadl) throws ParseException {
 			ChipsterSADLParser parser = new ChipsterSADLParser(filename);
 			List<SADLDescription> descriptions = parser.parseMultiple(sadl);
 			for (SADLDescription description : descriptions) {
 				checkParsedContent(description);
 			}
+			return descriptions;
 		}
 		
 		private void checkParsedContent(SADLDescription description) {
