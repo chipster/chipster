@@ -59,19 +59,21 @@ public class SADLDescriptionTest {
 		DirectoryLayout.initialiseUnitTestLayout();
 		
 		class ToolSpec {
-			String module;
-			String resource;
-			String runtime;
-			String runtimeDir;
-			String toolSpecificModule;
+			private String module;
+			private String resource;
+			private String runtime;
+			private String runtimeDir;
+			private String toolSpecificModule;
+			private boolean isHidden;
 			
 			public ToolSpec(String module, String resource, String runtime, String runtimeDir, 
-					String toolSpecificModule) {
+					String toolSpecificModule, boolean isHidden) {
 				this.module = module;
 				this.resource = resource;
 				this.runtime = runtime;
 				this.runtimeDir = runtimeDir;
 				this.toolSpecificModule = toolSpecificModule;
+				this.isHidden = isHidden;
 			}
 		}
 		
@@ -96,8 +98,7 @@ public class SADLDescriptionTest {
 					break;
 				}
 			}
-			runtimeDirMap.put(name, dir);
-			
+			runtimeDirMap.put(name, dir);		
 		}
 		
 		// Iterate through all tools and collect their resource definitions (filename, classname etc.) 
@@ -105,14 +106,19 @@ public class SADLDescriptionTest {
 			if (file.getName().endsWith("-module.xml")) {
 				Document module = XmlUtil.parseFile(file);
 				String moduleName = module.getDocumentElement().getAttribute("name");
-				NodeList tools = module.getDocumentElement().getElementsByTagName("tool");
-				for (int i = 0; i < tools.getLength(); i++) {
-					Element tool = (Element)tools.item(i);
-					String runtimeName = tool.getAttribute("runtime");
-					String moduleOverride = tool.getAttribute("module");
-					String toolSpecificModule = moduleOverride.isEmpty() ? moduleName : moduleOverride;
-					String resource = tool.getElementsByTagName("resource").item(0).getTextContent();
-					toolSpecs.add(new ToolSpec(moduleName, resource.trim(), runtimeName, runtimeDirMap.get(runtimeName), toolSpecificModule));
+				NodeList categories = module.getDocumentElement().getElementsByTagName("category");
+				for (int j = 0; j < categories.getLength(); j++) {
+					Element category = (Element)categories.item(j);
+					boolean isHidden = "true".equals(category.getAttribute("hidden"));
+					NodeList tools = category.getElementsByTagName("tool");
+					for (int i = 0; i < tools.getLength(); i++) {
+						Element tool = (Element)tools.item(i);
+						String runtimeName = tool.getAttribute("runtime");
+						String moduleOverride = tool.getAttribute("module");
+						String toolSpecificModule = moduleOverride.isEmpty() ? moduleName : moduleOverride;
+						String resource = tool.getElementsByTagName("resource").item(0).getTextContent();
+						toolSpecs.add(new ToolSpec(moduleName, resource.trim(), runtimeName, runtimeDirMap.get(runtimeName), toolSpecificModule, isHidden));
+					}
 				}
 			}
 		}
@@ -172,7 +178,7 @@ public class SADLDescriptionTest {
 					if (isFile) {
 						Assert.assertEquals(toolspec.resource, descriptions.get(0).getName().getID());
 					}
-					if (!new File("src/main/manual/" + toolspec.resource.split("\\.")[0] + ".html").exists()) {
+					if (!toolspec.isHidden && !new File("src/main/manual/" + toolspec.resource.split("\\.")[0] + ".html").exists()) {
 						missingManuals += "\nManual page missing for " + toolspec.resource;
 					}
 					
