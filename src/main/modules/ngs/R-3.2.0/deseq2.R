@@ -4,6 +4,7 @@
 # OUTPUT OPTIONAL de-list-deseq2.tsv
 # OUTPUT OPTIONAL summary.txt
 # OUTPUT OPTIONAL deseq2_report.pdf
+# OUTPUT OPTIONAL de-list-deseq2.bed
 # PARAMETER column: "Column describing groups" TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test.)
 # PARAMETER OPTIONAL ad_factor: "Column describing additional experimental factor" TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing an additional experimental factor. If given, p-values in the output table are from a likelihood ratio test of a model including the experimental groups and experimental factor, vs a model which only includes the experimental factor.)
 # PARAMETER OPTIONAL p.value.cutoff: "Cutoff for the adjusted P-value" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (The cutoff for Benjamini-Hochberg adjusted p-value.)
@@ -113,6 +114,7 @@ rownames(output_table) <- make.names(rep(rownames(res), length(grep("baseMean$",
 if("chr" %in% colnames(dat)) {
 	if (dim(sig)[1] > 0) {
 		bed <- output_table[,c("chr","start","end")]
+		bed <- as.data.frame(bed)
 		if(is.null(results_name)) {
 			gene_names <- rownames(res)
 		} else {
@@ -123,6 +125,7 @@ if("chr" %in% colnames(dat)) {
 		bed <- bed[(output_table$padj <= p.value.cutoff & (! (is.na(output_table$padj)))), ]
 		bed <- sort.bed(bed)
 		write.table(bed, file="de-list-deseq2.bed", sep="\t", row.names=F, col.names=F, quote=F)
+		
 	}
 }
 
