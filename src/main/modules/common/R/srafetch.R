@@ -1,4 +1,4 @@
-# TOOL srafetch.R: "Retrieve reads from SRA database" (Retrieve reads in FASTQ format from SRA databases based on the entry ID or name)
+# TOOL srafetch.R: "Retrieve FASTQ files from SRA database" (Retrieve reads in FASTQ format from the SRA database based on the entry ID or name.)
 # OUTPUT OPTIONAL srafetch.log
 # OUTPUT OPTIONAL sra_reads_1.fastq
 # OUTPUT OPTIONAL sra_reads_2.fastq

@@ -116,9 +116,6 @@
 			<resource>samtools-consensus.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
-			<resource>samtools-index-fasta.R</resource>
-		</tool>
-		<tool runtime="R-3.0">
 			<resource>unique-alignments-from-bam.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
@@ -129,6 +126,15 @@
 		</tool>
 		<tool runtime="R-3.0">
 			<resource>subset-fastq.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
+			<resource>samtools-index-fasta.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
+			<resource>fastx-renamer.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
+			<resource>fastx-collapser.R</resource>
 		</tool>
 		<tool runtime="java">
 			<resource>fi.csc.chipster.tools.ngs.SortBed</resource>
@@ -148,12 +154,15 @@
 		<tool runtime="R-3.0">
 			<resource>bedtools-fastafrombed.R</resource>
 		</tool>
-		<tool runtime="R-3.0">
-			<resource>fastx-renamer.R</resource>
+		<tool runtime="R-3.0" module="common">
+			<resource>srafetch.R</resource>
 		</tool>
-		<tool runtime="R-3.0">
-			<resource>fastx-collapser.R</resource>
-		</tool>
+	   <tool runtime="R-3.0" module="common">
+	   		<resource>srabamfetch.R</resource>
+	   </tool>
+       <tool runtime="R-3.0" module="common">
+       		<resource>ensemblfetch.R</resource>
+       	</tool>
 		<tool runtime="java">
 			<resource>fi.csc.chipster.tools.common.DownloadFile</resource>
 		</tool>
@@ -171,9 +180,6 @@
 		</tool>
 		<tool runtime="python">
 			<resource>test-data-in-out.py</resource>
-		</tool>
-	- 	<tool runtime="java">
-			<resource>fi.csc.chipster.tools.common.DownloadFile</resource>
 		</tool> 
 	</category>
 
