@@ -24,7 +24,7 @@ public class SortTsv extends JavaAnalysisJobBase {
 		return 	"TOOL SortTsv.java: \"Sort TSV\" (Sort a TSV file by chromosome and start position.)" + "\n" +
 				"INPUT input.tsv: \"TSV file\" TYPE GENERIC" + "\n" +
 				"OUTPUT sorted.tsv: \"Sorted TSV file\"" + "\n" + 
-				"PARAMETER " + COLUMN_ID + ": \"Chromosome column\" TYPE [" + FIRST_ID + ": First, " + SECOND_ID + ": Second] DEFAULT First (Select the column that contains chromosome information.)" + "\n"; 
+				"PARAMETER " + COLUMN_ID + ": \"Chromosome column\" TYPE [" + FIRST_ID + ": First, " + SECOND_ID + ": Second] DEFAULT " + FIRST_ID + " (Select the column that contains chromosome information.)" + "\n"; 
 	}
 	
 	

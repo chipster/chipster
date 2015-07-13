@@ -2,7 +2,7 @@
 # INPUT counts.tsv: "RNA count data" TYPE GENE_EXPRS 
 # OUTPUT OPTIONAL ngs-data-table.tsv: ngs-data-table.tsv
 # PARAMETER method.value: "Calculate normalization factors" TYPE [TMM: TMM, RLE: RLE, upperquantile: upperquantile, none: none] DEFAULT TMM (Method to be used for computing normalization factors. None corresponds to lib.size normalisation) 
-# PARAMETER log.value: "Log transform" TYPE [TRUE: yes, FALSE: no] DEFAULT yes (Is data log2-transformed.) 
+# PARAMETER log.value: "Log transform" TYPE [TRUE: yes, FALSE: no] DEFAULT TRUE (Is data log2-transformed.) 
 
 # 25.04.2014 MK, created
 

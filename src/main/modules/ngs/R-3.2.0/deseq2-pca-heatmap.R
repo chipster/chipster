@@ -37,7 +37,7 @@ vstmat<-assay(vst)
 
 data <- plotPCA(vst, intgroup=c("condition"), returnData=TRUE)
 percentVar <- round(100 * attr(data, "percentVar"))
-desc <- phenodata[,7]
+desc <- phenodata[,"description"]
 
 pdf(file="01-pca-deseq2.pdf")
 	if (show.names == "yes"){
