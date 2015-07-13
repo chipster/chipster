@@ -29,4 +29,4 @@
 #${TOOLS_PATH}/R-${R_VER}/bin/Rscript --vanilla install-libs.R
 
 
-curl -L http://bio.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.2.0-vmbin/R-3.2.0-08-07-2015.tar.gz | tar -xz -C ${TOOLS_PATH}/
+curl -L http://nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.2.0-vmbin/R-3.2.0-08-07-2015.tar.gz | tar -xz -C ${TOOLS_PATH}/
