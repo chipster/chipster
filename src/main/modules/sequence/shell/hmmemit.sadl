@@ -1,7 +1,0 @@
-TOOL hmmemit.sadl: hmmemit (Sample sequences from a profile HMM)
-INPUT hmm-model.txt: "HMM model" TYPE GENERIC
-OUTPUT hmmemit.txt
-PARAMETER OPTIONAL N: "Number of sequences to sample" TYPE INTEGER FROM 1 (Sample several sequences, rather than just one.)
-PARAMETER OPTIONAL consensus-value-only: "emit simple consensus sequence" TYPE [NO-VALUE: "No", -c: "Yes"] DEFAULT NO-VALUE (Emit a consensus sequence, instead of sampling a sequence from HMM's probability distribution. The consensus sequence is formed by selecting the maximum probability residue at each match state. 
-
-Please note that if this is set to 'Yes', the 'Number of sequences to sample' must be empty.)

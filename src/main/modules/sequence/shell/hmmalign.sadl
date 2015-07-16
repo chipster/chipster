@@ -1,7 +1,0 @@
-TOOL hmmalign.sadl: hmmalign (Align sequences to a profile HMM.)
-INPUT hmm-model.txt: "HMM model" TYPE GENERIC
-INPUT sequences.txt: "sequence file" TYPE GENERIC
-OUTPUT hmmalign.txt
-PARAMETER OPTIONAL  -outformat: "Output format" TYPE [ Stockholm: " Stockholm", Pfam: "Pfam", A2M: "A2M", PSIBLAST: "PSIBLAST"  ] DEFAULT Stockholm (Choose output format)
-PARAMETER OPTIONAL trim-value-only: "trim nonaligned tails" TYPE [NO-VALUE: "No", --trim: "Yes"] DEFAULT NO-VALUE (Trim terminal tails of nonaligned residues from alignment)
-PARAMETER OPTIONAL allcol-value-only: "include all consensus columns" TYPE [NO-VALUE: "No", --allcol: "Yes"] DEFAULT NO-VALUE (include all consensus columns in alignment, even if all characters are gaps)

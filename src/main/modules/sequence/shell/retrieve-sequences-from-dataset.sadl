@@ -1,6 +1,0 @@
-TOOL import-sequences-from-database.sadl: "Retrieve sequences from dataset" (Retrieve sequences from a dataset.
-
-The 'identifiers' input dataset should contain the identifiers, one per each line, where as the 'source dataset' should be the dataset containing the sequences.)
-INPUT identifiers.txt: "sequence identifiers" TYPE GENERIC
-INPUT dataset.txt: "source dataset" TYPE GENERIC
-OUTPUT retrieve-from-dataset.txt

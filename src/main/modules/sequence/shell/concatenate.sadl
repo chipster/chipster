@@ -1,4 +1,0 @@
-TOOL concatenate.sadl: concatenate (Concatenate two files into one file.)
-INPUT file1.txt: "File to be concatenated" TYPE GENERIC
-INPUT file2.txt: "File to be concatenated" TYPE GENERIC
-OUTPUT concatenated.txt
