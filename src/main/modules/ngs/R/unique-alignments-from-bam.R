@@ -31,3 +31,16 @@ if (nhtag == "yes"){
 # run
 command <- paste(samtools.view, "|", samtools.binary, "view -bS - > unique_alignments.bam")
 system(command)
+
+# Handle output names
+source(file.path(chipster.common.path, "tool-utils.R"))
+
+# read input names
+inputnames <- read_input_definitions()
+
+# Make a matrix of output names
+outputnames <- matrix(NA, nrow=1, ncol=2)
+outputnames[1,] <- c("unique_alignments.bam", paste(inputnames$alignment.bam))
+
+# Write output definitions file
+write_output_definitions(outputnames)

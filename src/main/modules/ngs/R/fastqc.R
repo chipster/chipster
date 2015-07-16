@@ -98,4 +98,15 @@ title("Kmer Content")
 dev.off()
 
 
+# Handle output names
+source(file.path(chipster.common.path, "tool-utils.R"))
 
+# read input names
+inputnames <- read_input_definitions()
+
+# Make a matrix of output names
+outputnames <- matrix(NA, nrow=1, ncol=2)
+outputnames[1,] <- c("fastqc_report.pdf", paste(strip_name(inputnames$reads), ".pdf", sep=""))
+
+# Write output definitions file
+write_output_definitions(outputnames)

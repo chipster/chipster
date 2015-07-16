@@ -74,3 +74,22 @@ system(command)
 system("gzip *.fastq")
 system("gzip *.fasta")
 system("gzip *.qual")
+
+# Handle output names
+source(file.path(chipster.common.path, "tool-utils.R"))
+
+# read input names
+inputnames <- read_input_definitions()
+
+# Make a matrix of output names
+outputnames <- matrix(NA, nrow=3, ncol=2)
+
+base1 <- strip_name(inputnames$reads)
+
+outputnames[1,] <- c("trimmed.fastq.gz", paste(base1, ".fastq.gz", sep =""))
+outputnames[2,] <- c("trimmed.fasta.gz", paste(base1, ".fasta.gz", sep =""))
+outputnames[3,] <- c("trimmed.qual.gz", paste(base1, ".qual.gz", sep =""))
+
+
+# Write output definitions file
+write_output_definitions(outputnames)
