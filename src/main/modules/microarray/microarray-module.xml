@@ -97,7 +97,7 @@
 		<tool runtime="R-3.0"><resource>stat-geneset.R</resource></tool>
 		<tool runtime="R-3.0" module="common"><resource>pathways-mirna-hyperg-go.R</resource></tool> 
 		<tool runtime="R-3.0" module="common"><resource>pathways-mirna-hyperg-kegg.R</resource></tool> 
-		<tool runtime="python" module="common"><resource>annotate_cpdb.py</resource></tool>
+		<tool runtime="python" module="common"><resource>annotate-cpdb.py</resource></tool>
 	</category>
 
 	<category name="Promoter analysis" color="#629a9b">

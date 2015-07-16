@@ -353,7 +353,7 @@
 			<resource>dea-cufflinks.R</resource>
 		</tool> 	-->
 		<tool runtime="python" module="common">
-			<resource>annotate_cpdb.py</resource>
+			<resource>annotate-cpdb.py</resource>
 		</tool>
 	</category>
 
