@@ -1,4 +1,0 @@
-TOOL mafft-fftnsi.sadl: mafft-fftnsi (FFT-NS-i. Fast iterative progressive alignment methood that can be used for up to 5000 sequences)
-INPUT query: "Sequences to align" TYPE GENERIC
-OUTPUT out.txt
-

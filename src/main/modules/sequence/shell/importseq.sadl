@@ -1,5 +1,0 @@
-TOOL importseq.sadl: "Import sequence from database" (Import sequences using seqret tool from EMBOSS)
-OUTPUT import-from-database.txt
-PARAMETER sequence: "Accession id" TYPE STRING (accession number of sequence to be imported)
-PARAMETER OPTIONAL sbegin: "Beginning" TYPE INTEGER (beginning index)
-PARAMETER OPTIONAL send: "End" TYPE INTEGER (end index)

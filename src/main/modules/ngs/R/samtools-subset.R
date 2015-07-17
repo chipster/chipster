@@ -21,6 +21,22 @@ system(paste(samtools.binary, "index alignment-subset.bam"))
 #test.command <- paste(samtools.binary, "view -b -q", mapping.quality, "-o alignment-subset.bam alignment.bam", region)
 #stop(paste('CHIPSTER-NOTE: ', test.command))
 
+# Handle output names
+source(file.path(chipster.common.path, "tool-utils.R"))
+
+# read input names
+inputnames <- read_input_definitions()
+
+base <- strip_name(inputnames$alignment.bam)
+reg <- gsub(":", "_", region)
+
+# Make a matrix of output names
+outputnames <- matrix(NA, nrow=2, ncol=2)
+outputnames[1,] <- c("alignment-subset.bam", paste(base, "_", reg, ".bam", sep =""))
+outputnames[2,] <- c("alignment-subset.bam.bai", paste(base, "_", reg, ".bam.bai", sep =""))
+
+# Write output definitions file
+write_output_definitions(outputnames)
 
 
 

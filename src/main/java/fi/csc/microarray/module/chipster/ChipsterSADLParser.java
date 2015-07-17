@@ -32,12 +32,13 @@ public class ChipsterSADLParser extends SADLParser {
 	
 	public static class Validator {
 		
-		public void validate(String filename, String sadl) throws ParseException {
+		public List<SADLDescription> validate(String filename, String sadl) throws ParseException {
 			ChipsterSADLParser parser = new ChipsterSADLParser(filename);
 			List<SADLDescription> descriptions = parser.parseMultiple(sadl);
 			for (SADLDescription description : descriptions) {
 				checkParsedContent(description);
 			}
+			return descriptions;
 		}
 		
 		private void checkParsedContent(SADLDescription description) {
@@ -70,13 +71,6 @@ public class ChipsterSADLParser extends SADLParser {
 					// check that non-enum values do not have multiple default values
 					if (parameter.getDefaultValues().length > 1) {
 						throw new RuntimeException("non-enum parameter " + parameter.getName() + " has multiple default values");
-					}
-				}
-				
-				if (parameter.getType() == ParameterType.INTEGER) {
-					System.out.println("INTTI");
-					if (parameter.getDefaultValue().equals("3")) {
-						throw new RuntimeException("3 is illegal");
 					}
 				}
 			}

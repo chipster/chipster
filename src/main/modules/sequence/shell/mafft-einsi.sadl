@@ -1,4 +1,0 @@
-TOOL mafft-einsi.sadl: mafft-einsi (Iterative refinement method designed for sequences containing large unalignable regions. Recommended for less than 200 sequences) 
-INPUT query: "Sequences to align" TYPE GENERIC
-OUTPUT out.txt
-

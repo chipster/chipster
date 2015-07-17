@@ -1,5 +1,4 @@
-# TOOL fastqc.R: "Read quality with FastQC" (Generates plots for per base quality score and sequence content.
-# You can also create plots for GC and N content, sequence length distribution, duplication levels, overrepresented sequences and Kmer content by using the \"Create all plots\" parameter.
+# TOOL fastqc.R: "Read quality with FastQC" (Generates plots for per base quality score and sequence content, read GC and N content, length distribution, duplication levels, overrepresented sequences and Kmer content.
 # This tool is based on the FastQC package by Simon Andrews et al.)
 # INPUT reads TYPE GENERIC
 # OUTPUT fastqc_report.pdf
@@ -99,4 +98,15 @@ title("Kmer Content")
 dev.off()
 
 
+# Handle output names
+source(file.path(chipster.common.path, "tool-utils.R"))
 
+# read input names
+inputnames <- read_input_definitions()
+
+# Make a matrix of output names
+outputnames <- matrix(NA, nrow=1, ncol=2)
+outputnames[1,] <- c("fastqc_report.pdf", paste(strip_name(inputnames$reads), ".pdf", sep=""))
+
+# Write output definitions file
+write_output_definitions(outputnames)

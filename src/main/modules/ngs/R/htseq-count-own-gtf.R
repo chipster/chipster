@@ -64,4 +64,20 @@ if(print.coord == "no") {
 # write result table to output
 write.table(dat, file="htseq-counts.tsv", col.names=T, quote=F, sep="\t", row.names=F)
 
+# Handle output names
+source(file.path(chipster.common.path, "tool-utils.R"))
+
+# read input names
+inputnames <- read_input_definitions()
+
+basename <- strip_name(inputnames$alignment.bam)
+
+# Make a matrix of output names
+outputnames <- matrix(NA, nrow=1, ncol=2)
+outputnames[1,] <- c("htseq-counts.tsv", paste(basename, ".tsv", sep =""))
+
+# Write output definitions file
+write_output_definitions(outputnames)
+
+# EOF
 # EOF

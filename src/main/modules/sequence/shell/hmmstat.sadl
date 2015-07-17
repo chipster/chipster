@@ -1,3 +1,0 @@
-TOOL hmmstat.sadl: hmmstat (Display summary statistics for a profile file)
-INPUT hmm-model.txt: "HMM model" TYPE GENERIC
-OUTPUT hmmstat.txt

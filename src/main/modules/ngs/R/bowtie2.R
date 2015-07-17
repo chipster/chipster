@@ -91,3 +91,21 @@ if (unaligned.file== "yes"){
 	system("mv unaligned.1 unaligned_1.fq")
 }
 
+# Handle output names
+#
+source(file.path(chipster.common.path, "tool-utils.R"))
+
+# read input names
+inputnames <- read_input_definitions()
+
+# Determine base name
+basename <- strip_name(inputnames$reads1.fq)
+
+# Make a matrix of output names
+outputnames <- matrix(NA, nrow=3, ncol=2)
+outputnames[1,] <- c("bowtie2.bam", paste(basename, ".bam", sep =""))
+outputnames[2,] <- c("bowtie2.bam.bai", paste(basename, ".bam.bai", sep =""))
+outputnames[3,] <- c("unaligned_1.fq", paste(basename, "_unaligned.fq", sep=""))
+
+# Write output definitions file
+write_output_definitions(outputnames)

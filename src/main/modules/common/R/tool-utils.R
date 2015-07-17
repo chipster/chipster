@@ -18,15 +18,13 @@ write_output_definitions <- function(output_names){
 # Removes user-specified postfix if present
 #
 remove_postfix <- function(name, postfix){
-	#if (nchar(name) > 0 && nchar(postfix) > 0 ){
 	pf <- paste(postfix, "$", sep="")
 	if (grepl(pf, name)){
-			basename <- substr(name, 1, (nchar(name) - nchar(postfix)))
-			return(basename)
+		basename <- substr(name, 1, (nchar(name) - nchar(postfix)))
+		return(basename)
 	}else{
 		return(name)
 	}
-	
 }
 
 # Removes extension, i.e. everything after the last dot (including the dot)
@@ -38,7 +36,7 @@ remove_extension <- function(name){
 # Strips common file extensions from a file name
 #
 strip_name <- function(name){
-	known_postfixes <- c(".gz", ".bam", ".fa", ".fasta", ".fq", ".fastq", ".gtf", ".tsv", "_trimmed", "_filtered")
+	known_postfixes <- c(".gz", ".bam", ".sam", ".fa", ".fasta", ".fq", ".fastq", ".gtf", ".tsv", "_trimmed", "_filtered")
 	newname <- name
 	while (TRUE){
 		for (i in known_postfixes){
@@ -50,4 +48,18 @@ strip_name <- function(name){
 		name <- newname
 	}
 	return(name)
+	
+}
+
+# If the names look like typical paired-end names: *_1, *_2, remove the ending and return the name.
+# If not, return first name as-is.
+#
+paired_name <- function(name1, name2){
+	if (grepl("_1$", name1) && grepl("_2$", name2)){
+			return(remove_postfix(name1, "_1"))
+	}
+	if (grepl("_2$", name1) && grepl("_1$", name2)){
+			return(remove_postfix(name1, "_2"))
+	}
+	return(name1)
 }

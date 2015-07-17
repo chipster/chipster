@@ -77,3 +77,24 @@ system(paste(samtools.binary, "index alignment.sorted.bam"))
 # rename result files
 system("mv alignment.sorted.bam bowtie.bam")
 system("mv alignment.sorted.bam.bai bowtie.bam.bai")
+
+# Handle output names
+#
+source(file.path(chipster.common.path, "tool-utils.R"))
+
+# read input names
+inputnames <- read_input_definitions()
+
+# Determine base name
+basename <- strip_name(inputnames$reads.txt)
+
+# Make a matrix of output names
+outputnames <- matrix(NA, nrow=4, ncol=2)
+outputnames[1,] <- c("bowtie.bam", paste(basename, ".bam", sep =""))
+outputnames[2,] <- c("bowtie.bam.bai", paste(basename, ".bam.bai", sep =""))
+outputnames[3,] <- c("unaligned-reads.fastq", paste(basename, "_unaligned.fq", sep=""))
+outputnames[4,] <- c("multireads.fastq", paste(basename, "_multireads.fq", sep=""))
+
+# Write output definitions file
+write_output_definitions(outputnames)
+

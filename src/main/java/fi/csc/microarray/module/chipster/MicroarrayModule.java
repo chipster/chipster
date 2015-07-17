@@ -20,7 +20,6 @@ import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
@@ -30,7 +29,6 @@ import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.QuickLinkPanel;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
-import fi.csc.microarray.client.dialog.TaskImportDialog;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.operation.OperationRecord.InputRecord;
@@ -73,7 +71,6 @@ import fi.csc.microarray.filebroker.DbSession;
 import fi.csc.microarray.module.Module;
 import fi.csc.microarray.module.basic.BasicModule;
 import fi.csc.microarray.util.IOUtils;
-import fi.csc.microarray.util.LinkUtil;
 import fi.csc.microarray.util.Strings;
 
 public class MicroarrayModule implements Module {
@@ -133,6 +130,7 @@ public class MicroarrayModule implements Module {
 
 	public static final String IMPORT_FROM_ARRAYEXPRESS_ID = "import-ArrayExpress.R";
 	public static final String IMPORT_FROM_GEO_ID = "import-soft2.R";
+	public static final String DOWNLOAD_FILE_ID = "DownloadFile.java";
 
 	public void plugContentTypes(DataManager manager) {
 		manager.plugContentType("application/x-treeview", true, false, "Newick formatted tree from clustering", VisualConstants.ICON_TYPE_TEXT, "tre");
@@ -183,73 +181,12 @@ public class MicroarrayModule implements Module {
 
 	@Override
 	public void addImportMenuItems(JMenu importMenu) {
-		importMenu.add(getImportFromArrayExpressMenuItem());
-		importMenu.add(getImportFromGEOMenuItem());
-		importMenu.addSeparator();
+		// do nothing
 	}
 
-	private JMenuItem getImportFromArrayExpressMenuItem() {
-		JMenuItem importFromArrayExpressMenuItem = new JMenuItem();
-		importFromArrayExpressMenuItem.setText("ArrayExpress...");
-		importFromArrayExpressMenuItem.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent e) {
-				doImportFromArrayExpress();
-			}
-		});
-
-		return importFromArrayExpressMenuItem;
-	}
-
-	private JMenuItem getImportFromGEOMenuItem() {
-		JMenuItem importFromGEOMenuItem = new JMenuItem();
-		importFromGEOMenuItem.setText("GEO...");
-		importFromGEOMenuItem.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent e) {
-				doImportFromGEO();
-			}
-		});
-		return importFromGEOMenuItem;
-	}
-
-	@SuppressWarnings("serial")
 	@Override
 	public void addImportLinks(QuickLinkPanel quickLinkPanel, List<JXHyperlink> importLinks) {
-
-		importLinks.add(LinkUtil.createLink("Import from ArrayExpress", new AbstractAction() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				doImportFromArrayExpress();
-			}
-		}));
-
-		importLinks.add(LinkUtil.createLink("Import from GEO", new AbstractAction() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				doImportFromGEO();
-			}
-		}));
-	}
-
-	private void doImportFromGEO() {
-		try {
-			ClientApplication application = Session.getSession().getApplication();
-			Operation importOperation = new Operation(application.getOperationDefinition(MicroarrayModule.IMPORT_FROM_GEO_ID), new DataBean[] {});
-			new TaskImportDialog(application, "Import data from the GEO", null, importOperation);
-			
-		} catch (Exception me) {
-			Session.getSession().getApplication().reportException(me);
-		}
-	}
-
-	private void doImportFromArrayExpress() {
-		try {
-			ClientApplication application = Session.getSession().getApplication();
-			Operation importOperation = new Operation(application.getOperationDefinition(MicroarrayModule.IMPORT_FROM_ARRAYEXPRESS_ID), new DataBean[] {});
-			new TaskImportDialog(application, "Import data from the ArrayExpress", null, importOperation);
-			
-		} catch (Exception me) {
-			Session.getSession().getApplication().reportException(me);
-		}
+		// do nothing
 	}
 
 	@Override
