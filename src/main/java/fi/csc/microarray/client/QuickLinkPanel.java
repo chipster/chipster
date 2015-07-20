@@ -16,12 +16,9 @@ import javax.swing.JPanel;
 import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXHyperlink;
 
-import fi.csc.microarray.client.dialog.TaskImportDialog;
-import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.constants.VisualConstants;
-import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.module.Module;
-import fi.csc.microarray.module.chipster.MicroarrayModule;
+import fi.csc.microarray.module.basic.BasicModule;
 import fi.csc.microarray.util.LinkUtil;
 import fi.csc.microarray.util.Strings;
 
@@ -89,14 +86,7 @@ public class QuickLinkPanel extends JPanel {
 		importURLToServerLink = LinkUtil.createLink("Import from URL directly to server", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				try {
-					ClientApplication application = Session.getSession().getApplication();
-					Operation importOperation = new Operation(application.getOperationDefinition(MicroarrayModule.DOWNLOAD_FILE_ID), new DataBean[] {});
-					new TaskImportDialog(application, "Import from URL directly to server", null, importOperation);
-					
-				} catch (Exception me) {
-					Session.getSession().getApplication().reportException(me);
-				}
+				BasicModule.importFromUrlToServer();
 			}
 		});
 		

@@ -123,14 +123,6 @@ public class MicroarrayModule implements Module {
 		public static VisualisationMethod SAMBAM_VIEWER = new VisualisationMethod("BAM viewer", SamBamViewer.class, VisualConstants.TEXT_MENUICON, 100, -1);
 		public static VisualisationMethod PHENODATA = new VisualisationMethod("Phenodata editor", PhenodataEditor.class, VisualConstants.PHENODATA_MENUICON, 105, 0, "visualisation-phenodata.html");
 	}
-	
-	public static final String SERVER_MODULE_NAME = "microarray";
-
-	public static final String ANNOTATION_ID = "annotate-genelist2html.R";
-
-	public static final String IMPORT_FROM_ARRAYEXPRESS_ID = "import-ArrayExpress.R";
-	public static final String IMPORT_FROM_GEO_ID = "import-soft2.R";
-	public static final String DOWNLOAD_FILE_ID = "DownloadFile.java";
 
 	public void plugContentTypes(DataManager manager) {
 		manager.plugContentType("application/x-treeview", true, false, "Newick formatted tree from clustering", VisualConstants.ICON_TYPE_TEXT, "tre");
