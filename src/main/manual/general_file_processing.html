@@ -10,7 +10,9 @@
 <p>
 This tool reads a text file and performs the selected operation for it.
 Note that the search string is interpreted as regular expression, were dot (.)
-is interpreted as "any character".
+is interpreted as "any character". Further, because of security issues, several 
+non-alphabet characters are not allowed in string definitions. These include:
+",#,[,],{,},%,$,&,|,>,&gt , ?
 
 
 The available operations are:
