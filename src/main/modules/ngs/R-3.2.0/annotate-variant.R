@@ -2,19 +2,20 @@
 # INPUT input.vcf: "Sorted or unsorted VCF file" TYPE GENERIC
 # OUTPUT all-variants.tsv
 # OUTPUT coding-variants.tsv
-# PARAMETER genome: "Genome" TYPE [hg19: "Human (hg19\)"] DEFAULT hg19 (Reference sequence)
+# PARAMETER genome: "Genome" TYPE [hg19: "Human (hg19\)", hg38: "Human (hg38\)"] DEFAULT hg19 (Reference sequence)
 
 
 # 31.8.2012 	JTT
 # 15.11.2012 	JTT,EK  	Uses VariantAnnotation package 1.4.3. 
 # 01.06.2015 	ML 			Modifications to move the tool to new R version
-# 20.7.2015 	ML 	testaa 3
+# 20.7.2015 	ML 			Fixed the problems with different kinds of vcf-files
+# 27.7.2015		ML			Add hg38
 
 
 # Read data
 library(VariantAnnotation)
 vcf<-readVcf("input.vcf", genome)
-vcf@rowData@seqnames@values <- factor(vcf@rowData@seqnames@values)  					#hmmm...... pidä kommentoituna.
+vcf@rowData@seqnames@values <- factor(vcf@rowData@seqnames@values)  					
 
 # Correct the chromosome names: 
 if(length(grep("chr", vcf@rowData@seqnames@values))>=1) {
@@ -28,15 +29,31 @@ if(length(grep("chr", vcf@rowData@seqnames@values))>=1) {
       	rd<-rowRanges(vcf)
 		rd2 <- rd
 		seqlevelsStyle(rd2) <- "UCSC" 
+		
+		# Exon isoform database
+		library("TxDb.Hsapiens.UCSC.hg19.knownGene")
+		txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
+		library(BSgenome.Hsapiens.UCSC.hg19)
+   }
+   if(genome=="hg38") {
+	   vcf2 <- vcf
+	   seqlevelsStyle(vcf2) <- "UCSC" 
+	   
+	   rd<-rowRanges(vcf)
+	   rd2 <- rd
+	   seqlevelsStyle(rd2) <- "UCSC" 
+	   
+	   # Exon isoform database
+	   library("TxDb.Hsapiens.UCSC.hg38.knownGene")
+	   txdb <- TxDb.Hsapiens.UCSC.hg38.knownGene
+	   library(BSgenome.Hsapiens.UCSC.hg38)
    }
 }
 
-# Exon isoform database
-library("TxDb.Hsapiens.UCSC.hg19.knownGene")
-txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
+
 
 # remove mitochonrial DNA (it is causing problems with genome versions)
-# vcf2 <- keepSeqlevels(vcf2, seqlevels(vcf2)[1:24])								# hmmmm.... ongelmia jos järjestys väärä.
+# vcf2 <- keepSeqlevels(vcf2, seqlevels(vcf2)[1:24])								
 vcf2 <- keepSeqlevels(vcf2, c("chr1","chr2","chr3","chr4","chr5","chr6","chr7","chr8","chr9","chr10","chr11","chr12","chr13","chr14","chr15","chr16","chr17","chr18","chr19","chr20","chr21","chr22","chrX","chrY"))
 
 
@@ -77,7 +94,7 @@ nig$ENSEMBL<-rep(NA, nrow(nig))
 allvar3<-rbind(ig4, nig)
 
 # Predict coding amino acid changes
-library(BSgenome.Hsapiens.UCSC.hg19)
+# library(BSgenome.Hsapiens.UCSC.hg19)
 coding <- predictCoding(vcf2, txdb, seqSource=Hsapiens)
 cod<-elementMetadata(coding)
 cod2<-as.list(cod)
