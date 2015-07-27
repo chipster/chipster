@@ -15,7 +15,18 @@ emboss.path <- file.path(chipster.tools.path, "emboss" ,"bin")
 list_command <- paste("awk '{ print \"dbfetch:" ,db ,":\"$1 }' idlist.txt > idusa.txt" ,sep="" )
 #stop("CHIPSTER-NOTE:",list_command)
 system(list_command)
+
 emboss.binary <- file.path(emboss.path, "textget")
+
+if ( db == "refseqp" ){
+	emboss.binary <- file.path(emboss.path, "entret")
+}
+
+if ( db == "refseqn" ){
+	emboss.binary <- file.path(emboss.path, "entret")
+}
+
+
 command.full <- paste(emboss.binary, ' @idusa.txt -outfile data.txt > log.txt 2>&1' )
 system(command.full)
 

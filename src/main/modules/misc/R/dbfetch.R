@@ -23,15 +23,19 @@ if ( db == "sra"){
   system("mv *RR*_2.fastq sra_reads_2.fastq")  
 #  system('ls -l >> dbfetch.log')
 } else {  
-  emboss.path <- file.path(chipster.tools.path, "emboss" ,"bin")
-
-  emboss.usa <- paste("dbfetch" ,db ,entry_id ,sep=":" )
-
-  emboss.binary <- file.path(emboss.path, "textget")
-  if ( db == "refseqp" ){
-	  emboss.binary <- file.path(emboss.path, "entret")
-	  emboss.usa <- paste("refseqp::dbfetch" ,db ,entry_id ,sep=":" )
-  }
+	emboss.path <- file.path(chipster.tools.path, "emboss" ,"bin")
+	emboss.usa <- paste("dbfetch" ,db ,entry_id ,sep=":" )
+	emboss.binary <- file.path(emboss.path, "textget")
+	
+	if ( db == "refseqp" ){
+		emboss.binary <- file.path(emboss.path, "entret")
+		emboss.usa <- paste("dbfetch" ,db ,entry_id ,sep=":" )
+	}
+	
+	if ( db == "refseqn" ){
+		emboss.binary <- file.path(emboss.path, "entret")
+		emboss.usa <- paste("dbfetch" ,db ,entry_id ,sep=":" )
+	}
 
   command.full <- paste(emboss.binary, emboss.usa, '-outfile data.txt' )
   system(command.full)

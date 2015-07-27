@@ -212,6 +212,7 @@ launchflag=(0)
 deleteflag=(0)
 statusflag=(0)
 re=(0)
+tools_source=("CVMFS")
 
 flavor=('resource_tpl#4cpu-8gb-20dsk')
 endpoint="https://prisma-cloud.ba.infn.it:8787/"
@@ -375,17 +376,17 @@ volume=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms -
 ################
 #make user_data file for launching Chipster in VM
 ################
+
+#mounting tools directory in the case of NFS setup
+if [[ $tools_source == "NFS" ]]
+then
 cat > /tmp/chipster_server_startup_$$.sh <<EOF
 #!/bin/bash
 
 echo "$(cat ${keyname}.pub)" >> /home/ubuntu/.ssh/authorized_keys
 
-sudo mv /mnt/data  /mnt/data_old
-
-sudo rm -rf /mnt/data
+# NFS-mount tools
 sudo rm -rf /mnt/tools
-
-sudo mkdir /mnt/data
 sudo mkdir /mnt/tools
 cat /etc/fstab | grep -v LABEL=tools | grep -v LABEL=data  > fstab.tmp
 sudo mv fstab.tmp /etc/fstab
@@ -393,43 +394,85 @@ sudo mv fstab.tmp /etc/fstab
 #echo "chipsterex.cloud.ba.infn.it:/mnt/data /mnt/data nfs rw 0 0" | sudo tee -a /etc/fstab
 echo "chipsterex.cloud.ba.infn.it:/mnt/tools /mnt/tools nfs ro 0 0" | sudo tee -a /etc/fstab
 echo "/dev/vdb /mnt/data xfs defaults,nofail 0 0"  | sudo tee -a /etc/fstab
-
-
-#sudo mount /mnt/data
 sudo mount /mnt/tools
+sudo chown ubuntu:ubuntu /mnt/tools
+EOF
+fi
+#mounting tools directory in the case of CVMFS setup
+if [[ $tools_source == "CVMFS" ]]
+then
+cat > /tmp/chipster_server_startup_$$.sh <<EOF
+#!/bin/bash
+
+echo "$(cat ${keyname}.pub)" >> /home/ubuntu/.ssh/authorized_keys
+
+date > /home/ubuntu/cvmfsstartup.log
+pwd >> /home/ubuntu/cvmfsstartup.log
+whoami >>  /home/ubuntu/cvmfsstartup.log
+sudo apt-get update  >>  /home/ubuntu/cvmfsstartup.log
+echo Y | sudo apt-get install gdebi 2>&1 >> /home/ubuntu/cvmfsstartup.log
+wget https://ecsft.cern.ch/dist/cvmfs/cvmfs-config/cvmfs-config-default_latest_all.deb
+wget https://ecsft.cern.ch/dist/cvmfs/cvmfs-2.1.20/cvmfs_2.1.20_amd64.deb
+echo y | sudo gdebi cvmfs-config-default_latest_all.deb   2>&1 >>  /home/ubuntu/cvmfsstartup.log
+echo y | sudo gdebi cvmfs_2.1.20_amd64.deb  2>&1 >>  /home/ubuntu/cvmfsstartup.log
+sudo cvmfs_config setup  2>&1 >>  /home/ubuntu/cvmfsstartup.log 
+cd /etc/cvmfs
+#cp default.local ~/default.local.cvmfs.tmp
+echo CVMFS_HTTP_PROXY=DIRECT > /home/ubuntu/default.local.cvmfs.tmp
+sudo cp  /home/ubuntu/default.local.cvmfs.tmp ./default.local
+sudo service autofs stop  2>&1 >>  /home/ubuntu/cvmfsstartup.log 
+sudo service autofs status  2>&1 >>  /home/ubuntu/cvmfsstartup.log 
+sudo service autofs start  2>&1 >>  /home/ubuntu/cvmfsstartup.log 
+ls /cvmfs/chipster.egi.eu 2>&1 >>  /home/ubuntu/cvmfsstartup.log 
+ls -l /cvmfs/chipster.egi.eu/tools 2>&1 >>  /home/ubuntu/cvmfsstartup.log  
+sudo rm -rf /mnt/tools  2>&1 >>  /home/ubuntu/cvmfsstartup.log 
+sudo ln -s /cvmfs/chipster.egi.eu/tools /mnt/tools  2>&1 >>  /home/ubuntu/cvmfsstartup.log 
+date  >>  /home/ubuntu/cvmfsstartup.log
+EOF
+fi
+
+cat >> /tmp/chipster_server_startup_$$.sh <<EOF
+sudo mv /mnt/data  /mnt/data_old  
+sudo rm -rf /mnt/data
+sudo mkdir /mnt/data
 
 while [ ! -e /dev/vdb ] 
 do 
     echo Waiting for volume to attach
     sleep 5
 done
-sudo mkfs.xfs -f /dev/vdb
-sudo mount /mnt/data
-sudo mv /mnt/data_old/* /mnt/data/
+sudo mkfs.xfs -f /dev/vdb   2>&1 > /home/ubuntu/startup.log 
+sudo mount /mnt/data   2>&1 >>  /home/ubuntu/startup.log 
+sudo mv /mnt/data_old/* /mnt/data/  
 sudo rm -rf /mnt/data_old
 
 sleep 5
-sudo chown -R chipster:chipster /mnt/data
-sudo chown ubuntu:ubuntu /mnt/tools
-sudo rm -rf /opt/chipster/fileserver/db-root/ChipsterFilebrokerMetadataDatabase
+sudo chown -R chipster:chipster /mnt/data   2>&1 >> /home/ubuntu/startup.log 
+sudo rm -rf /opt/chipster/fileserver/db-root/ChipsterFilebrokerMetadataDatabase  2>&1 >>  /home/ubuntu/startup.log 
 sleep 5
-cd /opt/chipster
-sudo bash ./configure.sh auto
-sudo ln -s /mnt/data data
-sudo service chipster restart
-sudo service chipster-comp restart
+cd /opt/chipster 
+sudo bash ./configure.sh auto   2>&1 >>  /home/ubuntu/startup.log 
+sudo ln -s /mnt/data data   2>&1 >> ~/home/ubuntu/startup.log 
+sudo service chipster restart   2>&1 >>  /home/ubuntu/startup.log 
+sudo service chipster-comp restart  2>&1 >>  /home/ubuntu/startup.log 
 n=1
 while [[ $n -le 5 ]]
 do
   check=$\( sudo service chipster status | grep "not running" -i -c \)
   if [[ $check -ne 0 ]]
   then
-    sleep 30    sudo service chipster-comp restart
+    sleep 30 
+    sudo rm -rf /opt/chipster/fileserver/db-root/ChipsterFilebrokerMetadataDatabase
+    sudo service chipster restart   2>&1 >>  /home/ubuntu/startup.log  
+    sudo service chipster-comp restart  2>&1 >>  /home/ubuntu/startup.log 
     let "n++"
   else
     n=6
   fi
 done
+echo "Startup finished" >>  /home/ubuntu/startup.log 
+date >>  /home/ubuntu/startup.log 
+sudo service chipster status 2>&1 >>  /home/ubuntu/startup.log 
 EOF
 
 userdata="file:///tmp/chipster_server_startup_$$.sh"
@@ -453,7 +496,7 @@ echo "$volume"
 echo "Resource template: "$flavor
 
 # Remove user data file
-rm -f /tmp/chipster_server_startup_$$.sh
+#rm -f /tmp/chipster_server_startup_$$.sh
 
 #get the IP address
 vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $vmaddress | grep occi.networkinterface.address| awk '{print $3}')
