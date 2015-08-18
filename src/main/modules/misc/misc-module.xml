@@ -45,7 +45,7 @@
   	   <tool runtime="R-3.0"><resource>plotcon.R</resource></tool>
   	   <tool runtime="R-3.0"><resource>infoalign.R</resource></tool>
   	   <tool runtime="R-3.0"><resource>showalign.R</resource></tool>
-  	   <tool runtime="R-3.0"><resource>prettyplot.R</resource></tool>
+  	   <tool runtime="R-3.0"><resource>mview.R</resource></tool>
 	</category>
     <category name="Nucleic sequence analysis" color="#e7881c">     
         <tool runtime="R-3.0"><resource>eprimer.R</resource></tool>

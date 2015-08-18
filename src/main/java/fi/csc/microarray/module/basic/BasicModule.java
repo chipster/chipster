@@ -12,7 +12,10 @@ import javax.swing.JPanel;
 
 import org.jdesktop.swingx.JXHyperlink;
 
+import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.QuickLinkPanel;
+import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.dialog.TaskImportDialog;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.selection.IntegratedEntity;
@@ -43,6 +46,8 @@ import fi.csc.microarray.module.Module;
 
 public class BasicModule implements Module {
 
+	public static final String DOWNLOAD_FILE_ID = "DownloadFile.java";
+	
 	public static class TypeTags {
 		public static final TypeTag TABLE_WITHOUT_COLUMN_NAMES = new TypeTag("table-without-column-names", "first row is the first data row");
 		public static final TypeTag TABLE_WITH_COLUMN_NAMES = new TypeTag("table-with-column-names", "first row is the column name row");
@@ -225,5 +230,16 @@ public class BasicModule implements Module {
 	@Override
 	public Icon getIconFor(DataBean data) {
 		return data.getContentType().getIcon();
+	}
+
+	public static void importFromUrlToServer() {
+		try {
+			ClientApplication application = Session.getSession().getApplication();
+			Operation importOperation = new Operation(application.getOperationDefinition(BasicModule.DOWNLOAD_FILE_ID), new DataBean[] {});
+			new TaskImportDialog(application, "Import from URL directly to server", null, importOperation);
+			
+		} catch (Exception me) {
+			Session.getSession().getApplication().reportException(me);
+		}
 	}
 }
