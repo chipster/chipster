@@ -1,4 +1,4 @@
-# TOOL bwa-mem-with-index-building.R: "BWA MEM for single end reads and own genome" (Aligns reads to genomes and transcriptomes using the BWA MEM algorithm. Results are sorted and indexed bam files, which are ready for viewing in the Chipster genome browser. 
+# TOOL bwa-mem-with-index-building.R: "BWA MEM for single end reads and own genome" (Aligns reads to genomes using the BWA MEM algorithm. Results are sorted and indexed BAM files, which are ready for viewing in the Chipster genome browser. 
 # Note that this BWA tool requires that you have imported the reference genome to Chipster in fasta format. If you would like to align reads against publicly available genomes, please use the tool \"BWA MEM for single end reads\".)
 # INPUT reads.txt: "Reads to align" TYPE GENERIC 
 # INPUT genome.txt: "Reference genome" TYPE GENERIC

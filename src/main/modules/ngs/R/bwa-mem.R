@@ -1,4 +1,4 @@
-# TOOL bwa-mem.R: "BWA MEM for single end reads" (BWA aligns reads to genomes and transcriptomes using BWA MEM algorithm. Results are sorted and indexed bam files, which are ready for viewing in the Chipster genome browser. 
+# TOOL bwa-mem.R: "BWA MEM for single end reads" (Aligns reads to genomes using BWA MEM algorithm. Results are sorted and indexed BAM files, which are ready for viewing in the Chipster genome browser. 
 # Note that this BWA tool uses publicly available genomes. If you would like to align reads against your own datasets, please use the tool \"BWA MEM for single end reads and own genome\".)
 # INPUT reads.txt: "Reads to align" TYPE GENERIC 
 # OUTPUT bwa.bam 
