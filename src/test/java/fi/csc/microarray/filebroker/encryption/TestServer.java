@@ -10,15 +10,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.nio.SelectChannelConnector;
-import org.eclipse.jetty.server.ssl.SslSocketConnector;
-import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.DefaultServlet;
+import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.util.log.Log;
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.util.IO;
 import org.eclipse.jetty.util.URIUtil;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 import sun.net.www.protocol.http.HttpURLConnection;
 
@@ -27,15 +25,12 @@ public class TestServer {
 	
 	public static void main(String[] args) throws Exception {
 		Server jettyInstance = new Server();
-		jettyInstance.setThreadPool(new QueuedThreadPool());
-		SelectChannelConnector connector = new SelectChannelConnector();
-		connector.setServer(jettyInstance);
+		ServerConnector connector = new ServerConnector(jettyInstance);
 		connector.setPort(9080);
-		SslSocketConnector sslConnector = new SslSocketConnector();
-		sslConnector.setServer(jettyInstance);
+		SslContextFactory sslContext = new SslContextFactory("keystore.ks");
+		sslContext.setKeyStorePassword("microarray");
+		ServerConnector sslConnector = new ServerConnector(jettyInstance);
 		sslConnector.setPort(9443);
-		sslConnector.setKeystore("keystore.ks");
-		sslConnector.setKeyPassword("microarray");
 		jettyInstance.setConnectors(new Connector[]{ connector, sslConnector });
 
 		ServletContextHandler root = new ServletContextHandler(jettyInstance, "/", false, false);
@@ -74,7 +69,7 @@ public class TestServer {
 				IO.copy(request.getInputStream(), out);
 				
 			} catch (IOException e) {
-				Log.warn(Log.EXCEPTION, e); // is this obsolete?
+				//Log.warn(Log.EXCEPTION, e); // is this obsolete?
 				out.close();
 				throw(e);
 			}

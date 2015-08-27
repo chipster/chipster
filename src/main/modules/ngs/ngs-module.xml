@@ -13,12 +13,9 @@
 		<tool runtime="R-3.0">
 			<resource>rseqc.R</resource>
 		</tool>
-		<tool runtime="R-3.1.2">
+		<tool runtime="R-3.2.0">
 			<resource>deseq2-pca-heatmap.R</resource>
-		</tool>	
-		<tool runtime="R-3.1.2">
-			<resource>deseq2-normalized-counts-for-gene.R</resource>
-		</tool>	
+		</tool>		
 	</category>
 	
 	<category name="Preprocessing" color="#e7df70">	
@@ -64,20 +61,29 @@
 		<tool runtime="R-3.0">
 			<resource>filter-bed-value.R</resource>
 		</tool>
-		<tool runtime="R-3.0" module="common"><resource>extract-samples-from-dataset.R</resource>
+		<tool runtime="R-3.0" module="common">
+			<resource>extract-samples-from-dataset.R</resource>
 		</tool>
-		<tool runtime="R-3.0" module="common"><resource>select_columns.R</resource>
+		<tool runtime="R-3.0" module="common">
+			<resource>select_columns.R</resource>
 		</tool>
-		<tool runtime="R-3.0" module="common"><resource>sort_and_select_columns.R</resource>
+		<tool runtime="R-3.0" module="common">
+			<resource>sort_and_select_columns.R</resource>
 		</tool>
-		<tool runtime="R-3.0">
-			<resource>annotate-ensembl-ids.R</resource>
+		<tool runtime="R-3.0" module="common">
+			<resource>join_tsv_files.R</resource>
 		</tool>	
 		<tool runtime="R-3.0">
 			<resource>process-preprocessed-counts.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
 			<resource>normalise-counts.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
+			<resource>annotate-ensembl-ids.R</resource>
+		</tool>
+		<tool runtime="R-3.2.0">
+			<resource>deseq2-normalized-counts-for-gene.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
 			<resource>a5-miseq.R</resource>
@@ -110,9 +116,6 @@
 			<resource>samtools-consensus.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
-			<resource>samtools-index-fasta.R</resource>
-		</tool>
-		<tool runtime="R-3.0">
 			<resource>unique-alignments-from-bam.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
@@ -123,6 +126,15 @@
 		</tool>
 		<tool runtime="R-3.0">
 			<resource>subset-fastq.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
+			<resource>samtools-index-fasta.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
+			<resource>fastx-renamer.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
+			<resource>fastx-collapser.R</resource>
 		</tool>
 		<tool runtime="java">
 			<resource>fi.csc.chipster.tools.ngs.SortBed</resource>
@@ -142,11 +154,23 @@
 		<tool runtime="R-3.0">
 			<resource>bedtools-fastafrombed.R</resource>
 		</tool>
-		<tool runtime="R-3.0">
-			<resource>fastx-renamer.R</resource>
+		<tool runtime="R-3.0" module="common">
+			<resource>srafetch.R</resource>
 		</tool>
-		<tool runtime="R-3.0">
-			<resource>fastx-collapser.R</resource>
+	   <tool runtime="R-3.0" module="common">
+	   		<resource>srabamfetch.R</resource>
+	   </tool>
+       <tool runtime="R-3.0" module="common">
+       		<resource>ensemblfetch.R</resource>
+       	</tool>
+		<tool runtime="java">
+			<resource>fi.csc.chipster.tools.common.DownloadFile</resource>
+		</tool>
+		<tool runtime="python" module="common">
+			<resource>extract_gzip_tar.py</resource>
+		</tool>
+		<tool runtime="python" module="common">
+			<resource>gunzip.py</resource>
 		</tool>		
 	    <tool runtime="R-3.0">
 			<resource>test-data-in.R</resource>
@@ -156,19 +180,7 @@
 		</tool>
 		<tool runtime="python">
 			<resource>test-data-in-out.py</resource>
-		</tool>
-		<tool runtime="R-3.0" module="common">
-			<resource>join_tsv_files.R</resource>
-		</tool>
-		<tool runtime="java">
-			<resource>fi.csc.chipster.tools.common.DownloadFile</resource>
-		</tool>
-		<tool runtime="python" module="common">
-			<resource>extract_gzip_tar.py</resource>
-		</tool>
-		<tool runtime="python" module="common">
-			<resource>gunzip.py</resource>
-		</tool>
+		</tool> 
 	</category>
 
 	<category name="Matching sets of genomic regions" color="#e7881c">
@@ -280,12 +292,6 @@
 		<tool runtime="R-3.0">
 			<resource>bowtie-paired-end-with-index-building.R</resource>
 		</tool>
-<!--  		<tool runtime="R-3.0">
-			<resource>tophat.R</resource>
-		</tool>
-		<tool runtime="R-3.0">
-			<resource>tophat-single-end.R</resource>
-		</tool>-->
 	</category>
 	
 	<category name="Variants" color="#80a3b7">
@@ -295,7 +301,7 @@
 		<tool runtime="R-3.0">
 			<resource>vcftools.R</resource>
 		</tool>
-		<tool runtime="R-2.15_bioc-2.11">
+		<tool runtime="R-3.2.0">
 			<resource>annotate-variant.R</resource>
 		</tool>
 	</category>
@@ -316,9 +322,9 @@
 		<tool runtime="R-3.0">
 			<resource>express.R</resource>
 		</tool>
-		<tool runtime="R-3.1.2">
+		<tool runtime="R-3.2.0">
 			<resource>deseq2.R</resource>
-		</tool>
+		</tool>	
 		<tool runtime="R-3.0">
 			<resource>dea-deseq.R</resource>
 		</tool>
@@ -347,7 +353,7 @@
 			<resource>dea-cufflinks.R</resource>
 		</tool> 	-->
 		<tool runtime="python" module="common">
-			<resource>annotate_cpdb.py</resource>
+			<resource>annotate-cpdb.py</resource>
 		</tool>
 	</category>
 
@@ -363,7 +369,7 @@
 			<resource>fi.csc.chipster.tools.ngs.regions.FindOverlappingDatabaseTool</resource>
 		</tool>
 		-->
-		<tool runtime="R-3.1.2">
+		<tool runtime="R-3.2.0">
 			<resource>deseq2.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
@@ -375,7 +381,6 @@
 		<tool runtime="R-3.0">
 			<resource>edgeR-multivariate.R</resource>
 		</tool>
-		
 		<tool runtime="R-3.0">
 			<resource>ngs-annotate-miRNA-targets.R</resource>
 		</tool> 

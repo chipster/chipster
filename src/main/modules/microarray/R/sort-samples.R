@@ -2,7 +2,7 @@
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT sort-samples.tsv: sort-samples.tsv 
-# OUTPUT phenodata-sorted.tsv: phenodata-sorted.tsv 
+# OUTPUT META phenodata-sorted.tsv: phenodata-sorted.tsv 
 # PARAMETER column: Column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column specifying how to sort)
 
 # JTT, 06.02.2008, Sort samples

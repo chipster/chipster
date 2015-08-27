@@ -17,7 +17,7 @@ import fi.csc.microarray.messaging.message.JobMessage;
 import fi.csc.microarray.security.CryptoKey;
 import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.Files;
-import fi.csc.microarray.util.JavaToolUtils;
+import fi.csc.microarray.util.ToolUtils;
 
 /**
  * Provides functionality for transferring input files from file broker
@@ -76,7 +76,7 @@ public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 				nameMap.put(fileName, inputMessage.getName(fileName));
 			}
 			
-			JavaToolUtils.writeInputDescription(new File(jobWorkDir, "inputs.tsv"), nameMap);
+			ToolUtils.writeInputDescription(new File(jobWorkDir, "chipster-inputs.tsv"), nameMap);
 			
 		} catch (Exception e) {
 			outputMessage.setErrorMessage("Transferring input data to computing service failed.");
@@ -126,10 +126,10 @@ public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 			}
 			
 			// parse a file containing 
-			String outputsFilename = "outputs.tsv";
+			String outputsFilename = "chipster-outputs.tsv";
 			LinkedHashMap<String, String> nameMap = new LinkedHashMap<>();
 			try {
-				nameMap = JavaToolUtils.parseOutputDescription(new File(jobWorkDir, outputsFilename));
+				nameMap = ToolUtils.parseOutputDescription(new File(jobWorkDir, outputsFilename));
 			} catch (IOException | MicroarrayException e) {
 				logger.warn("couldn't parse " + outputsFilename);
 				outputMessage.setErrorMessage("couldn't parse " + outputsFilename);

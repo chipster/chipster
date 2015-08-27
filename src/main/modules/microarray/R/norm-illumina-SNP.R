@@ -2,7 +2,7 @@
 # INPUT chip.txt: chip.txt TYPE GENERIC 
 # OUTPUT normalized.tsv: normalized.tsv 
 # OUTPUT META phenodata.tsv: phenodata.tsv 
-# PARAMETER method: "Allel calling method" TYPE [illumina: illumina, crlmm: CRLMM] DEFAULT illumina (Allel calling method. Choosing Illumina, allels calls given in the input are accepted. For CRLMM, allell calls are computed from X-Raw and Y-Raw values)
+# PARAMETER method: "Allel calling method" TYPE [illumina: illumina, crlmm: CRLMM] DEFAULT illumina (Allele calling method. Choosing Illumina, alleles calls given in the input are accepted. For CRLMM, allele calls are computed from X-Raw and Y-Raw values)
 # PARAMETER input: "Input format" TYPE [illumina: illumina, xy: xy-matrix] DEFAULT illumina (Input format. Illumina method requires output file created using GenCall software from Illumina where samples are listed one below another, whereas CRLMM also accepts xy-matrix.)
 # PARAMETER cdfName: "CDF name" TYPE [default: default, human1mduov3b: human1mduov3b, human1mv1c: human1mv1c, human370quadv3c: human370quadv3c, human370v1c: human370v1c, human550v3b: human550v3b, human610quadv1b: human610quadv1b, human650v3a: human650v3a, human660quadv1a: human660quadv1a, humanomni1quadv1b: humanomni1quadv1b, humanomniexpress12v1b: humanomniexpress12v1b, humancytosnp12v2p1h: humancytosnp12v2p1h, humanomni25quadv1b: humanomni25quadv1b, humanomni5quadv1b: humanomni5quadv1b] DEFAULT default (Name of the description file to be used in normalization, by defualt obtained from data)
 # PARAMETER SNRMin: "Signal-to-noise ratio" TYPE DECIMAL FROM 0 TO 10000 DEFAULT 5 (Value defining the minimum signal-to-noise ratio used to filter out samples, higher values mean more strict filtering. Affects only the CRLMM-function)
@@ -15,7 +15,8 @@ if(method == "illumina") {
  	if(input == "xy") {
  		stop("CHIPSTER-NOTE: Illumina type of preprocessing cannot be applied to xy-matrices");
  	}
-
+	# ELSE: if input = illumina
+	
 	#allel calls
 	firstfield <- scan(dir(), what = "", sep = ",", flush = TRUE, quiet = TRUE, blank.lines.skip = FALSE, multi.line = FALSE)
 	skip <- grep("[Data]", firstfield, fixed = TRUE)
@@ -36,6 +37,8 @@ if(method == "illumina") {
 	sample<-colnames(dat2)
 	group<-c(rep("", ncol(dat2)))
 	write.table(data.frame(sample=sample, chiptype=chiptype, group=group), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+
+# if method = CRLMM
 } else {	
 	library(crlmm)
 	library(Biobase)
@@ -68,6 +71,7 @@ if(method == "illumina") {
 								 Y = initializeBigMatrix(name = "Y", nr = nrow(Y), nc = ncol(Y), vmode = "integer", initdata = as.matrix(Y)),
 								 zero = initializeBigMatrix(name = "zero", nr = nrow(zeroes), nc = ncol(zeroes), vmode = "integer", initdata = as.matrix(zeroes)), 
 								 annotation = cdfName, storage.mode = "environment");
+	# if input = Illumina					 
 	} else {
 		#overwrite the original function
 		source(file.path(chipster.common.path, "crlmm-utils.R"))

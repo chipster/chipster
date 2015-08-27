@@ -100,7 +100,7 @@ public class PhenodataProvider extends FeatureProviderBase {
 		String originalName = sampleName; 
 
 		if (bean != null) {
-			Table table;
+			Table table = null;
 			try {
 				table = bean.queryFeatures("/column/*").asTable();
 
@@ -124,6 +124,8 @@ public class PhenodataProvider extends FeatureProviderBase {
 
 			} catch (MicroarrayException e) {
 				// do nothing, value was just not found
+			} finally {
+				table.close();
 			}
 		}
 

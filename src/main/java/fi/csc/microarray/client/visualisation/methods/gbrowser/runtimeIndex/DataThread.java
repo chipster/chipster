@@ -14,9 +14,9 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosom
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataStatus;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.SearchRequest;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.SearchRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 
 

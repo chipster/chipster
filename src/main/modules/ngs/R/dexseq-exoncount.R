@@ -53,5 +53,20 @@ names(dat) <- c("id", "count")
 # write result table to output
 write.table(dat, file="exon-counts.tsv", col.names=T, quote=F, sep="\t", row.names=F)
 
+
+# Handle output names
+source(file.path(chipster.common.path, "tool-utils.R"))
+
+# read input names
+inputnames <- read_input_definitions()
+
+# Make a matrix of output names
+outputnames <- matrix(NA, nrow=1, ncol=2)
+outputnames[1,] <- c("exon-counts.tsv", paste(strip_name(inputnames$alignment.bam), ".tsv", sep =""))
+
+# Write output definitions file
+write_output_definitions(outputnames)
+
+
 # EOF
 

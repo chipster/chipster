@@ -1,9 +1,0 @@
-TOOL blastdbcmd.sadl: blastdbcmd (A tool to retrieve sequences from BLAST databases.)
-INPUT entry_batch: "Sequence ID:s to retrieve" TYPE GENERIC
-OUTPUT out.txt
-PARAMETER db: "Database" TYPE [nr: "NCBI non-redundant proteins", pdb: "PDB", swiss: "UniProt / Swiss", trembl: "UniProt / TrEMBL",
-	uniprot: "UniProt", uniref100: "UniRef100", uniref90: "UniRef90", uniref50: "UniRef50", nt: "NCBI non-redundant nucleotide database",
-	embl_others: "EMBL excluding the EST, GSS and HTG divisions, and the WGS sets",
-	embl_est: "EMBL EST division", embl_gss: "EMBL GSS division",
-	embl_htg: "EMBL GSS division", emblnew: "EMBL updates", refseq: "NCBI RefSeq RNA database",
-	refseq_con: "NCBI RefSeq human contigs"] DEFAULT nr (Choose a database)

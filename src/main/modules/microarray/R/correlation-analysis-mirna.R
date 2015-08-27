@@ -1,8 +1,8 @@
 # TOOL correlation-analysis-mirna.R: "Correlate miRNA with target expression" (Performs a statistical test to detect miRNA targets whose expression is significantly positively or negatively correlated to the expression of the miRNA.)
 # INPUT normalized_mirna.tsv: normalized_mirna.tsv TYPE GENE_EXPRS 
 # INPUT normalized_gene.tsv: normalized_gene.tsv TYPE GENE_EXPRS 
-# INPUT phenodata_mirna.tsv: phenodata_mirna.tsv TYPE GENERIC 
-# INPUT phenodata_gene.tsv: phenodata_gene.tsv TYPE GENERIC 
+# INPUT META phenodata_mirna.tsv: phenodata_mirna.tsv TYPE GENERIC 
+# INPUT META phenodata_gene.tsv: phenodata_gene.tsv TYPE GENERIC 
 # OUTPUT mirna-gene-positive-correlation.tsv: mirna-gene-positive-correlation.tsv 
 # OUTPUT mirna-gene-negative-correlation.tsv: mirna-gene-negative-correlation.tsv 
 # PARAMETER order.column: "Order column" TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column present in both phenodata matrices and describing the order of the samples, so that the gene expression and miRNA expression arrays can be correctly matched in the analysis. The identifiers within a given phenodata matrix should be unique and the chip-pair having the same identifier in both matrices are considerd to form a pair.) 

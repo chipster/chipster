@@ -36,17 +36,17 @@ public class SOM extends Visualisation {
 	public JComponent getVisualisation(DataBean data) throws Exception {
 
 		// iterate over input data to find out the dimensions of the table
-		Table som = data.queryFeatures("/clusters/som").asTable();
-
 		int maxX=0;
 		int maxY=0;
+		try (Table som = data.queryFeatures("/clusters/som").asTable()) {
 
-		while (som.nextRow()) {
-			if (som.getIntValue("x") > maxX) {
-				maxX = som.getIntValue("x");
-			}
-			if (som.getIntValue("y") > maxY) {
-				maxY = som.getIntValue("y");
+			while (som.nextRow()) {
+				if (som.getIntValue("x") > maxX) {
+					maxX = som.getIntValue("x");
+				}
+				if (som.getIntValue("y") > maxY) {
+					maxY = som.getIntValue("y");
+				}
 			}
 		}
 
@@ -54,48 +54,49 @@ public class SOM extends Visualisation {
 		SOMDataset dataset = new SOMDataset(maxX,maxY);
 
 		// iterate again to read actual data
-		som = data.queryFeatures("/clusters/som").asTable();			
-		
-		TableAnnotationProvider annotationProvider = new TableAnnotationProvider(data);
+		try (Table som = data.queryFeatures("/clusters/som").asTable()) {			
 
-		// parse and convert values from dataBean to SOMDataset
-		while (som.nextRow()) {
+			TableAnnotationProvider annotationProvider = new TableAnnotationProvider(data);
 
-			// color from hex to Color-object
-			String colorStr = som.getStringValue("color");			
-			Color color;
+			// parse and convert values from dataBean to SOMDataset
+			while (som.nextRow()) {
 
-			if (colorStr.charAt(0) == '#'){
-				color = Color.decode(colorStr.substring(0));
-			} else {
-				throw new RuntimeException("color format not supported for SOM visualization: " + colorStr);
-			}			
+				// color from hex to Color-object
+				String colorStr = som.getStringValue("color");			
+				Color color;
 
-			// values and vectors from string to typed tables
-			
-			ArrayList<String> values = new ArrayList<String>();
-			//For all clusters
-			for(String idList: som.getStringValue("values").split(", ")){				
-				//For all genes in a cluster
-				for(String id: idList.trim().split(" ")){
-					values.add(annotationProvider.getAnnotatedRowname(id.trim()));
+				if (colorStr.charAt(0) == '#'){
+					color = Color.decode(colorStr.substring(0));
+				} else {
+					throw new RuntimeException("color format not supported for SOM visualization: " + colorStr);
+				}			
+
+				// values and vectors from string to typed tables
+
+				ArrayList<String> values = new ArrayList<String>();
+				//For all clusters
+				for(String idList: som.getStringValue("values").split(", ")){				
+					//For all genes in a cluster
+					for(String id: idList.trim().split(" ")){
+						values.add(annotationProvider.getAnnotatedRowname(id.trim()));
+					}
 				}
+				String[] vectorStrings = som.getStringValue("vector").split(",");			
+				double[] vectorDoubles = new double[vectorStrings.length]; 
+
+				for(int i = 0; i< vectorStrings.length; i++){
+					vectorDoubles[i] = Double.parseDouble(vectorStrings[i]);
+				}			
+
+				// create data item (cluster)
+				SOMDataItem dataItem = new SOMDataItem(color, values.toArray(new String[values.size()]), vectorDoubles);
+
+				int x = som.getIntValue("x");
+				int y = som.getIntValue("y");
+
+				// array indexes start from zero
+				dataset.addValue(x-1, y-1, dataItem);
 			}
-			String[] vectorStrings = som.getStringValue("vector").split(",");			
-			double[] vectorDoubles = new double[vectorStrings.length]; 
-
-			for(int i = 0; i< vectorStrings.length; i++){
-				vectorDoubles[i] = Double.parseDouble(vectorStrings[i]);
-			}			
-
-			// create data item (cluster)
-			SOMDataItem dataItem = new SOMDataItem(color, values.toArray(new String[values.size()]), vectorDoubles);
-
-			int x = som.getIntValue("x");
-			int y = som.getIntValue("y");
-
-			// array indexes start from zero
-			dataset.addValue(x-1, y-1, dataItem);
 		}
 
 		JFreeChart chart = BioChartFactory.createSOMChart(

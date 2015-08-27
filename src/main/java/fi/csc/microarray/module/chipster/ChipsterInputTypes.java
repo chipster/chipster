@@ -48,8 +48,7 @@ public class ChipsterInputTypes {
 		}
 
 		public boolean isTypeOf(DataBean dataBean) {
-			try {
-				Table chips = dataBean.queryFeatures("/column/chip.*").asTable();
+			try (Table chips = dataBean.queryFeatures("/column/chip.*").asTable()) {
 				return chips != null && chips.getColumnCount() > 0;
 			} catch (MicroarrayException e) {
 				throw new RuntimeException(e);

@@ -2,7 +2,7 @@
 # INPUT file{...}.txt: "Sequence or data quality files" TYPE GENERIC 
 # OUTPUT all.fasta
 # OUTPUT all.qual
-# OUTPUT phenodata.tsv
+# OUTPUT META phenodata.tsv
 # OUTPUT OPTIONAL prepare_data_log.txt
 # PARAMETER number.to.sample: "Number to sample" TYPE INTEGER FROM 0 TO 1000000 DEFAULT 0 (Number of sequences to sample from each each sequence file. If the value is left at default, all sequences are selected.)
 

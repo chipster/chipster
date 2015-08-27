@@ -1,6 +1,0 @@
-TOOL retrieve-sequences-from-database.sadl: "Retrieve sequences from database" (Retrieve sequences from a database using seqret tool from EMBOSS.
-
-The input dataset should contain the identifiers, one per each line. Remember to specify the source database in the parameters.)
-INPUT identifiers.txt: "sequence identifiers" TYPE GENERIC
-OUTPUT retrieve-from-database.txt
-PARAMETER source: "Source database" TYPE [embl: "EMBL", emblnew: "EMBL New", pdb_seq: "PDB", swiss: "UniProt / SwissProt", trembl: "UniProt / TrEMBL", ensembl: "Ensembl"] (Source database)

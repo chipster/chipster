@@ -382,7 +382,7 @@ public class SessionReplayTest extends MessagingTestBase {
 			try {
 				
 				// Link result beans, add to folders etc			
-				Session.getSession().getApplication().onFinishedTask(task, operation.getResultListener(), task.getState());
+				Session.getSession().getApplication().onFinishedTask(task, operation.getResultListener(), task.getState(), true);
 
 				// Check that number of results and result names match
 				Iterator<DataBean> targetIterator = task.getOutputs().iterator();
@@ -718,7 +718,9 @@ public class SessionReplayTest extends MessagingTestBase {
 
 		@Override
 		public void reportException(Exception e) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
+			System.err.println(this.getClass().getSimpleName() + " reporting an exception:");
+			e.printStackTrace();
+			logger.error(e);
 		}
 
 		@Override
@@ -753,7 +755,9 @@ public class SessionReplayTest extends MessagingTestBase {
 
 		@Override
 		public void reportExceptionThreadSafely(Exception e) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
+			System.err.println(this.getClass().getSimpleName() + " reporting an exception:");
+			e.printStackTrace();
+			logger.error(e);
 		}
 	}
 

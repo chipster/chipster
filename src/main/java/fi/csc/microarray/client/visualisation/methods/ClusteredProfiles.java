@@ -12,11 +12,14 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.MultiChartPanel;
 import org.jfree.data.category.DefaultCategoryDataset;
 
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.visualisation.TableAnnotationProvider;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.methods.ExpressionProfile.ProfileRow;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.LinkUtils;
+import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
@@ -29,7 +32,12 @@ public class ClusteredProfiles extends Visualisation {
 
 	@Override
 	public JComponent getVisualisation(DataBean data) throws Exception {
-
+		
+		// create a local copy of the phenodata to speed up initialization over
+		// slower connections (takes several minutes otherwise)
+		DataBean metadata = LinkUtils.retrieveInherited(data, Link.ANNOTATION);
+		Session.getSession().getDataManager().getLocalFile(metadata);
+		
 		// count clusters
 		int clusterCount = 0;
 		Iterable<String> clusters = data.queryFeatures("/column/cluster").asStrings();
@@ -54,29 +62,30 @@ public class ClusteredProfiles extends Visualisation {
 		
 		TableAnnotationProvider annotationProvider = new TableAnnotationProvider(data);
 		
-		Table samples = data.queryFeatures("/column/*").asTable();		
-		int[] rowNumbers = new int[clusterCount];
-		while (samples.nextRow()) {
-			int cluster = samples.getIntValue("cluster");
-			boolean firstSample = true;
-			for (String sample : samples.getColumnNames()) {
-				if (sample.startsWith("chip.")) {
-					
-					// order by first chip
-					if (firstSample) {
-						ProfileRow row = new ProfileRow();
-						row.value = samples.getFloatValue(sample);
-						row.series = rowNumbers[cluster-1];
-						firstSample = false;
-						rows.get(cluster-1).add(row);
+		try (Table samples = data.queryFeatures("/column/*").asTable()) {		
+			int[] rowNumbers = new int[clusterCount];
+			while (samples.nextRow()) {
+				int cluster = samples.getIntValue("cluster");
+				boolean firstSample = true;
+				for (String sample : samples.getColumnNames()) {
+					if (sample.startsWith("chip.")) {
+
+						// order by first chip
+						if (firstSample) {
+							ProfileRow row = new ProfileRow();
+							row.value = samples.getFloatValue(sample);
+							row.series = rowNumbers[cluster-1];
+							firstSample = false;
+							rows.get(cluster-1).add(row);
+						}
+						String sampleName = data.queryFeatures("/phenodata/linked/describe/" + sample.substring("chip.".length())).asString();
+						datasets.get(cluster-1).addValue((double)samples.getFloatValue(sample), samples.getStringValue(" "), sampleName);
+						String rowName = annotationProvider.getAnnotatedRowname(samples.getStringValue(" "));
+						datasets.get(cluster-1).addValue((double)samples.getFloatValue(sample), rowName, sampleName);
 					}
-					String sampleName = data.queryFeatures("/phenodata/linked/describe/" + sample.substring("chip.".length())).asString();
-					datasets.get(cluster-1).addValue((double)samples.getFloatValue(sample), samples.getStringValue(" "), sampleName);
-					String rowName = annotationProvider.getAnnotatedRowname(samples.getStringValue(" "));
-					datasets.get(cluster-1).addValue((double)samples.getFloatValue(sample), rowName, sampleName);
 				}
+				rowNumbers[cluster-1]++;
 			}
-			rowNumbers[cluster-1]++;
 		}
 		
 		// draw plots
