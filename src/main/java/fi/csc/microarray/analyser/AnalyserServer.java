@@ -300,7 +300,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 			
 			// Request to cancel a job
 			else if (CommandMessage.COMMAND_CANCEL.equals(commandMessage.getCommand())) {
-				String jobId = commandMessage.getParameters().get(0);
+				String jobId = commandMessage.getNamedParameter(ParameterMessage.PARAMETER_JOB_ID);
 				
 				cancelJob(jobId);			
 			}
