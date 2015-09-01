@@ -1,4 +1,4 @@
-# TOOL bwa-paired-end.R: "BWA for paired end reads" (BWA aligns reads to genomes. Results are sorted and indexed BAM files, which are ready for viewing in the Chipster genome browser. 
+# TOOL bwa-paired-end.R: "BWA ALN for paired end reads" (BWA aligns reads to genomes. Results are sorted and indexed BAM files, which are ready for viewing in the Chipster genome browser. 
 # Note that this BWA tool uses publicly available genomes. If you would like to align reads against your own datasets, please use the tool \"BWA for paired-end reads and own genome\".)
 # INPUT reads1.txt: "Paired-end read set 1 to align" TYPE GENERIC 
 # INPUT reads2.txt: "Paired-end read set 2 to align" TYPE GENERIC 
