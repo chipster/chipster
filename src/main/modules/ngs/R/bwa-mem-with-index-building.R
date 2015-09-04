@@ -13,7 +13,7 @@
 # PARAMETER OPTIONAL gapopen: "Gap opening penalty" TYPE INTEGER DEFAULT 6 (Gap opening penalty.)
 # PARAMETER OPTIONAL gapextension: "Gap extension penalty" TYPE INTEGER DEFAULT 1 (Gap extension penalty.)
 # PARAMETER OPTIONAL clippenalty: "Penalty for end clipping" TYPE INTEGER DEFAULT 5 (Penalty for 5\'- and 3\'-end clipping. When performing the Smith-Waterman extension of the seed alignments, BWA-MEM keeps track of the best score reaching the end of the read. If this score is larger than the best SW score minus the clipping penalty, clipping will not be applied.) 
-# PARAMETER OPTIONAL rgid: "Read group dentifier" TYPE STRING (Read group identifier. If you want to add the read group line in the BAM file, you have to give this information.)
+# PARAMETER OPTIONAL rgid: "Read group identifier" TYPE STRING (Read group identifier. If you want to add the read group line in the BAM file, you have to give this information.)
 # PARAMETER OPTIONAL rgsm: "Sample name for read group" TYPE STRING (The name of the sample sequenced in this read group. Note that you have to fill in also the read group identifier parameter for the read group information to appear in the BAM file.)
 # PARAMETER OPTIONAL rgpl: "Platform for read group" TYPE [ none: "Not defined", ILLUMINA, SOLID, LS454, HELICOS, PACBIO] DEFAULT none (Platform\/technology used to produce the read. Note that you have to fill in also the read group identifier parameter for the read group information to appear in the BAM file.)
 # PARAMETER OPTIONAL rglb: "Library identifier for read group" TYPE STRING (DNA preparation library identifier. The Mark Duplicates tool uses this field to determine which read groups might contain molecular duplicates, in case the same DNA library was sequenced on multiple lanes. Note that you have to fill in also the read group identifier parameter for the read group information to appear in the BAM file.)
@@ -67,6 +67,21 @@ if ( nchar(rgid) > 0 ){
 	rg.string <- paste(rg.string, "'", sep="")
 	bwa.parameters <- paste(bwa.parameters,  "-R", rg.string )
 }
+
+#Read group error message
+if ( nchar(rgid) < 1 ){
+	if ( nchar(rgsm) > 0 ){
+		stop("CHIPSTER-NOTE: Please define identifier for read group")
+	}
+	if ( rgpl != "none" ){
+		stop("CHIPSTER-NOTE: Please define identifier for read group")
+	}
+	if ( nchar(rglb) > 0 ){
+		stop("CHIPSTER-NOTE: Please define identifier for read group")	
+	}
+}
+
+
 
 # command ending
 command.end <- paste(bwa.genome, "reads.fastq 1> alignment.sam 2>> bwa.log")
