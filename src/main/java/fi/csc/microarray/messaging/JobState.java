@@ -21,5 +21,6 @@ public enum JobState {
 	COMP_BUSY,
 	RESCHEDULED,
 	SUBMITTED,
-	WAITING; 
+	WAITING,
+	EXPIRED_WAITING; 
 }

@@ -347,6 +347,15 @@
 			
 	</configuration-module>
 
+
+	<configuration-module moduleId="jobmanager" description="jobmanager">
+	
+		<entry entryKey="job-max-wait-time" type="int" description="Max time a job can wait for a free comp to run it">
+			<value>30</value>
+		</entry>
+	</configuration-module>
+
+
 	
 	
 	<configuration-module moduleId="client" description="client constants">

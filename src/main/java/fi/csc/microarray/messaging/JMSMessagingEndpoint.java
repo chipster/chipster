@@ -249,18 +249,19 @@ public class JMSMessagingEndpoint implements MessagingEndpoint, MessagingListene
 	public void replyToMessage(ChipsterMessage original, ChipsterMessage reply, String replyChannel) throws JMSException {
     	reply.setMultiplexChannel(replyChannel);
     	Destination replyToDest = original.getReplyTo();
-    	replyToMessage(replyToDest, reply);
+    	sendMessage(replyToDest, reply);
     }
 
 	/**
 	 * Not multithread safe.
 	 */
-    private void replyToMessage(Destination replyToDest, ChipsterMessage reply) throws JMSException {
+    public void sendMessage(Destination replyToDest, ChipsterMessage message) throws JMSException {
 		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+		message.setMultiplexChannel(DEFAULT_REPLY_CHANNEL);
     	try {
-			MapMessage msg = session.createMapMessage();
-	    	reply.marshal(msg);
-	    	session.createProducer(replyToDest).send(msg);
+			MapMessage mapMessage = session.createMapMessage();
+	    	message.marshal(mapMessage);
+	    	session.createProducer(replyToDest).send(mapMessage);
     	} finally {
     		session.close();
     	}
@@ -338,4 +339,5 @@ public class JMSMessagingEndpoint implements MessagingEndpoint, MessagingListene
 	public void setSessionID(String sessionID) {
 		this.sessionID = sessionID;
 	}
+
 }

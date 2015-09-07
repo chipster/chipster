@@ -2,6 +2,7 @@ package fi.csc.microarray.messaging;
 
 import java.util.HashMap;
 
+import javax.jms.Destination;
 import javax.jms.JMSException;
 
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
@@ -104,5 +105,11 @@ public class DirectMessagingEndpoint implements MessagingEndpoint {
 
 	public String getUsername() {
 		return username;
+	}
+
+	@Override
+	public void sendMessage(Destination destination, ChipsterMessage msg)
+			throws JMSException {
+		throw new UnsupportedOperationException("not supported by DirectMessagingEndpoint");
 	}
 }
