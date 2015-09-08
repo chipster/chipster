@@ -107,7 +107,6 @@ public class JobManagerDB {
 		}
 		
 		job.setState(JobState.WAITING);
-		job.setExplicitWait(new Date());
 		waitingJobs.add(jobId);
 	}
 

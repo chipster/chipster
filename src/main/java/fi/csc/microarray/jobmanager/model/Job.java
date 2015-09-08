@@ -17,15 +17,15 @@ public class Job {
 	private Destination replyTo;
 
 	private Date created;
-	private Date rescheduled;
 	private Date submitted;
 	private Date finished;
 	private Date seen;
-	private Date dequeued;
-	private Date explicitWait;
 
-	//	private String analysisId;
-	//	private String username;
+//	private Date rescheduled;
+//	private Date dequeued;
+//	private Date explicitWait;
+//	private String analysisId;
+//	private String username;
 
 
 	public Job(JobMessage jobMessage) {
@@ -43,7 +43,6 @@ public class Job {
 		return jobMessage;
 	}
 
-
 	public Date getSubmitted() {
 		return submitted;
 	}
@@ -51,7 +50,6 @@ public class Job {
 	public void setSubmitted(Date submitted) {
 		this.submitted = submitted;
 	}
-
 
 	public ResultMessage getResults() {
 		return results;
@@ -61,21 +59,12 @@ public class Job {
 		this.results = results;
 	}
 
-
 	public JobState getState() {
 		return state;
 	}
 
 	public void setState(JobState state) {
 		this.state = state;
-	}
-
-	public Date getExplicitWait() {
-		return explicitWait;
-	}
-
-	public void setExplicitWait(Date explicitWait) {
-		this.explicitWait = explicitWait;
 	}
 
 	public String getCompId() {
@@ -98,24 +87,12 @@ public class Job {
 		return (System.currentTimeMillis() - created.getTime()) / 1000;
 	}
 
-	public long getSecondsSinceLastSeen() {
-		return (System.currentTimeMillis() - seen.getTime()) / 1000;
-	}
-
 	public Date getCreated() {
 		return created;
 	}
 
 	public void setCreated(Date created) {
 		this.created = created;
-	}
-
-	public Date getRescheduled() {
-		return rescheduled;
-	}
-
-	public void setRescheduled(Date rescheduled) {
-		this.rescheduled = rescheduled;
 	}
 
 	public Date getFinished() {
@@ -126,20 +103,8 @@ public class Job {
 		this.finished = finished;
 	}
 
-	public Date getSeen() {
-		return seen;
-	}
-
 	public void setSeen(Date seen) {
 		this.seen = seen;
-	}
-
-	public Date getDequeued() {
-		return dequeued;
-	}
-
-	public void setDequeued(Date dequeued) {
-		this.dequeued = dequeued;
 	}
 
 }

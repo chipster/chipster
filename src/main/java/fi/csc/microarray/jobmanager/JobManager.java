@@ -186,7 +186,7 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 
 				else if (msg instanceof ServerStatusMessage) {
 					// FIXME why these come here?
-					//logger.info("got server status message");
+					logger.info("got server status message from comp");
 				}
 
 				
@@ -325,10 +325,6 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 
 
 	
-	
-	
-	
-	
 		
 	
 
@@ -360,11 +356,6 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 		jobManagerTopic.setListener(new CompMessageListener());
 		
 		compTopic = endpoint.createTopic(Topics.Name.AUTHORIZED_MANAGED_REQUEST_TOPIC, AccessMode.WRITE);
-
-		
-		//	    'comp_admin_topic': '/topic/comp-admin-topic',
-		//        TOPICS['admin_topic'],
-		
 
 		// create keep-alive thread and register shutdown hook
 		KeepAliveShutdownHandler.init(this);
@@ -450,10 +441,39 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 	
 	@Override
 	public void onChipsterMessage(ChipsterMessage msg) {
-		if (msg instanceof ServerStatusMessage) {
-			logger.info("got ServerStatusMessage");
-		} else {
-			logger.info("got message: " + msg.toString());
+		try {
+
+			if (msg instanceof ServerStatusMessage) {
+				logger.info("got ServerStatusMessage");
+			} else if (msg instanceof CommandMessage) {
+				CommandMessage commandMessage = (CommandMessage)msg;
+				if (CommandMessage.COMMAND_LIST_RUNNING_JOBS.equals(commandMessage.getCommand())) {
+					logger.info("got list running jobs");
+
+				} else if (CommandMessage.COMMAND_CANCEL.equals(commandMessage.getCommand())) {
+					logger.info("got cancel from admin web");
+					String jobId = commandMessage.getNamedParameter(ParameterMessage.PARAMETER_JOB_ID);
+					logger.info("cancelling job " + jobId);
+					if (jobsDb.updateJobCancelled(jobId)) {
+						compTopic.sendMessage(commandMessage);
+						// TODO inform client?
+					}
+
+				} else if (CommandMessage.COMMAND_PURGE_OLD_JOBS.equals(commandMessage.getCommand())) {
+					logger.info("got purge old");
+				} else if (CommandMessage.COMMAND_GET_STATUS_REPORT.equals(commandMessage.getCommand())) {
+					logger.info("got get status report");
+				} else {
+					logger.warn("got unexpected command message: " + commandMessage.getCommand());
+				}
+			}
+
+			else {
+
+				logger.info("unexpected message: " + msg.toString());
+			}
+		} catch (Exception e) {
+			logger.error(Exceptions.getStackTrace(e));
 		}
 	}
 	
