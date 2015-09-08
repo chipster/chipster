@@ -67,6 +67,7 @@
 	   <tool runtime="R-3.0"><resource>textsearch_fasta.R</resource></tool>
        <tool runtime="R-3.0"><resource>seqor.R</resource></tool>
 	   <tool runtime="R-3.0"><resource>seqret.R</resource></tool>
+	   <tool runtime="R-3.0"><resource>cdhit.R</resource></tool>
 	   <tool runtime="R-3.0"><resource>skipredundant.R</resource></tool>
 	   <tool runtime="R-3.0"><resource>extractseq.R</resource></tool>
 	   <tool runtime="R-3.0"><resource>descseq.R</resource></tool>

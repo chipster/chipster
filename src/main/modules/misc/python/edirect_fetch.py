@@ -10,7 +10,7 @@
 # PARAMETER OPTIONAL q2term: "Second search term" TYPE STRING (Search term or word.)
 # PARAMETER OPTIONAL q3field: "Search field for third query term" TYPE [ALL: "All fields", TITL: Title, KYWD: Keywords, AUTH: Author, ORGN: Organism, ACCN: Accession, GENE: "Gene name", PROT: "Protein name", SLEN: "Sequence length"] DEFAULT ALL (Select the search field.)
 # PARAMETER OPTIONAL q3term: "Third search term" TYPE STRING (Search term or word.)
-# PARAMETER outformat: "Output format" TYPE [fasta: FASTA, gp: "Genbank proteins", gb: "Genbank"] DEFAULT fasta (Logical operators used to build the search terms)
+# PARAMETER outformat: "Output format" TYPE [fasta: FASTA, gp: "Genbank proteins", gb: "Genbank", log: "Hit count only"] DEFAULT fasta (Ouput format of the data retrieved. As retreving a large amount of sequeces may take long time, if can be useful to first use the hit count only format to quickly check the amount of sequeces to be retrieved. )
 
 
 #To make edirect work:
@@ -56,25 +56,38 @@ def main():
     # parse xml
     str_hits = ET.fromstring(xml).find("Count").text    
     num_hits = int(str_hits)
+    
+    if outformat == "log":
+       raise Exception("CHIPSTER-NOTE: Query: esearch " + " ".join(query) + " will retrieve " + str_hits + " hits ")
+       #logfile="edirect.log"
+       #log = open(logfile, "w")
+       #log_command = [ "echo", "sequence type:", db ]
+       #Popen(log_command, stdout=log, stderr=PIPE)
+       #log_command = [ "echo", "esearch query string:", query_str ]
+       #Popen(log_command, stdout=log, stderr=PIPE)
+       #log_command = [ "echo", "number of hits:", str_hits ]
+       #Popen(log_command, stdout=log, stderr=PIPE)
+       #log.close()
 
-    if num_hits == 0:
-        raise Exception("CHIPSTER-NOTE: No hits found for query: esearch " + " ".join(query))
+    if outformat != "log": 
+       if num_hits == 0:
+           raise Exception("CHIPSTER-NOTE: No hits found for query: esearch " + " ".join(query))
+   
+       elif num_hits > 50000:
+           raise Exception("CHIPSTER-NOTE: Query produced more than 50000 hits. Number of hits " + str_hits)
+    
+       # fetch sequences
+       # read standard input from a variable xml and write output to a file, because it may be big
+       with open("hits.txt", "w") as hits:
+           efetch_process = Popen([efetch_path, "-format", outformat], stdout=hits, stdin=PIPE)
+           efetch_process.communicate(input=xml)
 
-    elif num_hits > 50000:
-        raise Exception("CHIPSTER-NOTE: Query produced more than 50000 hits. Number of hits " + str_hits)
-        
-    # fetch sequences
-    # read standard input from a variable xml and write output to a file, because it may be big
-    with open("hits.txt", "w") as hits:
-        efetch_process = Popen([efetch_path, "-format", outformat], stdout=hits, stdin=PIPE)
-        efetch_process.communicate(input=xml)
-
-    # read the result file, filter it and write to another file
-    with open("hits.txt", "r") as hits, open(outfile, "w") as out:
-        for line in hits:
-            # remove empty lines
-            if line != "\n":                
-                out.write(line)
+       # read the result file, filter it and write to another file
+       with open("hits.txt", "r") as hits, open(outfile, "w") as out:
+           for line in hits:
+               # remove empty lines
+               if line != "\n":                
+                   out.write(line)
 
 if __name__ == "__main__":
     main()

@@ -1,4 +1,4 @@
-# TOOL bwa.R: "BWA for single end reads" (BWA aligns reads to genomes. Results are sorted and indexed BAM files, which are ready for viewing in the Chipster genome browser. 
+# TOOL bwa.R: "BWA-backtrack for single end reads" (BWA-backtrack aligns reads to genomes with BWA aln algorithm. Results are sorted and indexed BAM files, which are ready for viewing in the Chipster genome browser. 
 # Note that this BWA tool uses publicly available genomes. If you would like to align reads against your own datasets, please use the tool \"BWA for single end reads and own genome\".)
 # INPUT reads.txt: "Reads to align" TYPE GENERIC 
 # OUTPUT bwa.bam 
