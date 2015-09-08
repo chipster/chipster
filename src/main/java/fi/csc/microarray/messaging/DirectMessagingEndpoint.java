@@ -108,8 +108,9 @@ public class DirectMessagingEndpoint implements MessagingEndpoint {
 	}
 
 	@Override
-	public void sendMessage(Destination destination, ChipsterMessage msg)
+	public void sendMessageToClientReplyChannel(Destination destination, ChipsterMessage msg)
 			throws JMSException {
 		throw new UnsupportedOperationException("not supported by DirectMessagingEndpoint");
 	}
+
 }
