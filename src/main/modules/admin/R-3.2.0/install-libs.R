@@ -70,3 +70,4 @@ smart.install.packages(bioconductor.package="BSgenome.Hsapiens.UCSC.hg19", mirro
 smart.install.packages(bioconductor.package="BSgenome.Hsapiens.UCSC.hg38", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="TxDb.Hsapiens.UCSC.hg38.knownGene", mirror=repo.bioc)
 
+smart.install.packages(bioconductor.package="edgeR", mirror=repo.bioc)
