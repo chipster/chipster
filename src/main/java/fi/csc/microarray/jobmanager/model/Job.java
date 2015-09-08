@@ -32,7 +32,7 @@ public class Job {
 		this.jobMessage = jobMessage;
 		this.replyTo = jobMessage.getReplyTo();
 		this.created = new Date();
-		this.state = JobState.NEW;
+		this.state = JobState.WAITING;
 	}
 
 	public String getJobId() {

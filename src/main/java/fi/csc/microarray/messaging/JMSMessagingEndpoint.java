@@ -252,12 +252,21 @@ public class JMSMessagingEndpoint implements MessagingEndpoint, MessagingListene
     	sendMessage(replyToDest, reply);
     }
 
+
 	/**
 	 * Not multithread safe.
 	 */
-    public void sendMessage(Destination replyToDest, ChipsterMessage message) throws JMSException {
-		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+    public void sendMessageToClientReplyChannel(Destination replyToDest, ChipsterMessage message) throws JMSException {
 		message.setMultiplexChannel(DEFAULT_REPLY_CHANNEL);
+		sendMessage(replyToDest, message);
+    }
+
+    
+    /**
+	 * Not multithread safe.
+	 */
+    private void sendMessage(Destination replyToDest, ChipsterMessage message) throws JMSException {
+		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
     	try {
 			MapMessage mapMessage = session.createMapMessage();
 	    	message.marshal(mapMessage);

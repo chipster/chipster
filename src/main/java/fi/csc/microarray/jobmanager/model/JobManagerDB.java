@@ -3,8 +3,6 @@ package fi.csc.microarray.jobmanager.model;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,14 +19,11 @@ public class JobManagerDB {
 	private static Logger logger;
 	private Map<String, Job> jobs;
 
-	// FIXME add prevent duplicates
-	private LinkedHashSet<String> newJobs;
 	private LinkedHashSet<String> waitingJobs;
 
 	public JobManagerDB() {
 		logger = Logger.getLogger(JobManagerDB.class);
 		jobs = new HashMap<String, Job>();
-		newJobs = new LinkedHashSet<String>();
 		waitingJobs = new LinkedHashSet<String>();
 	}
 	
@@ -45,7 +40,7 @@ public class JobManagerDB {
 		}
 		
 		jobs.put(jobMessage.getJobId(), new Job(jobMessage));
-		newJobs.add(jobId);
+		waitingJobs.add(jobId);
 	}
 	
 	
@@ -65,12 +60,10 @@ public class JobManagerDB {
 		}
 
 		// update state
-		newJobs.remove(job.getJobId());
 		waitingJobs.remove(job.getJobId());
 		job.setState(JobState.SUBMITTED);
 		
 		job.setSubmitted(new Date());
-	    job.setExplicitWait(null);
 	    job.setCompId(compId);
 	}
 	
@@ -115,7 +108,6 @@ public class JobManagerDB {
 		
 		job.setState(JobState.WAITING);
 		job.setExplicitWait(new Date());
-		newJobs.remove(jobId);
 		waitingJobs.add(jobId);
 	}
 
@@ -139,6 +131,10 @@ public class JobManagerDB {
 
 
 	public boolean updateJobCancelled(String jobId) {
+
+		// remove from waiting if exists
+		waitingJobs.remove(jobId);
+
 		Job job = getJob(jobId);
 		
 		if (job == null) {
@@ -149,15 +145,6 @@ public class JobManagerDB {
 		if (job.getFinished() != null)  {
 			return false;
 		}
-
-
-		if (newJobs.contains(jobId)) {
-			newJobs.remove(jobId);
-		}
-
-		if (waitingJobs.contains(jobId)) {
-			waitingJobs.remove(jobId);
-		}
 		
 		// cancel
 		job.setFinished(new Date());
@@ -166,6 +153,9 @@ public class JobManagerDB {
 	}
 
 	public void updateJobError(String jobId) {
+		// remove from waiting if exists
+		waitingJobs.remove(jobId);
+
 		Job job = getJob(jobId);
 		
 		if (job == null) {
@@ -177,10 +167,6 @@ public class JobManagerDB {
 
 	
 	
-	public Set<String> getNewJobs() {
-		return newJobs;
-	}
-	
 	public Set<String> getWaitingJobs() {
 		return waitingJobs;
 	}
@@ -191,7 +177,6 @@ public class JobManagerDB {
 
 	public void updateJobMaxWaitTimeReached(String jobId) {
 		waitingJobs.remove(jobId);
-		newJobs.remove(jobId);
 
 		Job job = getJob(jobId);
 		if (job == null) {
@@ -201,6 +186,5 @@ public class JobManagerDB {
 		job.setState(JobState.EXPIRED_WAITING);
 		job.setFinished(new Date());
 	}
-	
 	
 }

@@ -48,7 +48,7 @@ public interface MessagingEndpoint {
 
 	public abstract void setSessionID(String sessionID);
 
-	public abstract void sendMessage(Destination destination, ChipsterMessage msg) throws JMSException;
+	public abstract void sendMessageToClientReplyChannel(Destination destination, ChipsterMessage msg) throws JMSException;
 
 	/**
 	 * For testing only.

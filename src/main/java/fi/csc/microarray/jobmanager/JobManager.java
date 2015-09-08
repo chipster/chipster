@@ -100,7 +100,7 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 				resultMessage.setJobId(msg.getJobId());
 				resultMessage.setState(JobState.ERROR);
 				resultMessage.setErrorMessage("Could not submit job");
-				endpoint.sendMessage(clientReplyTo, resultMessage);
+				endpoint.sendMessageToClientReplyChannel(clientReplyTo, resultMessage);
 				
 				logger.error("could not submit job " + msg.getJobId(), e);
 			}				
@@ -148,7 +148,7 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 					logger.info("job " + jobId + " not found");
 				}				
 				
-				endpoint.sendMessage(newClientReplyTo, resultMessage);
+				endpoint.sendMessageToClientReplyChannel(newClientReplyTo, resultMessage);
 				
 			} else if (CommandMessage.COMMAND_CANCEL.equals(msg.getCommand())) {
 				String jobId = msg.getNamedParameter(ParameterMessage.PARAMETER_JOB_ID);
@@ -184,6 +184,12 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 					handleCompCommandMessage((CommandMessage) msg);
 				}
 
+				else if (msg instanceof ServerStatusMessage) {
+					// FIXME why these come here?
+					//logger.info("got server status message");
+				}
+
+				
 				else {
 					// TODO if has jobId, try to get client replyTo and forward there?
 					logger.warn("got unexcepted message from comp: " + msg.toString());
@@ -195,23 +201,20 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 
 		private void handleCompCommandMessage(CommandMessage msg) throws JMSException {
 			
-			String jobId = msg.getNamedParameter(ParameterMessage.PARAMETER_JOB_ID);
-			if (jobId == null || jobId.isEmpty()) {
-				logger.error("jobmanger got command message with no job id from comp");
-			}
 			
 			if (CommandMessage.COMMAND_OFFER.equals(msg.getCommand())) {
+				String jobId = msg.getNamedParameter(ParameterMessage.PARAMETER_JOB_ID);
+				if (jobId == null || jobId.isEmpty()) {
+					logger.error("got offer with no job id from comp");
+					return;
+				}
+
 				logger.info("offer message for " + jobId);
 				Job job = jobsDb.getJob(jobId);
 				// decide whether to schedule
 				boolean scheduleJob = false;
 
-				// new job, never submitted before
-				if (job.getState() == JobState.NEW) {
-					scheduleJob = true;
-				} 
-
-				else if (job.getState() == JobState.WAITING) {
+				if (job.getState() == JobState.WAITING) {
 					scheduleJob = true;
 				} 
 				
@@ -254,11 +257,16 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 					compTopic.sendMessage(acceptMessage);
 				}
 				
-			} else {
+			} else if (CommandMessage.COMMAND_COMP_AVAILABLE.equals(msg.getCommand())) {
+				submitWaitingJobs();
+			}
+				
+			else {
 				// get job reply-to and send there
+				String jobId = msg.getNamedParameter(ParameterMessage.PARAMETER_JOB_ID);
 				Destination destination = jobsDb.getJob(jobId).getReplyTo();
 				logger.info("sending command message to original replyTo: " + destination);
-				endpoint.sendMessage(destination, msg);
+				endpoint.sendMessageToClientReplyChannel(destination, msg);
 			}
 			
 		}
@@ -288,8 +296,6 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 				logger.info("results ready for job " + jobId + " " + jobStateFromComp);
 				// TODO try catch this?
 				jobsDb.updateJobResults(jobId, jobStateFromComp, msg);
-
-				submitWaitingJobs();
 				
 			} else if (jobStateFromComp == JobState.RUNNING) {
 				try {
@@ -300,18 +306,19 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 				}
 				
 			} else if (jobStateFromComp == JobState.COMP_BUSY) {
-				try {
-					jobsDb.updateJobWaiting(jobId);
-				} catch (IllegalStateException e) {
-					logger.warn("could not update waiting job " + jobId, e);
-					return;
-				}
+				// TODO refactor away
+//				try {
+//					jobsDb.updateJobWaiting(jobId);
+//				} catch (IllegalStateException e) {
+//					logger.warn("could not update waiting job " + jobId, e);
+//					return;
+//				}
 
 			} else {
 				logger.info("job " + jobId + " in state " + jobStateFromComp + ", sending result message to " + job.getReplyTo());
 			}
 			
-			endpoint.sendMessage(job.getReplyTo(), msg);
+			endpoint.sendMessageToClientReplyChannel(job.getReplyTo(), msg);
 			
 		}
 	}
@@ -370,22 +377,11 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 	
 
 	private void submitWaitingJobs() {
-		logger.info("rescheduling " + jobsDb.getWaitingJobs().size() + " waiting and " + jobsDb.getNewJobs().size() + " new jobs");
+		logger.info("rescheduling " + jobsDb.getWaitingJobs().size() + " waiting jobs");
 		List<String> jobsToBeRemoved = new LinkedList<String>(); // avoid removing during iteration 
 
-		// reschedule waiting
+		// reschedule
 		for (String jobId: jobsDb.getWaitingJobs()) {
-			try {
-				if (!rescheduleJob(jobId)) {
-					jobsToBeRemoved.add(jobId);
-				};
-			} catch (Exception e) {
-				logger.warn("could not reschedule job " + jobId, e);
-			}
-		}
-
-		// reschedule new
-		for (String jobId: jobsDb.getNewJobs()) {
 			try {
 				if (!rescheduleJob(jobId)) {
 					jobsToBeRemoved.add(jobId);
@@ -407,9 +403,9 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 				msg.setState(JobState.FAILED);
 				msg.setErrorMessage("There was no computing server available to run this job");
 				try {
-					endpoint.sendMessage(job.getReplyTo(), msg);
+					endpoint.sendMessageToClientReplyChannel(job.getReplyTo(), msg);
 				} catch (JMSException e) {
-					logger.info("sending result for wait expired job " + jobId + " failed");
+					logger.info(Exceptions.getStackTrace(e));
 				}
 			}
 		}
