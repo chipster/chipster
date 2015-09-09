@@ -10,6 +10,7 @@
 # 01.06.2015 	ML 			Modifications to move the tool to new R version
 # 20.7.2015 	ML 			Fixed the problems with different kinds of vcf-files
 # 27.7.2015		ML			Add hg38
+# 09.09.2015	ML 			Add rsIDs to result table
 
 
 # Read data
@@ -103,7 +104,8 @@ names(cod2)<-toupper(names(cod2))
 
 #cod3<-data.frame(cod2$GENEID, cod2$CDSID, cod2$TXID, cod2$CONSEQUENCE, as.data.frame(cod2$PROTEINLOC), as.data.frame(cod2$CDSLOC)[1], as.data.frame(cod2$CDSLOC)[2], as.data.frame(cod2$CDSLOC)[3], as.data.frame(cod2$varAllele), as.data.frame(cod2$REFCODON), as.data.frame(cod2$VARCODON))
 # cod3<-data.frame(geneID=cod2$GENEID, cdsID=cod2$CDSID, txID=cod2$TXID, consequence=cod2$CONSEQUENCE, cdsStart=as.data.frame(cod2$CDSLOC)[,1], cdsEnd=as.data.frame(cod2$CDSLOC)[,2], width=as.data.frame(cod2$CDSLOC)[,3], varAllele=as.data.frame(cod2$VARALLELE)[,1], refCodon=as.data.frame(cod2$REFCODON)[,1], varCodon=as.data.frame(cod2$VARCODON)[,1], refAA=as.data.frame(cod2$REFAA)[,1], varAA=as.data.frame(cod2$VARAA)[,1])
-cod3<-data.frame(geneID=cod2$GENEID, cdsID=sapply(cod2$CDSID, FUN=function(x) paste(x, collapse=", ")), txID=cod2$TXID, consequence=cod2$CONSEQUENCE, cdsStart=as.data.frame(cod2$CDSLOC)[,1], cdsEnd=as.data.frame(cod2$CDSLOC)[,2], width=as.data.frame(cod2$CDSLOC)[,3], varAllele=as.data.frame(cod2$VARALLELE)[,1], refCodon=as.data.frame(cod2$REFCODON)[,1], varCodon=as.data.frame(cod2$VARCODON)[,1], refAA=as.data.frame(cod2$REFAA)[,1], varAA=as.data.frame(cod2$VARAA)[,1])
+# cod3<-data.frame(geneID=cod2$GENEID, cdsID=sapply(cod2$CDSID, FUN=function(x) paste(x, collapse=", ")), txID=cod2$TXID, consequence=cod2$CONSEQUENCE, cdsStart=as.data.frame(cod2$CDSLOC)[,1], cdsEnd=as.data.frame(cod2$CDSLOC)[,2], width=as.data.frame(cod2$CDSLOC)[,3], varAllele=as.data.frame(cod2$VARALLELE)[,1], refCodon=as.data.frame(cod2$REFCODON)[,1], varCodon=as.data.frame(cod2$VARCODON)[,1], refAA=as.data.frame(cod2$REFAA)[,1], varAA=as.data.frame(cod2$VARAA)[,1])
+cod3<-data.frame(geneID=cod2$GENEID, rsID=names(coding), cdsID=sapply(cod2$CDSID, FUN=function(x) paste(x, collapse=", ")), txID=cod2$TXID, consequence=cod2$CONSEQUENCE, cdsStart=as.data.frame(cod2$CDSLOC)[,1], cdsEnd=as.data.frame(cod2$CDSLOC)[,2], width=as.data.frame(cod2$CDSLOC)[,3], varAllele=as.data.frame(cod2$VARALLELE)[,1], refCodon=as.data.frame(cod2$REFCODON)[,1], varCodon=as.data.frame(cod2$VARCODON)[,1], refAA=as.data.frame(cod2$REFAA)[,1], varAA=as.data.frame(cod2$VARAA)[,1])
 
 
 symbol <- select(org.Hs.eg.db, keys=as.character(unique(cod3$geneID)), keytype="ENTREZID", columns="SYMBOL")
