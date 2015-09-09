@@ -276,7 +276,6 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 		}
 
 		private void handleResultMessage(ResultMessage msg) throws JMSException {
-			logger.debug("handling result message");
 			String jobId = msg.getJobId();
 			Job job = jobsDb.getJob(jobId);
 			
