@@ -31,7 +31,7 @@ source(file.path(chipster.common.path, "zip-utils.R"))
 unzipIfGZipFile("reads2.fastaq")
 
 
-trimmomatic.binary <- c(file.path(chipster.tools.path, "trimmomatic", "trimmomatic-0.32.jar" ))
+trimmomatic.binary <- c(file.path(chipster.tools.path, "trimmomatic", "trimmomatic-0.33.jar" ))
 
 # Parameters
 trim.params <- paste("")
