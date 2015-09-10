@@ -17,7 +17,7 @@ public class Job {
 	private Destination replyTo;
 
 	private Date created;
-	private Date submitted;
+	private Date scheduled;
 	private Date finished;
 	private Date seen;
 
@@ -28,7 +28,7 @@ public class Job {
 //	private String username;
 
 
-	public Job(JobMessage jobMessage) {
+	Job(JobMessage jobMessage) {
 		this.jobMessage = jobMessage;
 		this.replyTo = jobMessage.getReplyTo();
 		this.created = new Date();
@@ -43,56 +43,28 @@ public class Job {
 		return jobMessage;
 	}
 
-	public Date getSubmitted() {
-		return submitted;
-	}
-
-	public void setSubmitted(Date submitted) {
-		this.submitted = submitted;
+	public Date getScheduled() {
+		return scheduled;
 	}
 
 	public ResultMessage getResults() {
 		return results;
 	}
 
-	public void setResults(ResultMessage results) {
-		this.results = results;
-	}
-
 	public JobState getState() {
 		return state;
-	}
-
-	public void setState(JobState state) {
-		this.state = state;
 	}
 
 	public String getCompId() {
 		return compId;
 	}
 
-	public void setCompId(String compId) {
-		this.compId = compId;
-	}
-
 	public Destination getReplyTo() {
 		return replyTo;
 	}
 
-	public void setReplyTo(Destination replyTo) {
-		this.replyTo = replyTo;
-	}
-
-	public long getSecondsSinceCreated() {
-		return (System.currentTimeMillis() - created.getTime()) / 1000;
-	}
-
 	public Date getCreated() {
 		return created;
-	}
-
-	public void setCreated(Date created) {
-		this.created = created;
 	}
 
 	public Date getFinished() {
@@ -103,7 +75,31 @@ public class Job {
 		this.finished = finished;
 	}
 
-	public void setSeen(Date seen) {
+	public long getSecondsSinceCreated() {
+		return (System.currentTimeMillis() - created.getTime()) / 1000;
+	}
+
+	void setScheduled(Date scheduled) {
+		this.scheduled = scheduled;
+	}
+
+	void setResults(ResultMessage results) {
+		this.results = results;
+	}
+
+	void setState(JobState state) {
+		this.state = state;
+	}
+
+	void setCompId(String compId) {
+		this.compId = compId;
+	}
+
+	void setReplyTo(Destination replyTo) {
+		this.replyTo = replyTo;
+	}
+
+	void setSeen(Date seen) {
 		this.seen = seen;
 	}
 

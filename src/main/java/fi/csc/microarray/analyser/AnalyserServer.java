@@ -333,6 +333,9 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		if (job != null) {
 			job.cancel();
 		}
+		
+		// no activeJobRemoved() here because it get's called when the job actually stops
+		
 	}
 
 

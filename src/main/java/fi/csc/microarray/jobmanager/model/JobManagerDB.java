@@ -48,66 +48,101 @@ public class JobManagerDB {
 		return jobs.get(jobId);
 	}
 	
-	public void updateJobSubmitted(String jobId, String compId) {
+	public Set<String> getWaitingJobs() {
+		return waitingJobs;
+	}
+
+
+	public boolean updateJobScheduled(String jobId, String compId) {
 		Job job = jobs.get(jobId);
 
-		// checks
 		if (job == null) {
-			throw new NullPointerException("job not found: " + jobId);
+			logger.warn("update scheduled failed for non-existent job " + jobId);
+			return false;
 		}
-		if (job.getResults() != null) {
-			throw new IllegalStateException("job already finished: "+ jobId);
+		
+		if (job.getFinished() != null) {
+			logger.warn(String.format("cannot schedule an already finished job %s, state: %s", jobId, job.getState()));
+			return false;
 		}
-
+		
 		// update state
 		waitingJobs.remove(job.getJobId());
-		job.setState(JobState.SUBMITTED);
+		job.setState(JobState.SCHEDULED);
 		
-		job.setSubmitted(new Date());
+		job.setScheduled(new Date());
 	    job.setCompId(compId);
+
+	    return true;
 	}
 	
 	
-	public void updateJobResults(String jobId, JobState state, ResultMessage results) {
+	/**
+	 * 
+	 * @param jobId
+	 * @param state
+	 * @param results null if no results
+	 * @return
+	 */
+	public boolean updateJobFinished(String jobId, JobState state, ResultMessage results) {
 		Job job = getJob(jobId);
+
+		if (job == null) {
+			logger.warn("update finished failed for non-existent job " + jobId);
+			return false;
+		}
 		
-		if (job.getCompId() == null) {
-			logger.warn("adding results to job " + jobId + " with no comp id");
+		if (job.getFinished() != null) {
+			logger.warn(String.format("cannot finish an already finished job %s, old state: %s, new state: %s", jobId, job.getState(), state));
+			return false;
 		}
 		
 		job.setFinished(new Date());
 		job.setState(state);
 		job.setResults(results);
+		
+		return true;
 	}
 
-	public void updateJobRunning(String jobId) {
+	public boolean updateJobRunning(String jobId) {
 		Job job = getJob(jobId);
+
+		if (job == null) {
+			logger.warn("update running failed for non-existent job " + jobId);
+			return false;
+		}
 		
 		if (job.getFinished() != null) {
-			String s = "cannot put a finished job to running state";
-			logger.error(s);
-			throw new IllegalStateException(s);
+			logger.warn("cannot put a finished job " + jobId + " to running state");
+			return false;
 		}
 
 		job.setSeen(new Date());
 		job.setState(JobState.RUNNING);
+		return true;
 	}
 	
-	public void updateJobWaiting(String jobId) {
+	public boolean updateJobWaiting(String jobId) {
 		Job job = getJob(jobId);
+
+		if (job == null) {
+			logger.warn("update waiting failed for non-existent job " + jobId);
+			return false;
+		}
 		
 		if (job.getFinished() != null) {
-			String s = "cannot put a finished job to wait";
-			logger.error(s);
-			throw new IllegalStateException(s);
+			logger.warn(String.format("cannot put a finished job %s to wait", jobId));
+			return false;
 		}
 		
-		if (job.getState() == JobState.SUBMITTED) {
-			return;
-		}
+		// TODO should this be denied?
+		//if (job.getState() == JobState.SCHEDULED) {
+		//	return false;
+		//}
 		
 		job.setState(JobState.WAITING);
 		waitingJobs.add(jobId);
+		return true;
 	}
 
 
@@ -129,6 +164,11 @@ public class JobManagerDB {
 	}
 
 
+	/**
+	 * 
+	 * @param jobId
+	 * @return true if the job can be cancelled
+	 */
 	public boolean updateJobCancelled(String jobId) {
 
 		// remove from waiting if exists
@@ -140,14 +180,14 @@ public class JobManagerDB {
 			return false;
 		}
 		
-		// already finished TODO check for state also?
+		// already finished
 		if (job.getFinished() != null)  {
 			return false;
 		}
 		
 		// cancel
-		job.setFinished(new Date());
 		job.setState(JobState.CANCELLED);
+		job.setFinished(new Date());
 		return true;
 	}
 
@@ -163,17 +203,8 @@ public class JobManagerDB {
 		
 		job.setState(JobState.ERROR);;
 	}
-
 	
 	
-	public Set<String> getWaitingJobs() {
-		return waitingJobs;
-	}
-//    job = session.query(Job).filter(Job.submitted == None).order_by(desc(Job.dequeued)).first()
-//    if job:
-//        job.dequeued = datetime.datetime.utcnow()
-//    return job
-
 	public void updateJobMaxWaitTimeReached(String jobId) {
 		waitingJobs.remove(jobId);
 
@@ -185,5 +216,4 @@ public class JobManagerDB {
 		job.setState(JobState.EXPIRED_WAITING);
 		job.setFinished(new Date());
 	}
-	
 }
