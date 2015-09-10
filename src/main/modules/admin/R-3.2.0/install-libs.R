@@ -52,6 +52,7 @@ smart.install.packages(bioconductor.package="illuminaRatv1.db", mirror=repo.bioc
 smart.install.packages(bioconductor.package="org.Hs.eg.db", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="org.Mm.eg.db", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="org.Rn.eg.db", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="org.Cf.eg.db", mirror=repo.bioc)
 
 smart.install.packages(url.package="ftp://ctan.uib.no/pub/bioconductor/2.7/data/annotation/src/contrib/illuminaMousev1BeadID.db_1.8.0.tar.gz");
 smart.install.packages(url.package="ftp://ctan.uib.no/pub/bioconductor/2.7/data/annotation/src/contrib/illuminaMousev2BeadID.db_1.8.0.tar.gz");
@@ -69,4 +70,7 @@ smart.install.packages(bioconductor.package="TxDb.Hsapiens.UCSC.hg19.knownGene",
 smart.install.packages(bioconductor.package="BSgenome.Hsapiens.UCSC.hg19", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="BSgenome.Hsapiens.UCSC.hg38", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="TxDb.Hsapiens.UCSC.hg38.knownGene", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="BSgenome.Cfamiliaris.UCSC.canFam2", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="BSgenome.Cfamiliaris.UCSC.canFam3", mirror=repo.bioc)
 
+smart.install.packages(bioconductor.package="edgeR", mirror=repo.bioc)

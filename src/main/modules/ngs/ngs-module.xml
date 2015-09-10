@@ -256,6 +256,12 @@
 		<tool runtime="R-3.0">
 			<resource>tophat2-single-end-with-index-building.R</resource>
 		</tool>
+		<tool runtime="R-3.0">
+			<resource>bwa-mem.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
+			<resource>bwa-mem-with-index-building.R</resource>
+		</tool>
 	    <tool runtime="R-3.0">
 			<resource>bwa.R</resource>
 		</tool>
@@ -267,18 +273,6 @@
 		</tool>
 		<tool runtime="R-3.0">
 			<resource>bwa-paired-end-with-index-building.R</resource>
-		</tool>
-		<tool runtime="R-3.0">
-			<resource>bwa-mem.R</resource>
-		</tool>
-		<tool runtime="R-3.0">
-			<resource>bwa-mem-paired-end.R</resource>
-		</tool>
-		<tool runtime="R-3.0">
-			<resource>bwa-mem-with-index-building.R</resource>
-		</tool>
-		<tool runtime="R-3.0">
-			<resource>bwa-mem-paired-end-with-index-building.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
 			<resource>bowtie.R</resource>

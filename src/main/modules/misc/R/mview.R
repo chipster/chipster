@@ -32,6 +32,10 @@ if (inputtype == "clustal" || inputtype == "fasta" ){
   if ( str.filetype == "Not an EMBOSS compatible sequence file"){
 	  stop("CHIPSTER-NOTE: The input file does not match the selected input format.")
   }
+  if (inputtype == "clustal" && str.filetype != "clustal" ){
+	  stop("CHIPSTER-NOTE: The input file does not match the selected input format: clustal")  
+  }
+  
 
   #count the query sequeces
   seqcount.exe <- file.path(emboss.path, "seqcount sequences -filter")
@@ -43,6 +47,10 @@ if (inputtype == "clustal" || inputtype == "fasta" ){
   if (num.queryseq > 1000){
 	stop(paste('CHIPSTER-NOTE: Too many sequences in the alignmnet. Maximun is 1000 but your file contains ', num.queryseq ))
   }
+  if (num.queryseq < 1){
+	  stop(paste('CHIPSTER-NOTE: No sequences in the alignmnet. Maximun is 1000 but your file contains ', num.queryseq ))
+  }
+  
 }
 
 if (inputtype == "blast" ){
