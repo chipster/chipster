@@ -72,5 +72,6 @@ smart.install.packages(bioconductor.package="BSgenome.Hsapiens.UCSC.hg38", mirro
 smart.install.packages(bioconductor.package="TxDb.Hsapiens.UCSC.hg38.knownGene", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="BSgenome.Cfamiliaris.UCSC.canFam2", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="BSgenome.Cfamiliaris.UCSC.canFam3", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="PolyPhen.Hsapiens.dbSNP131", mirror=repo.bioc)
 
 smart.install.packages(bioconductor.package="edgeR", mirror=repo.bioc)
