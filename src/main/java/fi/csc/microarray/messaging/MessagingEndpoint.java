@@ -4,6 +4,7 @@
  */
 package fi.csc.microarray.messaging;
 
+import javax.jms.Destination;
 import javax.jms.JMSException;
 
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
@@ -46,6 +47,8 @@ public interface MessagingEndpoint {
 	public abstract String getSessionID();
 
 	public abstract void setSessionID(String sessionID);
+
+	public abstract void sendMessageToClientReplyChannel(Destination destination, ChipsterMessage msg) throws JMSException;
 
 	/**
 	 * For testing only.

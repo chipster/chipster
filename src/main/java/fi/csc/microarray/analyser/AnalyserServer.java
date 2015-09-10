@@ -93,6 +93,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	 */
 	private MessagingEndpoint endpoint;
 	private MessagingTopic managerTopic;
+	private MessagingTopic jobmanagerTopic;
 	
 	private FileBrokerClient fileBroker;
 	
@@ -169,9 +170,13 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		
 		fileBroker = new JMSFileBrokerClient(this.endpoint.createTopic(Topics.Name.AUTHORISED_FILEBROKER_TOPIC, AccessMode.WRITE), this.localFilebrokerPath, this.overridingFilebrokerIp);
 		
+		jobmanagerTopic = endpoint.createTopic(Topics.Name.JOBMANAGER_TOPIC, AccessMode.WRITE);
+		
 		
 		// create keep-alive thread and register shutdown hook
 		KeepAliveShutdownHandler.init(this);
+		
+		sendCompAvailable();
 		
 		logger.info("analyser is up and running [" + ApplicationConstants.VERSION + "]");
 		logger.info("[mem: " + SystemMonitorUtil.getMemInfo() + "]");
@@ -300,7 +305,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 			
 			// Request to cancel a job
 			else if (CommandMessage.COMMAND_CANCEL.equals(commandMessage.getCommand())) {
-				String jobId = commandMessage.getParameters().get(0);
+				String jobId = commandMessage.getNamedParameter(ParameterMessage.PARAMETER_JOB_ID);
 				
 				cancelJob(jobId);			
 			}
@@ -328,6 +333,9 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		if (job != null) {
 			job.cancel();
 		}
+		
+		// no activeJobRemoved() here because it get's called when the job actually stops
+		
 	}
 
 
@@ -463,6 +471,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 
 	private void activeJobRemoved() {
 		this.updateStatus();
+		sendCompAvailable();
 	}
 	
 	private void receiveJob(JobMessage jobMessage) {
@@ -609,6 +618,16 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 					", running jobs: " + runningJobs.size());
 		}
 	}
+
+	private void sendCompAvailable() {
+		try {
+			jobmanagerTopic.sendMessage(new CommandMessage(CommandMessage.COMMAND_COMP_AVAILABLE));
+		} catch (JMSException e) {
+			logger.error("could not send comp available message", e);
+		}
+	}
+	
+	
 	
 	/**
 	 * The order of the jobs in the receivedJobs and scheduledJobs is FIFO. Because of synchronizations 

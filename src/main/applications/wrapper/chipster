@@ -92,18 +92,18 @@ run() {
 start() {
 	run activemq start
     run fileserver start
+    run jobmanager start
     run webstart start
     run auth start
     run comp start
     run manager start
-    supervisorctl start chipster-jobmanager
 }
 
 stopit() {
-    supervisorctl stop chipster-jobmanager
     run auth stop
     run comp stop
 	run manager stop
+	run jobmanager stop
     run fileserver stop
     run webstart stop
     run activemq stop
@@ -112,11 +112,11 @@ stopit() {
 status() {
     run activemq status
     run fileserver status
+	run jobmanager status
     run webstart status
     run auth status
     run comp status
     run manager status
-    supervisorctl status chipster-jobmanager
 }
 
 case "$1" in

@@ -136,7 +136,6 @@
 	    	<!-- enabled SSL protocols, separated by a comma if there is more than one -->
             <!-- DOS protection, limit concurrent connections to 1000 and frame size to 100MB -->
 		    <transportConnector name="openwire" uri="ssl://0.0.0.0:61616?transport.enabledProtocols=TLSv1,TLSv1.1,TLSv1.2&amp;maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600" />  
-            <transportConnector name="stomp" uri="stomp://127.0.0.1:61613"/>
     	</transportConnectors>
 
         <!-- destroy the spring context on shutdown to stop jetty -->

@@ -13,6 +13,7 @@ import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.ApplicationConstants;
 import fi.csc.microarray.filebroker.FileServer;
+import fi.csc.microarray.jobmanager.JobManager;
 import fi.csc.microarray.manager.Manager;
 import fi.csc.microarray.messaging.JMSMessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingEndpoint;
@@ -45,6 +46,7 @@ public class MicroarrayMain {
 			cmdParser.addParameter("analyser", false, false, null, "start analyser");
 			cmdParser.addParameter("webstart", false, false, null, "start webstart service");
 			cmdParser.addParameter("manager", false, false, null, "start manager service");
+			cmdParser.addParameter("jobmanager", false, false, null, "start jobmanager service");
 			cmdParser.addParameter("ping", false, false, null, "query and print system status");
 			cmdParser.addParameter("ping-nagios", false, false, null, "query and print system status in nagios compatible format");			
 			cmdParser.addParameter("rcheck", false, true, null, "check R script syntax");
@@ -81,6 +83,9 @@ public class MicroarrayMain {
 			
 			} else if (cmdParser.hasValue("manager")) {
 				new Manager(configURL);
+
+			} else if (cmdParser.hasValue("jobmanager")) {
+				new JobManager(configURL);
 
 			} else if (cmdParser.hasValue("ping") || cmdParser.hasValue("ping-nagios")) {
 				

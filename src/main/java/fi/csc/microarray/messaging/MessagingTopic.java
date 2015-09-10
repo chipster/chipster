@@ -172,4 +172,8 @@ public class MessagingTopic {
 			((TemporaryTopic)topic).delete();
 		}
 	}
+	
+	public Topic getJMSTopic() {
+		return this.topic;
+	}
 }
