@@ -27,7 +27,6 @@ public class MultiplexingMessagingListener implements MessagingListener {
 	public void onChipsterMessage(ChipsterMessage msg) {
 		String channelName = msg.getMultiplexChannel();
 		logger.debug("multiplexing to channel " + channelName);
-		System.out.println("multiplexing to channel " + channelName);
 		if (channels.get(channelName) != null) {
 			channels.get(channelName).onChipsterMessage(msg);
 		}
