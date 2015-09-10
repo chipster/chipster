@@ -28,19 +28,23 @@ public class JobManagerDB {
 	}
 	
 	
-	public void addJob(JobMessage jobMessage) {
+	public boolean addJob(JobMessage jobMessage) {
 		
 		String jobId = jobMessage.getJobId();
 		if (jobId == null || jobId.isEmpty()) {
-			throw new NullPointerException("null or empty job id");
+			logger.warn("add job failed, jobId is: " + jobId);
+			return false;
 		}
 
 		if (jobs.containsKey(jobId)) {
-			throw new RuntimeException("job with id " + jobId + " already exists");
+			logger.warn("add job failed, job with id " + jobId + " already exists");
+			return false;
 		}
 		
 		jobs.put(jobMessage.getJobId(), new Job(jobMessage));
 		waitingJobs.add(jobId);
+		
+		return true;
 	}
 	
 	
@@ -122,29 +126,6 @@ public class JobManagerDB {
 		return true;
 	}
 	
-	public boolean updateJobWaiting(String jobId) {
-		Job job = getJob(jobId);
-
-		if (job == null) {
-			logger.warn("update waiting failed for non-existent job " + jobId);
-			return false;
-		}
-		
-		if (job.getFinished() != null) {
-			logger.warn(String.format("cannot put a finished job %s to wait", jobId));
-			return false;
-		}
-		
-		// TODO should this be denied?
-		//if (job.getState() == JobState.SCHEDULED) {
-		//	return false;
-		//}
-		
-		job.setState(JobState.WAITING);
-		waitingJobs.add(jobId);
-		return true;
-	}
-
 
 	/**
 	 * 
@@ -191,6 +172,24 @@ public class JobManagerDB {
 		return true;
 	}
 
+	public void updateJobMaxWaitTimeReached(String jobId) {
+		waitingJobs.remove(jobId);
+
+		Job job = getJob(jobId);
+		if (job == null) {
+			return;
+		}
+		
+		job.setState(JobState.EXPIRED_WAITING);
+		job.setFinished(new Date());
+	}
+
+	
+	/**
+	 * Not used at the moment
+	 * 
+	 * @param jobId
+	 */
 	public void updateJobError(String jobId) {
 		// remove from waiting if exists
 		waitingJobs.remove(jobId);
@@ -204,16 +203,34 @@ public class JobManagerDB {
 		job.setState(JobState.ERROR);;
 	}
 	
-	
-	public void updateJobMaxWaitTimeReached(String jobId) {
-		waitingJobs.remove(jobId);
 
-		Job job = getJob(jobId);
-		if (job == null) {
-			return;
-		}
-		
-		job.setState(JobState.EXPIRED_WAITING);
-		job.setFinished(new Date());
+	/**
+	 * Not used at the moment
+	 * 
+	 * @param jobId
+	 * @return
+	 */
+	public boolean updateJobWaiting(String jobId) {
+	Job job = getJob(jobId);
+
+	if (job == null) {
+		logger.warn("update waiting failed for non-existent job " + jobId);
+		return false;
 	}
+	
+	if (job.getFinished() != null) {
+		logger.warn(String.format("cannot put a finished job %s to wait", jobId));
+		return false;
+	}
+	
+	// TODO should this be denied?
+	//if (job.getState() == JobState.SCHEDULED) {
+	//	return false;
+	//}
+	
+	job.setState(JobState.WAITING);
+	waitingJobs.add(jobId);
+	return true;
+}
+	
 }

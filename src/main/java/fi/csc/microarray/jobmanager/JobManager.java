@@ -82,27 +82,27 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 		private void handleClientJobMessage(JobMessage msg) throws JMSException {
 			
 			Destination clientReplyTo = msg.getReplyTo();
-			
-			try {
-				// store in db, also stores the original replyTo
-				jobsDb.addJob(msg); // puts job in waiting
-		
+
+			// store in db, also stores the original replyTo
+			// when created, job is put to state waiting
+			if (jobsDb.addJob(msg)) {  
+
 				// set replyTo to jobmanager
 				msg.setReplyTo(jobManagerTopic.getJMSTopic());
-				
-				// forward
+
+				// forward to comp, if this fails, job is left waiting, which is ok
 				compTopic.sendMessage(msg);
-			} catch (Exception e) {
-				jobsDb.updateJobError(msg.getJobId());
-				
+
+			} 
+			
+			// job was not added to db, inform client
+			else {
 				ResultMessage resultMessage = new ResultMessage();
 				resultMessage.setJobId(msg.getJobId());
 				resultMessage.setState(JobState.ERROR);
 				resultMessage.setErrorMessage("Could not submit job");
 				endpoint.sendMessageToClientReplyChannel(clientReplyTo, resultMessage);
-				
-				logger.error("could not submit job " + msg.getJobId(), e);
-			}				
+			}
 		}
 
 		private void handleClientCommandMessage(CommandMessage msg) throws JMSException {
