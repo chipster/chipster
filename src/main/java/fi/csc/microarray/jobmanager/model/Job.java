@@ -12,6 +12,7 @@ import javax.persistence.Lob;
 
 import org.apache.activemq.command.ActiveMQMapMessage;
 import org.apache.activemq.command.ActiveMQTempTopic;
+import org.apache.activemq.command.ActiveMQTopic;
 import org.apache.activemq.command.ConnectionId;
 
 import com.google.gson.Gson;
@@ -165,8 +166,18 @@ public class Job {
 			
 			msgMap.put("properties", properties);
 			msgMap.put("content", content);
+			
+			if (chipsterMessage.getReplyTo() instanceof ActiveMQTempTopic) {
+				ActiveMQTempTopic tempTopic = (ActiveMQTempTopic) chipsterMessage.getReplyTo();
+				msgMap.put("replyToConnectionId", tempTopic.getConnectionId());
+				msgMap.put("replyToSequenceId", tempTopic.getSequenceId());	
+			} else if (chipsterMessage.getReplyTo() instanceof ActiveMQTopic) {
+				ActiveMQTopic topic = (ActiveMQTopic) chipsterMessage.getReplyTo();
+				msgMap.put("replyToName", topic.getTopicName());	
+			} else {
+				throw new IllegalArgumentException("unknown type for replyTo " + chipsterMessage.getReplyTo().getClass());
+			}
 			String json = new GsonBuilder().serializeNulls().create().toJson(msgMap);
-			System.out.println(json);
 			return json;
 		} catch (JMSException | IOException e) {
 			throw new IllegalArgumentException("unable to marshal chipster message", e);
@@ -176,15 +187,24 @@ public class Job {
 	private ActiveMQMapMessage toMapMessage(String json) {
 		ActiveMQMapMessage msg = new ActiveMQMapMessage();
 		@SuppressWarnings("unchecked")
-		LinkedTreeMap<String, LinkedTreeMap<String, String>> msgMap = new Gson().fromJson(json, LinkedTreeMap.class);
-		LinkedTreeMap<String, String> properties = msgMap.get("properties");
-		LinkedTreeMap<String, String> content = msgMap.get("content");
+		LinkedTreeMap<String, Object> msgMap = new Gson().fromJson(json, LinkedTreeMap.class);
+		@SuppressWarnings("unchecked")
+		LinkedTreeMap<String, String> properties = (LinkedTreeMap<String, String>) msgMap.get("properties");
+		@SuppressWarnings("unchecked")
+		LinkedTreeMap<String, String> content = (LinkedTreeMap<String, String>) msgMap.get("content");
 		try {
 			for (String key : properties.keySet()) {
 				msg.setStringProperty(key, properties.get(key));
 			}
 			for (String key : content.keySet()) {
 				msg.setString(key, content.get(key));
+			}
+			if (msgMap.containsKey("replyToName")) {
+				msg.setReplyTo(new ActiveMQTopic((String) msgMap.get("replyToName")));
+			} else {
+				String connectionId = (String) msgMap.get("replyToConnectionId");
+				int sequenceId = (int)(double) msgMap.get("replyToSequenceId");
+				msg.setReplyTo(new ActiveMQTempTopic(new ConnectionId(connectionId), sequenceId));
 			}
 			return msg;
 		} catch (JMSException e) {

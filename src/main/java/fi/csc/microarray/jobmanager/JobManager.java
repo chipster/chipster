@@ -421,7 +421,12 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 		}
 	
 		try {
-			compTopic.sendMessage(job.getJobMessage());
+			
+			JobMessage jobMessage = job.getJobMessage();
+			// set replyTo to jobmanager
+			jobMessage.setReplyTo(jobManagerTopic.getJMSTopic());
+			
+			compTopic.sendMessage(jobMessage);
 		} catch (JMSException e) {
 			logger.error("send message failed when reschedulig job " + jobId);
 			return true; // job has not expired so not removing, try again later
