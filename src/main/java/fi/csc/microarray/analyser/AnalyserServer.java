@@ -71,6 +71,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	private int offerDelay;
 	private int timeoutCheckInterval;
 	private int heartbeatInterval;
+	private int compAvailableInterval;
 	private boolean sweepWorkDir;
 	private int maxJobs;
 	
@@ -109,6 +110,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	private LinkedHashMap<String, AnalysisJob> runningJobs = new LinkedHashMap<String, AnalysisJob>();
 	private Timer timeoutTimer;
 	private Timer heartbeatTimer;
+	private Timer compAvailableTimer;
 	private String localFilebrokerPath;
 	private String overridingFilebrokerIp;
 	
@@ -130,6 +132,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		this.offerDelay = configuration.getInt("comp", "offer-delay");
 		this.timeoutCheckInterval = configuration.getInt("comp", "timeout-check-interval");
 		this.heartbeatInterval = configuration.getInt("comp", "job-heartbeat-interval");
+		this.compAvailableInterval = configuration.getInt("comp", "comp-available-interval");
 		this.sweepWorkDir= configuration.getBoolean("comp", "sweep-work-dir");
 		this.maxJobs = configuration.getInt("comp", "max-jobs");
 		this.localFilebrokerPath = nullIfEmpty(configuration.getString("comp", "local-filebroker-user-data-path"));
@@ -156,6 +159,11 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		
 		heartbeatTimer = new Timer(true);
 		heartbeatTimer.schedule(new JobHeartbeatTask(), heartbeatInterval, heartbeatInterval);
+		
+		compAvailableTimer = new Timer(true);
+		compAvailableTimer.schedule(new CompAvailableTask(), compAvailableInterval, compAvailableInterval);
+		
+		
 		
 		// initialize communications
 		this.endpoint = new JMSMessagingEndpoint(this);
@@ -436,6 +444,9 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	 * 
 	 */
 	public void sendResultMessage(ChipsterMessage original, ResultMessage reply) {
+		// for debugging
+		reply.addNamedParameter(ParameterMessage.PARAMETER_AS_ID, id);
+		
 		try {
 			endpoint.replyToMessage(original, reply);
 		} catch (JMSException e) {
@@ -455,6 +466,11 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	 * @param reply
 	 */
 	private void sendReplyMessage(final ChipsterMessage original, final ChipsterMessage reply) {
+		// for debugging
+		if (reply instanceof ResultMessage) {
+			((ResultMessage)reply).addNamedParameter(ParameterMessage.PARAMETER_AS_ID, id);	
+		}
+
 		new Thread(new Runnable() {
 			public void run() {
 				try {
@@ -679,6 +695,21 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 			}
 		}	
 	}
+
+	
+	public class CompAvailableTask extends TimerTask {
+
+		@Override
+		public void run() {
+			synchronized (jobsLock) {
+				if (runningJobs.size() + scheduledJobs.size() < maxJobs) {
+					sendCompAvailable();
+				}
+			}
+		}	
+	}
+
+	
 	
 
 	/* 
