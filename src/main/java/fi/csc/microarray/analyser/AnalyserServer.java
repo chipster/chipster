@@ -158,7 +158,9 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		timeoutTimer.schedule(new TimeoutTimerTask(), timeoutCheckInterval, timeoutCheckInterval);
 		
 		heartbeatTimer = new Timer(true);
-		heartbeatTimer.schedule(new JobHeartbeatTask(), heartbeatInterval, heartbeatInterval);
+
+		// disable heartbeat for jobs for now
+		//heartbeatTimer.schedule(new JobHeartbeatTask(), heartbeatInterval, heartbeatInterval);
 		
 		compAvailableTimer = new Timer(true);
 		compAvailableTimer.schedule(new CompAvailableTask(), compAvailableInterval, compAvailableInterval);
