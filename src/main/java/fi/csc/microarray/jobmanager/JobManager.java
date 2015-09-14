@@ -277,7 +277,7 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 			
 			// check if already finished here in jobmanager
 			if (job.getFinished() != null) {
-				logger.info(String.format("result message for already finished job %s, job state in jobmanager is %s", jobId, job.getState()));
+				logger.info(String.format("result message for already finished job %s, job state in jobmanager is %s, result message state is %s, comp id is ", jobId, job.getState(), msg.getState(), msg.getNamedParameter(ParameterMessage.PARAMETER_AS_ID)));
 				return;
 			}
 			
@@ -302,13 +302,16 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 					return;
 				}
 					
+			} else if (jobStateFromComp == JobState.NEW) {
+				// not used at the moment, no need to forward to the client
+				return;
+			
 			} else if (jobStateFromComp == JobState.COMP_BUSY) {
 				// TODO refactor away
 			    // jobsDb.updateJobWaiting(jobId);
 				return;
 				
 			} else {
-				//
 				logger.warn("job " + jobId + " in state " + jobStateFromComp + ", sending result message to " + job.getReplyTo());
 			}
 			
@@ -453,8 +456,24 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 
 				} else if (CommandMessage.COMMAND_PURGE_OLD_JOBS.equals(commandMessage.getCommand())) {
 					logger.info("got purge old");
+				
 				} else if (CommandMessage.COMMAND_GET_STATUS_REPORT.equals(commandMessage.getCommand())) {
-					logger.info("got get status report");
+					
+					CommandMessage reply = new CommandMessage();
+					String sysStats = SystemMonitorUtil.getMemInfo();
+
+					String report = "";
+					report += "JOBS\n\n" +
+							"waiting: " + jobsDb.getWaitingJobs().size() + "\n" +
+							"running: " + "TODO" +
+							"\n\n";
+					
+					report += "MEMORY\n\n";
+					report += sysStats + "\n";
+
+					reply.addNamedParameter(ParameterMessage.PARAMETER_STATUS_REPORT, report);
+					endpoint.replyToMessage(commandMessage, reply);
+
 				} else {
 					logger.warn("got unexpected command message: " + commandMessage.getCommand());
 				}

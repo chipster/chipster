@@ -436,6 +436,9 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	 * 
 	 */
 	public void sendResultMessage(ChipsterMessage original, ResultMessage reply) {
+		// for debugging
+		reply.addNamedParameter(ParameterMessage.PARAMETER_AS_ID, id);
+		
 		try {
 			endpoint.replyToMessage(original, reply);
 		} catch (JMSException e) {
@@ -455,6 +458,11 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	 * @param reply
 	 */
 	private void sendReplyMessage(final ChipsterMessage original, final ChipsterMessage reply) {
+		// for debugging
+		if (reply instanceof ResultMessage) {
+			((ResultMessage)reply).addNamedParameter(ParameterMessage.PARAMETER_AS_ID, id);	
+		}
+
 		new Thread(new Runnable() {
 			public void run() {
 				try {
