@@ -145,7 +145,7 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 					resultMessage.setJobId(jobId);
 					resultMessage.setState(JobState.ERROR);
 					resultMessage.setErrorMessage("job not found");
-					logger.info("get job for non-existent job " + jobId);
+					logger.warn("get job for non-existent job " + jobId);
 				}				
 				
 				endpoint.sendMessageToClientReplyChannel(newClientReplyTo, resultMessage);
@@ -203,7 +203,7 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 
 				Job job = jobsDb.getJob(jobId);
 				if (job == null) {
-					logger.info("offer for non-existent job " + jobId);
+					logger.warn("offer for non-existent job " + jobId);
 					return;
 				}
 				
@@ -255,7 +255,7 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 				try {
 					String jobId = msg.getNamedParameter(ParameterMessage.PARAMETER_JOB_ID);
 					Destination destination = jobsDb.getJob(jobId).getReplyTo();
-					logger.info("sending command message to original replyTo: " + destination);
+					logger.warn("sending command message to original replyTo: " + destination);
 					endpoint.sendMessageToClientReplyChannel(destination, msg);
 				} catch (Exception e) {
 					logger.warn("failed to forward command message to client " + msg.getCommand());
@@ -278,7 +278,7 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 			
 			// check if already finished here in jobmanager
 			if (job.getFinished() != null) {
-				logger.info(String.format("result message for already finished job %s, job state in jobmanager is %s, result message state is %s, comp id is ", jobId, job.getState(), msg.getState(), msg.getNamedParameter(ParameterMessage.PARAMETER_AS_ID)));
+				logger.warn(String.format("result message for already finished job %s, job state in jobmanager is %s, result message state is %s, comp id is ", jobId, job.getState(), msg.getState(), msg.getNamedParameter(ParameterMessage.PARAMETER_AS_ID)));
 				return;
 			}
 			
@@ -389,7 +389,7 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 				// inform client
 				Job job = jobsDb.getJob(jobId); 
 				if ( job != null) {
-					logger.info("sending job wait expired for job " + jobId);
+					logger.warn("sending job wait expired for job " + jobId);
 					ResultMessage msg = new ResultMessage();
 					msg.setJobId(jobId);
 					msg.setState(JobState.FAILED);
@@ -420,7 +420,7 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 		}
 
 		if (job.getSecondsSinceCreated() > jobMaxWaitTime) {
-			logger.info("max wait time reached for job " + jobId);
+			logger.warn("max wait time reached for job " + jobId);
 			return false;
 		}
 	
@@ -446,19 +446,19 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 		try {
 
 			if (msg instanceof ServerStatusMessage) {
-				logger.info("got ServerStatusMessage");
+				logger.warn("got ServerStatusMessage");
 			} else if (msg instanceof CommandMessage) {
 				CommandMessage commandMessage = (CommandMessage)msg;
 				if (CommandMessage.COMMAND_LIST_RUNNING_JOBS.equals(commandMessage.getCommand())) {
 					logger.info("got list running jobs");
 
 				} else if (CommandMessage.COMMAND_CANCEL.equals(commandMessage.getCommand())) {
-					logger.info("got cancel from admin web");
+					
 					String jobId = commandMessage.getNamedParameter(ParameterMessage.PARAMETER_JOB_ID);
-					logger.info("cancelling job " + jobId);
+					logger.info(String.format("cancel request from admin web for job %s", jobId));
 					if (jobsDb.updateJobCancelled(jobId)) {
 						compTopic.sendMessage(commandMessage);
-						// TODO inform client?
+						logger.info(String.format("sending cancel for job %s to comps", jobId));
 					}
 
 				} else if (CommandMessage.COMMAND_PURGE_OLD_JOBS.equals(commandMessage.getCommand())) {
@@ -487,7 +487,7 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 			}
 
 			else {
-				logger.info("unexpected message: " + msg.toString());
+				logger.warn("unexpected message: " + msg.toString());
 			}
 		} catch (Exception e) {
 			logger.error(Exceptions.getStackTrace(e));
