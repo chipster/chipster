@@ -111,9 +111,30 @@ public class JobManagerDB {
 			throw e;
 		}
 	}
+	
+	public List<Job> getRunningJobs() {
+		this.hibernate.beginTransaction();
+		try {
+			@SuppressWarnings("unchecked")
+			List<Job> jobs = this.hibernate.session().createQuery(
+					"from Job "
+					+ "where state=:state1 "
+					+ "or state=:state2 "
+					+ "order by created")
+					.setParameter("state1", JobState.WAITING)
+					.setParameter("state2", JobState.RUNNING)
+					.list();			
+			
+			this.hibernate.commit();
+			return jobs;
+		} catch (Throwable e) {
+			this.hibernate.rollback();
+			throw e;
+		}
+	}
 
 
-	public boolean updateJobScheduled(Job job, String compId) {
+	public boolean updateJobScheduled(Job job, String compId, String compHost) {
 		if (job == null) {
 			logger.warn("update scheduled failed: job is null");
 			return false;
@@ -129,6 +150,7 @@ public class JobManagerDB {
 		
 		job.setScheduled(new Date());
 	    job.setCompId(compId);
+	    job.setCompHost(compHost);
 	    
 	    updateJob(job);
 
@@ -209,10 +231,7 @@ public class JobManagerDB {
 	 * @param jobId
 	 * @return true if the job can be cancelled
 	 */
-	public boolean updateJobCancelled(String jobId) {
-
-		Job job = getJob(jobId);
-		
+	public boolean updateJobCancelled(Job job) {
 		if (job == null) {
 			return false;
 		}

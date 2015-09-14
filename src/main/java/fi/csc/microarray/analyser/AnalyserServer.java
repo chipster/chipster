@@ -600,6 +600,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		CommandMessage offerMessage = new CommandMessage(CommandMessage.COMMAND_OFFER);
 		offerMessage.addNamedParameter(ParameterMessage.PARAMETER_AS_ID, this.id);
 		offerMessage.addNamedParameter(ParameterMessage.PARAMETER_JOB_ID, job.getId());
+		offerMessage.addNamedParameter(ParameterMessage.PARAMETER_HOST, this.getHost());
 
 		// try to send the message
 		sendReplyMessage(job.getInputMessage(), offerMessage);

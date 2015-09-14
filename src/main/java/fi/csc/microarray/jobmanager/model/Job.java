@@ -58,6 +58,7 @@ public class Job {
 	private String replyToConnectionId;
 	private int replyToSequenceId;
 	private String replyToName;
+	private String compHost;
 
 //	private Date rescheduled;
 //	private Date dequeued;
@@ -221,5 +222,13 @@ public class Job {
 		} catch (JMSException e) {
 			throw new IllegalArgumentException("unable to unmarshal chipster message", e);
 		}
+	}
+
+	public void setCompHost(String compHost) {
+		this.compHost = compHost;
+	}
+	
+	public String getCompHost() {
+		return this.compHost;
 	}
 }

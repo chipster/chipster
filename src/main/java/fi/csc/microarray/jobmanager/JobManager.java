@@ -1,6 +1,8 @@
 package fi.csc.microarray.jobmanager;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -8,6 +10,8 @@ import javax.jms.Destination;
 import javax.jms.JMSException;
 
 import org.apache.log4j.Logger;
+
+import com.google.gson.Gson;
 
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
@@ -26,6 +30,7 @@ import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.JobLogMessage;
 import fi.csc.microarray.messaging.message.JobMessage;
+import fi.csc.microarray.messaging.message.JsonMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
 import fi.csc.microarray.messaging.message.ResultMessage;
 import fi.csc.microarray.messaging.message.ServerStatusMessage;
@@ -152,7 +157,7 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 				
 			} else if (CommandMessage.COMMAND_CANCEL.equals(msg.getCommand())) {
 				String jobId = msg.getNamedParameter(ParameterMessage.PARAMETER_JOB_ID);
-				if (jobsDb.updateJobCancelled(jobId)) {
+				if (jobsDb.updateJobCancelled(jobsDb.getJob(jobId))) {
 					compTopic.sendMessage(msg);
 				}
 				
@@ -196,6 +201,7 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 			if (CommandMessage.COMMAND_OFFER.equals(msg.getCommand())) {
 				String jobId = msg.getNamedParameter(ParameterMessage.PARAMETER_JOB_ID);
 				String compId = msg.getNamedParameter(ParameterMessage.PARAMETER_AS_ID);
+				String compHost = msg.getNamedParameter(ParameterMessage.PARAMETER_HOST);
 				if (jobId == null || jobId.isEmpty() || compId == null || compId.isEmpty()) {
 					logger.warn(String.format("invalid offer, jobId: %s, compId: %s", jobId, compId));
 					return;
@@ -243,7 +249,7 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 					compTopic.sendMessage(acceptMessage);
 
 					// update job state
-					jobsDb.updateJobScheduled(job, compId);
+					jobsDb.updateJobScheduled(job, compId, compHost);
 				}
 				
 			} else if (CommandMessage.COMMAND_COMP_AVAILABLE.equals(msg.getCommand())) {
@@ -451,14 +457,18 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 				CommandMessage commandMessage = (CommandMessage)msg;
 				if (CommandMessage.COMMAND_LIST_RUNNING_JOBS.equals(commandMessage.getCommand())) {
 					logger.info("got list running jobs");
+					handleListRunningJobs(commandMessage);
 
 				} else if (CommandMessage.COMMAND_CANCEL.equals(commandMessage.getCommand())) {
 					logger.info("got cancel from admin web");
 					String jobId = commandMessage.getNamedParameter(ParameterMessage.PARAMETER_JOB_ID);
 					logger.info("cancelling job " + jobId);
-					if (jobsDb.updateJobCancelled(jobId)) {
+					Job job = jobsDb.getJob(jobId);
+					if (jobsDb.updateJobCancelled(job)) {
 						compTopic.sendMessage(commandMessage);
-						// TODO inform client?
+						// inform client
+						ResultMessage cancelMessage = new ResultMessage(job.getJobId(), JobState.CANCELLED, "cancelled by admin", null, null, null);
+						endpoint.sendMessageToClientReplyChannel(job.getReplyTo(), cancelMessage);
 					}
 
 				} else if (CommandMessage.COMMAND_PURGE_OLD_JOBS.equals(commandMessage.getCommand())) {
@@ -472,7 +482,7 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 					String report = "";
 					report += "JOBS\n\n" +
 							"waiting: " + jobsDb.getWaitingJobs().size() + "\n" +
-							"running: " + "TODO" +
+							"running: " + jobsDb.getRunningJobs().size() +
 							"\n\n";
 					
 					report += "MEMORY\n\n";
@@ -494,6 +504,23 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 		}
 	}
 	
+	private void handleListRunningJobs(CommandMessage commandMessage) throws JMSException {
+		ArrayList<HashMap<String, Object>> jobs = new ArrayList<>();
+		List<Job> runningJobs = jobsDb.getRunningJobs();
+		for (Job job : runningJobs) {
+			JobMessage jobMessage = job.getJobMessage();
+			String host = job.getCompHost();
+			if (host == null || "".equals(host)) {
+				host = job.getCompId();
+			}
+			JobLogMessage jobLogMessage = new JobLogMessage(jobMessage.getAnalysisId(), job.getState(), null, job.getJobId(), job.getCreated(), job.getFinished(), null, null, jobMessage.getUsername(), host);
+			jobs.add(jobLogMessage.toMap());
+		}		
+		String json = new Gson().toJson(jobs);
+		JsonMessage reply = new JsonMessage(json);
+		endpoint.replyToMessage(commandMessage, reply);
+	}
+
 	@Override
 	public String getName() {
 		return "jobmanager";
