@@ -53,7 +53,7 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 	private class ClientMessageListener implements MessagingListener {
 
 		@Override
-		public void onChipsterMessage(ChipsterMessage msg) {
+		public void onChipsterMessage(ChipsterMessage msg) {			
 			try {
 				
 				// JobMessage
@@ -241,7 +241,7 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 					compTopic.sendMessage(acceptMessage);
 
 					// update job state
-					jobsDb.updateJobScheduled(jobId, compId);
+					jobsDb.updateJobScheduled(job, compId);
 				}
 				
 			} else if (CommandMessage.COMMAND_COMP_AVAILABLE.equals(msg.getCommand())) {
@@ -262,7 +262,7 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 		}
 
 		private void handleJobLogMessage(JobLogMessage msg) {
-			jobsDb.updateJobRunning(msg.getJobId());
+			jobsDb.updateJobRunning(jobsDb.getJob(msg.getJobId()));
 		}
 
 		private void handleResultMessage(ResultMessage msg) throws JMSException {
@@ -291,13 +291,13 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 				logger.info("job " + jobId + " finished with end state: " + jobStateFromComp);
 				
 				// don't continue if update fails
-				if (!jobsDb.updateJobFinished(jobId, jobStateFromComp, msg)) {
+				if (!jobsDb.updateJobFinished(job, jobStateFromComp, msg)) {
 					return;
 				}
 				
 			} else if (jobStateFromComp == JobState.RUNNING) {
 				// don't continue if update fails
-				if (!jobsDb.updateJobRunning(jobId)) {
+				if (!jobsDb.updateJobRunning(job)) {
 					return;
 				}
 					
