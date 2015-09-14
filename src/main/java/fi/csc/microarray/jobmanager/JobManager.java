@@ -36,7 +36,6 @@ import fi.csc.microarray.util.SystemMonitorUtil;
 
 public class JobManager extends MonitoredNodeBase implements MessagingListener, ShutdownCallback {
 
-	private static long JOB_DEAD_AFTER = 60; // seconds
 	private int jobMaxWaitTime;
 	
 	private static Logger logger;
@@ -335,7 +334,7 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 		jobMaxWaitTime = configuration.getInt("jobmanager", "job-max-wait-time");
 		
 		// initialize jobs db
-		this.jobsDb = new JobManagerDB();
+		this.jobsDb = new JobManagerDB(configuration);
 		
 		// initialize communications
 		this.endpoint = new JMSMessagingEndpoint(this);
@@ -362,20 +361,21 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 	
 
 	private void scheduleWaitingJobs() {
-		if (jobsDb.getWaitingJobs().size() > 0) {
-			logger.info("rescheduling " + jobsDb.getWaitingJobs().size() + " waiting jobs");
+		List<Job> waitingJobs = jobsDb.getWaitingJobs();
+		if (waitingJobs.size() > 0) {
+			logger.info("rescheduling " + waitingJobs.size() + " waiting jobs");
 		}
 		
 		List<String> jobsToBeExpired = new LinkedList<String>(); // avoid removing during iteration 
 
 		// reschedule
-		for (String jobId: jobsDb.getWaitingJobs()) {
+		for (Job job: waitingJobs) {
 			try {
-				if (!rescheduleJob(jobId)) {
-					jobsToBeExpired.add(jobId);
+				if (!rescheduleJob(job.getJobId())) {
+					jobsToBeExpired.add(job.getJobId());
 				};
 			} catch (Exception e) {
-				logger.warn("could not reschedule job " + jobId, e);
+				logger.warn("could not reschedule job " + job.getJobId(), e);
 			}
 		}
 
@@ -423,7 +423,12 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 		}
 	
 		try {
-			compTopic.sendMessage(job.getJobMessage());
+			
+			JobMessage jobMessage = job.getJobMessage();
+			// set replyTo to jobmanager
+			jobMessage.setReplyTo(jobManagerTopic.getJMSTopic());
+			
+			compTopic.sendMessage(jobMessage);
 		} catch (JMSException e) {
 			logger.error("send message failed when reschedulig job " + jobId);
 			return true; // job has not expired so not removing, try again later

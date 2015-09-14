@@ -1,30 +1,43 @@
 package fi.csc.microarray.jobmanager.model;
 
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.List;
+import java.util.UUID;
 
 import javax.jms.Destination;
 
+import org.apache.activemq.command.ActiveMQTempTopic;
 import org.apache.log4j.Logger;
 
+import fi.csc.microarray.config.Configuration;
+import fi.csc.microarray.jobmanager.HibernateUtil;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.message.JobMessage;
 import fi.csc.microarray.messaging.message.ResultMessage;
-
-public class JobManagerDB {
+ 
+/**
+ * 
+ * To access this database on the command line with default settings:
+ * 
+ * cd ~/workspace/chipster-environment
+ * java -cp ../chipster/ext/lib/h2-1.3.163.jar org.h2.tools.Shell -url jdbc:h2:database/jobmanager-db -user sa -password ""
+ * 
+ * @author klemela
+ *
+ */
+public class JobManagerDB {	
 
 	private static Logger logger;
-	private Map<String, Job> jobs;
+	private HibernateUtil hibernate;
 
-	private LinkedHashSet<String> waitingJobs;
-
-	public JobManagerDB() {
+	public JobManagerDB(Configuration configuration) {
 		logger = Logger.getLogger(JobManagerDB.class);
-		jobs = new HashMap<String, Job>();
-		waitingJobs = new LinkedHashSet<String>();
+		
+		List<Class<?>> hibernateClasses = new ArrayList<Class<?>>();
+		hibernateClasses.add(Job.class);
+		this.hibernate = new HibernateUtil();
+		this.hibernate.buildSessionFactory(hibernateClasses, configuration);
 	}
 	
 	
@@ -36,29 +49,72 @@ public class JobManagerDB {
 			return false;
 		}
 
-		if (jobs.containsKey(jobId)) {
+		if (getJob(jobId) != null) {
 			logger.warn("add job failed, job with id " + jobId + " already exists");
 			return false;
 		}
 		
-		jobs.put(jobMessage.getJobId(), new Job(jobMessage));
-		waitingJobs.add(jobId);
+		Job job = new Job(jobMessage);
+		job.setReplyTo(jobMessage.getReplyTo());
 		
-		return true;
+		this.hibernate.beginTransaction();
+		try {
+			this.hibernate.session().save(job);
+			this.hibernate.commit();
+			
+			return true;
+		} catch (Throwable e) {
+			this.hibernate.rollback();
+			throw e;
+		}
 	}
 	
 	
 	public Job getJob(String jobId) {
-		return jobs.get(jobId);
+		this.hibernate.beginTransaction();
+		try {
+			Job job = (Job) this.hibernate.session().get(Job.class, UUID.fromString(jobId));
+			this.hibernate.commit();
+			return job;
+		} catch (Throwable e) {
+			this.hibernate.rollback();
+			throw e;
+		}
 	}
 	
-	public Set<String> getWaitingJobs() {
-		return waitingJobs;
+	public Job updateJob(Job job) {
+		this.hibernate.beginTransaction();
+		try {
+			this.hibernate.session().merge(job);
+			this.hibernate.commit();
+			return job;
+		} catch (Throwable e) {
+			this.hibernate.rollback();
+			throw e;
+		}
+	}
+	
+	public List<Job> getWaitingJobs() {
+		this.hibernate.beginTransaction();
+		try {
+			@SuppressWarnings("unchecked")
+			List<Job> jobs = this.hibernate.session().createQuery(
+					"from Job "
+					+ "where state=:state "
+					+ "order by created")
+					.setParameter("state", JobState.WAITING).list();
+			
+			this.hibernate.commit();
+			return jobs;
+		} catch (Throwable e) {
+			this.hibernate.rollback();
+			throw e;
+		}
 	}
 
 
 	public boolean updateJobScheduled(String jobId, String compId) {
-		Job job = jobs.get(jobId);
+		Job job = getJob(jobId);
 
 		if (job == null) {
 			logger.warn("update scheduled failed for non-existent job " + jobId);
@@ -71,11 +127,12 @@ public class JobManagerDB {
 		}
 		
 		// update state
-		waitingJobs.remove(job.getJobId());
 		job.setState(JobState.SCHEDULED);
 		
 		job.setScheduled(new Date());
 	    job.setCompId(compId);
+	    
+	    updateJob(job);
 
 	    return true;
 	}
@@ -105,6 +162,8 @@ public class JobManagerDB {
 		job.setState(state);
 		job.setResults(results);
 		
+		updateJob(job);
+		
 		return true;
 	}
 
@@ -123,6 +182,9 @@ public class JobManagerDB {
 
 		job.setSeen(new Date());
 		job.setState(JobState.RUNNING);
+		
+		updateJob(job);
+		
 		return true;
 	}
 	
@@ -140,7 +202,10 @@ public class JobManagerDB {
 			return null;
 		}
 
-		job.setReplyTo(newClientReplyTo);
+		job.setReplyTo((ActiveMQTempTopic) newClientReplyTo);
+		
+		updateJob(job);
+		
 		return job;
 	}
 
@@ -151,9 +216,6 @@ public class JobManagerDB {
 	 * @return true if the job can be cancelled
 	 */
 	public boolean updateJobCancelled(String jobId) {
-
-		// remove from waiting if exists
-		waitingJobs.remove(jobId);
 
 		Job job = getJob(jobId);
 		
@@ -169,11 +231,13 @@ public class JobManagerDB {
 		// cancel
 		job.setState(JobState.CANCELLED);
 		job.setFinished(new Date());
+		
+		updateJob(job);
+		
 		return true;
 	}
 
 	public void updateJobMaxWaitTimeReached(String jobId) {
-		waitingJobs.remove(jobId);
 
 		Job job = getJob(jobId);
 		if (job == null) {
@@ -182,6 +246,8 @@ public class JobManagerDB {
 		
 		job.setState(JobState.EXPIRED_WAITING);
 		job.setFinished(new Date());
+		
+		updateJob(job);
 	}
 
 	
@@ -191,8 +257,6 @@ public class JobManagerDB {
 	 * @param jobId
 	 */
 	public void updateJobError(String jobId) {
-		// remove from waiting if exists
-		waitingJobs.remove(jobId);
 
 		Job job = getJob(jobId);
 		
@@ -201,6 +265,8 @@ public class JobManagerDB {
 		}
 		
 		job.setState(JobState.ERROR);;
+		
+		updateJob(job);
 	}
 	
 
@@ -229,7 +295,8 @@ public class JobManagerDB {
 	//}
 	
 	job.setState(JobState.WAITING);
-	waitingJobs.add(jobId);
+	
+	updateJob(job);
 	return true;
 }
 	
