@@ -3,6 +3,7 @@ package fi.csc.microarray.jobmanager.model;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import javax.jms.Destination;
 
@@ -14,8 +15,18 @@ import fi.csc.microarray.jobmanager.HibernateUtil;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.message.JobMessage;
 import fi.csc.microarray.messaging.message.ResultMessage;
-
-public class JobManagerDB {
+ 
+/**
+ * 
+ * To access this database on the command line with default settings:
+ * 
+ * cd ~/workspace/chipster-environment
+ * java -cp ../chipster/ext/lib/h2-1.3.163.jar org.h2.tools.Shell -url jdbc:h2:database/jobmanager-db -user sa -password ""
+ * 
+ * @author klemela
+ *
+ */
+public class JobManagerDB {	
 
 	private static Logger logger;
 	private HibernateUtil hibernate;
@@ -44,6 +55,7 @@ public class JobManagerDB {
 		}
 		
 		Job job = new Job(jobMessage);
+		job.setReplyTo(jobMessage.getReplyTo());
 		
 		this.hibernate.beginTransaction();
 		try {
@@ -61,7 +73,7 @@ public class JobManagerDB {
 	public Job getJob(String jobId) {
 		this.hibernate.beginTransaction();
 		try {
-			Job job = (Job) this.hibernate.session().get(Job.class, jobId);
+			Job job = (Job) this.hibernate.session().get(Job.class, UUID.fromString(jobId));
 			this.hibernate.commit();
 			return job;
 		} catch (Throwable e) {
@@ -86,7 +98,12 @@ public class JobManagerDB {
 		this.hibernate.beginTransaction();
 		try {
 			@SuppressWarnings("unchecked")
-			List<Job> jobs = this.hibernate.session().createQuery("from Job where state=:state").setParameter("state", JobState.WAITING).list();
+			List<Job> jobs = this.hibernate.session().createQuery(
+					"from Job "
+					+ "where state=:state "
+					+ "order by created")
+					.setParameter("state", JobState.WAITING).list();
+			
 			this.hibernate.commit();
 			return jobs;
 		} catch (Throwable e) {

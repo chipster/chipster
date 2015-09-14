@@ -36,7 +36,6 @@ import fi.csc.microarray.util.SystemMonitorUtil;
 
 public class JobManager extends MonitoredNodeBase implements MessagingListener, ShutdownCallback {
 
-	private static long JOB_DEAD_AFTER = 60; // seconds
 	private int jobMaxWaitTime;
 	
 	private static Logger logger;
