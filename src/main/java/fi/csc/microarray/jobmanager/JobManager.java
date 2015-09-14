@@ -89,9 +89,11 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 				// set replyTo to jobmanager
 				msg.setReplyTo(jobManagerTopic.getJMSTopic());
 
-				// forward to comp, if this fails, job is left waiting, which is ok
-				compTopic.sendMessage(msg);
-
+				// if no other jobs in 'waiting queue' (state WAITING), send to comps 
+				if (jobsDb.getWaitingJobs().size() <= 1) { // that one is this job
+					// forward to comp, if this fails, job is left waiting, which is ok
+					compTopic.sendMessage(msg);
+				}
 			} 
 			
 			// job was not added to db, inform client
