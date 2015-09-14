@@ -113,16 +113,14 @@ public class JobManagerDB {
 	}
 
 
-	public boolean updateJobScheduled(String jobId, String compId) {
-		Job job = getJob(jobId);
-
+	public boolean updateJobScheduled(Job job, String compId) {
 		if (job == null) {
-			logger.warn("update scheduled failed for non-existent job " + jobId);
+			logger.warn("update scheduled failed: job is null");
 			return false;
 		}
 		
 		if (job.getFinished() != null) {
-			logger.warn(String.format("cannot schedule an already finished job %s, state: %s", jobId, job.getState()));
+			logger.warn(String.format("cannot schedule an already finished job %s, state: %s", job.getJobId(), job.getState()));
 			return false;
 		}
 		
@@ -140,21 +138,19 @@ public class JobManagerDB {
 	
 	/**
 	 * 
-	 * @param jobId
+	 * @param job
 	 * @param state
 	 * @param results null if no results
 	 * @return
 	 */
-	public boolean updateJobFinished(String jobId, JobState state, ResultMessage results) {
-		Job job = getJob(jobId);
-
+	public boolean updateJobFinished(Job job, JobState state, ResultMessage results) {
 		if (job == null) {
-			logger.warn("update finished failed for non-existent job " + jobId);
+			logger.warn("update finished failed: job is null");
 			return false;
 		}
 		
 		if (job.getFinished() != null) {
-			logger.warn(String.format("cannot finish an already finished job %s, old state: %s, new state: %s", jobId, job.getState(), state));
+			logger.warn(String.format("cannot finish an already finished job %s, old state: %s, new state: %s", job.getJobId(), job.getState(), state));
 			return false;
 		}
 		
@@ -167,16 +163,14 @@ public class JobManagerDB {
 		return true;
 	}
 
-	public boolean updateJobRunning(String jobId) {
-		Job job = getJob(jobId);
-
+	public boolean updateJobRunning(Job job) {
 		if (job == null) {
-			logger.warn("update running failed for non-existent job " + jobId);
+			logger.warn("update running failed: job is null");
 			return false;
 		}
 		
 		if (job.getFinished() != null) {
-			logger.warn("cannot put a finished job " + jobId + " to running state");
+			logger.warn("cannot put a finished job " + job.getJobId() + " to running state");
 			return false;
 		}
 
