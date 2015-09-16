@@ -276,7 +276,7 @@ public class TaskExecutor {
 				}
 				
 				// source code
-				pendingTask.setSourceCode(resultMessage.getSourceCode());
+				pendingTask.getOperationRecord().setSourceCode(resultMessage.getSourceCode());
 			}
 
 			// end time(s)

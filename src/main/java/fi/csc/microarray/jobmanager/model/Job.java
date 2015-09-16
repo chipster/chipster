@@ -98,7 +98,7 @@ public class Job {
 		return scheduled;
 	}
 
-	public ResultMessage getResults() {
+	public ResultMessage getResults() {				
 		MapMessage mapMessage = toMapMessage(results);
 		ResultMessage resultMessage = new ResultMessage();
 		try {
@@ -145,7 +145,7 @@ public class Job {
 		this.scheduled = scheduled;
 	}
 
-	void setResults(ResultMessage results) {
+	void setResults(ResultMessage results) {		
 		this.results = toJson(results);
 	}
 
