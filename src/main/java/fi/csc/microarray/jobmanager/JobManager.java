@@ -174,7 +174,7 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 		public void onChipsterMessage(ChipsterMessage msg) {
 			try {
 				
-				if (msg instanceof ResultMessage) {
+				if (msg instanceof ResultMessage) {					
 					handleResultMessage((ResultMessage) msg);
 				} 
 
@@ -321,7 +321,6 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 			} else {
 				logger.warn("job " + jobId + " in state " + jobStateFromComp + ", sending result message to " + job.getReplyTo());
 			}
-			
 			// if things are ok, send the result message also to the client
 			endpoint.sendMessageToClientReplyChannel(job.getReplyTo(), msg);
 			
