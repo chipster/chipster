@@ -39,6 +39,7 @@ public class HibernateUtil {
     		hibernateConf.setProperty(Environment.SHOW_SQL, showSql);
     		hibernateConf.setProperty(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
     		hibernateConf.setProperty("hibernate.hbm2ddl.auto", dbSchemaUpdate);    		
+    		hibernateConf.setProperty("hibernate.c3p0.min_size", "3");
     		
     		for (Class<?> c : hibernateClasses) {
     			hibernateConf.addAnnotatedClass(c);
