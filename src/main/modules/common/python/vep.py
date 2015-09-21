@@ -5,6 +5,8 @@
 import urllib
 import urllib2
 import json
+import time
+import os
 #from tool_utils import *
 
 """
@@ -28,14 +30,15 @@ def append(list, prefix, dict, key):
         return list.append(prefix + str(dict.get(key)))
 
 def writeToFile(input_region, consequence_type, feature_type, f):
+    line_count = 0
     consequences = input_region.get(consequence_type)
     if not consequences:
-        return
+        return 0
     for conseq in consequences:
         vep_line = []
         uploaded_variation = '.'
         location = input_region['seq_region_name'] + ':' + str(input_region['start']) + '-' + str(input_region['end'])
-        allele = conseq['variant_allele']
+        allele = get(conseq, 'variant_allele')
         consequence = ','.join(conseq['consequence_terms'])
         impact = conseq['impact']
         symbol = get(conseq, 'gene_symbol')
@@ -86,26 +89,29 @@ def writeToFile(input_region, consequence_type, feature_type, f):
         vep_line = [uploaded_variation, location, allele, consequence, impact, symbol, gene, feature_type, feature, biotype, exon, intron, hgvsc, hgvsp, cdna_position, cds_position, protein_position, amino_acids, codons, existing_variation, extra]
 
         f.write('\t'.join(vep_line) + '\r\n')
+        line_count += 1
+    return line_count
 
+# parse VCF file and create an array of variants
+def parse_lines(lines):
+    variants = []
+    for line in lines:
+        if line.startswith('#'):
+            continue
+        columns = line.split()
+        chrom = columns[0]
+        pos = columns[1]
+        ref = columns[3]
+        alt = columns[4]
+        end_pos = str(int(pos) + len(ref) - 1)
+        variants.append(chrom + ' ' + pos + ' ' + end_pos + ' ' + ref + ' ' + alt)
 
-def main():
+    return variants
 
+def query(lines):
     url = 'http://rest.ensembl.org/vep/homo_sapiens/region?numbers=true'
 
-    # parse VCF file and create an array of variants
-    variants = []
-    with open('input_file') as f:
-        for line in f:
-            if line.startswith('#'):
-                continue
-            columns = line.split()
-            chrom = columns[0]
-            pos = columns[1]
-            ref = columns[3]
-            alt = columns[4]
-            end_pos = str(int(pos) + len(ref) - 1)
-            variants.append(chrom + ' ' + pos + ' ' + end_pos + ' ' + ref + ' ' + alt)
-
+    variants = parse_lines(lines)
     # input format example: { "variants" : ["21 26960070 rs116645811 G A . . .", "21 26965148 rs1135638 G A . . ." ] }
     values = {'variants': variants }
     # convert to json string  
@@ -113,23 +119,43 @@ def main():
     # send request
     req = urllib2.Request(url, data)
     req.add_header("Content-type", "application/json")
-    response = urllib2.urlopen(req)
+    response = urllib2.urlopen(req)    
     # parse response json
-    response_data = json.loads(response.read())
+    return json.loads(response.read())
 
-    with open('output_file', 'w') as f:
+def write(response_data):
+    line_count = 0
+    with open('output_file', 'a') as f:
         # write file header
         f.write('#Uploaded_variation	Location	Allele	Consequence	IMPACT	SYMBOL	Gene	Feature_type	Feature	BIOTYPE	EXON	INTRON	HGVSc	HGVSp	cDNA_position	CDS_position	Protein_position	Amino_acids	Codons	Existing_variation	Extra\r\n')
 
         # write consequences of each input region
         for input_region in response_data:
             # there are many types of consequences
-            writeToFile(input_region, 'transcript_consequences', 'Transcript', f)
-            writeToFile(input_region, 'intergenic_consequences', '-', f)
-            writeToFile(input_region, 'motif_feature_consequences', '-', f)
-            writeToFile(input_region, 'regulatory_feature_consequences', 'RegulatoryFeature', f)
-  
-            
+            line_count += writeToFile(input_region, 'transcript_consequences', 'Transcript', f)
+            line_count += writeToFile(input_region, 'intergenic_consequences', '-', f)
+            line_count += writeToFile(input_region, 'motif_feature_consequences', '-', f)
+            line_count += writeToFile(input_region, 'regulatory_feature_consequences', 'RegulatoryFeature', f)
+    print('wrote ' + str(line_count) + ' output lines')
+
+def main():
+    # the file may exist from previous runs, when debugging this locally
+    if os.path.exists('output_file'):
+        os.remove('output_file')
+    
+    lines = []
+    with open('input_file') as f:
+        for line in f:
+            lines.append(line)
+            if len(lines) >= 1000:
+                print('query ' + str(len(lines)) + ' variants')
+                write(query(lines))
+                lines = []
+                # REST API allows 15 requests per second, so this sleep makes sure 
+                # that we can safely run about 30 instances of this tool in parallel without having
+                # to wait for the quota reset (which may take up to an hour).
+                # https://github.com/Ensembl/ensembl-rest/wiki/Rate-Limits
+                time.sleep(2)            
 
 """
 Transform input JSON: 
