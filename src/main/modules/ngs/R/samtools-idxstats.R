@@ -6,7 +6,7 @@
 # EK 26.10.2011
 
 # samtools binary
-samtools.binary <- c(file.path(chipster.tools.path, "samtools", "samtools"))
+samtools.binary <- c(file.path(chipster.tools.path, "samtools-1.2", "samtools"))
 
 # convert sam to bam
 system(paste(samtools.binary, "idxstats alignment.bam > bam-out.tsv"))

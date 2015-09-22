@@ -7,7 +7,7 @@
 # EK 26.10.2011
 
 # samtools binary
-samtools.binary <- c(file.path(chipster.tools.path, "samtools", "samtools"))
+samtools.binary <- c(file.path(chipster.tools.path, "samtools-1.2", "samtools"))
 
 system(paste(samtools.binary, "view -bc -q", mapping.quality, "alignment.bam > alignment-counts.txt"))
 

@@ -11,7 +11,7 @@
 # AMS 24.9.2014: added indexing to the result file
 
 # samtools binary
-samtools.binary <- c(file.path(chipster.tools.path, "samtools", "samtools"))
+samtools.binary <- c(file.path(chipster.tools.path, "samtools-1.2", "samtools"))
 
 system(paste(samtools.binary, "view -b -q", mapping.quality, "-o alignment-subset.bam alignment.bam", region))
 
