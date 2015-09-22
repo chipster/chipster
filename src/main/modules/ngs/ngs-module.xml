@@ -110,6 +110,9 @@
 			<resource>samtools-idxstats.R</resource>
 		</tool>	
 		<tool runtime="R-3.0">
+			<resource>samtools-alignment-statistics.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
 			<resource>samtools-count.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
@@ -184,6 +187,12 @@
 		<tool runtime="python">
 			<resource>test-data-in-out.py</resource>
 		</tool> 
+		<tool runtime="R-3.0">
+			<resource>picard-collectmultiplemetrics.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
+			<resource>picard-markduplicates.R</resource>
+		</tool>
 	</category>
 
 	<category name="Matching sets of genomic regions" color="#e7881c">
@@ -211,9 +220,11 @@
 		<tool runtime="R-3.0">
 			<resource>bedtools-windowbed.R</resource>
 		</tool>
+		<!-- 
 		<tool runtime="R-3.0">
 			<resource>bedtools-mergebed.R</resource>
 		</tool>
+		-->
 		<tool runtime="R-3.0">
 			<resource>bedtools-coveragebed.R</resource>
 		</tool>
