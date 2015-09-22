@@ -1,6 +1,6 @@
 # TOOL vcftools.R: "Filter and analyse variants" (Filters and analyses variants in VCF files. This tool is based on the VCFtools package.)
 # INPUT input.vcf: "VCF file" TYPE GENERIC 
-# OUTPUT vcftools.log
+# OUTPUT OPTIONAL vcftools.log
 # OUTPUT OPTIONAL vcftools.filtered.vcf
 # OUTPUT OPTIONAL vcftools.frq.tsv
 # OUTPUT OPTIONAL vcftools.frq.count.tsv
@@ -67,7 +67,7 @@ if (output.filtered == "yes"){
 }
 
 # commands
-command1 <- paste(vcftools.binary, "--vcf input.vcf", "--out vcftools", "--recode", vcftools.options)
+command1 <- paste(vcftools.binary, "--vcf input.vcf", "--out vcftools", "--recode", vcftools.options, "2> vcftools.log")
 
 # run
 #stop(paste('CHIPSTER-NOTE: ', command1))
