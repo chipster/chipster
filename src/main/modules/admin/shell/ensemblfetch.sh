@@ -1,7 +1,7 @@
 #!/bin/bash 
 # A script to fetch datasets from the ensembl website
 # 23.7. 2010 KM
-# Updated 4.11. 2011 KM
+# Updated 22.9. 2015 KM
 
 TMPDIR="/tmp"
 
@@ -13,11 +13,14 @@ fi
 
 seqtype=("dna")
 mode=("single")
+name_check=("no")
+include_bacteria=("yes")
 outputmode=("single")
 ensembl_version=("current_")
 ensembl_genomes_version=("current")
 ensembl_urls_file="$TMPDIR/ensembl_urls_${ensembl_genomes_version}"
 ensembl_urls_mysql_file="$TMPDIR/ensembl_urls_mysql_${ensembl_genomes_version}"
+
 
 update_ensembl_url_file ()
 {
@@ -28,15 +31,24 @@ update_ensembl_url_file ()
   then
     # create a list of ftp directories
     echo ftp://ftp.ensembl.org/pub/$ensembl_version$type/ > ensembl_list
-
-    # mysql data for bacterisa is in different format
-    if [[ "$type" != "mysql" ]]
+    
+    #bacteria can be skipped
+    if [[ $include_bacteria == "yes" ]]
     then
-      for ((number=1; number<=27; number++))
-      do
-        echo ftp://ftp.ensemblgenomes.org/pub/bacteria/${ensembl_genomes_version}/$type/bacteria_"$number"_collection/ >> ensembl_list
-      done
+      # mysql data for bacteria is in different format
+      bc_count=$(curl ftp://ftp.ensemblgenomes.org/pub/bacteria/current/fasta/  2> /dev/null |  wc -l)
+      (( bc_count = bc_count - 1 ))
+
+ 
+      if [[ "$type" != "mysql" ]]
+      then
+         for ((number=0; number<=$bc_count; number++))
+         do
+           echo ftp://ftp.ensemblgenomes.org/pub/bacteria/${ensembl_genomes_version}/$type/bacteria_"$number"_collection/ >> ensembl_list
+         done
+      fi
     fi
+
 
     echo ftp://ftp.ensemblgenomes.org/pub/fungi/${ensembl_genomes_version}/$type/ >> ensembl_list
     echo ftp://ftp.ensemblgenomes.org/pub/metazoa/${ensembl_genomes_version}/$type/  >> ensembl_list
@@ -85,18 +97,9 @@ clean_up ()
   rm -rf  tmp_$$/
 }
 
-while [[ $# -ge 1 ]]
-do
-  case "$1" in
-             #data type
-             '-type')
-                seqtype="$2"
-                shift
-                shift
-              ;;
-              #
-              '-names')
-                  echo "Retrieving the list of available species names:"
+check_names ()
+{
+  echo "Retrieving the list of available species names:"
 
                    rm -f $ensembl_urls_file
                    rm -f $ensembl_urls_mysql_file
@@ -120,6 +123,23 @@ do
                    awk -F "/" '{print $(NF-1)}' | sort
                    clean_up
                    exit
+
+
+}
+
+while [[ $# -ge 1 ]]
+do
+  case "$1" in
+             #data type
+             '-type')
+                seqtype="$2"
+                shift
+                shift
+              ;;
+              #
+              '-names')
+                 name_check=("yes")
+                 shift
                ;;
               '-list')
                   namelist=($2)
@@ -160,6 +180,11 @@ do
                  shift
                  shift
               ;;
+              '-bacteria')
+                include_bacteria=($2)
+                shift
+                shift
+              ;;
               '-help')
                  echo " ----------------------------------------------------------------------------------"
                  echo " ensemblfetch retrieves genomic, cDNA or peptide sequences of a given species from "
@@ -171,7 +196,7 @@ do
                  echo " ensemblfetch options:"
                  echo "  -names   List the available species names "
                  echo "  -type    Select the data type to retrieve (Default: dna) "
-                 echo "           Available data types are: dna, dna_rm, cdna, cdna_abinitio, pep, pep_abinitio"
+                 echo "           Available data types are: dna, dna_rm, cdna, cdna_abinitio, pep, pep_abinitio, gtf"
                  echo "  -list    List of species to retrieve"
                  echo "  -version Download from specified ensembl release instead of latest"
                  echo "  -out     Output file name" 
@@ -185,6 +210,11 @@ do
               ;;
     esac
 done
+if [[ $name_check == "yes" ]]
+then
+ check_names
+fi
+
 case "$seqtype" in
     "dna")
        echo "Retrieving genomic DNA for $spec"
@@ -318,7 +348,7 @@ do
       name=$(grep -i "/$species/" tmp_$$/ensembl_species.txt | awk -F "/" '{print $(NF-2)}' )
       filename=$(grep -i "/$species/" tmp_$$/ensembl_species.txt | awk -F "/" '{print $(NF)}' )
       echo
-      echo "Downloading the genomic sequece of $name"
+      echo "Downloading data for $name"
       echo
 
       # resolve exact url, because possible http proxy doesn't support wildcards
@@ -331,7 +361,7 @@ do
       echo "Unzipping $gzipfile"
       if [[ $outputmode == "single" ]]
       then
-      gunzip $gzipfile
+        gunzip $gzipfile
         echo "The results have been written to a file:"
         echo $gzipfile | sed s/".gz"/""/g
       else
@@ -355,4 +385,3 @@ do
 done
 
 clean_up
-

@@ -9,7 +9,7 @@
 # PARAMETER OPTIONAL rstring: "Replacement string" TYPE STRING (Replacement string)
 # PARAMETER OPTIONAL startrow: "First row to select" TYPE INTEGER DEFAULT 1 (Number of the first row to be selected. Note that in table files, the header row is considered as the first row.)
 # PARAMETER OPTIONAL stoprow: "Last row to select" TYPE INTEGER DEFAULT 10000000 (Number of the last row to be selected.)
-# PARAMETER OPTIONAL fstyle: "Input file table" TYPE [txt: Text, tsv: Table, bed: BED] DEFAULT txt (Is the input file a text file, tab-delimited table or a BED file?)
+# PARAMETER OPTIONAL fstyle: "Input file format" TYPE [txt: Text, tsv: Table, bed: BED, gtf: GTF] DEFAULT txt (Is the input file a text file, tab-delimited table, BED file or GTF file)
 # PARAMETER OPTIONAL save_log: "Collect a log file" TYPE [yes: Yes, no: No] DEFAULT no (Collect a log file about the analysis run.)
 
 # KM 10.4.2015
