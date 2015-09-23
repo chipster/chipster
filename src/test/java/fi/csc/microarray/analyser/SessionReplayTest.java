@@ -391,11 +391,11 @@ public class SessionReplayTest extends MessagingTestBase {
 						DataBean targetBean = targetIterator.next();
 
 						// check content types
-						if (!sourceBean.getContentType().getType().equals(targetBean.getContentType().getType())) {
-							summary.getToolTestResults().add(new ToolTestResult(TestResult.FAIL, session, task, "Mismatch in result content types, "
-									+ sourceBean.getName() + ": " + sourceBean.getContentType().getType() + ", " + targetBean.getName() + ": " + targetBean.getContentType().getType()));
-							return;
-						}
+//						if (!sourceBean.getContentType().getType().equals(targetBean.getContentType().getType())) {
+//							summary.getToolTestResults().add(new ToolTestResult(TestResult.FAIL, session, task, "Mismatch in result content types, "
+//									+ sourceBean.getName() + ": " + sourceBean.getContentType().getType() + ", " + targetBean.getName() + ": " + targetBean.getContentType().getType()));
+//							return;
+//						}
 						
 //						// check names
 //						if (!sourceBean.getName().equals(targetBean.getName())) {
