@@ -1,4 +1,4 @@
-# TOOL vcftools-reports.R: "Analyse variants" (Analyses variants in VCF files. This tool is based on the VCFtools package.)
+# TOOL vcftools-reports.R: "Reports on VCF" (Analyses variants in VCF files. This tool is based on the VCFtools package.)
 # INPUT input.vcf: "VCF file" TYPE GENERIC 
 # OUTPUT OPTIONAL vcftools.log
 # OUTPUT OPTIONAL vcftools.frq.tsv
