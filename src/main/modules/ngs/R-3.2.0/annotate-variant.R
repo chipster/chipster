@@ -2,7 +2,8 @@
 # INPUT input.vcf: "Sorted or unsorted VCF file" TYPE GENERIC
 # OUTPUT all-variants.tsv
 # OUTPUT coding-variants.tsv
-# PARAMETER genome: "Genome" TYPE [hg19: "Human (hg19\)", hg38: "Human (hg38\)"] DEFAULT hg19 (Reference sequence)
+# OUTPUT OPTIONAL polyphen-predictions.tsv
+# PARAMETER genome: "Genome" TYPE [hg19: "Human (hg19\)", hg38: "Human (hg38\)"] DEFAULT hg38 (Reference sequence)
 
 
 # 31.8.2012 	JTT
@@ -11,6 +12,7 @@
 # 20.7.2015 	ML 			Fixed the problems with different kinds of vcf-files
 # 27.7.2015		ML			Add hg38
 # 09.09.2015	ML 			Add rsIDs to result table
+# 10.09.2015	ML			Polyphen predictions
 
 
 # Read data
@@ -58,13 +60,6 @@ if(length(grep("chr", vcf@rowData@seqnames@values))>=1) {
 vcf2 <- keepSeqlevels(vcf2, c("chr1","chr2","chr3","chr4","chr5","chr6","chr7","chr8","chr9","chr10","chr11","chr12","chr13","chr14","chr15","chr16","chr17","chr18","chr19","chr20","chr21","chr22","chrX","chrY"))
 
 
-
-# Locate coding variant
-# loc <- locateVariants(rd, txdb, CodingVariants())
-
-# Locate splicing variants
-# spl<-locateVariants(rd, txdb, SpliceSiteVariants())
-
 # Locate all variants
 codvar <- locateVariants(vcf2, txdb, CodingVariants())
 intvar <- locateVariants(vcf2, txdb, IntronVariants())
@@ -101,9 +96,23 @@ cod<-elementMetadata(coding)
 cod2<-as.list(cod)
 names(cod2)<-toupper(names(cod2))
 
+# PolyPhen 
+nms <- names(coding)
+idx <- mcols(coding)$CONSEQUENCE == "nonsynonymous"
+nonsyn <- coding[idx]
+names(nonsyn) <- nms[idx]
+rsids <- unique(names(nonsyn)[grep("rs", names(nonsyn), fixed=TRUE)])
 
-#cod3<-data.frame(cod2$GENEID, cod2$CDSID, cod2$TXID, cod2$CONSEQUENCE, as.data.frame(cod2$PROTEINLOC), as.data.frame(cod2$CDSLOC)[1], as.data.frame(cod2$CDSLOC)[2], as.data.frame(cod2$CDSLOC)[3], as.data.frame(cod2$varAllele), as.data.frame(cod2$REFCODON), as.data.frame(cod2$VARCODON))
-# cod3<-data.frame(geneID=cod2$GENEID, cdsID=cod2$CDSID, txID=cod2$TXID, consequence=cod2$CONSEQUENCE, cdsStart=as.data.frame(cod2$CDSLOC)[,1], cdsEnd=as.data.frame(cod2$CDSLOC)[,2], width=as.data.frame(cod2$CDSLOC)[,3], varAllele=as.data.frame(cod2$VARALLELE)[,1], refCodon=as.data.frame(cod2$REFCODON)[,1], varCodon=as.data.frame(cod2$VARCODON)[,1], refAA=as.data.frame(cod2$REFAA)[,1], varAA=as.data.frame(cod2$VARAA)[,1])
+library(PolyPhen.Hsapiens.dbSNP131)
+
+pp <- select(PolyPhen.Hsapiens.dbSNP131, keys=rsids, cols=c("PREDICTION", "RSID"))
+
+if(length(pp)>0) {
+	prediction <- pp[!is.na(pp$PREDICTION), ]
+	polyphen <- prediction[, c("RSID", "TRAININGSET", "PREDICTION", "BASEDON", "COMMENTS")] 
+	write.table(polyphen, "polyphen-predictions.tsv", col.names=T, row.names=F, sep="\t", quote=FALSE)
+}
+
 # cod3<-data.frame(geneID=cod2$GENEID, cdsID=sapply(cod2$CDSID, FUN=function(x) paste(x, collapse=", ")), txID=cod2$TXID, consequence=cod2$CONSEQUENCE, cdsStart=as.data.frame(cod2$CDSLOC)[,1], cdsEnd=as.data.frame(cod2$CDSLOC)[,2], width=as.data.frame(cod2$CDSLOC)[,3], varAllele=as.data.frame(cod2$VARALLELE)[,1], refCodon=as.data.frame(cod2$REFCODON)[,1], varCodon=as.data.frame(cod2$VARCODON)[,1], refAA=as.data.frame(cod2$REFAA)[,1], varAA=as.data.frame(cod2$VARAA)[,1])
 cod3<-data.frame(geneID=cod2$GENEID, rsID=names(coding), cdsID=sapply(cod2$CDSID, FUN=function(x) paste(x, collapse=", ")), txID=cod2$TXID, consequence=cod2$CONSEQUENCE, cdsStart=as.data.frame(cod2$CDSLOC)[,1], cdsEnd=as.data.frame(cod2$CDSLOC)[,2], width=as.data.frame(cod2$CDSLOC)[,3], varAllele=as.data.frame(cod2$VARALLELE)[,1], refCodon=as.data.frame(cod2$REFCODON)[,1], varCodon=as.data.frame(cod2$VARCODON)[,1], refAA=as.data.frame(cod2$REFAA)[,1], varAA=as.data.frame(cod2$VARAA)[,1])
 
@@ -118,3 +127,4 @@ cod34<-merge(cod33, ensg, by.x="geneID", by.y="ENTREZID", all.x=TRUE)
 # Write results to disk
 write.table(allvar3, "all-variants.tsv", col.names=T, row.names=F, sep="\t", quote=FALSE)
 write.table(cod34, "coding-variants.tsv", col.names=T, row.names=F, sep="\t", quote=FALSE)
+
