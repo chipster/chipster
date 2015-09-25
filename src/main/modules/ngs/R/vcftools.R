@@ -1,8 +1,8 @@
 # TOOL vcftools.R: "Filter variants" (Filters variants in VCF files. This tool is based on the VCFtools package.)
 # INPUT input.vcf: "VCF file" TYPE GENERIC 
 # OUTPUT OPTIONAL vcftools.log
-# OUTPUT OPTIONAL vcftools.filtered.vcf
-# OUTPUT OPTIONAL vcftools.removed.sites.tsv
+# OUTPUT OPTIONAL filtered.vcf
+# OUTPUT OPTIONAL removed.sites.tsv
 # PARAMETER OPTIONAL filter.keepindels: "Keep only indels" TYPE [yes, no] DEFAULT no (Keep only indels.)
 # PARAMETER OPTIONAL filter.removeindels: "Remove indels" TYPE [yes, no] DEFAULT no (Remove indels.)
 # PARAMETER OPTIONAL filter.minalleles: "Minimum number of alleles" TYPE INTEGER DEFAULT 0 (Minumun number of alleles. 0 value means option is ignored.)
@@ -57,5 +57,5 @@ if (output.filtered == "yes"){
 }
 
 # rename result files
-system("mv vcftools.recode.vcf vcftools.filtered.vcf")
-system("mv vcftools.removed.sites vcftools.removed.sites.tsv")
+system("mv vcftools.recode.vcf filtered.vcf")
+system("mv vcftools.removed.sites removed.sites.tsv")
