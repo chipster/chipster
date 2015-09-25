@@ -79,7 +79,7 @@ bwa.command <- paste(command.start, bwa.parameters, command.end)
 
 echo.command <- paste("echo '", bwa.binary, bwa.parameters, bwa.genome, "reads.fastq ' > bwa.log" )
 if ( paired.end == 1 ){
-  echo.command <- paste("echo '", bwa.binary, bwa.parameters, bwa.genome, "reads.fastq raeds2.fastq ' > bwa.log" )
+  echo.command <- paste("echo '", bwa.binary, bwa.parameters, bwa.genome, "reads.fastq reads2.fastq ' > bwa.log" )
 }
 
 #stop(paste('CHIPSTER-NOTE: ', bwa.command))
