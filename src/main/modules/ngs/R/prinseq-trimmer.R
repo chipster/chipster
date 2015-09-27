@@ -29,6 +29,8 @@
 # PARAMETER OPTIONAL trim.ns.right: "Trim right poly-N tails" TYPE INTEGER (Trim poly-N tail with a minimum length of the given value at the 3-prime end.)		
 # PARAMETER OPTIONAL min.len: "Minimum length" TYPE INTEGER (Select only reads that are longer than the given value after trimming.)
 # PARAMETER OPTIONAL log.file: "Write a log file" TYPE [ n: "no", y: "yes"] DEFAULT y (Write a log file)
+# PARAMETER OPTIONAL singletons: "Write singletons for paired end reads" TYPE [yes, no] DEFAULT no (Write singletons in separate files for paired end reads.)
+
 
 # KM 17.1.2012
 # EK 7.5.2013 Reorganized parameters
@@ -135,6 +137,12 @@ if (log.file == "y") {
 
 system(trim.command)
 
+# There is no option in PRINSEQ to not write the singletons files, so if they are not required, we delete them.
+if (singletons == "no"){
+	system("rm -f *_singletons.*")
+}
+
+# Compress output files
 system("gzip *.fastq")
 system("gzip *.fasta")
 

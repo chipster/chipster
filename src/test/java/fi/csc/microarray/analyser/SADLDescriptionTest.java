@@ -133,17 +133,21 @@ public class SADLDescriptionTest {
 				// but for keeping the test code simple, we infer it from the resource name. Currently
 				// that is enough, in future we might need to use the actual module loading facility
 				// to parse the module files.
-				boolean isFile = false;
+				boolean isFile;
+				String manualName;
 				if ("java".equals(toolspec.runtime)) {
 					// Is a class name
 
 					System.out.println("validating class " + toolspec.resource + " in " + toolspec.module);
 					JavaAnalysisJobBase jobBase = (JavaAnalysisJobBase)Class.forName(toolspec.resource).newInstance();
 					sadl = jobBase.getSADL();
+					isFile = false;
+					manualName = toolspec.resource.substring(toolspec.resource.lastIndexOf('.') + 1);
 					
 				} else { 
 					// Is a file name
 					isFile = true;
+					manualName = toolspec.resource.substring(0, toolspec.resource.indexOf('.'));
 					
 					// Determine which file it is
 					File file = new File(new File("src/main/modules"), toolspec.toolSpecificModule + File.separator + toolspec.runtimeDir + File.separator + toolspec.resource);
@@ -178,7 +182,7 @@ public class SADLDescriptionTest {
 					if (isFile) {
 						Assert.assertEquals(toolspec.resource, descriptions.get(0).getName().getID());
 					}
-					if (!toolspec.isHidden && !new File("src/main/manual/" + toolspec.resource.split("\\.")[0] + ".html").exists()) {
+					if (!toolspec.isHidden && !new File("src/main/manual/" + manualName + ".html").exists()) {
 						missingManuals += "\nManual page missing for " + toolspec.resource;
 					}
 					

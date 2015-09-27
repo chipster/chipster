@@ -1,3 +1,0 @@
-TOOL mafft-ginsi.sadl: mafft-ginsi (Iterative refinement method incorporating global pairwise alignment information. This alignment method is suitable for sequences of similar lengths. It is not recommended for more than 200 sequences)
-INPUT query: "Sequences to align" TYPE GENERIC
-OUTPUT out.txt

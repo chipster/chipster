@@ -1,4 +1,4 @@
-# TOOL samtools-idxstats.R: "Statistics for BAM" (Counts how many alignments there are per each chromosome. Please note that in addition to BAM file you have to provide an index file for it. You can create the index file using the tool Index BAM. This tool is based on the SAMtools package.)
+# TOOL samtools-idxstats.R: "Count alignments per chromosome in BAM" (Counts how many alignments there are per each chromosome. Please note that in addition to BAM file you have to provide an index file for it. You can create the index file using the tool Index BAM. This tool is based on the SAMtools package.)
 # INPUT alignment.bam: "BAM file" TYPE GENERIC 
 # INPUT alignment.bai: "Index file .bai" TYPE GENERIC
 # OUTPUT bam-stats.tsv
@@ -6,7 +6,7 @@
 # EK 26.10.2011
 
 # samtools binary
-samtools.binary <- c(file.path(chipster.tools.path, "samtools", "samtools"))
+samtools.binary <- c(file.path(chipster.tools.path, "samtools-1.2", "samtools"))
 
 # convert sam to bam
 system(paste(samtools.binary, "idxstats alignment.bam > bam-out.tsv"))

@@ -39,7 +39,7 @@
     <typedef name="fatjar.filesource" classname="net.sf.fjep.anttask.FJFileSourceType" classpath="${fjepPath}" loaderref="lib.path.loader"/>
 
 	<!-- version numbering -->
-	<property name="release-version" value="3.5.1" />
+	<property name="release-version" value="3.6.0" />
 	<property name="release-jar" value="${dist}/chipster-${release-version}.jar" />
 	<property name="release-tar" value="${dist}/chipster-${release-version}.tar.gz" />
 	<property name="release-zip" value="${dist}/chipster-${release-version}.zip" />
@@ -402,6 +402,22 @@
 			
 			<tarfileset file="${ext-src}/wrapper/comp-admin.sh" filemode="755" prefix="chipster/manager/bin" />
 		
+			
+			<!-- jobmanager -->
+			<tarfileset file="${ext-src}/wrapper/jobmanager/chipster-jobmanager-generic" filemode="755" fullpath="chipster/jobmanager/bin/chipster-jobmanager" />
+
+			<tarfileset file="${wrapper-linux-x86-32}/bin/wrapper" filemode="755" prefix="chipster/jobmanager/bin/linux-x86-32" />
+			<tarfileset file="${ext-src}/wrapper/jobmanager/chipster-jobmanager" filemode="755" prefix="chipster/jobmanager/bin/linux-x86-32" />
+
+			<tarfileset file="${wrapper-linux-x86-64}/bin/wrapper" filemode="755" prefix="chipster/jobmanager/bin/linux-x86-64" />
+			<tarfileset file="${ext-src}/wrapper/jobmanager/chipster-jobmanager" filemode="755" prefix="chipster/jobmanager/bin/linux-x86-64" />
+
+			<tarfileset dir="${ext-src}/wrapper/jobmanager/conf" prefix="chipster/jobmanager/conf" />
+			<tarfileset dir="${ext-src}/wrapper/jobmanager/logs" prefix="chipster/jobmanager/logs" /> <!-- must exist for wrapper -->
+			<tarfileset dir="${ext-src}/wrapper/jobmanager/security" prefix="chipster/jobmanager/security" />
+
+			
+			
 			
 			<!-- activemq -->
 			<!-- this looks weird because tar task does not preserve file permissions and activemq has messed up with some files -->

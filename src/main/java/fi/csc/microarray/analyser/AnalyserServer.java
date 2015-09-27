@@ -71,6 +71,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	private int offerDelay;
 	private int timeoutCheckInterval;
 	private int heartbeatInterval;
+	private int compAvailableInterval;
 	private boolean sweepWorkDir;
 	private int maxJobs;
 	
@@ -93,6 +94,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	 */
 	private MessagingEndpoint endpoint;
 	private MessagingTopic managerTopic;
+	private MessagingTopic jobmanagerTopic;
 	
 	private FileBrokerClient fileBroker;
 	
@@ -108,6 +110,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	private LinkedHashMap<String, AnalysisJob> runningJobs = new LinkedHashMap<String, AnalysisJob>();
 	private Timer timeoutTimer;
 	private Timer heartbeatTimer;
+	private Timer compAvailableTimer;
 	private String localFilebrokerPath;
 	private String overridingFilebrokerIp;
 	
@@ -129,6 +132,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		this.offerDelay = configuration.getInt("comp", "offer-delay");
 		this.timeoutCheckInterval = configuration.getInt("comp", "timeout-check-interval");
 		this.heartbeatInterval = configuration.getInt("comp", "job-heartbeat-interval");
+		this.compAvailableInterval = configuration.getInt("comp", "comp-available-interval");
 		this.sweepWorkDir= configuration.getBoolean("comp", "sweep-work-dir");
 		this.maxJobs = configuration.getInt("comp", "max-jobs");
 		this.localFilebrokerPath = nullIfEmpty(configuration.getString("comp", "local-filebroker-user-data-path"));
@@ -154,7 +158,14 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		timeoutTimer.schedule(new TimeoutTimerTask(), timeoutCheckInterval, timeoutCheckInterval);
 		
 		heartbeatTimer = new Timer(true);
-		heartbeatTimer.schedule(new JobHeartbeatTask(), heartbeatInterval, heartbeatInterval);
+
+		// disable heartbeat for jobs for now
+		//heartbeatTimer.schedule(new JobHeartbeatTask(), heartbeatInterval, heartbeatInterval);
+		
+		compAvailableTimer = new Timer(true);
+		compAvailableTimer.schedule(new CompAvailableTask(), compAvailableInterval, compAvailableInterval);
+		
+		
 		
 		// initialize communications
 		this.endpoint = new JMSMessagingEndpoint(this);
@@ -169,9 +180,13 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		
 		fileBroker = new JMSFileBrokerClient(this.endpoint.createTopic(Topics.Name.AUTHORISED_FILEBROKER_TOPIC, AccessMode.WRITE), this.localFilebrokerPath, this.overridingFilebrokerIp);
 		
+		jobmanagerTopic = endpoint.createTopic(Topics.Name.JOBMANAGER_TOPIC, AccessMode.WRITE);
+		
 		
 		// create keep-alive thread and register shutdown hook
 		KeepAliveShutdownHandler.init(this);
+		
+		sendCompAvailable();
 		
 		logger.info("analyser is up and running [" + ApplicationConstants.VERSION + "]");
 		logger.info("[mem: " + SystemMonitorUtil.getMemInfo() + "]");
@@ -300,7 +315,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 			
 			// Request to cancel a job
 			else if (CommandMessage.COMMAND_CANCEL.equals(commandMessage.getCommand())) {
-				String jobId = commandMessage.getParameters().get(0);
+				String jobId = commandMessage.getNamedParameter(ParameterMessage.PARAMETER_JOB_ID);
 				
 				cancelJob(jobId);			
 			}
@@ -328,6 +343,9 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		if (job != null) {
 			job.cancel();
 		}
+		
+		// no activeJobRemoved() here because it get's called when the job actually stops
+		
 	}
 
 
@@ -428,6 +446,9 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	 * 
 	 */
 	public void sendResultMessage(ChipsterMessage original, ResultMessage reply) {
+		// for debugging
+		reply.addNamedParameter(ParameterMessage.PARAMETER_AS_ID, id);
+		
 		try {
 			endpoint.replyToMessage(original, reply);
 		} catch (JMSException e) {
@@ -447,6 +468,11 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	 * @param reply
 	 */
 	private void sendReplyMessage(final ChipsterMessage original, final ChipsterMessage reply) {
+		// for debugging
+		if (reply instanceof ResultMessage) {
+			((ResultMessage)reply).addNamedParameter(ParameterMessage.PARAMETER_AS_ID, id);	
+		}
+
 		new Thread(new Runnable() {
 			public void run() {
 				try {
@@ -463,6 +489,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 
 	private void activeJobRemoved() {
 		this.updateStatus();
+		sendCompAvailable();
 	}
 	
 	private void receiveJob(JobMessage jobMessage) {
@@ -575,6 +602,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		CommandMessage offerMessage = new CommandMessage(CommandMessage.COMMAND_OFFER);
 		offerMessage.addNamedParameter(ParameterMessage.PARAMETER_AS_ID, this.id);
 		offerMessage.addNamedParameter(ParameterMessage.PARAMETER_JOB_ID, job.getId());
+		offerMessage.addNamedParameter(ParameterMessage.PARAMETER_HOST, this.getHost());
 
 		// try to send the message
 		sendReplyMessage(job.getInputMessage(), offerMessage);
@@ -609,6 +637,16 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 					", running jobs: " + runningJobs.size());
 		}
 	}
+
+	private void sendCompAvailable() {
+		try {
+			jobmanagerTopic.sendMessage(new CommandMessage(CommandMessage.COMMAND_COMP_AVAILABLE));
+		} catch (JMSException e) {
+			logger.error("could not send comp available message", e);
+		}
+	}
+	
+	
 	
 	/**
 	 * The order of the jobs in the receivedJobs and scheduledJobs is FIFO. Because of synchronizations 
@@ -660,6 +698,21 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 			}
 		}	
 	}
+
+	
+	public class CompAvailableTask extends TimerTask {
+
+		@Override
+		public void run() {
+			synchronized (jobsLock) {
+				if (runningJobs.size() + scheduledJobs.size() < maxJobs) {
+					sendCompAvailable();
+				}
+			}
+		}	
+	}
+
+	
 	
 
 	/* 

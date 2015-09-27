@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration content-version="3">
+
+	<configuration-module moduleId="messaging">
+
+		<!-- host of message broker (JMS server ActiveMQ) to connect to -->
+		<entry entryKey="broker-host">
+			<value></value>
+		</entry>
+
+		<!-- protocol used to connect to message broker -->
+		<entry entryKey="broker-protocol">
+			<value></value>
+		</entry>
+
+		<!-- port used to connect to message broker -->
+		<entry entryKey="broker-port">
+			<value></value>
+		</entry>
+		
+	</configuration-module>
+
+	<configuration-module moduleId="security">
+
+		<!-- username for authenticating connection to broker -->
+		<entry entryKey="username">
+			<value>jobmanager</value>
+		</entry>
+
+		<!-- password for authenticating connection to broker -->
+		<entry entryKey="password">
+			<value>jobmanager</value>
+		</entry>
+	
+	</configuration-module>
+
+</configuration>

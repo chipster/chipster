@@ -1,4 +1,4 @@
-# TOOL fdnadist.R: "Nuleic acid distance algorithm" (Calculate nucleic acid sequence matrix with PHYLIP program protdist)
+# TOOL fdnadist.R: "Nucleic acid distance algorithm" (Calculate nucleic acid sequence matrix with PHYLIP program protdist)
 # INPUT OPTIONAL sequence: sequence TYPE GENERIC 
 # OUTPUT OPTIONAL dnadist.txt
 # OUTPUT OPTIONAL fdnadist.log

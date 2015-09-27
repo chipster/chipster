@@ -34,6 +34,7 @@ import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.module.Module;
+import fi.csc.microarray.module.basic.BasicModule;
 import fi.csc.microarray.util.Files;
 
 @SuppressWarnings("serial")
@@ -50,6 +51,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenu importMenu = null;
 	private JMenuItem directImportMenuItem = null;
 	private JMenuItem importFromURLMenuItem = null;
+	private JMenuItem importFromURLToServerMenuItem = null;
 	private JMenuItem importFromClipboardMenuItem = null;
 	private JMenuItem openWorkflowsMenuItem = null;
 	private JMenuItem openWorkflowsForEachMenuItem = null;
@@ -198,6 +200,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			}
 				
 			importMenu.add(getImportFromURLMenuItem());
+			importMenu.add(getImportFromURLToServerMenuItem());
 			importMenu.add(getImportFromClipboardMenuItem());
 		}
 		return importMenu;
@@ -224,7 +227,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem getImportFromURLMenuItem() {
 		if (importFromURLMenuItem == null) {
 			importFromURLMenuItem = new JMenuItem();
-			importFromURLMenuItem.setText("URL...");
+			importFromURLMenuItem.setText("URL to client...");
 			importFromURLMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
@@ -236,6 +239,19 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			});
 		}
 		return importFromURLMenuItem;
+	}
+
+	private JMenuItem getImportFromURLToServerMenuItem() {
+		if (importFromURLToServerMenuItem == null) {
+			importFromURLToServerMenuItem = new JMenuItem();
+			importFromURLToServerMenuItem.setText("URL directly to server...");
+			importFromURLToServerMenuItem.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					BasicModule.importFromUrlToServer();
+				}
+			});
+		}
+		return importFromURLToServerMenuItem;
 	}
 
 	private JMenuItem getHelpWorkflowMenuItem() {

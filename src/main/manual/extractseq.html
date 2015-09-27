@@ -3,7 +3,7 @@
 <head><title></title></head>
 <body>
 
-<h2>Modify sequence name or description</h2>
+<h2>Extract regions from a sequence</h2>
 
 <h3>Description</h3>
 
@@ -12,15 +12,19 @@
 </p>
 
 
-<p>This tool uses EMBOSS command <b>descseq</b> to alter the 
-   name and / or description of a sequence. All other records including the sequence
-   itself are left unaltered.
+<p>This tool uses EMBOSS command <b>extractseq</b> to read a sequence and write 
+sub-sequences from it to file. The set of regions to extract is specified  
+as pairs of start and end positions. The regions are written in  the order 
+in which they are specified. Thus, if the sequence AAAGGGTTT has been input 
+and the regions: 7-9, 3-4 have been specified, then the
+   output sequence will be: TTTAG. Optionally, each region may be written
+   out as a separate sequence.
 </p>
 <p>
 The input sequences can be in any of the <a href="http://emboss.sourceforge.net/docs/themes/SequenceFormats.html">EMBOSS compatible sequence formats</a>.
 </p>
 <p>
-For more details, please check the <a href="http://emboss.sourceforge.net/apps/release/6.5/emboss/apps/descseq.html">manual page of descseq command</a>.
+For more details, please check the <a href="http://emboss.sourceforge.net/apps/release/6.5/emboss/apps/extractseq.html">manual page of extractseq command</a>.
 </p>
 
 

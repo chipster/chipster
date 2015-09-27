@@ -248,7 +248,11 @@
 		</entry>
 		
 		<entry entryKey="job-heartbeat-interval" type="int" description="job status repeat interval, milliseconds">
-			<value>30000</value>
+			<value>15000</value>
+		</entry>
+
+		<entry entryKey="comp-available-interval" type="int" description="send comp available frequency, milliseconds">
+			<value>60000</value>
 		</entry>
 
 		<entry entryKey="job-threads-max" type="int" description="max number or threads that single job should use">
@@ -346,6 +350,43 @@
 	
 			
 	</configuration-module>
+
+
+	<configuration-module moduleId="jobmanager" description="jobmanager">
+	
+		<entry entryKey="job-max-wait-time" type="int" description="Max time a job can wait for a free comp to run it">
+			<value>600</value>
+		</entry>
+		
+		<entry entryKey="hibernate-driver" type="string" description="Database driver for Hibernate">
+			<value>org.h2.Driver</value>
+		</entry>
+		
+		<entry entryKey="hibernate-dialect" type="string" description="Database dialect for Hibernate">
+			<value>org.hibernate.dialect.H2Dialect</value>
+		</entry>
+		
+		<entry entryKey="hibernate-url" type="string" description="Database URL for Hibernate">
+			<value>jdbc:h2:database/jobmanager-db</value>
+		</entry>
+		
+		<entry entryKey="hibernate-username" type="string" description="Database username for Hibernate">
+			<value>sa</value>
+		</entry>
+		
+		<entry entryKey="hibernate-password" type="string" description="Database password for Hibernate">
+			<value></value>
+		</entry>
+		
+		<entry entryKey="hibernate-show-sql" type="boolean" description="Print SQL queries from Hibernate">
+			<value>false</value>
+		</entry>
+		
+		<entry entryKey="hibernate-schema" type="string" description="Hibernate schema update. Allowed values: validate, update and create. The last one will drop the database on every startup.">
+			<value>update</value>
+		</entry>
+	</configuration-module>
+
 
 	
 	

@@ -1,4 +1,4 @@
-# TOOL normalise-counts.R: "Normalise count table" (Converts count values to counts-per-million values. Conversion is done using functions from edgeR package and can include TMM, RLE, upperquantile normalisation.)
+# TOOL normalise-counts.R: "Normalize count table" (Converts count values to counts-per-million values. Conversion is done using functions from edgeR package and can include TMM, RLE, upperquantile normalisation.)
 # INPUT counts.tsv: "RNA count data" TYPE GENE_EXPRS 
 # OUTPUT OPTIONAL ngs-data-table.tsv: ngs-data-table.tsv
 # PARAMETER method.value: "Calculate normalization factors" TYPE [TMM: TMM, RLE: RLE, upperquantile: upperquantile, none: none] DEFAULT TMM (Method to be used for computing normalization factors. None corresponds to lib.size normalisation) 

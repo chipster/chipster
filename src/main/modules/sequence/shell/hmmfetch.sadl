@@ -1,6 +1,0 @@
-TOOL hmmfetch.sadl: hmmfetch  (Retrieve profile HMM models from Pfam databases based on their Pfam accession numbers.)
-INPUT hmm-names.txt: "HMM accession number file" TYPE GENERIC
-OUTPUT hmm-models.txt
-PARAMETER f: "Database" TYPE ["/fs/db/biodb/pfam/Pfam-A.hmm": "Pfam-A", "/fs/db/biodb/pfam/Pfam-B.hmm": "Pfam-B"] DEFAULT "/fs/db/biodb/pfam/Pfam-A.hmm" (Choose a database)
-
-

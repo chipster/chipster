@@ -13,6 +13,9 @@
 		<tool runtime="R-3.0">
 			<resource>rseqc.R</resource>
 		</tool>
+		<tool runtime="R-3.0">
+			<resource>picard-collectmultiplemetrics.R</resource>
+		</tool>
 		<tool runtime="R-3.2.0">
 			<resource>deseq2-pca-heatmap.R</resource>
 		</tool>		
@@ -72,6 +75,9 @@
 		</tool>
 		<tool runtime="R-3.0" module="common">
 			<resource>join_tsv_files.R</resource>
+		</tool>
+		<tool runtime="R-3.0" module="common">
+			<resource>general_file_processing.R</resource>
 		</tool>	
 		<tool runtime="R-3.0">
 			<resource>process-preprocessed-counts.R</resource>
@@ -79,14 +85,11 @@
 		<tool runtime="R-3.0">
 			<resource>normalise-counts.R</resource>
 		</tool>
-		<tool runtime="R-3.0">
-			<resource>annotate-ensembl-ids.R</resource>
-		</tool>
 		<tool runtime="R-3.2.0">
 			<resource>deseq2-normalized-counts-for-gene.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
-			<resource>a5-miseq.R</resource>
+			<resource>annotate-ensembl-ids.R</resource>
 		</tool>		
 		<tool runtime="R-3.0">
 			<resource>samtools-index.R</resource>
@@ -107,10 +110,16 @@
 			<resource>samtools-idxstats.R</resource>
 		</tool>	
 		<tool runtime="R-3.0">
+			<resource>samtools-alignment-statistics.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
 			<resource>samtools-count.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
 			<resource>samtools-rmdup.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
+			<resource>picard-markduplicates.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
 			<resource>samtools-consensus.R</resource>
@@ -160,18 +169,21 @@
 	   <tool runtime="R-3.0" module="common">
 	   		<resource>srabamfetch.R</resource>
 	   </tool>
-       <tool runtime="R-3.0" module="common">
-       		<resource>ensemblfetch.R</resource>
-       	</tool>
 		<tool runtime="java">
 			<resource>fi.csc.chipster.tools.common.DownloadFile</resource>
 		</tool>
+		<tool runtime="R-3.0" module="common">
+       		<resource>ensemblfetch.R</resource>
+       	</tool>
 		<tool runtime="python" module="common">
 			<resource>extract_gzip_tar.py</resource>
 		</tool>
 		<tool runtime="python" module="common">
 			<resource>gunzip.py</resource>
-		</tool>		
+		</tool>	
+		<tool runtime="R-3.0">
+			<resource>a5-miseq.R</resource>
+		</tool>	
 	    <tool runtime="R-3.0">
 			<resource>test-data-in.R</resource>
 		</tool>	
@@ -208,9 +220,11 @@
 		<tool runtime="R-3.0">
 			<resource>bedtools-windowbed.R</resource>
 		</tool>
+		<!-- 
 		<tool runtime="R-3.0">
 			<resource>bedtools-mergebed.R</resource>
 		</tool>
+		-->
 		<tool runtime="R-3.0">
 			<resource>bedtools-coveragebed.R</resource>
 		</tool>
@@ -256,6 +270,12 @@
 		<tool runtime="R-3.0">
 			<resource>tophat2-single-end-with-index-building.R</resource>
 		</tool>
+		<tool runtime="R-3.0">
+			<resource>bwa-mem.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
+			<resource>bwa-mem-with-index-building.R</resource>
+		</tool>
 	    <tool runtime="R-3.0">
 			<resource>bwa.R</resource>
 		</tool>
@@ -267,18 +287,6 @@
 		</tool>
 		<tool runtime="R-3.0">
 			<resource>bwa-paired-end-with-index-building.R</resource>
-		</tool>
-		<tool runtime="R-3.0">
-			<resource>bwa-mem.R</resource>
-		</tool>
-		<tool runtime="R-3.0">
-			<resource>bwa-mem-paired-end.R</resource>
-		</tool>
-		<tool runtime="R-3.0">
-			<resource>bwa-mem-with-index-building.R</resource>
-		</tool>
-		<tool runtime="R-3.0">
-			<resource>bwa-mem-paired-end-with-index-building.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
 			<resource>bowtie.R</resource>
@@ -300,6 +308,9 @@
 		</tool> 
 		<tool runtime="R-3.0">
 			<resource>vcftools.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
+			<resource>vcftools-reports.R</resource>
 		</tool>
 		<tool runtime="R-3.2.0">
 			<resource>annotate-variant.R</resource>
@@ -353,7 +364,7 @@
 			<resource>dea-cufflinks.R</resource>
 		</tool> 	-->
 		<tool runtime="python" module="common">
-			<resource>annotate_cpdb.py</resource>
+			<resource>annotate-cpdb.py</resource>
 		</tool>
 	</category>
 

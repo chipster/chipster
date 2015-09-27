@@ -99,7 +99,6 @@ public class Task {
 	private Date endTime;
 	private String errorMessage;
 	private String screenOutput;
-	private String sourceCode;
 	private ArrayList<DataBean> outputs = new ArrayList<>();
 	private boolean hidden = false;
 	
@@ -308,14 +307,6 @@ public class Task {
 
 	public int getCompletionPercentage() {
 		return completionPercentage;
-	}
-
-	public void setSourceCode(String sourceCode) {
-		this.sourceCode = sourceCode;
-	}
-
-	public String getSourceCode() {
-		return this.sourceCode;
 	}
 
 	public boolean isLocal() {

@@ -1,4 +1,0 @@
-TOOL mafft-fftns.sadl: mafft-fftns (FFT-NS-2. very fast iterative progressive alignment method. It is less accurate than other mafft alignment strategies, but it that can be used up for to 10000 sequences)
-INPUT query: "Sequences to align" TYPE GENERIC
-OUTPUT out.txt
-

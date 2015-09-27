@@ -36,7 +36,7 @@ remove_extension <- function(name){
 # Strips common file extensions from a file name
 #
 strip_name <- function(name){
-	known_postfixes <- c(".gz", ".bam", ".fa", ".fasta", ".fq", ".fastq", ".gtf", ".tsv", "_trimmed", "_filtered")
+	known_postfixes <- c(".gz", ".bam", ".sam", ".fa", ".fasta", ".fq", ".fastq", ".gtf", ".tsv", "_trimmed", "_filtered")
 	newname <- name
 	while (TRUE){
 		for (i in known_postfixes){

@@ -82,7 +82,20 @@
 	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-webapp-9.2.10.v20150310.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-xml-9.2.10.v20150310.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/servlet-api-3.1.jar" sourcepath="ext/lib-src/servlet-api-3.1-src.zip"/>
+	<classpathentry kind="lib" path="ext/lib/dom4j-jar-1.6.1.jar"/>
+	<classpathentry kind="lib" path="ext/lib/antlr-jar-2.7.7.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jandex-jar-1.1.0.Final.jar"/>
+	<classpathentry kind="lib" path="ext/lib/javassist-bundle-3.18.1-GA.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jboss-logging-annotations-jar-1.2.0.Beta1.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jboss-logging-jar-3.1.3.GA.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jboss-transaction-api_1.2_spec-jar-1.0.0.Final.jar"/>
+	<classpathentry kind="lib" path="ext/lib/c3p0-0.9.2.1.jar"/>
+	<classpathentry kind="lib" path="ext/lib/mchange-commons-java-0.2.3.4.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/argparse4j-0.4.3.jar" sourcepath="ext/lib-src/argparse4j-0.4.3-sources.jar"/>
+	<classpathentry kind="lib" path="ext/lib/hibernate-c3p0-jar-4.3.8.Final.jar"/>
+	<classpathentry kind="lib" path="ext/lib/hibernate-commons-annotations-jar-4.0.5.Final.jar"/>
+	<classpathentry kind="lib" path="ext/lib/hibernate-core-jar-4.3.8.Final.jar"/>
+	<classpathentry kind="lib" path="ext/lib/hibernate-jpa-2.1-api-jar-1.0.0.Final.jar"/>
 	<classpathentry kind="output" path="bin/eclipse"/>
 </classpath>

@@ -16,3 +16,19 @@ system(paste(samtools.binary, "sort alignmentUnsorted.bam alignment"))
 
 # index bam
 system(paste(samtools.binary, "index alignment.bam"))
+
+# Handle output names
+source(file.path(chipster.common.path, "tool-utils.R"))
+
+# read input names
+inputnames <- read_input_definitions()
+
+base <- strip_name(inputnames$alignment.sam)
+
+# Make a matrix of output names
+outputnames <- matrix(NA, nrow=2, ncol=2)
+outputnames[1,] <- c("alignment.bam", paste(base, ".bam", sep =""))
+outputnames[2,] <- c("alignment.bam.bai", paste(base, ".bam.bai", sep =""))
+
+# Write output definitions file
+write_output_definitions(outputnames)

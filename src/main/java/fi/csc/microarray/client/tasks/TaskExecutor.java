@@ -276,7 +276,7 @@ public class TaskExecutor {
 				}
 				
 				// source code
-				pendingTask.setSourceCode(resultMessage.getSourceCode());
+				pendingTask.getOperationRecord().setSourceCode(resultMessage.getSourceCode());
 			}
 
 			// end time(s)
@@ -700,7 +700,7 @@ public class TaskExecutor {
 				try {
 					// create message
 					CommandMessage commandMessage = new CommandMessage(CommandMessage.COMMAND_CANCEL);
-					commandMessage.addParameter(task.getId());
+					commandMessage.addNamedParameter(ParameterMessage.PARAMETER_JOB_ID, task.getId());
 
 					// send message
 					logger.debug("Sending cancel message.");

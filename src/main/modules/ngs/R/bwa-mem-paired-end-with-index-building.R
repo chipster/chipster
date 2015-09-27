@@ -1,4 +1,4 @@
-# TOOL bwa-mem-paired-end-with-index-building.R: "BWA MEM for paired-end reads and own genome" (BWA aligns reads to genomes and transcriptomes using BWA MEM algorithm. Results are sorted and indexed bam files, which are ready for viewing in the Chipster genome browser. 
+# TOOL bwa-mem-paired-end-with-index-building.R: "BWA MEM for paired-end reads and own genome" (Aligns reads to genomes using the BWA MEM algorithm. Results are sorted and indexed BAM files, which are ready for viewing in the Chipster genome browser. 
 # Note that this BWA MEM tool requires that you have imported the reference genome to Chipster in fasta format. If you would like to align paired-end reads against publicly available genomes, please use the tool \"BWA MEM for paired-end reads\".)
 # INPUT reads1.txt: "Reads to align" TYPE GENERIC 
 # INPUT reads2.txt: "Reads to align" TYPE GENERIC 
