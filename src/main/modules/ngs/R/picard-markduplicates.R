@@ -1,4 +1,4 @@
-# TOOL picard-markduplicates.R: "Mark duplicates in BAM" (Examines aligned records in the supplied SAM or BAM file to locate duplicate molecules. All records are then written to the output file with the duplicate records flagged. This tool is based on the Picard Tools package.)
+# TOOL picard-markduplicates.R: "Mark duplicates in BAM" (Examines aligned records in the supplied BAM file to locate duplicate molecules. All records are then written to the output file with the duplicate records flagged. This tool is based on the Picard Tools package.)
 # INPUT alignment.bam: "BAM alignment file" TYPE GENERIC
 # OUTPUT OPTIONAL marked.bam
 # OUTPUT OPTIONAL duplicateMetrics.tsv           

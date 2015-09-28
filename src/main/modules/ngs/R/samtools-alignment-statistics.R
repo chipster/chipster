@@ -1,4 +1,4 @@
-# TOOL samtools-alignment-statistics.R: "Alignment statistics with Samtools" (Counts statistics for alignments in a BAM file. This tool is based on the SAMtools package.)
+# TOOL samtools-alignment-statistics.R: "Count alignment statistics for BAM" (Counts statistics for alignments in a BAM file. This tool is based on the SAMtools flagstat tool.)
 # INPUT alignment.bam TYPE GENERIC 
 # OUTPUT alignment-statistics.txt 
 

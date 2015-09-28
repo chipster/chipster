@@ -20,7 +20,7 @@ options <- paste("")
 if (s == "yes") {options <- paste(options, "-s")}
 if (n == "yes") {options <- paste(options, "-n")}
 options <- paste(options, "-d", d)
-if (nms == "yes") {options <- paste(options, "-nms")}
+if (nms == "yes") {options <- paste(options, "-c 4 -o collapse")}
 if (scores == "yes") {options <- paste(options, "-scores", score.type)}
 
 # input files

@@ -35,7 +35,7 @@
 # PARAMETER OPTIONAL lc.entropy: "ENTROPY low complexity threshold" TYPE INTEGER (Use ENTROPY method with the given minimum entropy value, between 0 and 100.)
 # PARAMETER OPTIONAL log.file: "Write a log file" TYPE [ n: "no", y: "yes"] DEFAULT y (Write a log file)
 # PARAMETER OPTIONAL output.mode: "Results to write out" TYPE [ filt: "accepted sequences only", both: "accepted and rejected sequences into separate files"] DEFAULT filt (With this section you can define if the sequences that get filtered out are collected to a separate file) 
-
+# PARAMETER OPTIONAL singletons: "Write singletons for paired end reads" TYPE [yes, no] DEFAULT no (Write singletons in separate files for paired end reads.)
 
 # Filter fastq and fasta files based on a number of criteria
 # KM, EK, 16-04-2012
@@ -181,6 +181,12 @@ if (log.file == "y") {
 
 system(filter.command)
 
+# There is no option in PRINSEQ to not write the singletons files, so if they are not required, we delete them.
+if (singletons == "no"){
+	system("rm -f *_singletons.*")
+}
+
+# Comprees output files
 system("gzip *.fastq")
 system("gzip *.fasta")
 

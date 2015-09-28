@@ -8,4 +8,5 @@
   cd ..
   mv bcftools-1.2/ ${TOOLS_PATH}/
   rm bcftools-1.2.tar.bz2
-  ln -s ${TOOLS_PATH}/bcftools-1.2 ${TOOLS_PATH}/bcftools
+  cd ${TOOLS_PATH}
+  ln -s bcftools-1.2 bcftools
