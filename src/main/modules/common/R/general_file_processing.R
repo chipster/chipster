@@ -3,6 +3,7 @@
 # OUTPUT OPTIONAL selected.tsv
 # OUTPUT OPTIONAL selected.txt
 # OUTPUT OPTIONAL selected.bed
+# OUTPUT OPTIONAL selected.gtf
 # OUTPUT OPTIONAL file_operation.log
 # PARAMETER operation: "Operation" TYPE [select: "Select rows with a regular expression", exclude: "Exclude rows with a regular expression", replace: "Replace text", pick_rows: "Select a set of rows from the file" ] DEFAULT replace (Operation to be performed for the selected text or table file)
 # PARAMETER OPTIONAL sstring: "Search string" TYPE STRING (Search expression)
@@ -67,4 +68,6 @@ if (fstyle=="tsv"){
 if (fstyle=="bed"){
 	system('mv output.tmp selected.bed')
 }
-
+if (fstyle=="gtf"){
+	system('mv output.tmp selected.gtf')
+}

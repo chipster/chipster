@@ -13,12 +13,19 @@
 # enseblfecth settings
 ensemblfetch.binary <- file.path("/opt/chipster/comp/modules/admin/shell", "ensemblfetch.sh ")
 
+#remove spaces from sepcies name
+species <- gsub(" ", "_", species)
+
 if ( names == "yes" || names == "nonbac" || nchar(species) < 3 ) {
   if ( names == "nonbac" ) {	
     command.to_run <- paste(ensemblfetch.binary, " -names -bacteria no > ensemblfetch_species.tsv")
-    system(command.to_run)
+	echo.command <- paste('echo "',command.to_run, ' "> ensemblfetch.log' )
+	system(echo.command)
+	system(command.to_run)
   }	else {
     command.to_run <- paste(ensemblfetch.binary, " -names > ensemblfetch_species.tsv" )
+	echo.command <- paste('echo "',command.to_run, ' "> ensemblfetch.log' )
+	system(echo.command)
     system(command.to_run)
   }
 } else {
@@ -26,10 +33,22 @@ if ( names == "yes" || names == "nonbac" || nchar(species) < 3 ) {
   system(command.to_run)	
   if ( type == "gtf" ) {
 	  system("mv ensemblfetch.fasta ensemblfetch.gtf")
-  }
-  
+	  
+	  # Handle output names
+	  source(file.path(chipster.common.path, "tool-utils.R"))
+	  outputnames <- matrix(NA, nrow=1, ncol=2)
+	  outputnames[1,] <- c("ensemblfetch.gtf", paste(species, ".gtf", sep =""))
+	  # Write output definitions file
+	  write_output_definitions(outputnames)
+  } else {
+	  # Handle output names
+	  source(file.path(chipster.common.path, "tool-utils.R"))
+	  outputnames <- matrix(NA, nrow=1, ncol=2)
+	  outputnames[1,] <- c("ensemblfetch.fasta", paste(species,"_",type, ".fasta", sep =""))
+	  # Write output definitions file
+	  write_output_definitions(outputnames)
+  } 
 }
-
 
 
 
