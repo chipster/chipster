@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#
+# K.M. 29.9. 2015
 
 ##Instructions for using occi
 ##https://wiki.egi.eu/wiki/Fedcloud-tf:CLI_Environment
@@ -87,6 +87,26 @@ fi
 
 }
 
+#######
+# add users to a running chipster server
+#######
+add_users() {
+echo "Adding users to chipster server running in instance: $re"
+echo "in endpoint $endpoint"
+rline=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $re -a describe | awk '{if ( $3 == "chipster-vm-'$user'") print "'$re' "$0 }')
+if [[ $rline != "" ]]
+then
+    vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $re | grep occi.networkinterface.address| awk '{print $3}')
+    echo "$rline IP: $vmip"
+    echo "scp -i $keyname $userlist ubuntu@$vmip:new_users_tmp"
+    scp -i $keyname $userlist ubuntu@$vmip:new_users_tmp
+    ssh -i $keyname ubuntu@$vmip "cp /opt/chipster/auth/security/users ./users_tmp_$$ ; sudo cat new_users_tmp >> users_tmp_$$; rm -f new_users_$$; sudo mv -f users_tmp_$$ /opt/chipster/auth/security/users; sudo chown chipster /opt/chipster/auth/security/users;  sudo chgrp chipster /opt/chipster/auth/security/users  "
+fi
+
+}
+
+
+
 printhelp() {
 cat <<EOF
 FedCoud_Chipster_manager
@@ -126,6 +146,22 @@ Other options:
    -volume_size  Define size for the datavolume to be created.
                  Defaut size is 100 GB
 
+   -users        Users option can be used together with -launch option to define a file containing a list of 
+                 Chipster user accounts to be created to the new virtual machine. The accounts to be created 
+                 are stored to the file in format:
+                       user_name:password:expiration_date 
+
+                 The expiration date is defined with format: yyyy-mm-dd. For example file "course_accounts" could
+                 look like following:
+
+                 trng_1:4eoU8hmx:2015-11-30
+                 trng_2:4eoU8hmx:2015-11-30
+                 trng_3:4eoU8hmx:2015-11-30
+
+                 Launching a Chipster server with thise accounts could be done with commad
+
+                 ./FedCloud_chipster_manager -key FedCloud.key -users course_accounts -launch
+                                    
 EOF
 
 }
@@ -268,8 +304,27 @@ do
                   statusflag=(1) 
                   shift  
               ;;
+              '-add_users')
+                  userlist=($2)
+                  re=($3)
+                  addusersflag=(1) 
+                  shift  
+                  shift
+                  shift
+              ;;
+              '-users')
+                  userlist=($2)
+                  re=($3)
+                  usersflag=(1) 
+                  shift  
+                  shift
+                  shift
+              ;;
+
+
               '-volume_size'|'-v')
                   volumesize=($2)
+
                   shift
                   shift
               ;;
@@ -291,7 +346,7 @@ do
 done
 
 #Check that just one task is defined
-(( ntask = launchflag + listflag + deleteflag + statusflag + restartflag ))
+(( ntask = launchflag + listflag + deleteflag + statusflag + restartflag + usersflag ))
 if [[ $ntask -ne 1 ]]
 then
   printhelp
@@ -337,6 +392,20 @@ then
   exit 0
 fi
 
+if [[ $addusersflag -eq 1 ]]
+then
+#check if key was defined
+  if [[ $keyflag -eq 0 ]]
+  then
+    echo ""
+    echo "Please define RSA key with option"
+    echo " -key keyfile.pem"
+    echo ""
+    exit 1
+  fi
+  add_users
+  exit 0
+fi
 
 if [[ $deleteflag -eq 1 ]]
 then
@@ -397,6 +466,23 @@ echo "/dev/vdb /mnt/data xfs defaults,nofail 0 0"  | sudo tee -a /etc/fstab
 sudo mount /mnt/tools
 sudo chown ubuntu:ubuntu /mnt/tools
 EOF
+EOF
+
+if [[ $usersflag -eq 1 ]]
+then
+  cat >> /tmp/chipster_server_startup_$$.sh <<EOF
+  echo "$(cat ${userlist})" >/home/ubuntu/users_tmp
+  sudo cp -f /home/ubuntu/users_tmp /opt/chipster/auth/security/users
+  sudo chown chipster /opt/chipster/auth/security/users
+  sudo chgrp chipster /opt/chipster/auth/security/users  
+EOF
+
+fi
+
+cat >> /tmp/chipster_server_startup_$$.sh <<EOF
+
+
+
 fi
 #mounting tools directory in the case of CVMFS setup
 if [[ $tools_source == "CVMFS" ]]
@@ -453,6 +539,21 @@ sleep 5
 cd /opt/chipster 
 sudo bash ./configure.sh auto   2>&1 >>  /home/ubuntu/startup.log 
 sudo ln -s /mnt/data data   2>&1 >> ~/home/ubuntu/startup.log 
+
+EOF
+
+if [[ $usersflag -eq 1 ]]
+then
+  cat >> /tmp/chipster_server_startup_$$.sh <<EOF
+  echo "$(cat ${userlist})" >/home/ubuntu/users_tmp
+  sudo cp -f /home/ubuntu/users_tmp /opt/chipster/auth/security/users
+  sudo chown chipster /opt/chipster/auth/security/users
+  sudo chgrp chipster /opt/chipster/auth/security/users  
+EOF
+
+fi
+
+cat >> /tmp/chipster_server_startup_$$.sh <<EOF
 sudo service chipster restart   2>&1 >>  /home/ubuntu/startup.log 
 sudo service chipster-comp restart  2>&1 >>  /home/ubuntu/startup.log 
 n=1
@@ -473,6 +574,7 @@ done
 echo "Startup finished" >>  /home/ubuntu/startup.log 
 date >>  /home/ubuntu/startup.log 
 sudo service chipster status 2>&1 >>  /home/ubuntu/startup.log 
+
 EOF
 
 userdata="file:///tmp/chipster_server_startup_$$.sh"
