@@ -62,7 +62,12 @@ public class JobManagerDB {
 		if (purgeOldJobsInterval > 0) {
 			purgeOldJobsTimer = new Timer(true);
 			purgeOldJobsTimer.schedule(new PurgeOldJobsTask(), purgeOldJobsInterval * 60l * 60 * 1000, purgeOldJobsInterval * 60l * 60 * 1000);
+			
+			logger.info("check for old jobs every " + purgeOldJobsInterval + " hours and purge all jobs older than " + purgeJobsOlderThan + " days");			
+		} else {
+			logger.info("check for old jobs is disabled");
 		}
+		logger.info("there are " + getJobCount() + " jobs in the database");
 	}
 
 
