@@ -1,6 +1,6 @@
 # TOOL vep.py: "Ensembl VEP" (Run a VEP analysis)
 # INPUT input_file: "VCF file" TYPE GENERIC (Input variants in VCF format)
-# OUTPUT output_file: "VEP file"
+# OUTPUT vep.tsv: "VEP file"
 
 import urllib
 import urllib2
@@ -125,7 +125,7 @@ def query(lines):
 
 def write(response_data):
     line_count = 0
-    with open('output_file', 'a') as f:
+    with open('vep.tsv', 'a') as f:
         # write file header
         f.write('#Uploaded_variation	Location	Allele	Consequence	IMPACT	SYMBOL	Gene	Feature_type	Feature	BIOTYPE	EXON	INTRON	HGVSc	HGVSp	cDNA_position	CDS_position	Protein_position	Amino_acids	Codons	Existing_variation	Extra\r\n')
 
@@ -139,9 +139,10 @@ def write(response_data):
     print('wrote ' + str(line_count) + ' output lines')
 
 def main():
+
     # the file may exist from previous runs, when debugging this locally
-    if os.path.exists('output_file'):
-        os.remove('output_file')
+    if os.path.exists('vep.tsv'):
+        os.remove('vep.tsv')
     
     lines = []
     with open('input_file') as f:
@@ -155,7 +156,9 @@ def main():
                 # that we can safely run about 30 instances of this tool in parallel without having
                 # to wait for the quota reset (which may take up to an hour).
                 # https://github.com/Ensembl/ensembl-rest/wiki/Rate-Limits
-                time.sleep(2)            
+                time.sleep(2)      
+        print('query ' + str(len(lines)) + ' variants')
+        write(query(lines))      
 
 """
 Transform input JSON: 
