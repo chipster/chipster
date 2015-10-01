@@ -1,4 +1,4 @@
-# TOOL vep.py: "Ensembl VEP" (Run a VEP analysis)
+# TOOL vep.py: "Ensembl Variant Effect Predictor" (Given a VCF file, this tool determines the effect of SNPs, insertions, deletions, CNVs or structural variants on genes, transcripts, and protein sequence, as well as regulatory regions. It uses the Ensembl VEP service running at the EBI. It works currently with human hg38 data, but more genomes will be added.)
 # INPUT input_file: "VCF file" TYPE GENERIC (Input variants in VCF format)
 # OUTPUT output_file: "VEP file"
 
