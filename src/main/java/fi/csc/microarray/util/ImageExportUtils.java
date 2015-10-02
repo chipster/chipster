@@ -10,6 +10,7 @@ import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 import javax.swing.JComboBox;
@@ -64,7 +65,7 @@ public class ImageExportUtils {
 	    g2.scale(resolution, resolution);
 	    g2.setColor(component.getForeground());
 	    g2.setFont(component.getFont());
-	    component.paintAll(g2);
+	    component.paintAll(g2);	    
 	    return img;
 	}
 	
@@ -74,7 +75,7 @@ public class ImageExportUtils {
 		
 		String[] extensions = { "png" };
 		fileChooser.setFileFilter(new GeneralFileFilter("PNG Image Files", extensions));
-		fileChooser.setSelectedFile(new File("genome-browser.png"));
+		fileChooser.setSelectedFile(new File("exported-image.png"));
 		fileChooser.setAcceptAllFileFilterUsed(false);
 		fileChooser.setMultiSelectionEnabled(false);		
 		fileChooser.setApproveButtonText("Save");
@@ -84,21 +85,42 @@ public class ImageExportUtils {
 	}
 
 	public static JFileChooser saveComponent(Component component, JFileChooser fileChooser) throws IOException {
+		ArrayList<Component> components = new ArrayList<>();
+		components.add(component);
+		return saveComponents(components, fileChooser);
+	}
+	
+	public static JFileChooser saveComponents(ArrayList<Component> components, JFileChooser fileChooser) throws IOException {
 		
 		if (fileChooser == null) {
 			fileChooser = ImageExportUtils.getSaveFileChooser();
 		}
 		
-		int option = fileChooser.showOpenDialog(component);
+		int option = fileChooser.showOpenDialog(components.get(0));
 		if (option == JFileChooser.APPROVE_OPTION) {					
 			ResolutionAccessory accessory =  (ResolutionAccessory) fileChooser.getAccessory();
 			
-			BufferedImage img = ImageExportUtils.componentToImage(component, accessory.getResolution());
+			int widthSum = 0;
+			int maxHeight = 0;
+			ArrayList<BufferedImage> images = new ArrayList<>();
 			
-			ImageIO.write(img, "png", fileChooser.getSelectedFile());
+			for (Component component : components) {
+				BufferedImage image = ImageExportUtils.componentToImage(component, accessory.getResolution());
+				widthSum += image.getWidth();
+				maxHeight = Math.max(maxHeight, image.getHeight());
+				images.add(image);
+			}
+			
+			BufferedImage collage = new BufferedImage(widthSum, maxHeight, BufferedImage.TYPE_INT_ARGB_PRE);
+			int x = 0;
+			for (BufferedImage image : images) {
+				collage.getGraphics().drawImage(image, x, 0, null);
+				x += image.getWidth();
+			}
+			
+			ImageIO.write(collage, "png", fileChooser.getSelectedFile());
 		}
 				
-		
 		return fileChooser;
 	}
 
