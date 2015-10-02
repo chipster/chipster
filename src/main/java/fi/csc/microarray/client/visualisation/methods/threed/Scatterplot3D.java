@@ -2,6 +2,7 @@ package fi.csc.microarray.client.visualisation.methods.threed;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -11,6 +12,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,6 +21,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
@@ -37,6 +40,7 @@ import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
+import fi.csc.microarray.util.ImageExportUtils;
 import fi.csc.microarray.util.ScaleUtil;
 
 /**
@@ -95,6 +99,7 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 	protected DataBean data;
 	protected ColorScalePanel scalePanel;
 	protected DataModel dataModel;
+	private JFileChooser exportFileChooser;
 
 	@Override
 	public JPanel getParameterPanel() {
@@ -509,5 +514,16 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 
 	public void keyTyped(KeyEvent e) {
 		// ignore
+	}
+
+	public void saveAs() {
+		try {			
+			ArrayList<Component> components = new ArrayList<>();
+			components.add(this.scalePanel);
+			components.add(this.coordinateArea);
+			this.exportFileChooser = ImageExportUtils.saveComponents(components, exportFileChooser);
+		} catch (IOException e) {
+			application.reportException(e);
+		}
 	}
 }

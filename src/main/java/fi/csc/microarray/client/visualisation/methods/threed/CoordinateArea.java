@@ -43,6 +43,7 @@ implements ActionListener, MouseInputListener, MouseWheelListener, PropertyChang
 	private JMenuItem hideSelected;
     private JMenuItem showAll;
     private JMenuItem invertSelection;   
+    private JMenuItem saveAs;
         
 	public enum PaintMode {
 		SPHERE("Sphere"), RECT("Rectangle");
@@ -75,7 +76,6 @@ implements ActionListener, MouseInputListener, MouseWheelListener, PropertyChang
 
 	private LinkedList<DataPoint> selectedPoints;
 	private Projection projection;
-	private Worker worker;
 	protected AutomatedMovement movement;
 	
 	private ClientApplication application = Session.getSession().getApplication();
@@ -107,11 +107,8 @@ implements ActionListener, MouseInputListener, MouseWheelListener, PropertyChang
 
 		selectedPoints = new LinkedList<DataPoint>();
 		projection = new Projection(controller.getDataModel());
-		worker = new Worker(this, projection);
-		worker.start();
-		worker.workRequest();
 				
-		movement = new AutomatedMovement(projection, worker);
+		movement = new AutomatedMovement(projection, this);
 		movement.start();
 		kineticMovement = movement.startKineticMove(25, 0.95);		
 		
@@ -129,7 +126,6 @@ implements ActionListener, MouseInputListener, MouseWheelListener, PropertyChang
 	 * @param g 
 	 */
 	protected void paintComponent(Graphics g) {
-//		long startTime = System.currentTimeMillis();
 		
 		if(this.getHeight() <= this.getWidth()){
 			projection.setViewWindowWidth(projection.getViewWindowHeight() * 
@@ -142,34 +138,27 @@ implements ActionListener, MouseInputListener, MouseWheelListener, PropertyChang
 		Graphics2D g2d = (Graphics2D)g;
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);							
 
-		PriorityBlockingQueue<Drawable> points = projection.getResultPoints();				
-		
-		if (points != null && !points.isEmpty()) {
+		PriorityBlockingQueue<Drawable> points = projection.doProjection();				
 			
-			g2d.setColor(this.getBackground());
-			g2d.fillRect(0, 0, getWidth(), getHeight());
-			
-			Drawable p = null;
-			while ((p = points.poll()) != null) {
-				p.draw(g2d, getWidth(), getHeight(), getPaintMode());
-			}
+		g2d.setColor(this.getBackground());
+		g2d.fillRect(0, 0, getWidth(), getHeight());
 
-			if(this.mouseDragged){
-				g2d.setColor(Color.WHITE);
-				g2d.setStroke(VisualConstants.dashLine);
-				int x = mousePressX < mouseX ? mousePressX : mouseX;
-				int y = mousePressY < mouseY ? mousePressY : mouseY;
-				int w = Math.abs(mouseX - mousePressX);
-				int h = Math.abs(mouseY - mousePressY);
-				
-				g2d.setColor(this.getForeground());
-				g2d.drawRect(x,y,w,h);
-			}
-		} else {
-			worker.workRequest();
+		Drawable p = null;
+		while ((p = points.poll()) != null) {
+			p.draw(g2d, getWidth(), getHeight(), getPaintMode());
 		}
-		
-//		long endTime = System.currentTimeMillis();			
+
+		if(this.mouseDragged){
+			g2d.setColor(Color.WHITE);
+			g2d.setStroke(VisualConstants.dashLine);
+			int x = mousePressX < mouseX ? mousePressX : mouseX;
+			int y = mousePressY < mouseY ? mousePressY : mouseY;
+			int w = Math.abs(mouseX - mousePressX);
+			int h = Math.abs(mouseY - mousePressY);
+
+			g2d.setColor(this.getForeground());
+			g2d.drawRect(x,y,w,h);
+		}
 	}
 
 	//Methods required by the MouseInputListener interface.
@@ -196,7 +185,7 @@ implements ActionListener, MouseInputListener, MouseWheelListener, PropertyChang
 		default:
 		}
 
-		worker.workRequest();
+		this.repaint();
 	}
 
 	public void rotateWithDrag(int mouseX, int mouseY, MouseEvent e){		
@@ -244,7 +233,7 @@ implements ActionListener, MouseInputListener, MouseWheelListener, PropertyChang
 		lastDragEventTime = System.currentTimeMillis();
 
 		if(!kineticMoveMode){
-			worker.workRequest();
+			this.repaint();
 		}
 	}
 	
@@ -268,7 +257,7 @@ implements ActionListener, MouseInputListener, MouseWheelListener, PropertyChang
 		mousePressX = mouseX;
 		mousePressY = mouseY;
 
-		worker.workRequest();
+		this.repaint();
 	}
 
 	public void mouseMoved(MouseEvent e) { }
@@ -317,7 +306,7 @@ implements ActionListener, MouseInputListener, MouseWheelListener, PropertyChang
 			mouseDragged = true;
 			mouseX = e.getX();
 			mouseY = e.getY();
-			worker.workRequest();
+			this.repaint();
 		}
 	}        
 
@@ -337,10 +326,7 @@ implements ActionListener, MouseInputListener, MouseWheelListener, PropertyChang
 		if (e.getButton() == MouseEvent.BUTTON1 && mouseDragged == true) {
 			selectGroup(e, mousePressX, mousePressY);
 			mouseDragged = false;
-		
-			
-			//repaint();
-			worker.workRequest();
+			this.repaint();
 		}
 	}
 	/**
@@ -355,7 +341,7 @@ implements ActionListener, MouseInputListener, MouseWheelListener, PropertyChang
 		double[] pov = projection.getPointOfView();
 		pov[2] -= value;
 		projection.setPointOfView(pov);	
-		worker.workRequest();
+		this.repaint();
 	}
 
 
@@ -470,9 +456,13 @@ implements ActionListener, MouseInputListener, MouseWheelListener, PropertyChang
 	            if (d instanceof DataPoint && d.selected)
 	                selectedPoints.add((DataPoint)d);
 	        }
+	        
 	    }
-	    //repaint();
-	    worker.workRequest();
+	    else if (e.getSource() == saveAs) {
+	        this.controller.saveAs();
+	    }
+	    
+		this.repaint();
 	}
 
 	public void createPopupMenu() {
@@ -486,10 +476,13 @@ implements ActionListener, MouseInputListener, MouseWheelListener, PropertyChang
 	    showAll = new JMenuItem("Show all points");
 	    showAll.addActionListener(this);
 	    popup.add(showAll);
-	    invertSelection = new JMenuItem("InvertSelection");
+	    invertSelection = new JMenuItem("Invert selection");
 	    invertSelection.addActionListener(this);
 	    popup.add(invertSelection);
 	    
+	    saveAs = new JMenuItem("Save as...");
+	    saveAs.addActionListener(this);
+	    popup.add(saveAs);
 	    
 	    //Add listener to the text area so the popup menu can come up.
 	    MouseListener popupListener = new PopupListener(popup);
