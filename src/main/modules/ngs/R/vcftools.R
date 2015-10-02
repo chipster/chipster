@@ -48,7 +48,8 @@ if (filter.flag == "yes"){
 }
 
 # command
-command <- paste(vcftools.binary, vcftools.io.options, vcftools.filter.options, "--recode", "--recode-INFO-all", "2> vcftools.log")
+# command <- paste(vcftools.binary, vcftools.io.options, vcftools.filter.options, "--recode", "--recode-INFO-all", "2> vcftools.log")
+command <- paste(vcftools.binary, vcftools.io.options, vcftools.filter.options, "--recode", "--recode-INFO DP", "2> vcftools.log")
 system(command)
 
 if (output.filtered == "yes"){
