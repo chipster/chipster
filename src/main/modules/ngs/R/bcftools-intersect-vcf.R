@@ -1,4 +1,4 @@
-# TOOL bcftools-intersect-vcf.R: "Intersect VCF" (Makes an intersection of two VCF files. This tool is based on the BCFtools package.)
+# TOOL bcftools-intersect-vcf.R: "Intersect VCF files" (Given two VCF files, this tool reports those sites that are common and those sites that are unique to each file.  This tool is based on the BCFtools package.)
 # INPUT a.vcf: "VCF file A" TYPE GENERIC
 # INPUT b.vcf: "VCF file B" TYPE GENERIC
 # OUTPUT OPTIONAL 0000.vcf
