@@ -1,4 +1,4 @@
-# TOOL vcftools-reports.R: "Reports on VCF" (Analyses variants in VCF files. This tool is based on the VCFtools package.)
+# TOOL vcftools-reports.R: "Calculate statistics on VCF file" (Given a VCF file, this tool calculates several statistics such as allele frequency and count, LD measure, and p-value for HWE. It can also produce the number and density of SNPs in bins of defined size. This tool is based on the VCFtools package.)
 # INPUT input.vcf: "VCF file" TYPE GENERIC 
 # OUTPUT OPTIONAL vcftools.log
 # OUTPUT OPTIONAL vcftools.frq.tsv
@@ -6,10 +6,10 @@
 # OUTPUT OPTIONAL vcftools.hwe.tsv
 # OUTPUT OPTIONAL vcftools.geno.ld.tsv
 # OUTPUT OPTIONAL vcftools.snpden.tsv
-# PARAMETER OPTIONAL statistics.freq: "Report per-site frequency information" TYPE [yes, no] DEFAULT no (Reports per-site frequency information.)
+# PARAMETER OPTIONAL statistics.freq: "Report per-site frequency information" TYPE [yes, no] DEFAULT no (Reports per-site allele frequency and count information.)
 # PARAMETER OPTIONAL statistics.pvalue: "Report p-value" TYPE [yes, no] DEFAULT no (Reports a p-value for each site from a Hardy-Weinberg Equilibrium test.)
 # PARAMETER OPTIONAL statistics.ld: "Report LD statistics" TYPE [yes, no] DEFAULT no (Report Linkage Disequilibrium (LD\) statistics.)
-# PARAMETER OPTIONAL statistics.snpdensity: "Report SNP density" TYPE INTEGER DEFAULT 0 (Calculates the number and density of SNPs in bins of size. 0 value means option is ignored.)
+# PARAMETER OPTIONAL statistics.snpdensity: "Report SNP density" TYPE INTEGER DEFAULT 0 (Calculates the number and density of SNPs in bins of size given by the user. If the size is 0, this option is ignored.)
 
 # AMS 14.9.2012
 # AMS 02.12.2012 Added option for minimum quality
