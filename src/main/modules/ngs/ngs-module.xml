@@ -312,6 +312,9 @@
 		<tool runtime="R-3.0">
 			<resource>vcftools-reports.R</resource>
 		</tool>
+		<tool runtime="R-3.0">
+			<resource>bcftools-intersect-vcf.R</resource>
+		</tool>	
 		<tool runtime="R-3.2.0">
 			<resource>annotate-variant.R</resource>
 		</tool>
