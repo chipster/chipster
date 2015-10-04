@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash -xv
 # A script to fetch datasets from the ensembl website
 # 23.7. 2010 KM
 # Updated 22.9. 2015 KM

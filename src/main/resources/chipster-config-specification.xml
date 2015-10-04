@@ -385,6 +385,14 @@
 		<entry entryKey="hibernate-schema" type="string" description="Hibernate schema update. Allowed values: validate, update and create. The last one will drop the database on every startup.">
 			<value>update</value>
 		</entry>
+		
+		<entry entryKey="purge-jobs-interval" type="int" description="How often to purge old jobs, in hours. Set to 0 to purge only manuallly from the admin web.">
+			<value>24</value>
+		</entry>
+		
+		<entry entryKey="purge-jobs-older-than" type="int" description="Purge jobs older than this from the jobmanager database, in days">
+			<value>90</value>
+		</entry>
 	</configuration-module>
 
 

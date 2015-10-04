@@ -472,7 +472,7 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 					}
 
 				} else if (CommandMessage.COMMAND_PURGE_OLD_JOBS.equals(commandMessage.getCommand())) {
-					logger.info("got purge old");
+					jobsDb.purgeOldJobs();
 				
 				} else if (CommandMessage.COMMAND_GET_STATUS_REPORT.equals(commandMessage.getCommand())) {
 					
@@ -482,8 +482,9 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 					String report = "";
 					report += "JOBS\n\n" +
 							"waiting: " + jobsDb.getWaitingJobs().size() + "\n" +
-							"running: " + jobsDb.getRunningJobs().size() +
-							"\n\n";
+							"running: " + jobsDb.getRunningJobs().size() + "\n" +
+							"all: " + jobsDb.getJobCount() + "\n" +
+							"\n";
 					
 					report += "MEMORY\n\n";
 					report += sysStats + "\n";
