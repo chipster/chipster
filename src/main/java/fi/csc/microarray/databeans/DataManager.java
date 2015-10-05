@@ -1226,8 +1226,12 @@ public class DataManager {
 				logger.error("another exception while handling " + Exceptions.getStackTrace(e), e);
 			}					
 		}
-		bean.addContentLocation(location);
-		
+		bean.addContentLocation(location);		
+	}
+	
+
+	public void removeContentLocationsFromDataBean(DataBean bean, StorageMethod method) {
+		bean.removeContentLocations(method);
 	}
 
 	/**

@@ -74,7 +74,6 @@ public class SessionSaver {
 	private String sessionId;
 	private HashMap<DataBean, URL> newURLs = new HashMap<DataBean, URL>();
 
-	private int entryCounter = 0;
 	private int sourceCodeEntryCounter = 0;
 	
 	private int itemIdCounter = 0;
@@ -366,6 +365,8 @@ public class SessionSaver {
 	 */
 	private void updateDataBeanURLsAndHandlers() throws ContentLengthException, IOException {
 		for (DataBean bean: newURLs.keySet()) {
+			// remove old content locations pointing to the old zip file, which is already removed 
+			dataManager.removeContentLocationsFromDataBean(bean, StorageMethod.LOCAL_SESSION_ZIP);
 			// set new url and handler and type
 			dataManager.addContentLocationForDataBean(bean, StorageMethod.LOCAL_SESSION_ZIP, newURLs.get(bean));
 		}
@@ -421,7 +422,10 @@ public class SessionSaver {
 				DataBean bean = (DataBean)data;
 
 				// create the new URL
-				String entryName = getNewZipEntryName();
+				String entryName = bean.getId();
+				if (entryName == null) {
+					throw new IOException("unable to save session, databean's " + bean.getName() + " id is null");
+				}
 				URL zipEntryUrl = null;
 				
 				if (saveData) {
@@ -648,11 +652,6 @@ public class SessionSaver {
 		sessionType.getOperation().add(operationType);
 		operationRecordTypeMap.put(operationId, operationType);
 	}	
-
-
-	private String getNewZipEntryName() {
-		return "file-" + entryCounter++;
-	}
 
 	private String getNewSourceCodeEntryName(String prefix) {
 		return "source-code-" + sourceCodeEntryCounter++ + "-" + prefix + ".txt";
