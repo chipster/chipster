@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# K.M. 29.9. 2015
+#
 
 ##Instructions for using occi
 ##https://wiki.egi.eu/wiki/Fedcloud-tf:CLI_Environment
@@ -238,7 +238,14 @@ echo "------------------------------------------------------------"
 # Variables
 #chipster_img=("os_tpl#fd298a07-3c47-4f33-a151-ca919bf824b1")
 #chipster_img=("os_tpl#9278115f-0320-4f40-8e12-3dd8d879f5a3")
+#Chipster VO:
 chipster_img=("os_tpl#87b6a944-007f-4f6d-b9ad-bba9dd4ff02f")
+#chipster_img=("os_tpl#8f7ac2aa-969f-4a51-9f85-8850938184b7")
+flavor=('resource_tpl#4cpu-8gb-20dsk')
+endpoint="https://prisma-cloud.ba.infn.it:8787/"
+
+
+
 user=$(voms-proxy-info | grep identity | awk '{print $5}' | sed s/'@'/"-at-"/g)
 usercred=$(ls /tmp/x509up_u${UID})
 volumesize=100
@@ -249,9 +256,6 @@ deleteflag=(0)
 statusflag=(0)
 re=(0)
 tools_source=("CVMFS")
-
-flavor=('resource_tpl#4cpu-8gb-20dsk')
-endpoint="https://prisma-cloud.ba.infn.it:8787/"
 
 
 #process the command line arguments
@@ -320,8 +324,6 @@ do
                   shift
                   shift
               ;;
-
-
               '-volume_size'|'-v')
                   volumesize=($2)
 
@@ -333,7 +335,11 @@ do
                   shift
                   shift
               ;;
-
+              '-os_tpl'|'-f')
+                  chipster_img=($2)
+                  shift
+                  shift
+              ;;
               '-h'|'-help')
                   printhelp
                   exit 0
@@ -440,7 +446,28 @@ fi
 #############################
 volume=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action create --resource storage -t 'occi.storage.size=num('$volumesize')' -t occi.core.title="chipster-data_$user")
 
+if [[ $volume == "" ]]
+then 
+  echo "Could not create volume for chipster"
+  exit 1
+fi
 
+rounds=0
+volume_name=("xxx")
+while [[ $volume_name != "chipster-data_$user" ]]
+do
+ sleep 5
+ volume_name=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe -r $volume | grep occi.core.title | awk '{print $3}')
+ occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe -r $volume
+ echo "Volume name: $volume_name"
+ (( rounds = rounds + 1 ))
+ if  [[ $rounds > 4 ]]
+ then
+   echo "Could not get a volume name"
+   exit 1
+ fi
+done
+ 
 
 ################
 #make user_data file for launching Chipster in VM
@@ -466,24 +493,9 @@ echo "/dev/vdb /mnt/data xfs defaults,nofail 0 0"  | sudo tee -a /etc/fstab
 sudo mount /mnt/tools
 sudo chown ubuntu:ubuntu /mnt/tools
 EOF
-EOF
-
-if [[ $usersflag -eq 1 ]]
-then
-  cat >> /tmp/chipster_server_startup_$$.sh <<EOF
-  echo "$(cat ${userlist})" >/home/ubuntu/users_tmp
-  sudo cp -f /home/ubuntu/users_tmp /opt/chipster/auth/security/users
-  sudo chown chipster /opt/chipster/auth/security/users
-  sudo chgrp chipster /opt/chipster/auth/security/users  
-EOF
 
 fi
 
-cat >> /tmp/chipster_server_startup_$$.sh <<EOF
-
-
-
-fi
 #mounting tools directory in the case of CVMFS setup
 if [[ $tools_source == "CVMFS" ]]
 then
@@ -579,14 +591,26 @@ EOF
 
 userdata="file:///tmp/chipster_server_startup_$$.sh"
 
+sleep 5
 #echo "Running launch command:"
+echo "occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action create -r compute -M $chipster_img -M $flavor -t occi.core.title="chipster-vm_$user" --context user_data="$userdata" --link $volume"
+
 vmaddress=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action create \
 -r compute -M $chipster_img -M $flavor -t occi.core.title="chipster-vm_$user" --context user_data="$userdata" --link $volume)
 
 if [[ $vmaddress == "" ]]
 then
   echo "Could not launch a VM"
-  exit 1
+  echo "Trying again after ten seconds."
+  sleep 10 
+  vmaddress=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action create \
+-r compute -M $chipster_img -M $flavor -t occi.core.title="chipster-vm_$user" --context user_data="$userdata" --link $volume)
+  if [[ $vmaddress == "" ]]
+  then
+      echo "Second attempt faided too. Exiting"
+      occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action delete $volume 
+      exit 1
+  fi
 fi
 
 echo "-------------------------------------------------------------------------------------"
@@ -601,7 +625,25 @@ echo "Resource template: "$flavor
 #rm -f /tmp/chipster_server_startup_$$.sh
 
 #get the IP address
+
+rounds=0
+volume_name=("")
+while [[ $vmip == "" ]]
+do
+ sleep 5
+ vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $vmaddress | grep occi.networkinterface.address| awk '{print $3}')
+ (( rounds = rounds + 1 ))
+ if  [[ $rounds > 6 ]]
+ then
+   occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $vmaddress
+   echo "Could not resolve an IP address for the Chipster VM:"
+   echo " $vmaddress"
+   exit 1
+ fi
+done
+
 vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $vmaddress | grep occi.networkinterface.address| awk '{print $3}')
+
 
 echo ""
 echo "The IP-addess of the chipster virtual server is:"
