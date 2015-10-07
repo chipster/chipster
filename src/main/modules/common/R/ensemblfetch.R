@@ -4,7 +4,7 @@
 # OUTPUT OPTIONAL ensemblfetch_species.tsv
 # OUTPUT OPTIONAL ensemblfetch.log
 # PARAMETER OPTIONAL species: "Species name" TYPE STRING (Then latin name of the species for which the data is retrieved. Note that you should use under score: _ in stead of the space character in the species name. For example homo_sapiens)
-# PARAMETER OPTIONAL type: "Data type to retrieve" TYPE [dna: "Genomic DNA", cdna: "cDNA trasnscipts", pep: "Protein sequences", gtf: "GTF file" ] DEFAULT dna (Sequence data type to retrieve)
+# PARAMETER OPTIONAL type: "Data to retrieve" TYPE [dna: "Genomic DNA", cdna: "cDNA transcripts", pep: "Protein sequences", gtf: "GTF file" ] DEFAULT dna (Sequence data type to retrieve)
 # PARAMETER OPTIONAL names: "List the available species names" TYPE [ yes: "All species", nonbac: "List non-bacterial species", no: No] DEFAULT "no" (List the available species names)
 # PARAMETER OPTIONAL save_log: "Collect a log file about the ensemblfetch run" TYPE [yes: Yes, no: No] DEFAULT no (Collect a log file about the enseblfetch run.)
 
