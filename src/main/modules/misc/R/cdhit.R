@@ -1,4 +1,4 @@
-# TOOL cdhit.R: "remove redundant sequences" (Cluster the given sequences and create a non-redundant sequence set)
+# TOOL cdhit.R: "Remove redundant sequences" (Cluster the given sequences and create a non-redundant sequence set.)
 # INPUT sequence: "Input sequence" TYPE GENERIC 
 # OUTPUT OPTIONAL non_redundant.fasta
 # OUTPUT OPTIONAL sequence_clusters.txt
