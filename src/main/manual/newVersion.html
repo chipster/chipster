@@ -18,21 +18,18 @@ div.header-item {
 <h2>Version update 2.10.2015: What is new in Chipster 3.6</h2>
 
  	<p>
-		<b>Summary:</b> Many NGS tools have been updated to new versions and reference genomes and GTFs have been updated to Ensembl version 81. New tools have been added. 
-		The job manager component of Chipster server has been re-written in Java in order to get rid of random messaging errors, which caused problems for example when starting Chipster.
+		<b>Summary:</b> Many NGS tools have been updated to new versions, and reference genomes have been updated to Ensembl version 81. New NGS tools have been added. 
+		The job manager component of Chipster server has been re-written in Java in order to get rid of random messaging errors, which caused problems for example when starting the Chipster client software.
 	</p>
-	<ul>
-		<li><div class=header-item>Improvements to the user interface</div>
-			<ul>
-				<li>Interactive 3D PCA plots can be saved as png images.</li>
-			</ul>
-		</li>	 
+	<ul>	 
 		<li><div class=header-item>New analysis tools</div>
 			<ul>
-				<li><a href="deseq2-normalized-counts-for-gene.html">Utilities / Plot normalized counts for a gene</a>. Plots normalized counts for a gene in a group-wise manner using the DESeq2 Bioconductor package.</li>
-				<li><a href="DownloadFile.html">Utilities / Download file from a url to server</a>. Allows you to move data and annotation information from a url directly to Chipster server for analysis.</li>
-				<li><a href="gunzip.html">Utilities / Extract .gz file</a>. Extracts gzipped files. Note that fastq and fasta files don't need to be unzipped for analysis.</li>
-				<li><a href="extract_gzip_tar.html">Utilities / Extract .tar.gz file</a>. Extracts tarred and gzipped files. Note that fastq and fasta files don't need to be unzipped for analysis.</li>
+				<li><a href="picard-collectmultiplemetrics.html">Quality control / Collect multiple metrics from BAM</a> calculates several quality metrics for BAM using the Picard toolkit.</li>
+				<li><a href="picard-markduplicates.html">Utilities / Mark duplicates in BAM</a> Flags duplicates using the Picard toolkit.</li>
+				<li><a href="samtools-alignment-statistics.html">Utilities / Count alignment statistics for BAM</a> counts statistics for alignments using the SAMtools flagstat command.</li>
+				<li><a href="bcftools-intersect-vcf.html">Variants / Intersect VCF files</a> produces 4 VCF files containing variant sites common and unique to each input file.</li>
+				<li><a href="vep.html">Variants / Ensembl variant effect predictor</a> determines the effect of variants on genes, transcripts, and protein sequence, as well as regulatory regions. It uses the Ensembl VEP service running at the EBI.</li>
+				<li><a href="vcftools-reports.html">Variants / Calculate statistics on VCF file</a> calculates allele frequency and count, LD measure, p-value for HWE, and SNP density.</li>
 			</ul>
 		</li>
 		<li><div class=header-item>Improvements to NGS analysis tools</div>		
@@ -40,11 +37,24 @@ div.header-item {
 				<li>Several tools have been updated: BEDtools 2.25.0, BWA 0.7.12, FastQC 0.11.3, Picard 1.138, Samtools/bcftools 1.2, Trimmomatic 0.33 and VCFtools 0.1.13.</li>
 				<li>Reference genomes and GTFs have been updated to Ensembl version 81. Potato genome has been added.</li>
 				<li><a href="bwa-mem.html">Alignment / BWA MEM</a> has new parameters and the previous tools for SE and PE reads have been combined into one.</li>
-				<li><a href="deseq2-pca-heatmap.html">Quality control / PCA and heatmap of samples with DESeq2</a> allows adding sample names to the PCA plot.</li>
+				<li><a href="ensemblfetch.html">Utilities / Retrieve data for a given organism in Ensembl</a> can bring now GTFs in addition to sequences.</li>
+				<li><a href="general_file_processing.html">Utilities / Modify text</a>. Output options for BED and GTF files have been added to enable chromosome naming conversions.</li>
+				<li><a href="samtools-snp-indel-single.html">Variants / Call SNPs and short INDELs</a> uses now the multiallele caller and allows you to control the output fields in VCF.</li>
 			</ul>
-		<li><div class=header-item>Improvements to microarray analysis tools</div>
+		<li><div class=header-item>New sequence analysis tools in Misc</div>
 			<ul>
-				<li><a href="norm-illumina-backgroundcorr.html">Normalization / Illumina with normexp background correction</a> accepts now also TargetIDs.</li>
+				<li><a href="cdhit.html">Sequence utilities / Remove redundant sequences</a> clusters the given sequences and creates a non-redundant sequence set using the CDhit tool.</li>
+				<li><a href="mview.html">Sequence alignment / Display sequence alignment or BLAST report as HTML page</a> produces colored HTML alignments using the Mview tool.</li>
+			</ul>
+		</li>
+		<li><div class=header-item>Improvements to the user interface</div>
+			<ul>
+				<li>Interactive 3D PCA plots can be saved as png images.</li>
+			</ul>
+		</li>
+		<li><div class=header-item>Technical improvements</div>
+			<ul>
+				<li>The job manager component of Chipster server has been re-written in Java in order to get rid of random messaging errors, which caused problems for example when starting the Chipster client software.</li>
 			</ul>
 		</li>		
 	</ul>
