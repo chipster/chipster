@@ -3,6 +3,7 @@
 # INPUT file.b: "Input file B, the smaller file" TYPE GENERIC
 # OUTPUT OPTIONAL intersectbed.bed 
 # OUTPUT OPTIONAL intersectbed.bam
+# OUTPUT OPTIONAL intersectbed.bam.bai
 # OUTPUT OPTIONAL error.txt
 # PARAMETER wa: "Write the original entry in A for each overlap" TYPE [yes, no] DEFAULT no (Report the original A feature when an overlap is found. The entire A feature is reported, not just the portion that overlaps with the B feature.)
 # PARAMETER u: "Write the original A entry once if any overlaps found in B" TYPE [yes, no] DEFAULT no (Write the original A entry once if any overlaps found in B)
@@ -25,6 +26,7 @@
 
 # binary
 binary <- c(file.path(chipster.tools.path, "bedtools", "bin", "intersectBed"))
+samtools.binary <- c(file.path(chipster.tools.path, "samtools", "samtools"))
 
 # options
 options <- paste("")
@@ -76,3 +78,24 @@ if (file.info("intersectbed.tmp")$size > 0) {
 } else{
 	system("echo \"# No results found\" > error.txt")
 }
+
+# Index bam
+if (file.exists("intersectbed.bam")){
+	system(paste(samtools.binary, "index intersectbed.bam > intersectbed.bam.bai"))
+}
+
+# Handle output names
+source(file.path(chipster.common.path, "tool-utils.R"))
+
+# read input names
+inputnames <- read_input_definitions()
+
+basename  <- strip_name(inputnames$file.a)
+
+# Make a matrix of output names
+outputnames <- matrix(NA, nrow=2, ncol=2)
+outputnames[1,] <- c("intersectbed.bam", paste(basename, "_intersect.bam", sep =""))
+outputnames[2,] <- c("intersectbed.bam.bai", paste(basename, "_intersect.bam.bai", sep =""))
+
+# Write output definitions file
+write_output_definitions(outputnames)
