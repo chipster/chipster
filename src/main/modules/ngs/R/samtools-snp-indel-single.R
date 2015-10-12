@@ -102,3 +102,12 @@ system(command1)
 system(command2)
 system(command3)
 system("mv vcftools.recode.vcf variants.vcf")
+
+# Change bam names in VCF to original names
+system("grep \"alignment[0-9]*\\.bam\" chipster-inputs.tsv > bam_files.tsv")
+bam.names <- read.table("bam_files.tsv", header=F, sep="\t")
+for (i in 1:nrow(bam.names)) {
+	sed.command <- paste("s/", bam.names[i,1], "/", bam.names[i,2], "/", sep="")
+	system(paste("sed -i", sed.command, "variants.vcf"))
+}
+
