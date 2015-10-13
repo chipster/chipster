@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash 
 #
 #
 
@@ -21,7 +21,7 @@ do
  rline=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $re -a describe | awk '{if ( $3 == "chipster-vm-'$user'") print "'$re' "$0 }')
  if [[ $rline != "" ]]
  then
-    vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $re | grep occi.networkinterface.address| awk '{print $3}')
+    vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $re | grep occi.networkinterface.address| awk '{print $3}'| head -1)
     echo "$rline IP: $vmip"
  fi
 #occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $re -a describe | awk 'BEGIN{id=0}{if ( $1 == "occi.core.id" ) id=$3 }{if ( $3 == "chipster-vm-'$user'") print "'$endpoint'/copute/"id }'
@@ -43,9 +43,9 @@ do
  rline=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $re -a describe | awk '{if ( $3 == "chipster-vm-'$user'") print "'$re' "$0 }')
  if [[ $rline != "" ]]
  then
-    vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $re | grep occi.networkinterface.address| awk '{print $3}')
+    vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $re | grep occi.networkinterface.address| awk '{print $3}'| head -1)
     echo "$rline IP: $vmip"
-    ssh -i $keyname ubuntu@$vmip "sudo service chipster status"
+    ssh -i $keyname ubuntu@$vmip "sudo service chipster status; echo Cheking IP in chipster configuration; grep https /opt/chipster/fileserver/conf/chipster-config.xml; echo If the value above is not $vmip, then use FedCloud_chipster_manager to restart the Chipster server."
  fi
 #occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $re -a describe | awk 'BEGIN{id=0}{if ( $1 == "occi.core.id" ) id=$3 }{if ( $3 == "chipster-vm-'$user'") print "'$endpoint'/copute/"id }'
 done
@@ -60,12 +60,31 @@ echo ""
 echo "-------------------------------------------------------------------------------------"
 echo ""
 rline=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $re -a describe | awk '{if ( $3 == "chipster-vm-'$user'") print "'$re' "$0 }')
+
 if [[ $rline != "" ]]
 then
-    vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $re | grep occi.networkinterface.address| awk '{print $3}')
-    echo "$rline IP: $vmip"
-    ssh -i $keyname ubuntu@$vmip "sudo rm -rf /opt/chipster/fileserver/db-root/ChipsterFilebrokerMetadataDatabase; sudo service chipster restart; sudo service chipster-comp restart; sudo service chipster status"
+   #vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $re | grep occi.networkinterface.address| awk '{print $3}'| head -1)
+   occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $re | grep occi.networkinterface.address| awk '{print $3}' > /tmp/vmip_$$_tmp
+   nips=$(cat /tmp/vmip_$$_tmp | wc -l )
+   if [[ $nips -eq 1 ]]
+   then 
+      vmip=$(head -1 /tmp/vmip_$$_tmp)
+      echo "$rline IP: $vmip"
+      
+      ssh -i $keyname ubuntu@$vmip "sudo rm -rf /opt/chipster/fileserver/db-root/ChipsterFilebrokerMetadataDatabase; sudo service chipster restart; sudo service chipster-comp restart; sudo service chipster status"
+   fi
+
+   # in case the virtual machine has both  public and internal IP address
+    if [[ $nips -eq 2 ]]
+    then
+      vmip=$(head -1 /tmp/vmip_$$_tmp)
+      vmip_local=$(tail -1 /tmp/vmip_$$_tmp)
+      echo "$rline IP: $vmip_local $vmip"
+      ssh -i $keyname ubuntu@$vmip "sudo rm -rf /opt/chipster/fileserver/db-root/ChipsterFilebrokerMetadataDatabase;cd /opt/chipster; sudo ./configure.sh simple-configure $vmip $vmip_local; sudo service chipster restart; sudo service chipster-comp restart; sudo service chipster status"
+    fi
+   rm -f  /tmp/vmip_$$_tmp
 fi
+
 #occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $re -a describe | awk 'BEGIN{id=0}{if ( $1 == "occi.core.id" ) id=$3 }{if ( $3 == "chipster-vm-'$user'") print "'$endpoint'/copute/"id }'
 } 
 
@@ -141,7 +160,16 @@ Other options:
    -help         Print this help.
 
    -endpoint     Define alternative endpoint for the operation.
+                 Available endpoints (i.e. sites that are used to run the Chipster VM),
+                 Depend on the Virtual Organization you are using.
+                 You can check the endpoints for each VO from the
+                 AppDB: https://appdb.egi.eu/store/vappliance/chipster 
+                
                  Default is https://prisma-cloud.ba.infn.it:8787
+
+   -flavor       Define a specific virtual machine flavor/template in stead of
+                 the default one. For example: -flavor resource_tpl#m1-medium
+
 
    -volume_size  Define size for the datavolume to be created.
                  Defaut size is 100 GB
@@ -188,7 +216,6 @@ then
      echo "   voms-proxy-init --voms chipster.csc.fi --rfc --dont_verify_ac"
      echo "---------------------------------------"
      
-
      #check that OpenJDK is in use  
      ojdk=$(java -version 2>&1  | grep -c OpenJDK)
      if [[ $ojdk -eq 0 ]]
@@ -235,14 +262,76 @@ echo "------------------------------------------------------------"
 
 }
 
+
+
+endpoint_defaults() {
+
+vo_name=$( voms-proxy-info -vo )
+echo "Virtual Organization in use: $vo_name"
+#Set endpoint according to VO if it is not defined
+if [[ $vo_name == "chipster.csc.fi" ]]
+then 
+   if [[ $endpoint == "0" ]]
+   then
+      endpoint=("https://prisma-cloud.ba.infn.it:8787")
+      echo "Using endpoint: $endpoint"
+   fi
+fi
+
+if [[ $vo_name == "training.egi.eu" ]]
+then 
+   if [[ $endpoint == "0" ]]
+   then
+      endpoint=("http://server4-epsh.unizar.es:8787")
+      echo "Using endpoint: $endpoint"
+   fi
+fi 
+
+
+#Prisma/Bari
+if [[ $endpoint == "https://prisma-cloud.ba.infn.it:8787" ]]
+then
+   if [[ $chipster_img == "0"  ]]
+   then
+      chipster_img=("os_tpl#87b6a944-007f-4f6d-b9ad-bba9dd4ff02f")
+   fi
+
+   if [[  $flavor == "0" ]]
+   then
+      flavor=('resource_tpl#4cpu-8gb-20dsk')
+   fi
+   link_ip=(0)
+fi
+
+#BIFI
+if [[ $endpoint == "http://server4-epsh.unizar.es:8787" ]]
+then
+   if [[ $chipster_img == "0"  ]]
+   then
+       chipster_img=("os_tpl#d503022a-9747-40df-b2d4-04150af88f6e")
+   fi
+
+   if [[  $flavor == "0" ]]
+   then
+      flavor=('resource_tpl#m1-large')
+   fi
+   link_ip=(1)
+fi
+
+
+}
+
+
+
 # Variables
 #chipster_img=("os_tpl#fd298a07-3c47-4f33-a151-ca919bf824b1")
 #chipster_img=("os_tpl#9278115f-0320-4f40-8e12-3dd8d879f5a3")
 #Chipster VO:
-chipster_img=("os_tpl#87b6a944-007f-4f6d-b9ad-bba9dd4ff02f")
+chipster_img=(0)
 #chipster_img=("os_tpl#8f7ac2aa-969f-4a51-9f85-8850938184b7")
-flavor=('resource_tpl#4cpu-8gb-20dsk')
-endpoint="https://prisma-cloud.ba.infn.it:8787/"
+flavor=(0)
+link_ip=(0)
+endpoint=(0)
 
 
 
@@ -256,6 +345,7 @@ deleteflag=(0)
 statusflag=(0)
 re=(0)
 tools_source=("CVMFS")
+
 
 
 #process the command line arguments
@@ -282,7 +372,7 @@ do
              '-endpoint')
                   endpoint=($2)
                   shift
-                  shift
+                  shift                    
               ;;
               '-list')
                   listflag=(1) 
@@ -358,6 +448,9 @@ then
   printhelp
   exit
 fi
+
+#set endpoint specific defaults
+endpoint_defaults
 
 #check for occi and voms-proxy
 check_dependencies
@@ -622,7 +715,7 @@ echo "$volume"
 echo "Resource template: "$flavor
 
 # Remove user data file
-#rm -f /tmp/chipster_server_startup_$$.sh
+rm -f /tmp/chipster_server_startup_$$.sh
 
 #get the IP address
 
@@ -642,8 +735,21 @@ do
  fi
 done
 
-vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $vmaddress | grep occi.networkinterface.address| awk '{print $3}')
+#######
+#Link public IP-address if needed
+#######
 
+if  [[ $link_ip == "1" ]]
+then
+   echo "Linking a publick IP-address"
+   occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action link --resource $vmaddress --link /network/public
+   re="$vmaddres"
+   vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $vmaddress | grep occi.networkinterface.address| awk '{print $3}' | head -1 )
+   echo "Restart"
+   restart_chipster_instance $re
+fi
+
+vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $vmaddress | grep occi.networkinterface.address| awk '{print $3}' | head -1 )
 
 echo ""
 echo "The IP-addess of the chipster virtual server is:"
