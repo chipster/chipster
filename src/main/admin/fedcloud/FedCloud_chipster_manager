@@ -16,7 +16,7 @@ echo "in endpoint $endpoint"
 echo "This may take some time."
 #echo "occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms -r compute -a list"
 echo ""
-for re in $(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms -r compute -a list )
+for re in $(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms -r compute -a list | awk -F "/compute/" '{print "/compute/"$2}' )
 do
  rline=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $re -a describe | awk '{if ( $3 == "chipster-vm-'$user'") print "'$re' "$0 }')
  if [[ $rline != "" ]]
@@ -35,7 +35,7 @@ echo "in endpoint $endpoint"
 echo "This may take some time."
 #echo "occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms -r compute -a list"
 echo ""
-for re in $(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms -r compute -a list )
+for re in $(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms -r compute -a list | awk -F "/compute/" '{print "/compute/"$2}' )
 do
  echo ""
  echo "-------------------------------------------------------------------------------------"
@@ -71,7 +71,7 @@ then
       vmip=$(head -1 /tmp/vmip_$$_tmp)
       echo "$rline IP: $vmip"
       
-      ssh -i $keyname ubuntu@$vmip "sudo rm -rf /opt/chipster/fileserver/db-root/ChipsterFilebrokerMetadataDatabase; sudo service chipster restart; sudo service chipster-comp restart; sudo service chipster status"
+      ssh -i $keyname ubuntu@$vmip "sudo rm -rf /opt/chipster/fileserver/db-root/ChipsterFilebrokerMetadataDatabase; sudo service chipster restart; sudo service chipster status"
    fi
 
    # in case the virtual machine has both  public and internal IP address
@@ -80,7 +80,7 @@ then
       vmip=$(head -1 /tmp/vmip_$$_tmp)
       vmip_local=$(tail -1 /tmp/vmip_$$_tmp)
       echo "$rline IP: $vmip_local $vmip"
-      ssh -i $keyname ubuntu@$vmip "sudo rm -rf /opt/chipster/fileserver/db-root/ChipsterFilebrokerMetadataDatabase;cd /opt/chipster; sudo ./configure.sh simple-configure $vmip $vmip_local; sudo service chipster restart; sudo service chipster-comp restart; sudo service chipster status"
+      ssh -i $keyname ubuntu@$vmip "sudo rm -rf /opt/chipster/fileserver/db-root/ChipsterFilebrokerMetadataDatabase;cd /opt/chipster; sudo ./configure.sh simple-configure $vmip $vmip_local; sudo service chipster restart; sudo service chipster status"
     fi
    rm -f  /tmp/vmip_$$_tmp
 fi
@@ -268,9 +268,14 @@ endpoint_defaults() {
 
 vo_name=$( voms-proxy-info -vo )
 echo "Virtual Organization in use: $vo_name"
+
 #Set endpoint according to VO if it is not defined
+
 if [[ $vo_name == "chipster.csc.fi" ]]
 then 
+echo "Available endpoints:"
+echo "  https://prisma-cloud.ba.infn.it:8787"
+echo ""
    if [[ $endpoint == "0" ]]
    then
       endpoint=("https://prisma-cloud.ba.infn.it:8787")
@@ -279,7 +284,11 @@ then
 fi
 
 if [[ $vo_name == "training.egi.eu" ]]
-then 
+then
+echo "Available endpoints:"
+echo "  http://server4-epsh.unizar.es:8787"
+echo "  https://controller.ceta-ciemat.es:8787"
+echo ""
    if [[ $endpoint == "0" ]]
    then
       endpoint=("http://server4-epsh.unizar.es:8787")
@@ -287,7 +296,7 @@ then
    fi
 fi 
 
-
+# Set os template and VM flavor if they are not defined
 #Prisma/Bari
 if [[ $endpoint == "https://prisma-cloud.ba.infn.it:8787" ]]
 then
@@ -318,6 +327,20 @@ then
    link_ip=(1)
 fi
 
+#
+if [[ $endpoint == "https://controller.ceta-ciemat.es:8787" ]]
+then
+   if [[ $chipster_img == "0"  ]]
+   then
+       chipster_img=("os_tpl#72fc1c12-1f10-4faa-bf78-dfdb7fb163b4")
+   fi
+
+   if [[  $flavor == "0" ]]
+   then
+      flavor=('resource_tpl#m1-large')
+   fi
+   link_ip=(1)
+fi
 
 }
 
@@ -538,11 +561,17 @@ fi
 # make data volume
 #############################
 volume=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action create --resource storage -t 'occi.storage.size=num('$volumesize')' -t occi.core.title="chipster-data_$user")
+echo "Creating a data volume with command:"
+echo "occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action create --resource storage -t 'occi.storage.size=num('$volumesize')' -t occi.core.title="chipster-data_$user""
+
 
 if [[ $volume == "" ]]
 then 
   echo "Could not create volume for chipster"
   exit 1
+else
+  volume=$(echo $volume | awk -F "/storage/" '{print "/storage/"$2}')
+  echo "Created data volume: $volume ${volumesize}GB"
 fi
 
 rounds=0
@@ -685,19 +714,20 @@ EOF
 userdata="file:///tmp/chipster_server_startup_$$.sh"
 
 sleep 5
-#echo "Running launch command:"
+echo
+echo "Launching a new virtual machine with command:"
 echo "occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action create -r compute -M $chipster_img -M $flavor -t occi.core.title="chipster-vm_$user" --context user_data="$userdata" --link $volume"
 
 vmaddress=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action create \
--r compute -M $chipster_img -M $flavor -t occi.core.title="chipster-vm_$user" --context user_data="$userdata" --link $volume)
+-r compute -M $chipster_img -M $flavor -t occi.core.title="chipster-vm_$user" --context user_data="$userdata" --link $volume | awk -F "/compute/" '{print "/compute/"$2}' )
 
 if [[ $vmaddress == "" ]]
 then
   echo "Could not launch a VM"
-  echo "Trying again after ten seconds."
-  sleep 10 
+  echo "Trying again after 15 seconds."
+  sleep 15 
   vmaddress=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action create \
--r compute -M $chipster_img -M $flavor -t occi.core.title="chipster-vm_$user" --context user_data="$userdata" --link $volume)
+-r compute -M $chipster_img -M $flavor -t occi.core.title="chipster-vm_$user" --context user_data="$userdata" --link $volume | awk -F "/compute/" '{print "/compute/"$2}')
   if [[ $vmaddress == "" ]]
   then
       echo "Second attempt faided too. Exiting"
@@ -731,22 +761,59 @@ do
    occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $vmaddress
    echo "Could not resolve an IP address for the Chipster VM:"
    echo " $vmaddress"
+   occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action delete $volume
+   occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action delete $vmaddress
    exit 1
  fi
 done
-
-#######
-#Link public IP-address if needed
-#######
 
 if  [[ $link_ip == "1" ]]
 then
    echo "Linking a publick IP-address"
    occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action link --resource $vmaddress --link /network/public
-   re="$vmaddres"
+   re="$vmaddress"
    vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $vmaddress | grep occi.networkinterface.address| awk '{print $3}' | head -1 )
+fi
+
+
+########
+#Wait for the server to start
+########
+echo "-------------------------------------------------------------------------------------"
+echo "Waiting for the server to become active in $vmip"
+echo "This can take several minutes (up to 30 min)"
+
+from_port8081=(0)
+wait_start=$(date +%s)
+while  [[ $from_port8081 -lt 3 ]]
+do
+ from_port8081=$(curl ${vmip}:8081 2> /dev/null | wc -l )
+ sleep 15
+ wait_now=$(date +%s)
+ (( wait_time =  wait_now - wait_start))
+ printf "Time waited ${wait_time}s \r"
+ if [[ $wait_time -gt 1800 ]]
+ then
+   echo "After 30 min, the Chipster server is still not responding"
+   echo "Deleting the Virtual machine:"
+   occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action delete $volume
+   occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action delete $vmaddress
+   exit 1
+ fi 
+done
+
+echo "Time waited ${wait_time}s"
+
+#######
+#restart if public IP-address was linked
+#######
+
+if  [[ $link_ip == "1" ]]
+then
    echo "Restart"
    restart_chipster_instance $re
+else 
+   echo "No restart needed"
 fi
 
 vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $vmaddress | grep occi.networkinterface.address| awk '{print $3}' | head -1 )
@@ -757,7 +824,7 @@ echo $vmip
 
 
 echo ""
-echo "After few minutes you can connect your virtual machine with command:"
+echo "You can now connect your virtual machine with command:"
 echo " "
 echo "  ssh -i $keyname ubuntu@$vmip"
 echo ""
