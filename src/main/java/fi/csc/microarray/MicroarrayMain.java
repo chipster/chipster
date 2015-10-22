@@ -6,10 +6,10 @@ import java.io.IOException;
 
 import javax.swing.SwingUtilities;
 
-import fi.csc.microarray.analyser.AnalyserServer;
-import fi.csc.microarray.analyser.SADLTool;
+import fi.csc.chipster.toolbox.SADLTool;
 import fi.csc.microarray.auth.Authenticator;
 import fi.csc.microarray.client.SwingClientApplication;
+import fi.csc.microarray.comp.CompServer;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.ApplicationConstants;
 import fi.csc.microarray.filebroker.FileServer;
@@ -43,7 +43,7 @@ public class MicroarrayMain {
 			cmdParser.addParameter("client", false, false, null, "start client (default)");
 			cmdParser.addParameter("authenticator", false, false, null, "start authenticator");
 			cmdParser.addParameter("fileserver", false, false, null, "start fileserver");
-			cmdParser.addParameter("analyser", false, false, null, "start analyser");
+			cmdParser.addParameter("comp", false, false, null, "start comp");
 			cmdParser.addParameter("webstart", false, false, null, "start webstart service");
 			cmdParser.addParameter("manager", false, false, null, "start manager service");
 			cmdParser.addParameter("jobmanager", false, false, null, "start jobmanager service");
@@ -72,8 +72,8 @@ public class MicroarrayMain {
 			if (cmdParser.hasValue("authenticator")) {
 				new Authenticator(configURL);
 				
-			} else if (cmdParser.hasValue("analyser")) {
-				new AnalyserServer(configURL);
+			} else if (cmdParser.hasValue("comp")) {
+				new CompServer(configURL);
 
 			} else if (cmdParser.hasValue("fileserver")) {
 				new FileServer(configURL, null);

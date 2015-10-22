@@ -34,7 +34,7 @@ public class ServicesTable extends Table {
 						String name = service.getName().toString();
 
 						if ("authenticator".equals(name) || 
-								"analyser".equals(name) ||
+								"comp".equals(name) ||
 								"filebroker".equals(name) ||
 								"manager".equals(name) ||
 								"jobmanager".equals(name) ||

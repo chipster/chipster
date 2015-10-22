@@ -5,10 +5,10 @@ import java.io.FileWriter;
 
 import org.apache.commons.io.FileUtils;
 
-import fi.csc.microarray.analyser.java.JavaAnalysisJobBase;
+import fi.csc.microarray.comp.java.JavaCompJobBase;
 import fi.csc.microarray.messaging.JobState;
 
-public class TestJavaTool extends JavaAnalysisJobBase {
+public class TestJavaTool extends JavaCompJobBase {
 
 	@Override
 	public String getSADL() {
@@ -30,7 +30,7 @@ public class TestJavaTool extends JavaAnalysisJobBase {
 
 			File commentFile = new File(jobWorkDir, "comment.txt");
 			FileWriter commentWriter = new FileWriter(commentFile);
-			commentWriter.write(inputMessage.getParameters(JAVA_PARAMETER_SECURITY_POLICY, this.analysis).get(0));
+			commentWriter.write(inputMessage.getParameters(JAVA_PARAMETER_SECURITY_POLICY, this.toolDescription).get(0));
 			commentWriter.flush();
 			commentWriter.close();
 			

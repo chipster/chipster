@@ -2,13 +2,13 @@ package fi.csc.chipster.tools.ngs;
 
 import java.io.File;
 
-import fi.csc.microarray.analyser.java.JavaAnalysisJobBase;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils.SamBamUtilState;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils.SamBamUtilStateListener;
+import fi.csc.microarray.comp.java.JavaCompJobBase;
 import fi.csc.microarray.messaging.JobState;
 
-public class PreprocessNGSSingle extends JavaAnalysisJobBase {
+public class PreprocessNGSSingle extends JavaCompJobBase {
 
 	@Override
 	public String getSADL() {
@@ -26,9 +26,9 @@ public class PreprocessNGSSingle extends JavaAnalysisJobBase {
 
 		try {
 			// files
-			File inputFile = new File(jobWorkDir, analysis.getInputFiles().get(0).getFileName()); 
-			File outputFile = new File(jobWorkDir, analysis.getOutputFiles().get(0).getFileName().getID()); 
-			File indexOutputFile = new File(jobWorkDir, analysis.getOutputFiles().get(1).getFileName().getID());
+			File inputFile = new File(jobWorkDir, toolDescription.getInputFiles().get(0).getFileName()); 
+			File outputFile = new File(jobWorkDir, toolDescription.getOutputFiles().get(0).getFileName().getID()); 
+			File indexOutputFile = new File(jobWorkDir, toolDescription.getOutputFiles().get(1).getFileName().getID());
 
 
 			// run preprocessing

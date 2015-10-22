@@ -530,9 +530,9 @@ public class ConfigTool {
 			updateConfigEntryValue(filebrokerModule, "url", createFilebrokerUrl());
 		}
 
-		Element analyserModule = XmlUtil.getChildWithAttributeValue(doc.getDocumentElement(), "moduleId", "comp");
-		if (analyserModule != null) {
-			updateConfigEntryValue(analyserModule, "max-jobs", configs[MAX_JOBS_INDEX][VAL_INDEX]);
+		Element compModule = XmlUtil.getChildWithAttributeValue(doc.getDocumentElement(), "moduleId", "comp");
+		if (compModule != null) {
+			updateConfigEntryValue(compModule, "max-jobs", configs[MAX_JOBS_INDEX][VAL_INDEX]);
 		}
 		
 		Element webstartModule = XmlUtil.getChildWithAttributeValue(doc.getDocumentElement(), "moduleId", "webstart");

@@ -129,7 +129,7 @@ public class AdminAPI {
 		mutex.lock();
 		try {
 			this.nodeStatuses.put("authenticator", new NodeStatus("authenticator"));
-			this.nodeStatuses.put("analyser", new NodeStatus("analyser"));
+			this.nodeStatuses.put("comp", new NodeStatus("comp"));
 			this.nodeStatuses.put("filebroker", new NodeStatus("filebroker"));
 			this.nodeStatuses.put("manager", new NodeStatus("manager"));
 			this.nodeStatuses.put("jobmanager", new NodeStatus("jobmanager"));
@@ -222,8 +222,8 @@ public class AdminAPI {
 				areUp = false;
 			} 
 
-			if (nodeStatuses.get("analyser").status != NodeStatus.Status.UP) {
-				errorStatus += " analyser(s) not up ";
+			if (nodeStatuses.get("comp").status != NodeStatus.Status.UP) {
+				errorStatus += " comp(s) not up ";
 				areUp = false;
 			} 
 

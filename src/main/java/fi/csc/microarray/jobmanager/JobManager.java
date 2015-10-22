@@ -514,7 +514,7 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 			if (host == null || "".equals(host)) {
 				host = job.getCompId();
 			}
-			JobLogMessage jobLogMessage = new JobLogMessage(jobMessage.getAnalysisId(), job.getState(), null, job.getJobId(), job.getCreated(), job.getFinished(), null, null, jobMessage.getUsername(), host);
+			JobLogMessage jobLogMessage = new JobLogMessage(jobMessage.getToolId(), job.getState(), null, job.getJobId(), job.getCreated(), job.getFinished(), null, null, jobMessage.getUsername(), host);
 			jobs.add(jobLogMessage.toMap());
 		}		
 		String json = new Gson().toJson(jobs);
