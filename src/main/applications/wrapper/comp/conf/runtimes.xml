@@ -81,7 +81,7 @@
 	</runtime>
 
 	<runtime>
-		<name>R-3.0</name>
+		<name>R</name>
 		<handler>
 			<class>fi.csc.microarray.comp.r.RJobFactory</class> 
 			<parameter>
