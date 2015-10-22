@@ -288,6 +288,7 @@ then
 echo "Available endpoints:"
 echo "  http://server4-epsh.unizar.es:8787"
 echo "  https://controller.ceta-ciemat.es:8787"
+echo "  https://stack-server-01.ct.infn.it:8787"
 echo ""
    if [[ $endpoint == "0" ]]
    then
@@ -342,6 +343,19 @@ then
    link_ip=(1)
 fi
 
+if [[ $endpoint == "https://stack-server-01.ct.infn.it:8787" ]]
+then
+   if [[ $chipster_img == "0"  ]]
+   then
+       chipster_img=("os_tpl#500d5a2d-daa8-453c-afaf-3309c7be3187")
+   fi
+
+   if [[  $flavor == "0" ]]
+   then
+      flavor=('resource_tpl#m1-large')
+   fi
+   link_ip=(1)
+fi
 }
 
 
@@ -717,15 +731,15 @@ sleep 5
 echo
 echo "Launching a new virtual machine with command:"
 echo "occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action create -r compute -M $chipster_img -M $flavor -t occi.core.title="chipster-vm_$user" --context user_data="$userdata" --link $volume"
+vmaddress=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action create -r compute -M $chipster_img -M $flavor -t occi.core.title="chipster-vm_$user" --context user_data="$userdata" --link $volume | awk -F "/compute/" '{print "/compute/"$2}' )
 
-vmaddress=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action create \
--r compute -M $chipster_img -M $flavor -t occi.core.title="chipster-vm_$user" --context user_data="$userdata" --link $volume | awk -F "/compute/" '{print "/compute/"$2}' )
 
 if [[ $vmaddress == "" ]]
 then
   echo "Could not launch a VM"
   echo "Trying again after 15 seconds."
   sleep 15 
+  occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe -r $volume
   vmaddress=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action create \
 -r compute -M $chipster_img -M $flavor -t occi.core.title="chipster-vm_$user" --context user_data="$userdata" --link $volume | awk -F "/compute/" '{print "/compute/"$2}')
   if [[ $vmaddress == "" ]]
@@ -818,11 +832,13 @@ fi
 
 vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $vmaddress | grep occi.networkinterface.address| awk '{print $3}' | head -1 )
 
-echo ""
+echo "Your new Chipster server is now running in a virtual machine with ID:" 
+echo "  $vmaddress"
+echo "In EGI Federated Cloud endpoint: "
+echo "  $endpoint"
+echo " "
 echo "The IP-addess of the chipster virtual server is:"
 echo $vmip
-
-
 echo ""
 echo "You can now connect your virtual machine with command:"
 echo " "
