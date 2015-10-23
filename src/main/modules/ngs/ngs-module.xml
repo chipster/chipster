@@ -347,10 +347,10 @@
 		<tool runtime="R">
 			<resource>dea-deseq.R</resource>
 		</tool>
-		<tool runtime="R">
+		<tool runtime="R-3.2.0">
 			<resource>ngs-dea-edger-RNA.R</resource>
 		</tool>
-		<tool runtime="R">
+		<tool runtime="R-3.2.0">
 			<resource>edgeR-multivariate.R</resource>
 		</tool>
 		<tool runtime="R">
@@ -394,10 +394,10 @@
 		<tool runtime="R">
 			<resource>dea-deseq.R</resource>
 		</tool>
-		<tool runtime="R">
+		<tool runtime="R-3.2.0">
 			<resource>ngs-dea-edger-RNA.R</resource>
 		</tool>
-		<tool runtime="R">
+		<tool runtime="R-3.2.0">
 			<resource>edgeR-multivariate.R</resource>
 		</tool>
 		<tool runtime="R">

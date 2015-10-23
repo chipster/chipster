@@ -105,7 +105,7 @@ if (dispersion_method == "common") {
 if (dispersion_method == "tagwise") {
 	# Calculate the tagwise dispersion
 	dge_list <- estimateCommonDisp(dge_list)
-	# dge_list <- estimateTrendedDisp(dge_list)
+	dge_list <- estimateTrendedDisp(dge_list)
 	dge_list <- estimateTagwiseDisp(dge_list)
 	# Statistical testing
 	stat_test <- exactTest(dge_list)
