@@ -22,6 +22,7 @@
 # EK 4.5.2013 added dispersion plot and filtering
 # EK 19.11.2013 updated to edgeR 3.4.0 and added the counts to output
 # ML & SS 3.3.2015 added the "nested" option to the interactions
+# EK 23.10.2015, moved to R3.2.0
 
 
 # Loads the libraries
