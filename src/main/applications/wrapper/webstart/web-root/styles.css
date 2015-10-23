@@ -1,3 +1,4 @@
+/*
 body, html{
 	padding: 0%;
 	margin: 0%;
@@ -11,36 +12,41 @@ a img{
 h3{
 	margin-top: 50px;
 }
+*/
 
 body{
-	background-image: url("images/main_background.png");
-	background-position: center;
+	/* background-image: url("images/main_background.png"); */
+//	background-position: center;
 	font-family: sans-serif;
 	line-height: 150%;
 	font-size: 10pt;
+	background-color: #f4f4f4;
 }
 
-div#container{
-	margin: 0px auto;
 
-	/* The width minus shadows. 750px total */
-	width: 688px;
+div#container{
+	margin: -8px auto;
+	width: 900px;
+	box-shadow: 0px 0px 5px 2px rgba(0,0,0,0.5);
+	overflow:hidden;
+	background-color: white;
+	padding-bottom: 100px;
 }
 
 div#top{
-	width: 688px;
-	height: 160px;
-
+	width: 900px;
+	height: 225px;
+	background-image: url("images/web-header-image.png"); 
 }
 
 h1#chipster-title span{
-	display: none;
+//	display: none;
 }
 
 h2#software{
-	display: none;
+//	display: none;
 }
-
+/*
 h1#csc-link{
   position: relative;
   top: 30px;
@@ -62,26 +68,37 @@ h1#csc-link a span{
 h1#chipster-title{
    position: relative;
    top: -100px;
-	background-image: url("images/upper_splash.png");
+	background-image: url("images/web-header-image.png");
 	background-position: bottom right;
-	width: 688px;
-	height: 160px;
+	width: 900px;
+	height: 225px;
 	margin: 0%;
 	padding: 0%;
 }
 
+div#csc-title{
+   position: relative;
+   top: -100px;
+   background-color: blue;
+	background-position: bottom right;
+	width: 700px;
+	height: 225px;
+	margin: 0%;
+	padding: 0%;
+}
+*/
 div#main-left{
 	float: left;
-	width: 188px;
-	height: 500px;
+	width: 25%;
+//	height: 500px;
 }
 
 div#main-right{
-	padding: 20px;
-	width: 460px;
-	float: right;
+//	padding: 20px;
+	width: 65%;
+	float: left;
 }
-
+/*
 div#news {
 	width : 13em;
 	margin-top: 40px;
@@ -91,7 +108,7 @@ div#news {
 	border-width : 0px;
 	border-left-width : 1px;
 }
-
+*/
 div#launch{
 	margin-top: 2em;
 	background-color: #E8EDF1;
@@ -107,10 +124,6 @@ div#launch a{
 	text-decoration: none;
 }
 
-div#launch a:hover{
-	color: black;
-}
-
 span#launch-text{
 	vertical-align: middle;
 	display: inline-block;
@@ -118,9 +131,7 @@ span#launch-text{
 }
 
 em#small-launch-note {
-    font-size: 60%;
-    line-height: 0;
-    margin-left: 2em;    
+        font-size: 60%
 }
 
 ul#navigation-links{
@@ -151,11 +162,11 @@ ul#navigation-links a{
 ul#navigation-links a:hover{
 	color: #AAAAAA;
 }
-
+/*
 table#contact-table{
 	border-spacing: 0.7em;
 }
-
+*/
 img.screenshot_img{
 	margin: 5px;
 	padding: 1px;
@@ -163,9 +174,9 @@ img.screenshot_img{
 	border-style: solid;
 	border-width: 1px;
 }
-
+/*
 p#news {
 	color : gray;
 	padding-left : 1em;
 }
-
+*/
