@@ -47,7 +47,7 @@ public class JobMessage extends PayloadMessage {
 	private static final Logger logger = Logger.getLogger(JobMessage.class);
 	
 	private static final String KEY_JOB_ID = "jobID";
-	private static final String KEY_TOOL_ID = "toolID";
+	private static final String KEY_TOOL_ID = "analysisID";
 	
 	private String toolId;
 	private String jobId;
