@@ -54,8 +54,8 @@ implements ActionListener, PropertyChangeListener, SelectionChangeListener {
 	protected JPanel paramPanel;
 	protected SelectionList list;
 
-	protected JComboBox xBox;
-	protected JComboBox yBox;
+	protected JComboBox<Variable> xBox;
+	protected JComboBox<Variable> yBox;
 	
 	protected Variable xVar;
 	protected Variable yVar;
@@ -91,8 +91,8 @@ implements ActionListener, PropertyChangeListener, SelectionChangeListener {
 		settingsPanel.setLayout(new GridBagLayout());
 		settingsPanel.setPreferredSize(Visualisation.PARAMETER_SIZE);
 
-		xBox = new JComboBox();
-		yBox = new JComboBox();
+		xBox = new JComboBox<Variable>();
+		yBox = new JComboBox<Variable>();
 
 		useButton = new JButton("Draw");
 		useButton.addActionListener(this);
