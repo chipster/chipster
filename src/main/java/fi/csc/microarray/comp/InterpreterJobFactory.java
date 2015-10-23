@@ -116,7 +116,17 @@ public abstract class InterpreterJobFactory implements JobFactory {
 			logger.warn("could not read job-memory-max from configuration", e);
 		}
 
-		File commonScriptDir = new File(moduleDir.getParentFile(), "common" + toolPath);
+		
+//		File commonScriptDir = new File(moduleDir.getParentFile(), "common" + toolPath);
+		File modulesRootDir;;
+		try {
+			modulesRootDir = DirectoryLayout.getInstance().getModulesDir();
+		} catch (IOException e) {
+			throw new CompException(e);
+		}
+		
+		// that toolPath is more like runtime path, e.g python or R
+		File commonScriptDir = new File(modulesRootDir, "common" + toolPath);
 		
 		String vns = getVariableNameSeparator();
 		String sd = getStringDelimeter();
@@ -124,7 +134,7 @@ public abstract class InterpreterJobFactory implements JobFactory {
 		ad.setInitialiser(
 				"chipster" + vns + "tools" + vns + "path = " + sd + externalToolPath + sd + "\n" +
 				"chipster" + vns + "common" + vns + "path = " + sd + commonScriptDir.getAbsolutePath() + sd + "\n" + 
-				"chipster" + vns + "module" + vns + "path = " + sd + moduleDir.getAbsolutePath() + sd + "\n" + 
+				"chipster" + vns + "module" + vns + "path = " + sd + new File(modulesRootDir, moduleDir.getName()) + sd + "\n" + 
 				"chipster" + vns + "threads" + vns + "max = " + sd + threadsMax + sd + "\n" +
 				"chipster" + vns + "memory" + vns + "max = " + sd + memoryMax + sd + "\n");
 
