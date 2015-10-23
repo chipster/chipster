@@ -84,6 +84,8 @@ run() {
     		fi
     	fi
     	
+    	sleep 2
+    	
     fi
 }
 
