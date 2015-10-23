@@ -27,6 +27,7 @@
 # EK 5.5.2013, modified filtering based on counts, removed fixed prior.n
 # EK 19.11.2013, updated to edgeR 3.4.0. Filtering set to 2 by default.
 # EK 26.8.2014, added gene names to BED output
+# EK 23.10.2015, moved to R3.2.0, enabled trended dispersion again
 
 
 # Loads the libraries
@@ -105,7 +106,7 @@ if (dispersion_method == "common") {
 if (dispersion_method == "tagwise") {
 	# Calculate the tagwise dispersion
 	dge_list <- estimateCommonDisp(dge_list)
-	# dge_list <- estimateTrendedDisp(dge_list)
+	dge_list <- estimateTrendedDisp(dge_list)
 	dge_list <- estimateTagwiseDisp(dge_list)
 	# Statistical testing
 	stat_test <- exactTest(dge_list)
