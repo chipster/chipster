@@ -36,7 +36,7 @@
 	<runtime>
 		<name>R-2.12</name>
 		<handler>
-			<class>fi.csc.microarray.analyser.r.RAnalysisHandler</class> 
+			<class>fi.csc.microarray.comp.r.RJobFactory</class> 
 			<parameter>
 				<name>command</name>
 				<value>/opt/chipster/tools/R-2.12.1/bin/R</value>
@@ -60,7 +60,7 @@
 	<runtime>
 		<name>R-2.15_bioc-2.11</name>
 		<handler>
-			<class>fi.csc.microarray.analyser.r.RAnalysisHandler</class> 
+			<class>fi.csc.microarray.comp.r.RJobFactory</class> 
 			<parameter>
 				<name>command</name>
 				<value>/opt/chipster/tools/R-2.15.1_bioc-2.11/bin/R</value>
@@ -81,9 +81,9 @@
 	</runtime>
 
 	<runtime>
-		<name>R-3.0</name>
+		<name>R</name>
 		<handler>
-			<class>fi.csc.microarray.analyser.r.RAnalysisHandler</class> 
+			<class>fi.csc.microarray.comp.r.RJobFactory</class> 
 			<parameter>
 				<name>command</name>
 				<value>/opt/chipster/tools/R-3.0.2/bin/R</value>
@@ -106,7 +106,7 @@
 	<runtime>
 		<name>R-3.1.2</name>
 		<handler>
-			<class>fi.csc.microarray.analyser.r.RAnalysisHandler</class> 
+			<class>fi.csc.microarray.comp.r.RJobFactory</class> 
 			<parameter>
 				<name>command</name>
 				<value>/opt/chipster/tools/R-3.1.2/bin/R</value>
@@ -129,7 +129,7 @@
 	<runtime>
 		<name>R-3.2.0</name>
 		<handler>
-			<class>fi.csc.microarray.analyser.r.RAnalysisHandler</class> 
+			<class>fi.csc.microarray.comp.r.RJobFactory</class> 
 			<parameter>
 				<name>command</name>
 				<value>/opt/chipster/tools/R-3.2.0/bin/R</value>
@@ -153,7 +153,7 @@
 	<runtime>
         <name>java</name>
         <handler>
-            <class>fi.csc.microarray.analyser.java.JavaAnalysisHandler</class> 
+            <class>fi.csc.microarray.comp.java.JavaJobFactory</class> 
 			<parameter>
 				<name>externalToolPath</name>
 				<value>/opt/chipster/tools</value>
@@ -162,20 +162,9 @@
     </runtime>
 	
 	<runtime>
-		<name>shell</name>
-		<handler>
-			<class>fi.csc.microarray.analyser.shell.ShellAnalysisHandler</class>
-			<parameter>
-				<name>toolPath</name>
-				<value>/shell</value>
-			</parameter>
-		</handler>
-	</runtime>
-
-	<runtime>
 		<name>python</name>
 		<handler>
-			<class>fi.csc.microarray.analyser.python.PythonAnalysisHandler</class>
+			<class>fi.csc.microarray.comp.python.PythonJobFactory</class>
 			<parameter>
 				<name>command</name>
 				<value>python</value>

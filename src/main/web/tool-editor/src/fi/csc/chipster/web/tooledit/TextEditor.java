@@ -8,8 +8,8 @@ import java.io.StringReader;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.VerticalLayout;
 
-import fi.csc.microarray.analyser.SADLTool;
-import fi.csc.microarray.analyser.SADLTool.ParsedScript;
+import fi.csc.chipster.toolbox.SADLTool;
+import fi.csc.chipster.toolbox.SADLTool.ParsedScript;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.Strings;
 

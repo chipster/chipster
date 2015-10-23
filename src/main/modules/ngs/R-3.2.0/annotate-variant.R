@@ -18,7 +18,7 @@
 # Read data
 library(VariantAnnotation)
 vcf<-readVcf("input.vcf", genome)
-vcf@rowData@seqnames@values <- factor(vcf@rowData@seqnames@values)  					
+# vcf@rowData@seqnames@values <- factor(vcf@rowData@seqnames@values)  	  			
 
 # Correct the chromosome names: 
 if(length(grep("chr", vcf@rowData@seqnames@values))>=1) {

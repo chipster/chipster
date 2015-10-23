@@ -370,10 +370,13 @@ public class TaskExecutor {
 		task.setStartTime(new Date());
 		addToRunningTasks(task);
 
+		
+		
 		// send job message (start task) in a background thread
 		new Thread(new Runnable() {
 			public void run() {
 				try {
+					
 					JobMessage jobMessage = new JobMessage(task.getId(), task.getOperationID(), task.getParameters());
 
 					// handle inputs
