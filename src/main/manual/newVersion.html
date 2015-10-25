@@ -34,12 +34,14 @@ div.header-item {
 		</li>
 		<li><div class=header-item>Improvements to NGS analysis tools</div>		
 			<ul>
-				<li>Several tools have been updated: BEDtools 2.25.0, BWA 0.7.12, FastQC 0.11.3, Picard 1.138, Samtools/bcftools 1.2, Trimmomatic 0.33 and VCFtools 0.1.13.</li>
+				<li>Several tools have been updated: BEDtools 2.25.0, BWA 0.7.12, FastQC 0.11.3, Picard 1.138, Samtools/bcftools 1.2, Trimmomatic 0.33 and VCFtools 0.1.13. edgeR based tools have been updated to R3.2.0.</li>
 				<li>Reference genomes and GTFs have been updated to Ensembl version 81. Potato genome has been added.</li>
 				<li><a href="bwa-mem.html">Alignment / BWA MEM</a> has new parameters and the previous tools for SE and PE reads have been combined into one.</li>
 				<li><a href="ensemblfetch.html">Utilities / Retrieve data for a given organism in Ensembl</a> can bring now GTFs in addition to sequences.</li>
 				<li><a href="general_file_processing.html">Utilities / Modify text</a>. Output options for BED and GTF files have been added to enable chromosome naming conversions.</li>
-				<li><a href="samtools-snp-indel-single.html">Variants / Call SNPs and short INDELs</a> uses now the multiallele caller and allows you to control the output fields in VCF.</li>
+				<li><a href="samtools-snp-indel-single.html">Variants / Call SNPs and short INDELs</a> uses now the multiallele caller and allows you to control the output fields in VCF. The original sample names are shown in the VCF file.</li>
+				<li><a href="samtools-snp-indel-single.html">Variants / Annotate variants</a> supports now hg38 and provides PolyPhen predictions for variants with rsIDs.
+				<li><a href="ngs-dea-edger-RNA.html">RNA-seq / Differential expression using edgeR</a> uses now the estimateDisp function to estimate dispersions.</li>
 			</ul>
 		<li><div class=header-item>New sequence analysis tools in Misc</div>
 			<ul>
@@ -50,6 +52,7 @@ div.header-item {
 		<li><div class=header-item>Improvements to the user interface</div>
 			<ul>
 				<li>Interactive 3D scatterplots and PCA plots can be saved as png images.</li>
+				<li>Interactive Volcano plot is available for edgeR and DESeq2 results.</li>
 			</ul>
 		</li>
 		<li><div class=header-item>Technical improvements</div>
