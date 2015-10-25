@@ -10,6 +10,7 @@ import java.awt.event.ActionListener;
 import java.awt.geom.Ellipse2D;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -42,8 +43,8 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 	/**
 	 * Analytical expression is -log(p), where p is the first available p.* column.
 	 */
-	private static final String Y_AXIS_COLUMN_HEADER = "p.";
-	private static final String X_AXIS_COLUMN_HEADER = "FC";
+	private static final String[] Y_AXIS_COLUMN_HEADERS = new String[] {"p.", "pvalue", "padj", "PValue", "FDR"};
+	private static final String[] X_AXIS_COLUMN_HEADERS = new String[] {"FC", "log2FoldChange", "logFC"};
 
 	private float ROUNDING_LIMIT;
 
@@ -58,8 +59,8 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 		settingsPanel.setLayout(new GridBagLayout());
 		settingsPanel.setPreferredSize(Visualisation.PARAMETER_SIZE);
 
-		xBox = new JComboBox();
-		yBox = new JComboBox();
+		xBox = new JComboBox<Variable>();
+		yBox = new JComboBox<Variable>();
 
 		useButton = new JButton("Draw");
 		useButton.addActionListener(this);
@@ -96,8 +97,18 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 			throw new IllegalStateException("must call getParameterPanel first");
 		}
 
-		Visualisation.fillComboBox(xBox, VisualisationUtilities.getVariablesFilteredInclusive(data, X_AXIS_COLUMN_HEADER, false));
-		Visualisation.fillComboBox(yBox, VisualisationUtilities.getVariablesFilteredInclusive(data, Y_AXIS_COLUMN_HEADER, false));
+		ArrayList<Variable> xCols = new ArrayList<>();
+		ArrayList<Variable> yCols = new ArrayList<>();
+		
+		for (String col : X_AXIS_COLUMN_HEADERS) {
+			xCols.addAll(Arrays.asList(VisualisationUtilities.getVariablesFilteredInclusive(data, col, false)));
+		}
+		for (String col : Y_AXIS_COLUMN_HEADERS) {
+			yCols.addAll(Arrays.asList(VisualisationUtilities.getVariablesFilteredInclusive(data, col, false)));
+		}
+		
+		Visualisation.fillComboBox(xBox, xCols.toArray(new Variable[0]));
+		Visualisation.fillComboBox(yBox, yCols.toArray(new Variable[0]));
 	}
 
 	@Override

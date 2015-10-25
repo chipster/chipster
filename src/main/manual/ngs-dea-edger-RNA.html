@@ -40,10 +40,11 @@ Trimmed mean of M-values (TMM) normalization is used to calculate normalization 
 which arises when a small number of genes are very highly expressed in one experiment condition but not in the other.
 <br><br>
 Dispersion means biological coeffient of variation (BCV) squared. E.g. if genes expression typically differs from replicate to replicate by 20% its BCV is 0.2, and its dispersion is 0.04.
-EdgeR estimates dispersion from replicates using the quantile-adjusted conditional maximum likelyhood method (qCML). Common dispersion assumes that all genes have the same dispersion, 
-while the tagwise approach calculates gene-wise dispersions. It uses an empirical Bayes strategy to "shrink" the gene-wise dispersions towards the common dispersion.
+EdgeR estimates dispersion from replicates using the quantile-adjusted conditional maximum likelyhood method (qCML). 
+Common dispersion calculates a common dispersion value for all genes, while the tagwise method calculates gene-specific dispersions. 
+It uses an empirical Bayes strategy to squeeze the original gene-wise dispersions towards the global, abundance-dependent trend.
 <br><br>
-You should always have at least two biological replicates for each experiment condition.
+You should always have at least three biological replicates for each experiment condition.
 If you don't have replicates, you can still run the analysis by setting the dispersion value manually with the 'Dispersion value' parameter.
 The default value for this parameter is 0.16. This corresponds to BCV of 0.4 which is typical for human data (where genes expression can differ from replicate to replicate by 40 %). 
 Typical BVC for genetically identical model organisms is 0.1, so you should set the dispersion guess at 0.01 for this kind of data. 
@@ -66,8 +67,6 @@ edgeR proceeds with testing for differential expression using the exact test, wh
 		<li>FDR = adjusted p-value</li>
 	</ul></li>
 <li>de-list-edger.bed:  If you data contained genomic coordinates, the result table is also given as a BED file for genome browser use. The score column contains log2 fold change values.</li>
-<!--  <li>ma-plot-raw-edger.pdf: A scatter plot of the raw count value averages between experiment conditions.</li>-->
-<!--  <li>ma-plot-normalized-edger.pdf: A scatter plot of the normalized count value averages between experiment conditions. </li>-->
 <li>edgeR_report.pdf: A PDF file containing:
 	<ul>
 	<li>ma-plot-edger.pdf: MA plot where significantly differentially expressed features are highlighted. </li>

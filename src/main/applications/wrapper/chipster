@@ -18,7 +18,7 @@
 # Description: $APP_LONG_NAME
 ### END INIT INFO
 
-ACTIVEMQ_START_DELAY=10
+ACTIVEMQ_START_DELAY=15
 
 # detect chipster home
 if [ -h $0 ]
@@ -83,6 +83,8 @@ run() {
     			sleep $ACTIVEMQ_START_DELAY
     		fi
     	fi
+    	
+    	sleep 2
     	
     fi
 }

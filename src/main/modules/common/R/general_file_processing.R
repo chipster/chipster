@@ -1,4 +1,4 @@
-# TOOL general_file_processing.R: "Modify text" (This tool can be used to modify txt and tsv files. For example, you can replace text, or extract rows containing a given text. Note that the search string is interpreted as a regular expression were .,* and + characters have special functions)
+# TOOL general_file_processing.R: "Modify text" (This tool can be used to modify txt, tsv, BED and GTF files. For example, you can replace text, or extract rows containing a given text. Note that the search string is interpreted as a regular expression were .,* and + characters have special functions)
 # INPUT input: "Input file" TYPE GENERIC
 # OUTPUT OPTIONAL selected.tsv
 # OUTPUT OPTIONAL selected.txt

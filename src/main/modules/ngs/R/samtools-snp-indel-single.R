@@ -8,9 +8,9 @@
 # PARAMETER OPTIONAL vcfutils.d: "Minimum read depth" TYPE INTEGER DEFAULT 2 (Minimum read depth.)
 # PARAMETER OPTIONAL vcfutils.ud: "Maximum read depth" TYPE INTEGER DEFAULT 1000 (Maximum read depth. Should be adjusted to about twice the average read depth.)
 # PARAMETER OPTIONAL mpileup.q: "Minimum mapping quality for an alignment to be used" TYPE INTEGER DEFAULT 0 (Minimum mapping quality for an alignment to be used. Default is 0.)
-# PARAMETER OPTIONAL mpileup.uq: "Minimum base quality for a base to be considered" TYPE INTEGER DEFAULT 20 (Minimum base quality for a base to be considered. Default is 13.)
+# PARAMETER OPTIONAL mpileup.uq: "Minimum base quality for a base to be considered" TYPE INTEGER DEFAULT 20 (Minimum base quality for a base to be considered. Default is 20.)
 # PARAMETER OPTIONAL mpileup.ub: "Disable probabilistic realignment for computation of BAC" TYPE [yes, no] DEFAULT no (Disable probabilistic realignment for the computation of base alignment quality (BAQ\). BAQ is the Phred-scaled probability of a read base being misaligned. Applying this option greatly helps to reduce false SNPs caused by misalignments.)
-# PARAMETER OPTIONAL mpileup.uc: "Downgrading coefficient" TYPE INTEGER DEFAULT 0 (Coefficient for downgrading mapping quality for reads containing excessive mismatches. The recommended value for BWA is 50. A zero value disables this functionality.)
+# PARAMETER OPTIONAL mpileup.uc: "Downgrading coefficient" TYPE INTEGER DEFAULT 0 (Coefficient for downgrading mapping quality for reads containing excessive mismatches. The recommended value for the older BWA-SW is 50. A zero value disables this functionality.)
 # PARAMETER OPTIONAL mpileup.r: "Call variants only for a certain region" TYPE STRING DEFAULT all (Only generate pileup in defined region. Region given as chromosome:start-end, e.g. 20:131505-131550.)
 # PARAMETER OPTIONAL mpileup.ud: "Output per sample read depth" TYPE [yes, no] DEFAULT no (Output per-sample read depth, DP.)
 # PARAMETER OPTIONAL mpileup.dv: "Output per sample number of high-quality non-reference bases" TYPE [yes, no] DEFAULT no (Output per sample number of high-quality non-reference bases, DV.)
@@ -102,3 +102,12 @@ system(command1)
 system(command2)
 system(command3)
 system("mv vcftools.recode.vcf variants.vcf")
+
+# Change bam names in VCF to original names
+system("grep \"alignment[0-9]*\\.bam\" chipster-inputs.tsv > bam_files.tsv")
+bam.names <- read.table("bam_files.tsv", header=F, sep="\t")
+for (i in 1:nrow(bam.names)) {
+	sed.command <- paste("s/", bam.names[i,1], "/", bam.names[i,2], "/", sep="")
+	system(paste("sed -i", sed.command, "variants.vcf"))
+}
+

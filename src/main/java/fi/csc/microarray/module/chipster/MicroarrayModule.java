@@ -738,7 +738,10 @@ public class MicroarrayModule implements Module {
 				data.addTypeTag(MicroarrayModule.TypeTags.PHENODATA);
 			}
 
-			if (data.queryFeatures("/column/p.*").exists() && data.queryFeatures("/column/FC*").exists()) {
+			if (	(data.queryFeatures("/column/p.*").exists() && data.queryFeatures("/column/FC*").exists()) ||
+					(data.queryFeatures("/column/pvalue*").exists() && data.queryFeatures("/column/log2FoldChange*").exists()) || // NGS deseq file
+					(data.queryFeatures("/column/PValue*").exists() && data.queryFeatures("/column/logFC*").exists())) { // NGS edgeR file
+				
 				data.addTypeTag(MicroarrayModule.TypeTags.SIGNIFICANT_EXPRESSION_FOLD_CHANGES);
 			}
 

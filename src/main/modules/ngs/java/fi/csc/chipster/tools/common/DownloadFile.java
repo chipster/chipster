@@ -10,14 +10,14 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 
-import fi.csc.microarray.analyser.java.JavaAnalysisJobBase;
+import fi.csc.microarray.comp.java.JavaCompJobBase;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.ToolUtils;
 import fi.csc.microarray.util.KeyAndTrustManager;
 import fi.csc.microarray.util.UrlTransferUtil;
 
-public class DownloadFile extends JavaAnalysisJobBase {
+public class DownloadFile extends JavaCompJobBase {
 	
 	public static final int CONNECTION_TIMEOUT = 15*1000; //ms
 	public static final int READ_TIMEOUT = 7*24*60*60*1000; //ms
@@ -48,10 +48,10 @@ public class DownloadFile extends JavaAnalysisJobBase {
 
 		try {
 			// file 
-			File outputFile = new File(jobWorkDir, analysis.getOutputFiles().get(0).getFileName().getID()); 
+			File outputFile = new File(jobWorkDir, toolDescription.getOutputFiles().get(0).getFileName().getID()); 
 
 			// parameters
-			List<String> parameters = inputMessage.getParameters(JAVA_PARAMETER_SECURITY_POLICY, analysis);
+			List<String> parameters = inputMessage.getParameters(JAVA_PARAMETER_SECURITY_POLICY, toolDescription);
 			String urlString = parameters.get(0);
 			String fileExtension = parameters.get(1);
 			boolean checkCerts = true;

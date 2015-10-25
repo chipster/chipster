@@ -47,9 +47,12 @@ if (statistics.snpdensity != "0"){
 	system(command)
 }
 
+# Fix last column on .frq and .frq.count to be Chipster tsv compatible
+awk.command <- paste("| awk \'{printf $1\"\\t\"$2\"\\t\"$3\"\\t\"$4\"\\t\"$5; for(i=6;i<=NF;i++){printf \",%s\", $i} printf \"\\n\"}\'")
+system(paste("cat vcftools.frq", awk.command, "> vcftools.frq.tsv"))
+system(paste("cat vcftools.frq.count", awk.command, "> vcftools.frq.count.tsv"))
+
 # rename result files
-system("mv vcftools.frq vcftools.frq.tsv")
-system("mv vcftools.frq.count vcftools.frq.count.tsv")
 system("mv vcftools.hwe vcftools.hwe.tsv")
 system("mv vcftools.geno.ld vcftools.geno.ld.tsv")
 system("mv vcftools.snpden vcftools.snpden.tsv")

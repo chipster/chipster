@@ -36,8 +36,7 @@ unzipIfGZipFile("reads2.fastq")
 #	stop("CHIPSTER-NOTE: Your input file is not a sequence file that is compatible with the tool you try to use")
 #}
 
-
-a5.binary <- file.path("/opt/chipster/tools2/a5/a5_miseq_linux_20140604/bin/a5_pipeline.pl")
+a5.binary <- c(file.path(chipster.tools.path, "a5_miseq", "bin", "a5_pipeline.pl"))
 a5.parameters <- paste('reads1.fastq reads2.fastq a5_assembly ')
 
 

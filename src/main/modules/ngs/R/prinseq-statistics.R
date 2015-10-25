@@ -45,3 +45,17 @@ binary.graph <- c(file.path(chipster.tools.path, "prinseq", "prinseq-graphs.pl")
 command.graph <- paste("perl", binary.graph, " -i tmp_graph_file -html_all -o reads-stats")
 system(command.graph)
 
+# Handle output names
+source(file.path(chipster.common.path, "tool-utils.R"))
+
+# read input names
+inputnames <- read_input_definitions()
+
+basename  <- strip_name(inputnames$fastqfile)
+
+# Make a matrix of output names
+outputnames <- matrix(NA, nrow=1, ncol=2)
+outputnames[1,] <- c("reads-stats.html", paste(basename, "_prinseq.html", sep =""))
+
+# Write output definitions file
+write_output_definitions(outputnames)
