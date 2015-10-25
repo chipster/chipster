@@ -42,7 +42,7 @@ which arises when a small number of genes are very highly expressed in one exper
 Dispersion means biological coeffient of variation (BCV) squared. E.g. if genes expression typically differs from replicate to replicate by 20% its BCV is 0.2, and its dispersion is 0.04.
 EdgeR estimates dispersion from replicates using the quantile-adjusted conditional maximum likelyhood method (qCML). 
 Common dispersion calculates a common dispersion value for all genes, while the tagwise method calculates gene-specific dispersions. 
-It uses an empirical Bayes strategy to squeeze the original gene-wise dispersions towards the global, abundance-dependent trend, which is determined by a moving average approach.
+It uses an empirical Bayes strategy to squeeze the original gene-wise dispersions towards the global, abundance-dependent trend.
 <br><br>
 You should always have at least three biological replicates for each experiment condition.
 If you don't have replicates, you can still run the analysis by setting the dispersion value manually with the 'Dispersion value' parameter.
