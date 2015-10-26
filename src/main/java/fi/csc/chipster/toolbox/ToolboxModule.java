@@ -300,7 +300,7 @@ public class ToolboxModule {
 		    	
 		    	// Register the tool, override existing
 		    	
-		    	tools.put(toolId, new ToolboxTool(parsedScript, resource, moduleDir.getName(), runtimeName));
+		    	tools.put(toolId, new ToolboxTool(parsedScript.SADL, parsedScript.code, parsedScript.source, resource, moduleDir.getName(), runtimeName));
 		    	successfullyLoadedCount++;
 
 	    		// Add to category, which gets sent to the client

@@ -628,7 +628,7 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 			String toolID = new String(requestMessage.getParameters().get(0));
 			
 			logger.info("sending source code for " + toolID);
-			String sourceCode = toolbox.getTool(toolID).getParsedScript().source;
+			String sourceCode = toolbox.getTool(toolID).getSource();
 
 			if (sourceCode != null) {
 				return new SourceMessage(sourceCode);
