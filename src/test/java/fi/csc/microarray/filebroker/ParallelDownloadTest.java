@@ -19,11 +19,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import org.eclipse.jetty.server.Connector;
@@ -44,13 +40,13 @@ public class ParallelDownloadTest {
 	public static boolean readOnlyStart = true;
 	
 	public volatile static int done = 0;
-	private static SSLSocketFactory socketFactory;
+//	private static SSLSocketFactory socketFactory;
 			
 	public static void main(String args[]) throws Exception {
 		
 		//System.setProperty("org.eclipse.jetty.LEVEL", "DEBUG");
 		
-		File file = createFile();
+//		File file = createFile();
 //		final URL url = new URL("https://localhost:8080/" + file.getName());
 		final URL url = new URL("https://vm0180.kaj.pouta.csc.fi:8080/storage/fe4e3b6e-331b-40a3-a485-41217a99e8e9");
 //		Server server = getJetty();
