@@ -91,7 +91,7 @@ public abstract class InterpreterJobFactory implements JobFactory {
 
 		// create description
 		ToolDescription ad;
-		ad = new ToolDescriptionGenerator().generate(sadlDescription, this);
+		ad = new ToolDescriptionGenerator().generate(sadlDescription);
 
 		// SADL back to string
 		SADLGenerator.generate(sadlDescription);

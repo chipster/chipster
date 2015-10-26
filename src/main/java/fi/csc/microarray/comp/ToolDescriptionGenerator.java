@@ -18,8 +18,8 @@ public class ToolDescriptionGenerator {
 	/**
 	 * Converts generic SADLDescription to ToolDescription.
 	 */
-	public ToolDescription generate(SADLDescription source, JobFactory jobFactory) {
-		ToolDescription description = new ToolDescription(jobFactory);
+	public ToolDescription generate(SADLDescription source) {
+		ToolDescription description = new ToolDescription();
 		
 		description.setID(source.getName().getID());
 		description.setDisplayName(source.getName().getDisplayName());

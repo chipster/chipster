@@ -76,7 +76,7 @@ public class JavaJobFactory implements JobFactory {
 		
 		// create analysis description
 		ToolDescription ad;
-		ad = new ToolDescriptionGenerator().generate(sadlDescription, this);
+		ad = new ToolDescriptionGenerator().generate(sadlDescription);
 		
 		// SADL back to string
 		SADLGenerator.generate(sadlDescription);
