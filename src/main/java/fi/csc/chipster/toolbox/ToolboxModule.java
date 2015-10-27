@@ -20,7 +20,6 @@ import org.xml.sax.SAXException;
 
 import fi.csc.chipster.toolbox.SADLTool.ParsedScript;
 import fi.csc.chipster.toolbox.toolpartsparser.ToolPartsParser;
-import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.description.SADLDescription;
 import fi.csc.microarray.description.SADLDescription.Input;
 import fi.csc.microarray.description.SADLDescription.Output;
@@ -208,7 +207,7 @@ public class ToolboxModule {
 		    	File toolModuleDir;
 		    	String nonDefaultModuleName = toolElement.getAttribute("module");
 		    	if (nonDefaultModuleName != null && !nonDefaultModuleName.equals("")) {
-		    		toolModuleDir = new File(DirectoryLayout.getInstance().getModulesDir(), nonDefaultModuleName);
+		    		toolModuleDir = new File(moduleDir.getParentFile(), nonDefaultModuleName);
 		    	} else {
 		    		toolModuleDir = moduleDir;
 		    	}

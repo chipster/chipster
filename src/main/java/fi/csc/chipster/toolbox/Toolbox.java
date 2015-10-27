@@ -10,7 +10,6 @@ import org.apache.log4j.Logger;
 import fi.csc.chipster.toolbox.toolpartsparser.HeaderAsCommentParser;
 import fi.csc.chipster.toolbox.toolpartsparser.JavaParser;
 import fi.csc.chipster.toolbox.toolpartsparser.ToolPartsParser;
-import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.messaging.message.ModuleDescriptionMessage;
 
 
@@ -76,7 +75,7 @@ public class Toolbox {
 		// Iterate over all module directories, and over all module files inside them
 		List<String> moduleLoadSummaries = new LinkedList<String>();
 		for (String moduleDirName : modulesDir.list()) {
-			File moduleDir = new File(DirectoryLayout.getInstance().getModulesDir(), moduleDirName);
+			File moduleDir = new File(modulesDir, moduleDirName);
 
 			if (moduleDir.isDirectory()) {
 
