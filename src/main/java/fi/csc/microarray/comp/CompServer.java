@@ -154,7 +154,7 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 
 		// initialize runtime and tools
 		this.runtimeRepository = new RuntimeRepository(this.workDir);
-		this.toolbox = new Toolbox(workDir);
+		this.toolbox = new Toolbox(DirectoryLayout.getInstance().getModulesDir());
 		this.toolboxClient = new OldToolboxClient(this.toolbox);
 					
 		// initialize timeout checker

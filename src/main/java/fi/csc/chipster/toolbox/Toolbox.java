@@ -20,14 +20,17 @@ public class Toolbox {
 			.getLogger(Toolbox.class);
 	
 	private List<ToolboxModule> modules = new LinkedList<ToolboxModule>();
-		
+	private File modulesDir;
+	
+	
 	/**
 	 * 
 	 * @param the root workDir for the jobs of the computing service
 	 * @throws IOException 
 	 * @throws Exception
 	 */
-	public Toolbox(File workDir) throws IOException {
+	public Toolbox(File modulesDir) throws IOException {
+		this.modulesDir = modulesDir;
 		loadModuleDescriptions();
 	}
 	
@@ -72,7 +75,7 @@ public class Toolbox {
 
 		// Iterate over all module directories, and over all module files inside them
 		List<String> moduleLoadSummaries = new LinkedList<String>();
-		for (String moduleDirName : DirectoryLayout.getInstance().getModulesDir().list()) {
+		for (String moduleDirName : modulesDir.list()) {
 			File moduleDir = new File(DirectoryLayout.getInstance().getModulesDir(), moduleDirName);
 
 			if (moduleDir.isDirectory()) {
