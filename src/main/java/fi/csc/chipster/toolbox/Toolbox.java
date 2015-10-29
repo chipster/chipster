@@ -47,6 +47,17 @@ public class Toolbox {
 		return null;
 	}
 	
+	public List<ToolboxTool> getAll() {
+		List<ToolboxTool> list = new LinkedList<ToolboxTool>();
+		for (ToolboxModule module : modules) {
+			list.addAll(module.getAll());
+		}
+		
+		return list;
+	}
+	
+	
+	
 	
 	/**
 	 * @return a list of DescriptionMessages about available tool modules
