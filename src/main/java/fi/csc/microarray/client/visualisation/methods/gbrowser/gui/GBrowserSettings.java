@@ -52,7 +52,8 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 	public enum CoverageType {
 		NONE ("none"),
 		TOTAL ("total"),
-		STRAND ("strand-specific");
+		STRAND ("strand-specific"),
+		STRAND_XS ("strand-specific for RNA-seq");
 		
 		String name;
 		
@@ -86,8 +87,8 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 	private JLabel locationLabel = new JLabel("Location (gene or position)");
 	private JTextField locationField = new JTextField();
 
-	private JLabel viewsizeLabel = new JLabel("View size");
-	private JTextField viewsizeField = new JTextField();
+	private static final String VIEW_SIZE_TEXT = "View size: ";
+	private JLabel viewsizeLabel = new JLabel(VIEW_SIZE_TEXT);
 
 	private JLabel chrLabel = new JLabel("Chromosome");
 	private JComboBox<Chromosome> chrBox;
@@ -180,7 +181,7 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 		coverageTypeLabel.setEnabled(false);
 		settingsPanel.add(coverageTypeLabel, GAPY);
 
-		coverageTypeBox = new JComboBox<CoverageType>(new CoverageType[] {CoverageType.NONE, CoverageType.TOTAL, CoverageType.STRAND});
+		coverageTypeBox = new JComboBox<CoverageType>(new CoverageType[] {CoverageType.NONE, CoverageType.TOTAL, CoverageType.STRAND, CoverageType.STRAND_XS});
 		coverageTypeBox.setSelectedItem(CoverageType.TOTAL);
 		coverageTypeBox.setEnabled(false);
 		coverageTypeBox.addActionListener(this);
@@ -290,10 +291,9 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 
 		// viewsize
 		viewsizeLabel.setEnabled(false);
-		settingsPanel.add(viewsizeLabel, GAPY);
-		viewsizeField.setEnabled(false);
-		viewsizeField.setEditable(false); // view size is never editable
-		settingsPanel.add(this.viewsizeField, FULL_WIDTH);
+		setCoordinateFields(null, DEFAULT_VIEWSIZE);
+		lastViewsize = DEFAULT_VIEWSIZE;
+		settingsPanel.add(viewsizeLabel, GAPY);		
 
 		// go button
 		goButton.setEnabled(false);
@@ -406,7 +406,6 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 			this.locationLabel.setEnabled(true);
 			this.locationField.setEnabled(true);
 			this.viewsizeLabel.setEnabled(true);
-			this.viewsizeField.setEnabled(true);
 
 			coverageTypeLabel.setEnabled(true);
 			coverageTypeBox.setEnabled(true);
@@ -441,11 +440,11 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 
 		if (viewsize != null) {
 			if (viewsize > 1000000) {
-				viewsizeField.setText(Math.round(((float)viewsize) / 1000000f) + " Mb");
+				viewsizeLabel.setText(VIEW_SIZE_TEXT + Math.round(((float)viewsize) / 1000000f) + " Mb");
 			} else if (viewsize > 1000) {
-				viewsizeField.setText(Math.round(((float)viewsize) / 1000f) + " kb");
+				viewsizeLabel.setText(VIEW_SIZE_TEXT + Math.round(((float)viewsize) / 1000f) + " kb");
 			} else {
-				viewsizeField.setText(viewsize + "");
+				viewsizeLabel.setText(VIEW_SIZE_TEXT + viewsize + "");
 			}
 		}
 	}
@@ -502,12 +501,6 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 		if (locationField.getText().trim().isEmpty()) {
 
 			setCoordinateFields(DEFAULT_LOCATION, null);
-		}
-
-		if (viewsizeField.getText().trim().isEmpty()) {
-
-			setCoordinateFields(null, DEFAULT_VIEWSIZE);
-			lastViewsize = DEFAULT_VIEWSIZE;
 		}
 		
 		if (!locationField.getText().isEmpty()) {

@@ -18,6 +18,7 @@ import org.jdesktop.swingx.JXHyperlink;
 
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.module.Module;
+import fi.csc.microarray.module.basic.BasicModule;
 import fi.csc.microarray.util.LinkUtil;
 import fi.csc.microarray.util.Strings;
 
@@ -35,6 +36,7 @@ public class QuickLinkPanel extends JPanel {
 	private JXHyperlink exampleLink;
 	private JXHyperlink importFolderLink;
 	private JXHyperlink importURLLink;
+	private JXHyperlink importURLToServerLink;
 
 	public QuickLinkPanel() {
 		super(new GridBagLayout());
@@ -70,7 +72,7 @@ public class QuickLinkPanel extends JPanel {
 				application.openDirectoryImportDialog();
 			}
 		});
-		importURLLink = LinkUtil.createLink("Import from URL", new AbstractAction() {
+		importURLLink = LinkUtil.createLink("Import from URL to client", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
@@ -80,6 +82,14 @@ public class QuickLinkPanel extends JPanel {
 				}
 			}
 		});
+		
+		importURLToServerLink = LinkUtil.createLink("Import from URL directly to server", new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				BasicModule.importFromUrlToServer();
+			}
+		});
+		
 		sessionLink = LinkUtil.createLink("open cloud session", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -131,6 +141,7 @@ public class QuickLinkPanel extends JPanel {
 		importLinks.add(importLink);
 		importLinks.add(importFolderLink);
 		importLinks.add(importURLLink);
+		importLinks.add(importURLToServerLink);
 
 		// module specific links
 		if (!application.isStandalone()) {

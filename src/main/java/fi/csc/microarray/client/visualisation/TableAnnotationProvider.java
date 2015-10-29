@@ -32,38 +32,36 @@ public class TableAnnotationProvider {
 	private DataBean data; //Just to check validity of this instance 
 	
 	public TableAnnotationProvider(DataBean bean) throws MicroarrayException {
-		this(bean.queryFeatures(TABLE_COLUMN_QUERY + COLUMN_ALL).asTable());		
-	}
 
-	public TableAnnotationProvider(Table table) throws MicroarrayException {
-		
-		/* Find the first column from the COLUMN_SYMBOL list that is found 
-		 * also from the table. 
-		 */
-		String columnSymbol = null;
-		
-		for(String nameToFind : COLUMN_SYMBOL) {
-			for(String col : table.getColumnNames()) {
-				if(col.equalsIgnoreCase(nameToFind)){
-					columnSymbol = col;
+		try (Table table = bean.queryFeatures(TABLE_COLUMN_QUERY + COLUMN_ALL).asTable()) {
+			/* Find the first column from the COLUMN_SYMBOL list that is found 
+			 * also from the table. 
+			 */
+			String columnSymbol = null;
+
+			for(String nameToFind : COLUMN_SYMBOL) {
+				for(String col : table.getColumnNames()) {
+					if(col.equalsIgnoreCase(nameToFind)){
+						columnSymbol = col;
+						break;
+					}				
+				}
+
+				if(columnSymbol != null) {
 					break;
-				}				
+				}
 			}
-			
-			if(columnSymbol != null) {
-				break;
+
+			while (table.nextRow()) {
+				String identifier = table.getStringValue(" ");
+
+				String symbol = table.getStringValue(columnSymbol);
+				String actualDescription = table.getStringValue(COLUMN_DESCRIPTION);
+				String annotatedIdentifier = symbol != null ? symbol + " (" + identifier + ")" : identifier;
+				String description = actualDescription != null ? actualDescription : annotatedIdentifier;
+				annotatedIdentifiers.put(identifier, annotatedIdentifier);
+				descriptions.put(identifier, description);
 			}
-		}
-		
-		while (table.nextRow()) {
-			String identifier = table.getStringValue(" ");
-			
-			String symbol = table.getStringValue(columnSymbol);
-			String actualDescription = table.getStringValue(COLUMN_DESCRIPTION);
-			String annotatedIdentifier = symbol != null ? symbol + " (" + identifier + ")" : identifier;
-			String description = actualDescription != null ? actualDescription : annotatedIdentifier;
-			annotatedIdentifiers.put(identifier, annotatedIdentifier);
-			descriptions.put(identifier, description);
 		}
 	}
 

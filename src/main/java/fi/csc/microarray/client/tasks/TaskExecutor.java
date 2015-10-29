@@ -238,9 +238,14 @@ public class TaskExecutor {
 		}
 
 		private void extractOutputs(ResultMessage resultMessage) throws JMSException, MicroarrayException, IOException {
-			for (String name : resultMessage.payloadNames()) {
-				logger.debug("output " + name);
-				String dataId = resultMessage.getPayload(name);
+			for (String key : resultMessage.getKeys()) {
+				logger.debug("output " + key);
+				String dataId = resultMessage.getId(key);
+				String name = resultMessage.getName(key);
+				if (name == null) {
+					// tool didn't write a custom file name, just use the output name directly
+					name = key;
+				}
 				DataBean bean = manager.createDataBean(name, dataId, true);
 				pendingTask.addOutput(bean);
 			}
@@ -271,7 +276,7 @@ public class TaskExecutor {
 				}
 				
 				// source code
-				pendingTask.setSourceCode(resultMessage.getSourceCode());
+				pendingTask.getOperationRecord().setSourceCode(resultMessage.getSourceCode());
 			}
 
 			// end time(s)
@@ -365,10 +370,13 @@ public class TaskExecutor {
 		task.setStartTime(new Date());
 		addToRunningTasks(task);
 
+		
+		
 		// send job message (start task) in a background thread
 		new Thread(new Runnable() {
 			public void run() {
 				try {
+					
 					JobMessage jobMessage = new JobMessage(task.getId(), task.getOperationID(), task.getParameters());
 
 					// handle inputs
@@ -397,7 +405,7 @@ public class TaskExecutor {
 						manager.uploadToCacheIfNeeded(bean, progressListener);
 						
 						// add the data id to the message
-						jobMessage.addPayload(operationsInputName, bean.getId());
+						jobMessage.addPayload(operationsInputName, bean.getId(), bean.getName());
 						
 						logger.debug("added input " + bean.getName() + " to job message.");
 						i++;
@@ -695,7 +703,7 @@ public class TaskExecutor {
 				try {
 					// create message
 					CommandMessage commandMessage = new CommandMessage(CommandMessage.COMMAND_CANCEL);
-					commandMessage.addParameter(task.getId());
+					commandMessage.addNamedParameter(ParameterMessage.PARAMETER_JOB_ID, task.getId());
 
 					// send message
 					logger.debug("Sending cancel message.");

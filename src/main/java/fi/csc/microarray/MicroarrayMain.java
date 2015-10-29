@@ -6,13 +6,14 @@ import java.io.IOException;
 
 import javax.swing.SwingUtilities;
 
-import fi.csc.microarray.analyser.AnalyserServer;
-import fi.csc.microarray.analyser.SADLTool;
+import fi.csc.chipster.toolbox.SADLTool;
 import fi.csc.microarray.auth.Authenticator;
 import fi.csc.microarray.client.SwingClientApplication;
+import fi.csc.microarray.comp.CompServer;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.ApplicationConstants;
 import fi.csc.microarray.filebroker.FileServer;
+import fi.csc.microarray.jobmanager.JobManager;
 import fi.csc.microarray.manager.Manager;
 import fi.csc.microarray.messaging.JMSMessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingEndpoint;
@@ -42,9 +43,10 @@ public class MicroarrayMain {
 			cmdParser.addParameter("client", false, false, null, "start client (default)");
 			cmdParser.addParameter("authenticator", false, false, null, "start authenticator");
 			cmdParser.addParameter("fileserver", false, false, null, "start fileserver");
-			cmdParser.addParameter("analyser", false, false, null, "start analyser");
+			cmdParser.addParameter("comp", false, false, null, "start comp");
 			cmdParser.addParameter("webstart", false, false, null, "start webstart service");
 			cmdParser.addParameter("manager", false, false, null, "start manager service");
+			cmdParser.addParameter("jobmanager", false, false, null, "start jobmanager service");
 			cmdParser.addParameter("ping", false, false, null, "query and print system status");
 			cmdParser.addParameter("ping-nagios", false, false, null, "query and print system status in nagios compatible format");			
 			cmdParser.addParameter("rcheck", false, true, null, "check R script syntax");
@@ -70,8 +72,8 @@ public class MicroarrayMain {
 			if (cmdParser.hasValue("authenticator")) {
 				new Authenticator(configURL);
 				
-			} else if (cmdParser.hasValue("analyser")) {
-				new AnalyserServer(configURL);
+			} else if (cmdParser.hasValue("comp")) {
+				new CompServer(configURL);
 
 			} else if (cmdParser.hasValue("fileserver")) {
 				new FileServer(configURL, null);
@@ -81,6 +83,9 @@ public class MicroarrayMain {
 			
 			} else if (cmdParser.hasValue("manager")) {
 				new Manager(configURL);
+
+			} else if (cmdParser.hasValue("jobmanager")) {
+				new JobManager(configURL);
 
 			} else if (cmdParser.hasValue("ping") || cmdParser.hasValue("ping-nagios")) {
 				

@@ -74,7 +74,6 @@ public class SessionSaver {
 	private String sessionId;
 	private HashMap<DataBean, URL> newURLs = new HashMap<DataBean, URL>();
 
-	private int entryCounter = 0;
 	private int sourceCodeEntryCounter = 0;
 	
 	private int itemIdCounter = 0;
@@ -361,10 +360,13 @@ public class SessionSaver {
 	 * After the session file has been saved, update the urls and handlers in the client
 	 * to point to the data inside the session file.
 	 * @throws ContentLengthException when content length information conflicts
+	 * @throws IOException 
 	 *
 	 */
-	private void updateDataBeanURLsAndHandlers() throws ContentLengthException {
+	private void updateDataBeanURLsAndHandlers() throws ContentLengthException, IOException {
 		for (DataBean bean: newURLs.keySet()) {
+			// remove old content locations pointing to the old zip file, which is already removed 
+			dataManager.removeContentLocationsFromDataBean(bean, StorageMethod.LOCAL_SESSION_ZIP);
 			// set new url and handler and type
 			dataManager.addContentLocationForDataBean(bean, StorageMethod.LOCAL_SESSION_ZIP, newURLs.get(bean));
 		}
@@ -420,7 +422,10 @@ public class SessionSaver {
 				DataBean bean = (DataBean)data;
 
 				// create the new URL
-				String entryName = getNewZipEntryName();
+				String entryName = bean.getId();
+				if (entryName == null) {
+					throw new IOException("unable to save session, databean's " + bean.getName() + " id is null");
+				}
 				URL zipEntryUrl = null;
 				
 				if (saveData) {
@@ -648,11 +653,6 @@ public class SessionSaver {
 		operationRecordTypeMap.put(operationId, operationType);
 	}	
 
-
-	private String getNewZipEntryName() {
-		return "file-" + entryCounter++;
-	}
-
 	private String getNewSourceCodeEntryName(String prefix) {
 		return "source-code-" + sourceCodeEntryCounter++ + "-" + prefix + ".txt";
 	}
@@ -668,14 +668,13 @@ public class SessionSaver {
 			String streamChecksum = null;
 
 			// write bean contents to zip
-			try {
-				ChecksumInputStream in = Session.getSession().getDataManager().getContentStream(entry.getKey(), DataNotAvailableHandling.EXCEPTION_ON_NA);
+			try (ChecksumInputStream in = Session.getSession().getDataManager().getContentStream(entry.getKey(), DataNotAvailableHandling.EXCEPTION_ON_NA)) {
 				writeFile(zipOutputStream, entryName, in);
 				streamLength = in.getContentLength();
 				streamChecksum = in.getChecksum();
 				in.verifyContentLength(bean.getSize());
 				dataManager.setOrVerifyChecksum(bean, streamChecksum);
-				
+
 			} catch (IllegalStateException e) {
 				throw new IllegalStateException("could not access dataset for saving: " + entryName); // in future we should skip these and just warn
 				

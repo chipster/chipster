@@ -50,7 +50,8 @@ public class ConfigTool {
 			"auth",
 			"fileserver",
 			"manager",
-			"webstart"
+			"webstart",
+			"jobmanager"
 	};
 
 	private String[][] configs = new String[][] {
@@ -84,7 +85,8 @@ public class ConfigTool {
 			{"comp", ""},
 			{"auth", ""},
 			{"filebroker", ""},
-			{"manager", ""}
+			{"manager", ""},
+			{"jobmanager", ""}
 	};
 	
 	private HashMap<String, Document> documentsToWrite = new HashMap<>();
@@ -528,9 +530,9 @@ public class ConfigTool {
 			updateConfigEntryValue(filebrokerModule, "url", createFilebrokerUrl());
 		}
 
-		Element analyserModule = XmlUtil.getChildWithAttributeValue(doc.getDocumentElement(), "moduleId", "comp");
-		if (analyserModule != null) {
-			updateConfigEntryValue(analyserModule, "max-jobs", configs[MAX_JOBS_INDEX][VAL_INDEX]);
+		Element compModule = XmlUtil.getChildWithAttributeValue(doc.getDocumentElement(), "moduleId", "comp");
+		if (compModule != null) {
+			updateConfigEntryValue(compModule, "max-jobs", configs[MAX_JOBS_INDEX][VAL_INDEX]);
 		}
 		
 		Element webstartModule = XmlUtil.getChildWithAttributeValue(doc.getDocumentElement(), "moduleId", "webstart");

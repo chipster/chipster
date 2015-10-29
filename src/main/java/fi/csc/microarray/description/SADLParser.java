@@ -13,7 +13,6 @@ import fi.csc.microarray.description.SADLDescription.Parameter;
 import fi.csc.microarray.description.SADLSyntax.InputType;
 import fi.csc.microarray.description.SADLSyntax.ParameterType;
 import fi.csc.microarray.description.SADLTokeniser.TokenType;
-import fi.csc.microarray.description.vvsadl.CompatibilityVVSADLParser;
 import fi.csc.microarray.exception.MicroarrayException;
 
 
@@ -66,35 +65,12 @@ public class SADLParser {
 	}
 
 	public SADLDescription parse(String sadlString) throws ParseException {
-		
-		// check for VVSADL compatibility mode
-		if (sadlString.trim().startsWith("ANALYSIS")) {
-			return new CompatibilityVVSADLParser().parse(sadlString);
-		}
-		
+
 		SADLTokeniser tokens = new SADLTokeniser(sadlString, unitName);
 		return parseTool(tokens);
 	}
 	
-    public SADLDescription parse(String sadlString, String id) throws ParseException {
-        
-        // check for VVSADL compatibility mode
-        if (sadlString.trim().startsWith("ANALYSIS")) {
-            SADLDescription sadl = new CompatibilityVVSADLParser().parse(sadlString);
-            sadl.setID(id);
-            return sadl;
-        }
-        
-        SADLTokeniser tokens = new SADLTokeniser(sadlString, unitName);
-        return parseTool(tokens);
-    }
-	
 	public List<SADLDescription> parseMultiple(String sadlString) throws ParseException {
-		
-		// check for VVSADL compatibility mode
-		if (sadlString.trim().startsWith("ANALYSIS")) {
-			return new CompatibilityVVSADLParser().parseMultiple(sadlString);			
-		}
 		
 		LinkedList<SADLDescription> descriptions = new LinkedList<SADLDescription>();
 		SADLTokeniser tokens = new SADLTokeniser(sadlString, unitName);

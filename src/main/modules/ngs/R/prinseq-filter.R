@@ -35,7 +35,7 @@
 # PARAMETER OPTIONAL lc.entropy: "ENTROPY low complexity threshold" TYPE INTEGER (Use ENTROPY method with the given minimum entropy value, between 0 and 100.)
 # PARAMETER OPTIONAL log.file: "Write a log file" TYPE [ n: "no", y: "yes"] DEFAULT y (Write a log file)
 # PARAMETER OPTIONAL output.mode: "Results to write out" TYPE [ filt: "accepted sequences only", both: "accepted and rejected sequences into separate files"] DEFAULT filt (With this section you can define if the sequences that get filtered out are collected to a separate file) 
-
+# PARAMETER OPTIONAL singletons: "Write singletons for paired end reads" TYPE [yes, no] DEFAULT no (Write singletons in separate files for paired end reads.)
 
 # Filter fastq and fasta files based on a number of criteria
 # KM, EK, 16-04-2012
@@ -181,6 +181,52 @@ if (log.file == "y") {
 
 system(filter.command)
 
+# There is no option in PRINSEQ to not write the singletons files, so if they are not required, we delete them.
+if (singletons == "no"){
+	system("rm -f *_singletons.*")
+}
+
+# Comprees output files
 system("gzip *.fastq")
 system("gzip *.fasta")
 
+
+# Handle output names
+source(file.path(chipster.common.path, "tool-utils.R"))
+
+# read input names
+inputnames <- read_input_definitions()
+
+# Make a matrix of output names
+outputnames <- matrix(NA, nrow=16, ncol=2)
+
+base1 <- strip_name(inputnames$fastqfile)
+if (is_paired_end) {
+	base2 <- strip_name(inputnames$matepair_fastqfile)
+}else{
+	base2 <- ""
+}
+
+# SE fastq	
+outputnames[1,] <- c("accepted.fastq.gz", paste(base1, ".fastq.gz", sep =""))
+outputnames[2,] <- c("rejected.fastq.gz", paste(base1, "_rejected.fastq.gz", sep =""))
+# SE fasta
+outputnames[3,] <- c("accepted.fasta.gz", paste(base1, ".fasta.gz", sep =""))
+outputnames[4,] <- c("rejected.fasta.gz", paste(base1, "_rejected.fasta.gz", sep =""))
+# PE fastq
+outputnames[5,] <- c("accepted_1.fastq.gz", paste(base1, ".fastq.gz", sep =""))
+outputnames[6,] <- c("accepted_1_singletons.fastq.gz", paste(base1, "_singletons.fastq.gz", sep =""))
+outputnames[7,] <- c("accepted_2.fastq.gz", paste(base2, ".fastq.gz", sep =""))
+outputnames[8,] <- c("accepted_2_singletons.fastq.gz", paste(base2, "_singletons.fastq.gz", sep =""))
+outputnames[9,] <- c("rejected_1.fastq.gz", paste(base1, "_rejected.fastq.gz", sep =""))
+outputnames[10,] <- c("rejected_2.fastq.gz", paste(base2, "_rejected.fastq.gz", sep =""))
+# PE FASTA
+outputnames[11,] <- c("accepted_1.fasta.gz", paste(base1, ".fasta.gz", sep =""))
+outputnames[12,] <- c("accepted_1_singletons.fasta.gz", paste(base1, "_singletons.fasta.gz", sep =""))
+outputnames[13,] <- c("accepted_2.fasta.gz", paste(base2, ".fasta.gz", sep =""))
+outputnames[14,] <- c("accepted_2_singletons.fasta.gz", paste(base2, "_singletons.fasta.gz", sep =""))
+outputnames[15,] <- c("rejected_1.fasta.gz", paste(base1, "_rejected.fasta.gz", sep =""))
+outputnames[16,] <- c("rejected_2.fasta.gz", paste(base2, "_rejected.fasta.gz", sep =""))
+
+# Write output definitions file
+write_output_definitions(outputnames)

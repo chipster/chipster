@@ -344,7 +344,7 @@ public class SwingClientApplication extends ClientApplication {
 			throw new RuntimeException(e);
 		}
 		if (toolModules == null) {
-			throw new MicroarrayException("metadata was not received (analyser not functional?)");
+			throw new MicroarrayException("getting tool descriptions failed");
 		}
 		
 

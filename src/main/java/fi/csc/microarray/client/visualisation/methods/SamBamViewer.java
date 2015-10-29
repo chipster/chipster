@@ -24,12 +24,13 @@ public class SamBamViewer extends Visualisation {
 
 	@Override
 	public JComponent getVisualisation(DataBean data) throws Exception {
-		InputStream in = Session.getSession().getDataManager().getContentStream(data, DataNotAvailableHandling.NULL_ON_NA);
 		String txt;
-		if (in != null) {
-			txt = new SamBamUtils().printSamBam(in, MAX_RECORD_LIMIT);
-		} else {
-			txt = new String(Session.getSession().getDataManager().getContentBytes(data, DataNotAvailableHandling.INFOTEXT_ON_NA));
+		try (InputStream in = Session.getSession().getDataManager().getContentStream(data, DataNotAvailableHandling.NULL_ON_NA)) {
+			if (in != null) {
+				txt = new SamBamUtils().printSamBam(in, MAX_RECORD_LIMIT);
+			} else {
+				txt = new String(Session.getSession().getDataManager().getContentBytes(data, DataNotAvailableHandling.INFOTEXT_ON_NA));
+			}
 		}
 		JTextPane txtPane = TextViewer.makeTxtPane(txt);
 		return new JScrollPane(txtPane);

@@ -15,3 +15,15 @@ single.end <- ifelse(end.type == "paired", "", "-s")
 # command
 system(paste(samtools.binary, "rmdup", single.end, "alignment.bam duplicates-removed.bam"))
 
+# Handle output names
+source(file.path(chipster.common.path, "tool-utils.R"))
+
+# read input names
+inputnames <- read_input_definitions()
+
+# Make a matrix of output names
+outputnames <- matrix(NA, nrow=1, ncol=2)
+outputnames[1,] <- c("duplicates-removed.bam", paste(inputnames$alignment.bam))
+
+# Write output definitions file
+write_output_definitions(outputnames)

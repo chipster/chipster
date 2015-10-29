@@ -1,8 +1,0 @@
-TOOL hmmbuild.sadl: hmmbuild (Profile HMM construction from multiple sequence alignments.)
-INPUT alignment.txt: "Sequence alignment" TYPE GENERIC
-OUTPUT hmm-model.txt
-OUTPUT hmmbuild-summary.txt
-PARAMETER OPTIONAL n: "HMM name" TYPE STRING DEFAULT my_hmm (Name of the HMM to be created)
-PARAMETER OPTIONAL output-file-value-only: "output file" TYPE [hmm-model.txt] DEFAULT hmm-model.txt (Output file name)
-
-

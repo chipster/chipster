@@ -29,8 +29,7 @@ columns<-list(R="sample", Rb="samplebg", G="control", Gb="controlbg")
 annotation<-c("annotation", "identifier")
 columns.other<-c("flag")
 
-files<-dir()
-files<-files[files!="phenodata.tsv"]
+files<-dir(pattern = "microarray")
 dat<-read.maimages(files=files, columns=columns, annotation=annotation, other.columns=columns.other) 
 
 # Normalization within arrays

@@ -1,9 +1,8 @@
-# TOOL qc-affy.R: "Affymetrix basic" (Affymetrix quality control for RNA degradation and general quality parameters, such as scaling factor. This tool should be run on RAW data, i.e., CEL-files. Can only be used for Affymetrix chips with PM and MM probes)
+# TOOL qc-affy.R: "Affymetrix basic" (Affymetrix quality control for RNA degradation and general quality parameters, such as scaling factor. This tool should be run on CEL files. Can only be used for Affymetrix chips with PM and MM probes)
 # INPUT microarray{...}.cel: microarray{...}.cel TYPE AFFY 
 # OUTPUT RNA-degradation-plot.pdf: RNA-degradation-plot.pdf 
 # OUTPUT simpleaffy-plot.pdf: simpleaffy-plot.pdf 
 # OUTPUT spike-in-plot.pdf: spike-in-plot.pdf 
-# PARAMETER custom.chiptype: "Custom chiptype" TYPE [empty: empty, hgu133ahsentrezg(hgu133a): hgu133ahsentrezg(hgu133a), hgu133a2hsentrezg(hgu133av2): hgu133a2hsentrezg(hgu133av2), hgu133phsentrezg(hgu133plus): hgu133phsentrezg(hgu133plus), hgu133plus2hsentrezg(hgu133plus2): hgu133plus2hsentrezg(hgu133plus2), hgu133bhsentrezg(hgu133b): hgu133bhsentrezg(hgu133b), hgu95av2hsentrezg(hgu95av2): hgu95av2hsentrezg(hgu95av2), moe430ammentrezg(moe430a): moe430ammentrezg(moe430a), moe430bmmentrezg(moe430b): moe430bmmentrezg(moe430b), mouse430a2mmentrezg(mouse430a2): mouse430a2mmentrezg(mouse430a2), mouse4302mmentrezg(mouse4302): mouse4302mmentrezg(mouse4302), mm74av1mmentrezg(mgu74a): mm74av1mmentrezg(mgu74a), mgu74av2mmentrezg(mgu74av2): mgu74av2mmentrezg(mgu74av2), mgu74bv2mmentrezg(mgu74bv2): mgu74bv2mmentrezg(mgu74bv2), mgu74cv2mmentrezg(mgu74cv2): mgu74cv2mmentrezg(mgu74cv2), rae230arnentrezg(rae230a): rae230arnentrezg(rae230a), rae230brnentrezg(rae230b): rae230brnentrezg(rae230b), rat2302rnentrezg(rat2302): rat2302rnentrezg(rat2302), rgu34arnentrezg(rgu34a): rgu34arnentrezg(rgu34a), rgu34brnentrezg(rgu34b): rgu34brnentrezg(rgu34b), rgu34crnentrezg(rgu34c): rgu34crnentrezg(rgu34c)] DEFAULT empty (Custom chiptype. If not given, inferred from the chips themselves)
 # PARAMETER image.width: "Image width" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height: "Image height" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
@@ -12,9 +11,7 @@
 # MG: 31.12.2009
 # MK: 20.05.2013
 # MK: 12.06.2013 added possibility to analyse custom chips
-
-#image.width<-600
-#image.height<-600
+# ML: 19.05.2015 removed the inoperative customs chips -option 
 
 # Loading the libraries
 library(affy)
@@ -26,14 +23,6 @@ h<-image.height
 
 # Reading in data
 dat<-ReadAffy()
-
-# Use custom annotations
-if(custom.chiptype!="empty") {
-	chiptype <- custom.chiptype
-	chiptype <- gsub("\\(.*?\\)", "", chiptype) 
-	dat@annotation<-chiptype
-	dat@cdfName<-chiptype
-}
 
 # Setting up coloring and line types for plotting
 library (RColorBrewer)	
@@ -66,9 +55,6 @@ aqc<-try(qc(dat))
 if(class(aqc)=="try-error") {
 	stop("CHIPSTER-NOTE: Your array type is not supported by the simpleaffy quality analysis tool. Please use another quality assessment method");
 }
-	
-# Calculating quality control values
-#aqc<-qc(dat)
 
 # Plotting the QC-values
 pdf(file="simpleaffy-plot.pdf", width=w/72, height=h/72)

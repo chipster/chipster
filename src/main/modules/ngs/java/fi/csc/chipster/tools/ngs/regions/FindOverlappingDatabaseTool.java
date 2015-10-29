@@ -10,11 +10,11 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import fi.csc.microarray.analyser.ToolDescription;
-import fi.csc.microarray.analyser.java.JavaAnalysisHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.RegionOperations;
+import fi.csc.microarray.comp.ToolDescription;
+import fi.csc.microarray.comp.java.JavaJobFactory;
 import fi.csc.microarray.description.SADLDescription;
 import fi.csc.microarray.util.IOUtils;
 
@@ -34,7 +34,7 @@ public class FindOverlappingDatabaseTool extends RegionTool {
 	protected LinkedList<Feature> operate(LinkedList<List<Feature>> inputs, List<String> parameters) throws FileNotFoundException, IOException, URISyntaxException, GBrowserException {
 
 		// Add DB regions to inputs
-		File dbDirectory = new File(((JavaAnalysisHandler)this.analysis.getHandler()).getParameters().get("externalToolPath"), "genomic_regions");
+		File dbDirectory = new File(((JavaJobFactory)this.toolDescription.getHandler()).getParameters().get("externalToolPath"), "genomic_regions");
 		List<Feature> dbRegions = new RegionOperations().loadFile(new File(dbDirectory, "miRBase16.bed"));
 		inputs.add(dbRegions);
 		
@@ -48,7 +48,7 @@ public class FindOverlappingDatabaseTool extends RegionTool {
 		FileOutputStream outputStream = null;
 		try {
 			RegionOperations tool = new RegionOperations();
-			outputStream = new FileOutputStream(new File(jobWorkDir, analysis.getOutputFiles().get(1).getFileName().getID())); // overlapping.tsv 
+			outputStream = new FileOutputStream(new File(jobWorkDir, toolDescription.getOutputFiles().get(1).getFileName().getID())); // overlapping.tsv 
 			tool.printTSV(overlappingRegions, outputStream);
 
 		} finally {
@@ -65,9 +65,9 @@ public class FindOverlappingDatabaseTool extends RegionTool {
 		FindOverlappingDatabaseTool tool = new FindOverlappingDatabaseTool();
 		HashMap<String, String> p = new LinkedHashMap<String, String>();
 		p.put("externalToolPath", testPath);
-		tool.analysis = new ToolDescription(new JavaAnalysisHandler(p));
-		tool.analysis.addOutputFile(SADLDescription.Name.createName(testPath + File.separator + "overlapping.bed"), false);
-		tool.analysis.addOutputFile(SADLDescription.Name.createName(testPath + File.separator + "overlapping.tsv"), false);
+		tool.toolDescription = new ToolDescription(new JavaJobFactory(p));
+		tool.toolDescription.addOutputFile(SADLDescription.Name.createName(testPath + File.separator + "overlapping.bed"), false);
+		tool.toolDescription.addOutputFile(SADLDescription.Name.createName(testPath + File.separator + "overlapping.tsv"), false);
 		List<Feature> file1 = new RegionOperations().loadFile(new File(testPath, "miRNAseq.bed"));
 		LinkedList<List<Feature>> list = new LinkedList<List<Feature>>();
 		list.add(file1);

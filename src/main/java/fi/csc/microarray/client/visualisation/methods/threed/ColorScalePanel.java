@@ -2,12 +2,11 @@ package fi.csc.microarray.client.visualisation.methods.threed;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Image;
 import java.awt.RenderingHints;
-import java.awt.image.BufferedImage;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -19,6 +18,33 @@ import javax.swing.SwingConstants;
  * @author Petri Klemelä
  */
 public class ColorScalePanel extends JPanel{
+	
+	public static class BallIcon extends ImageIcon {
+
+		private Color color;
+
+		public BallIcon(Color color) {
+			this.color = color;
+		}
+		
+		@Override
+		public void paintIcon(Component component, Graphics g, int x, int y) {
+			super.paintIcon(component, g, x, y);
+			Graphics2D g2 = (Graphics2D)g;
+			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+					RenderingHints.VALUE_ANTIALIAS_ON);
+
+			DataPoint.paintBall(2, 2, 18, 18, color, g2);
+		}
+		
+	    public int getIconWidth() {
+	        return 24;
+	    }
+	    
+	    public int getIconHeight() {
+	        return 24;
+	    }
+	}
 
 	DataModel dataModel;
 	List<Float> colorGroupValues;
@@ -35,19 +61,9 @@ public class ColorScalePanel extends JPanel{
 		c.weightx = 1.0;
 
 		for(String groupStr : colorGroupNames){
-			Image image = new BufferedImage(24, 24, BufferedImage.TYPE_INT_ARGB);
-
-			Graphics2D g = (Graphics2D)image.getGraphics();
-
 			Color color = dataModel.getColorFor(colorGroupValues.get(colorGroupNames.indexOf(groupStr)));
 
-			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-					RenderingHints.VALUE_ANTIALIAS_ON);
-
-
-			DataPoint.paintBall(2, 2, 18, 18, color, g);
-
-			ImageIcon icon = new ImageIcon(image);			
+			BallIcon icon = new BallIcon(color);
 			JLabel label =  new JLabel(groupStr, icon, SwingConstants.LEFT );
 			label.setOpaque(false);
 			label.setForeground(super.getForeground());		

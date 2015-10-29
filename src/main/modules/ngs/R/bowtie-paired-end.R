@@ -10,7 +10,7 @@
 # OUTPUT OPTIONAL unaligned_2.fq
 # OUTPUT OPTIONAL multireads_1.fq
 # OUTPUT OPTIONAL multireads_2.fq
-# PARAMETER organism: "Genome or transcriptome" TYPE [Arabidopsis_thaliana.TAIR10.26, Bos_taurus.UMD3.1, Canis_familiaris.CanFam3.1, Drosophila_melanogaster.BDGP6, Felis_catus.Felis_catus_6.2, Gallus_gallus.Galgal4, Gasterosteus_aculeatus.BROADS1, Halorubrum_lacusprofundi_atcc_49239.GCA_000022205.1.26, Homo_sapiens.GRCh37.75, Homo_sapiens.GRCh38, Homo_sapiens_mirna, Medicago_truncatula.GCA_000219495.2.26, Mus_musculus.GRCm38, Mus_musculus_mirna, Ovis_aries.Oar_v3.1, Populus_trichocarpa.JGI2.0.26, Rattus_norvegicus_mirna, Rattus_norvegicus.Rnor_5.0, Schizosaccharomyces_pombe.ASM294v2.26, Sus_scrofa.Sscrofa10.2, Vitis_vinifera.IGGP_12x.26, Yersinia_enterocolitica_subsp_palearctica_y11.GCA_000253175.1.25] DEFAULT Homo_sapiens.GRCh38 (Genome or transcriptome that you would like to align your reads against.)
+# PARAMETER organism: "Genome or transcriptome" TYPE [Arabidopsis_thaliana.TAIR10.28, Bos_taurus.UMD3.1, Canis_familiaris.CanFam3.1, Drosophila_melanogaster.BDGP6, Felis_catus.Felis_catus_6.2, Gallus_gallus.Galgal4, Gasterosteus_aculeatus.BROADS1, Halorubrum_lacusprofundi_atcc_49239.GCA_000022205.1.28, Homo_sapiens.GRCh37.75, Homo_sapiens.GRCh38, Homo_sapiens_mirna, Medicago_truncatula.GCA_000219495.2.28, Mus_musculus.GRCm38, Mus_musculus_mirna, Ovis_aries.Oar_v3.1, Populus_trichocarpa.JGI2.0.28, Rattus_norvegicus_mirna, Rattus_norvegicus.Rnor_5.0, Rattus_norvegicus.Rnor_6.0, Schizosaccharomyces_pombe.ASM294v2.28, Solanum_tuberosum.3.0.28, Sus_scrofa.Sscrofa10.2, Vitis_vinifera.IGGP_12x.28, Yersinia_enterocolitica_subsp_palearctica_y11.GCA_000253175.1.28, Yersinia_pseudotuberculosis_ip_32953_gca_000047365_1.GCA_000047365.1.28] DEFAULT Homo_sapiens.GRCh38 (Genome or transcriptome that you would like to align your reads against.)
 # PARAMETER max.mismatches: "Number of mismatches allowed" TYPE [0, 1, 2, 3] DEFAULT 2 (How many mismatches are the alignments allowed to have?)
 # PARAMETER limit.to.seed: "Consider mismatches only in the seed region" TYPE [yes, no] DEFAULT no (Should the mismatch limit be applied only to the left, good quality part of the read? You can define the length of this seed region with the next parameter.)
 # PARAMETER seed: "Length of the seed region" TYPE INTEGER FROM 5 TO 50 DEFAULT 28 (If you have chosen to apply the mismatch limit only to the left, good quality part of the read, how many bases should be considered? The minimum length of seed region is 5.)
@@ -80,3 +80,28 @@ system(paste(samtools.binary, "index alignment.sorted.bam"))
 # rename result files
 system("mv alignment.sorted.bam bowtie.bam")
 system("mv alignment.sorted.bam.bai bowtie.bam.bai")
+
+# Handle output names
+#
+source(file.path(chipster.common.path, "tool-utils.R"))
+
+# read input names
+inputnames <- read_input_definitions()
+
+# Determine base name
+base1 <- strip_name(inputnames$reads1.fq)
+base2 <- strip_name(inputnames$reads2.fq)
+basename <- paired_name(base1, base2)
+
+# Make a matrix of output names
+outputnames <- matrix(NA, nrow=6, ncol=2)
+outputnames[1,] <- c("bowtie.bam", paste(basename, ".bam", sep =""))
+outputnames[2,] <- c("bowtie.bam.bai", paste(basename, ".bam.bai", sep =""))
+outputnames[3,] <- c("unaligned_1.fq", paste(base1, "_unaligned.fq", sep=""))
+outputnames[4,] <- c("unaligned_2.fq", paste(base2, "_unaligned.fq", sep=""))
+outputnames[5,] <- c("multireads_1.fq", paste(base1, "_multireads.fq", sep=""))
+outputnames[6,] <- c("multireads_2.fq", paste(base2, "_multireads.fq", sep=""))
+
+# Write output definitions file
+write_output_definitions(outputnames)
+

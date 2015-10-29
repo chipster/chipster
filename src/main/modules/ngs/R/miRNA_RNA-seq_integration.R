@@ -1,8 +1,8 @@
 # TOOL miRNA_RNA-seq_integration.R: "Correlate miRNA-seq and RNA-seq data" (Detects miRNA target genes whose expression correlates with miRNA expression, either negatively or positively. Note that you need miRNA-seq and RNA-seq data from the same samples. The matching pairs need to be indicated with numbers in phenodata. This tool works only for human data currently.)
 # INPUT mirna.tsv: "miRNA expression table" TYPE GENE_EXPRS 
 # INPUT gene.tsv: "RNA expression table" TYPE GENE_EXPRS 
-# INPUT phenodata_mirna.tsv: "Phenodata for miRNA" TYPE GENERIC 
-# INPUT phenodata_gene.tsv: "Phenodata for RNA" TYPE GENERIC 
+# INPUT META phenodata_mirna.tsv: "Phenodata for miRNA" TYPE GENERIC 
+# INPUT META phenodata_gene.tsv: "Phenodata for RNA" TYPE GENERIC 
 # OUTPUT OPTIONAL full_correlation_matrix.tsv: full_correlation_matrix.tsv
 # OUTPUT OPTIONAL correlation_annotated_and_expressed_miRNAs.tsv: correlation_annotated_and_expressed_miRNAs.tsv
 # OUTPUT OPTIONAL correlation_known_interactions_only.tsv: correlation_known_interactions_only.tsv

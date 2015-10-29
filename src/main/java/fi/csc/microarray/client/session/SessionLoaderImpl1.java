@@ -158,7 +158,7 @@ public class SessionLoaderImpl1 {
 				} catch (MicroarrayException e1) {
 					logger.warn("could not create data bean: " + name);
 					continue;
-				} catch (MalformedURLException e) {
+				} catch (IOException e) {
 					logger.warn("could not create data bean: " + name);
 					continue;
 				} catch (ContentLengthException e) {
@@ -188,7 +188,7 @@ public class SessionLoaderImpl1 {
 						throw new IllegalArgumentException("unsupported storage method: " + storageMethodString);
 					}
 					
-				} catch (MicroarrayException e) {
+				} catch (MicroarrayException|IOException e) {
 					logger.warn("could not create data bean: " + name);
 					continue;
 				} catch (ContentLengthException e) {

@@ -3,6 +3,8 @@
 
 <html>
 <head>
+<!-- disable some strange compatibility mode in IE it uses for intranet sites by default -->
+     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <title>Chipster</title>
 <link href="styles.css" rel="stylesheet" type="text/css" />
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-15" />
@@ -11,23 +13,13 @@
 <body>
 
 	<div id="container">
-		<div id="top">
-			
-			<h1 id="csc-link">
-				<a href="http://www.csc.fi"><span>CSC</span>
-				</a>
-			</h1>
-			<h1 id="chipster-title">
-				<span>Chipster</span>
-			</h1>
-			<h2 id="software">
-				<span>Software for life science data analysis</span>
-			</h2>
-		</div>
+		<div id="top"></div>
 		<div id="main-left">
 			<ul id="navigation-links">
 				<li><a href="http://chipster.csc.fi">Chipster main site</a></li>
-				<li><a href="http://chipster.sourceforge.net">Chipster open source site</a></li>
+		  		<li><a href="http://chipster.csc.fi/manual/">Manual</a></li>
+		  		<li><a href="https://www.youtube.com/channel/UCnL-Lx5gGlW01OkskZL7JEQ">Tutorial videos</a></li>
+				<li><a href="http://chipster.github.io/chipster/">Chipster open source site</a></li>
 				<li><a href="/tool-editor">Tool editor</a></li>
 			</ul>
 		</div>
@@ -36,7 +28,7 @@
 			<h3 id="getting-started">Welcome to Chipster</h3>
 
 			<p>Chipster is a user-friendly analysis software for
-				high-throughput data. It contains over 300 analysis tools for next
+				high-throughput data. It contains over 360 analysis tools for next
 				generation sequencing (NGS), microarray, proteomics and sequence data. Users
 				can save and share automatic analysis workflows, and visualize data interactively using a built-in genome browser 
 				and many other visualizations. Chipster's client software uses Java Web Start

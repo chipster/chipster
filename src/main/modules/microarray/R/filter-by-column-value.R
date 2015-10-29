@@ -1,4 +1,4 @@
-# TOOL filter-by-column-value.R: "Filter using a column value" (Allows the user to filter the genes on the basis of one numerical column.)
+# TOOL filter-by-column-value.R: "Filter using a column value" (Filters genes based on one numerical column.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENERIC 
 # OUTPUT column-value-filter.tsv: column-value-filter.tsv
 # PARAMETER column: "Column" TYPE COLUMN_SEL (Data column to filter by)

@@ -15,6 +15,8 @@ import java.beans.PropertyChangeListener;
 import java.util.LinkedList;
 import java.util.Random;
 
+import javax.swing.SwingUtilities;
+
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 
@@ -28,7 +30,6 @@ import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 public class AutomatedMovement extends Thread {
 
     private Projection projection;
-    private Worker worker;
     private LinkedList<Task> taskQueue;
     //private Object obj;
     
@@ -37,16 +38,17 @@ public class AutomatedMovement extends Thread {
     RotationTask rotationTask;
     Task task;
 	private boolean kill;
+	private CoordinateArea coordinateArea;
     
     /**
      * Creates a new instance of AutomatedMovement
      * @param projection 
-     * @param worker 
+     * @param coordinateArea 
      */
-    public AutomatedMovement(Projection projection, Worker worker) {    	    	
+    public AutomatedMovement(Projection projection, CoordinateArea coordinateArea) {    	    	
         this.projection = projection;
-        this.worker = worker;
         this.taskQueue = new LinkedList<Task>();
+        this.coordinateArea = coordinateArea;
         //this.obj = new Object();
         
         Session.getSession().getApplication().addClientEventListener(new PropertyChangeListener(){
@@ -189,7 +191,7 @@ public class AutomatedMovement extends Thread {
             
             for (int i=0; i < ticks; ++i) {
                 projection.setNewOrigin(placeIncrement);
-                worker.workRequest();
+                repaint();
                 try {
                     sleep((long)timeIncrement);
                 }
@@ -254,7 +256,7 @@ public class AutomatedMovement extends Thread {
                 projection.setXAxisRotation(projection.getXAxisRotation()+xAngleInc);
                 projection.setYAxisRotation(projection.getYAxisRotation()+yAngleInc);
                 projection.setZAxisRotation(projection.getZAxisRotation()+zAngleInc);
-                worker.workRequest();
+                repaint();
                 
                 this.xAngleInc *= retardation;
                 this.yAngleInc *= retardation;
@@ -294,13 +296,7 @@ public class AutomatedMovement extends Thread {
 				y += Math.sin(angle) * SPEED;
 				angle += (rand.nextDouble()-0.5)*0.1;
 
-
-				//	SwingUtilities.invokeLater(new Runnable(){
-				//	public void run(){
-				worker.workRequest();
-
-				//}
-				//});
+				repaint();
 
 				try {
 					Thread.sleep(50);
@@ -316,6 +312,14 @@ public class AutomatedMovement extends Thread {
 				this.autoRotationKill = true;
 			}	
 		}
+	}
+	
+	private void repaint() {
+		SwingUtilities.invokeLater(new Runnable(){
+			public void run(){
+				coordinateArea.repaint();
+			}
+		});
 	}
 
 	public void kill() {

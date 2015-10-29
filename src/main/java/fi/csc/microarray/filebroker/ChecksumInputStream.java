@@ -6,6 +6,8 @@ import java.net.URLConnection;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -55,14 +57,44 @@ public class ChecksumInputStream extends DigestInputStream {
 	private URLConnection connection;
 	private String checksum = null;
 	private long bytes = 0;
+
+	private boolean isClosed;
 	
-	public ChecksumInputStream(InputStream baseStream, boolean useChecksums, URLConnection connection) {
+	public ChecksumInputStream(InputStream baseStream, boolean useChecksums, final URLConnection connection) {
 		super(baseStream, getDigestWithRuntimeException());
 		
 		this.useChecksums = useChecksums;
 		super.on(useChecksums);
 		
-		this.connection = connection;		
+		this.connection = connection;
+		
+		/*
+		 * Debug unclosed streams
+		 * 
+		 * We often read only the beginning of the file, so it's important to
+		 * close the stream to avoid leaving threads waiting on the server.
+		 * checkClose() waits for 5 seconds and prints a stack trace if the
+		 * stream isn't closed. Obviously this will report false positives if
+		 * the files are big. More sophisticated check would track the stream
+		 * usage and issue a warning when the stream is left idle. This would
+		 * allow enabling this in production.
+		 */
+		//checkClose(Exceptions.getStackTrace(Thread.currentThread().getStackTrace()));
+	}
+
+	@SuppressWarnings("unused")
+	private void checkClose(final String stack) {
+		Timer timer = new Timer();
+		timer.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				if (!isClosed) {
+					System.out.println("Unclosed input stream found");
+					System.out.println(stack);
+					System.out.println();
+				}
+			}
+		}, 5_000);
 	}
 
 	/**
@@ -175,5 +207,11 @@ public class ChecksumInputStream extends DigestInputStream {
 	 */
 	public Long getContentLength() {
 		return bytes;
+	}
+	
+	@Override
+	public void close() throws IOException {
+		this.isClosed = true;
+		super.close();
 	}
 }

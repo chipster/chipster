@@ -7,20 +7,17 @@ import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.HashLoginService;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;
-import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.util.security.Password;
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
 
 public class StandaloneAdminWeb {
 	public static void main(String args[]) throws Exception {
 		org.eclipse.jetty.server.Server adminServer = new org.eclipse.jetty.server.Server();
-		adminServer.setThreadPool(new QueuedThreadPool());
-		Connector connector = new SelectChannelConnector();
-		connector.setServer(adminServer);
+		ServerConnector connector = new ServerConnector(adminServer);
 		connector.setPort(8083);
 		adminServer.setConnectors(new Connector[]{ connector });
 		

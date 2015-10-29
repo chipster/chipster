@@ -1,7 +1,7 @@
 # TOOL norm-agilent-miRNA.R: "Agilent miRNA" (Agilent miRNA one-dye chip data preprocessing. Automatically averages all the rows, i.e. miRNA:s that have the same name. To be able to remove the control probes, you have to mark the column labelled "ControlType" as "Annotation" when importing the raw data.)
 # INPUT microarray{...}.tsv: microarray{...}.tsv TYPE CDNA 
 # OUTPUT normalized.tsv: "Normalized data"
-# OUTPUT phenodata.tsv: "Experiment description"
+# OUTPUT META phenodata.tsv: "Experiment description"
 # PARAMETER background.treatment: "Background treatment" TYPE [none, subtract, edwards, normexp] DEFAULT normexp (Background treatment method)
 # PARAMETER background.offset: "Background offset" TYPE [0, 50] DEFAULT 50 (Background offset)
 # PARAMETER normalize.chips: "Normalize chips" TYPE [none, scale, scale-75, quantile, vsn] DEFAULT quantile (Between arrays normalization method)
@@ -24,8 +24,8 @@ columns<-list(R="sample", Rb="samplebg", G="sample", Gb="samplebg")
 annotation<-c("identifier")
 columns.other<-c("flag", "annotation")
 
-files<-dir()
-files<-files[files!="phenodata.tsv"]
+
+files<-dir(pattern = "microarray")
 dat<-read.maimages(files=files, columns=columns, annotation=annotation, other.columns=columns.other) 
 
 # Removes control probes

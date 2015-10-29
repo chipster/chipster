@@ -1,4 +1,4 @@
-# TOOL filter-by-column-term.R: "Filter using a column term" (Allows the user to filter the genes on the basis of one column with textual terms, such as gene symbol, gene description or GO term.)
+# TOOL filter-by-column-term.R: "Filter using a column term" (Filters genes based on one column with textual terms, such as gene symbol, gene description or GO term.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENERIC 
 # OUTPUT column-term-filter.tsv: column-term-filter.tsv 
 # PARAMETER column: "Column" TYPE COLUMN_SEL (Data column to filter by)

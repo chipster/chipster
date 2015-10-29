@@ -17,13 +17,19 @@ public class Exceptions {
 		}
 		trace += "\n";
 
-		for (StackTraceElement element : throwable.getStackTrace()) {
-			trace += (element.toString() + "\n"); 
-		}
+		trace += getStackTrace(throwable.getStackTrace());
 		
 		if (throwable.getCause() != null) {
 			trace += "Caused by: ";
 			trace += getStackTrace(throwable.getCause());
+		}
+		return trace;
+	}
+	
+	public static String getStackTrace(StackTraceElement[] stackTrace) {
+		String trace = "";
+		for (StackTraceElement element : stackTrace) {
+			trace += (element.toString() + "\n"); 
 		}
 		return trace;
 	}

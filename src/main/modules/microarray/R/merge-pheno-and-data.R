@@ -1,11 +1,12 @@
-# TOOL merge-pheno-and-data.R: "Merge expression and phenodata" (Merge phenodata and expression matrices into a single spreadsheet for easy data import.)
-# INPUT normalized.tsv TYPE GENE_EXPRS
+# TOOL merge-pheno-and-data.R: "Merge expression and phenodata" (Merge phenodata and expression matrices into a single spreadsheet for easy data exporting.)
+# INPUT normalized.tsv: "Expression data" TYPE GENE_EXPRS
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT merged.tsv
 # PARAMETER excel.file: "Produce Excel file" TYPE [yes, no] DEFAULT no (Fix column headers so that the file opens correctly in Excel)
 
 # MK 20.09.2013
 # EK 19.11.2013 Text changes.
+# ML 17.07.2015 Fixes to the parameter names and explanations
 
 # Sanity checks
 file<-c("phenodata.tsv")

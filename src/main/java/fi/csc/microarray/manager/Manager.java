@@ -21,12 +21,11 @@ import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.HashLoginService;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;
-import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.util.security.Password;
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.h2.tools.Server;
 import org.joda.time.DateTime;
@@ -284,9 +283,7 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 	private void startAdmin(Configuration configuration) throws IOException,
 			Exception {
 		org.eclipse.jetty.server.Server adminServer = new org.eclipse.jetty.server.Server();
-		adminServer.setThreadPool(new QueuedThreadPool());
-		Connector connector = new SelectChannelConnector();
-		connector.setServer(adminServer);
+		ServerConnector connector = new ServerConnector(adminServer);
 		connector.setPort(configuration.getInt("manager", "admin-port"));
 		adminServer.setConnectors(new Connector[]{ connector });
 		

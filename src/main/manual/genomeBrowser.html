@@ -79,7 +79,10 @@ Using the <b>Options</b> in the side panel allows you to
 </p>
 <ul>
 <li>turn the reads off.</li>
-<li>set the scale and type of coverage.</li>
+<li>set the scale for viewing the automatically calculated coverage. </li>
+<li>set the type of the coverage to be calculated and displayed. <b>Strand-specific</b> calculates reads that match forward strand and reverse strand separately. 
+<b>Strand-specific for RNA-seq</b> calculates reads that match transcripts in forward strand and reverse strand separately, based on the XS tag in the BAM file. 
+This option requires that sequencing was performed with a strand-specific RNA-seq protocol and reads were mapped to the reference genome with the TopHat aligner.</li>
 <li>view coverage as a density graph instead of a profile. 
 This is a very compact way of viewing data and hence handy for a large number of samples.</li>
 <li>mark low complexity regions in the annotations track.</li>

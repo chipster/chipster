@@ -371,6 +371,10 @@ public class SessionLoaderImpl2 {
 
 	
 	private void linkDataItemChildren(DataFolder parent) {
+		
+		ArrayList<DataItem> children = new ArrayList<>();
+		ArrayList<DataFolder> folders = new ArrayList<>();
+		
 		for (String childId : folderTypes.get(parent).getChild()) {
 			
 			// check that the referenced data item exists
@@ -381,12 +385,19 @@ public class SessionLoaderImpl2 {
 			}
 
 			// add as a child
-			dataManager.connectChild(child, parent);
+			children.add(child);
 			
 			// recursively go inside folders
 			if (child instanceof DataFolder) {
-				linkDataItemChildren((DataFolder) child);
+				folders.add((DataFolder) child);
 			}
+		}
+		
+		// connect children in parallel
+		dataManager.connectChildren(children, parent);
+		
+		for (DataFolder folder : folders) {
+			linkDataItemChildren(folder);
 		}
 	}
 	
@@ -532,16 +543,6 @@ public class SessionLoaderImpl2 {
 		createOperations();
 		linkOperationsToOutputs();
 				
-		/*
-		 * Type tags are added anyway in linkDataItemChildren(), but it's much
-		 * faster to do it in parallel. This must be done before
-		 * linkDataItemChildren(), which will trigger the slow sequential
-		 * initialization of TypeTags. Moreover, this must be done after
-		 * createDataBeans(), createOperations() and linkOperationsToOutputs(),
-		 * because all this information is needed in type tagging.
-		 */
-		dataManager.addTypeTagsAndVerifyContentLength(dataBeans.values());
-
 		linkDataItemChildren(dataManager.getRootFolder());
 		linkDataBeans();
 		linkInputsToOperations();

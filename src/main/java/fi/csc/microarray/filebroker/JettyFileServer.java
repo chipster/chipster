@@ -2,12 +2,11 @@ package fi.csc.microarray.filebroker;
 
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.nio.SelectChannelConnector;
-import org.eclipse.jetty.server.ssl.SslSocketConnector;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.handler.AllowSymLinkAliasChecker;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
@@ -33,38 +32,41 @@ public class JettyFileServer {
 		}
 		
 		jettyInstance = new Server();
-		jettyInstance.setThreadPool(new QueuedThreadPool());
 		
-		Connector connector;
+		ServerConnector connector;
 		SslContextFactory contextFactory = null;
 		
 		switch (protocol) {
 		case "http":
-			connector= new SelectChannelConnector();
+
+			connector = new ServerConnector(jettyInstance);        
 			break;
-			
+
 		case "https":
 			Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
-			
+
 			String[] protocols = configuration.getString("filebroker", "ssl-protocol-version").split(",");
-			
+
 			contextFactory = KeyAndTrustManager.createSslContextFactory(
 					configuration.getString("security", "filebroker-keystore"),
 					configuration.getString("security", "storepass"),
 					protocols
-			);
-			connector = new SslSocketConnector(contextFactory);			
+					);
+
+			connector = new ServerConnector(jettyInstance, contextFactory);
+
 			break;
 			
 		default:
 			throw new IllegalArgumentException("unsupported protocol: " + protocol + " (supported are http and https)");
 		}
-		connector.setServer(jettyInstance);
+
 		connector.setPort(port);
 		jettyInstance.setConnectors(new Connector[]{ connector });
-
+		
 		ServletContextHandler root = new ServletContextHandler(jettyInstance, "/", false, false);
-		root.getInitParams().put("org.eclipse.jetty.servlet.Default.aliases", "true");
+		// file-root and some public files are symlinks
+		root.addAliasCheck(new AllowSymLinkAliasChecker());
 		root.setResourceBase(resourceBase);
 		root.addServlet(new ServletHolder(new RestServlet(urlRepository.getRootUrl(), urlRepository, metadataServer, cacheCleanUp)), "/*");
 		jettyInstance.start();

@@ -17,6 +17,7 @@ public interface Topics {
 		FILEBROKER_ADMIN_TOPIC("filebroker-admin-topic"),
 		COMP_ADMIN_TOPIC("comp-admin-topic"),
 		JOBMANAGER_ADMIN_TOPIC("jobmanager-admin-topic"),
+		JOBMANAGER_TOPIC("jobmanager-topic"),
 		ADMIN_TOPIC("admin-topic"),
 		JOB_LOG_TOPIC("job-log-topic"),
 		FEEDBACK_TOPIC("feedback-topic"),

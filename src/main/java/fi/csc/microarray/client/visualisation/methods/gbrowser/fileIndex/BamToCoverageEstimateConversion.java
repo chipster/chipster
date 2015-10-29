@@ -9,6 +9,7 @@ import net.sf.samtools.SAMRecord;
 import net.sf.samtools.util.CloseableIterator;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.ConcisedValueCache.Counts;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserSettings.CoverageType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
@@ -16,9 +17,11 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataStatu
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.CoverageEstimateTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
+import fi.csc.microarray.util.BamUtils;
 
 /**
  * This conversion class uses Picard to read Bam files and creates a coverage estimate by sampling.
@@ -34,11 +37,14 @@ public class BamToCoverageEstimateConversion extends DataThread {
 	
 	private ConcisedValueCache cache = new ConcisedValueCache();
 
-	public BamToCoverageEstimateConversion(BamDataSource file, final GBrowser browser) {
+	private CoverageType coverageType;
+
+	public BamToCoverageEstimateConversion(BamDataSource file, CoverageType coverageType, final GBrowser browser) {
 	    
 		super(browser, file);
 		
 		this.dataSource = file;
+		this.coverageType = coverageType;
 	}
 		
 	@Override
@@ -202,8 +208,8 @@ public class BamToCoverageEstimateConversion extends DataThread {
 			if (record.getAlignmentStart() >= start) { 
 				if (record.getAlignmentEnd() <= end) {
 
-
-					if (record.getReadNegativeStrandFlag()) {
+					Strand strand = BamUtils.getStrand(record, coverageType);
+					if (strand == Strand.REVERSE) {
 						countReverse += record.getReadLength();
 					} else {
 						countForward += record.getReadLength();

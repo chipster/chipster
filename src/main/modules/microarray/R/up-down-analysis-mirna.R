@@ -1,8 +1,8 @@
 # TOOL up-down-analysis-mirna.R: "Up-down analysis of miRNA targets" (Given miRNA expression data and gene expression data from a two-group comparison experiment, this tool identifies miRNA target genes whose expression is upregulated when the miRNA is down-regulated, and vice-versa. Please note that the tool itself does not perform any statistical test, so we recommend to use it on data sets which have been filtered for low quality and invariable expression. Note that the experimental group which has a higher number in the phenodata is used for choosing the treatment group.)
 # INPUT normalized_mirna.tsv: normalized_mirna.tsv TYPE GENE_EXPRS 
 # INPUT normalized_gene.tsv: normalized_gene.tsv TYPE GENE_EXPRS 
-# INPUT phenodata_mirna.tsv: phenodata_mirna.tsv TYPE GENERIC 
-# INPUT phenodata_gene.tsv: phenodata_gene.tsv TYPE GENERIC 
+# INPUT META phenodata_mirna.tsv: phenodata_mirna.tsv TYPE GENERIC 
+# INPUT META phenodata_gene.tsv: phenodata_gene.tsv TYPE GENERIC 
 # OUTPUT mirna-up-gene-down.tsv: mirna-up-gene-down.tsv 
 # OUTPUT mirna-down-gene-up.tsv: mirna-down-gene-up.tsv 
 # PARAMETER groups.column: "Phenodata column describing the experimental groups" TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the experiment groups of the samples in the both dataset.)

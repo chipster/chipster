@@ -1,4 +1,4 @@
-# TOOL reseqc.R: "RNA-seq quality metrics with RseQC" (Given an RNA-seq BAM file and gene and exon locations in a BED file, this tool reports several quality metrics such as coverage uniformity, gene and junction saturation, junction annotation and alignment statistics. This tool is based on the RSeQC package.)
+# TOOL rseqc.R: "RNA-seq quality metrics with RseQC" (Given an RNA-seq BAM file and gene and exon locations in a BED file, this tool reports several quality metrics such as coverage uniformity, gene and junction saturation, junction annotation and alignment statistics. This tool is based on the RSeQC package.)
 # INPUT alignment_file: "BAM file" TYPE GENERIC
 # INPUT reference_file: "BED file" TYPE GENERIC
 # OUTPUT OPTIONAL RSeQC.bamStat.txt
@@ -61,3 +61,19 @@ if (paired == "yes"){
 
 # Join the PDFs 
 system("gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=RSeQC_report.pdf *.pdf")
+
+# Handle output names
+source(file.path(chipster.common.path, "tool-utils.R"))
+
+# read input names
+inputnames <- read_input_definitions()
+
+base <- strip_name(inputnames$alignment_file)
+
+# Make a matrix of output names
+outputnames <- matrix(NA, nrow=2, ncol=2)
+outputnames[1,] <- c("RSeQC.bamStat.txt", paste(base, ".bamStat.txt", sep=""))
+outputnames[2,] <- c("RSeQC_report.pdf", paste(base, ".pdf", sep=""))
+
+# Write output definitions file
+write_output_definitions(outputnames)

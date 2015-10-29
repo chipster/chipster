@@ -6,14 +6,14 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.List;
 
-import fi.csc.microarray.analyser.java.JavaAnalysisJobBase;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.TsvLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.TsvSorter;
+import fi.csc.microarray.comp.java.JavaCompJobBase;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.util.Exceptions;
 
-public class SortTsv extends JavaAnalysisJobBase {
+public class SortTsv extends JavaCompJobBase {
 
 	public static final String COLUMN_ID = "column";
 	public static final String FIRST_ID = "first";
@@ -24,7 +24,7 @@ public class SortTsv extends JavaAnalysisJobBase {
 		return 	"TOOL SortTsv.java: \"Sort TSV\" (Sort a TSV file by chromosome and start position.)" + "\n" +
 				"INPUT input.tsv: \"TSV file\" TYPE GENERIC" + "\n" +
 				"OUTPUT sorted.tsv: \"Sorted TSV file\"" + "\n" + 
-				"PARAMETER " + COLUMN_ID + ": \"Chromosome column\" TYPE [" + FIRST_ID + ": First, " + SECOND_ID + ": Second] DEFAULT First (Select the column that contains chromosome information.)" + "\n"; 
+				"PARAMETER " + COLUMN_ID + ": \"Chromosome column\" TYPE [" + FIRST_ID + ": First, " + SECOND_ID + ": Second] DEFAULT " + FIRST_ID + " (Select the column that contains chromosome information.)" + "\n"; 
 	}
 	
 	
@@ -34,10 +34,10 @@ public class SortTsv extends JavaAnalysisJobBase {
 
 		try {
 			// files
-			File inputFile = new File(jobWorkDir, analysis.getInputFiles().get(0).getFileName()); 
-			File outputFile = new File(jobWorkDir, analysis.getOutputFiles().get(0).getFileName().getID());
+			File inputFile = new File(jobWorkDir, toolDescription.getInputFiles().get(0).getFileName()); 
+			File outputFile = new File(jobWorkDir, toolDescription.getOutputFiles().get(0).getFileName().getID());
 			
-			List<String> parameters = inputMessage.getParameters(JAVA_PARAMETER_SECURITY_POLICY, analysis);			
+			List<String> parameters = inputMessage.getParameters(JAVA_PARAMETER_SECURITY_POLICY, toolDescription);			
 			String columnString = parameters.get(0);
 
 			int chrColumn = 0; //if not second, this will apply

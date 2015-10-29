@@ -2,13 +2,13 @@ package fi.csc.chipster.tools.ngs;
 
 import java.io.File;
 
-import fi.csc.microarray.analyser.java.JavaAnalysisJobBase;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.GtfLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.TsvSorter;
+import fi.csc.microarray.comp.java.JavaCompJobBase;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.util.Exceptions;
 
-public class SortGtf extends JavaAnalysisJobBase {
+public class SortGtf extends JavaCompJobBase {
 	
 	@Override
 	public String getSADL() {
@@ -24,8 +24,8 @@ public class SortGtf extends JavaAnalysisJobBase {
 
 		try {
 			// files
-			File inputFile = new File(jobWorkDir, analysis.getInputFiles().get(0).getFileName()); 
-			File outputFile = new File(jobWorkDir, analysis.getOutputFiles().get(0).getFileName().getID()); 
+			File inputFile = new File(jobWorkDir, toolDescription.getInputFiles().get(0).getFileName()); 
+			File outputFile = new File(jobWorkDir, toolDescription.getOutputFiles().get(0).getFileName().getID()); 
 
 			// run sort
 			sort(inputFile, outputFile);

@@ -4,12 +4,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.Proxy;
 import java.net.ProxySelector;
 import java.net.SocketAddress;
+import java.net.SocketException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.zip.Deflater;
@@ -29,7 +32,7 @@ public class UrlTransferUtil {
 	
 	public static InputStream downloadStream(URL url) throws JMSException, IOException {
 		URLConnection connection = url.openConnection();
-		KeyAndTrustManager.configureSSL(connection);
+		KeyAndTrustManager.configureForChipsterCertificate(connection);
 		return connection.getInputStream();		
 	}
 
@@ -151,35 +154,49 @@ public class UrlTransferUtil {
 
 	public static HttpURLConnection prepareForUpload(URL url) throws IOException {
 		HttpURLConnection connection = (HttpURLConnection)url.openConnection(); // should use openConnection(Proxy.NO_PROXY) if it actually worked
-		KeyAndTrustManager.configureSSL(connection);
+		KeyAndTrustManager.configureForChipsterCertificate(connection);
 		connection.setRequestMethod("PUT");
 		connection.setDoOutput(true);
 		return connection;
 	}
 
-	public static boolean isAccessible(URL url) throws IOException {
+	public static boolean isAccessible(URL url, boolean isChipsterServer) throws IOException {
 		// check the URL
 		HttpURLConnection connection = (HttpURLConnection)url.openConnection();
-		KeyAndTrustManager.configureSSL(connection);
+		if (isChipsterServer) {
+			KeyAndTrustManager.configureForChipsterCertificate(connection);
+		} else {
+			KeyAndTrustManager.configureForCACertificates(connection);
+		}
 		connection.setConnectTimeout(HTTP_TIMEOUT_MILLISECONDS);
 		connection.connect() ; 
 		return connection.getResponseCode() == HttpURLConnection.HTTP_OK;
 	}
 
 
-	public static Long getContentLength(URL url) throws IOException {
-		HttpURLConnection connection = null;
+	public static Long getContentLength(URL url, boolean isChipsterServer) throws IOException {
+		URLConnection connection = null;
 		try {
-			connection = (HttpURLConnection)url.openConnection();
-			KeyAndTrustManager.configureSSL(connection);
-			String lengthString = connection.getHeaderField("content-length");
-			if (lengthString != null) {
-				return Long.parseLong(lengthString);
+			connection = url.openConnection();
+			if (isChipsterServer) {				
+				KeyAndTrustManager.configureForChipsterCertificate(connection);
 			} else {
-				return null;
+				KeyAndTrustManager.configureForCACertificates(connection);
+			}
+			long contentLength = connection.getContentLengthLong();
+
+			if (contentLength >= 0) {
+				return contentLength;
+			} else {
+				throw new IOException("content length not available: " + connection.getContent());
 			}
 		} finally {
 			IOUtils.disconnectIfPossible(connection);
 		}
+	}
+	
+	public static boolean isLocalhost(String host) throws SocketException, UnknownHostException {
+		InetAddress address = InetAddress.getByName(host);
+		return address.isAnyLocalAddress() || address.isLoopbackAddress();
 	}
 }

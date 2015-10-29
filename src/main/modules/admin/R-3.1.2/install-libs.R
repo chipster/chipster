@@ -38,6 +38,16 @@ smart.install.packages(package="gplots", mirror=repo.cran)
 # Install packages, and their dependencies, from Bioconductor
 smart.install.packages(bioconductor.package="DESeq2", mirror=repo.bioc)
 
+smart.install.packages(bioconductor.package="illuminaHumanv1.db", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="illuminaHumanv2.db", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="illuminaHumanv3.db", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="illuminaHumanv4.db", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="illuminaMousev1.db", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="illuminaMousev1p1.db", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="illuminaMousev2.db", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="illuminaRatv1.db", mirror=repo.bioc)
+
+
 # required by illumina annotations below
 smart.install.packages(bioconductor.package="org.Hs.eg.db", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="org.Mm.eg.db", mirror=repo.bioc)

@@ -1,3 +1,0 @@
-TOOL mafft-linsi.sadl: mafft-linsi (Iterative refinement method incorporating local pairwise alignment information. In many cases this is the most accurate alignmnet strategy. Recommended for less than 200 sequences) 
-INPUT query: "Sequences to align" TYPE GENERIC
-OUTPUT out.txt

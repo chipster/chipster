@@ -39,18 +39,42 @@ public class Chromosome implements Comparable<Chromosome> {
 
 	public static String normalise(String original, boolean enableSynonymReplace) {
 		// If contains any postfix, remove it
-		if (original.indexOf(".") != -1) {
-			original = original.substring(0, original.indexOf("."));
-		}
+		
+		original = removePostfix(original);
 		
 		// Remove known prefix, if exists
-		String normalised = original.replace(CHROMOSOME_PREFIX, "");
+		String normalised = removePrefix(original);
 		
 		if (enableSynonymReplace) {
 			normalised = synonymReplace.apply(normalised);
 		}
 		
 		return normalised;
+	}
+
+	public static String removePrefix(String original) {
+		return original.replace(CHROMOSOME_PREFIX, "");
+	}
+
+	public static String removePostfix(String original) {
+		if (original.indexOf(".") != -1) {
+			return original.substring(0, original.indexOf("."));
+		}
+		return original;
+	}
+	
+	public static String getPostfix(String original) {
+		if (original.indexOf(".") != -1) {
+			return original.substring(original.indexOf("."));
+		}
+		return "";
+	}
+	
+	public static String getPrefix(String original) {
+		if (original.startsWith(CHROMOSOME_PREFIX)) {
+			return CHROMOSOME_PREFIX;
+		}
+		return "";
 	}
 
 	public Chromosome(Chromosome chromosome) {

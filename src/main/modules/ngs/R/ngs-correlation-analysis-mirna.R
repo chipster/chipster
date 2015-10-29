@@ -1,8 +1,8 @@
 # TOOL ngs-correlation-analysis-mirna.R: "Correlate miRNA-seq and gene expression array data" (Performs a statistical test to detect miRNA targets whose expression is significantly positively or negatively correlated to the expression of the miRNA.)
 # INPUT normalized_mirna.tsv: normalized_mirna.tsv TYPE GENE_EXPRS 
 # INPUT normalized_gene.tsv: normalized_gene.tsv TYPE GENE_EXPRS 
-# INPUT phenodata_mirna.tsv: phenodata_mirna.tsv TYPE GENERIC 
-# INPUT phenodata_gene.tsv: phenodata_gene.tsv TYPE GENERIC 
+# INPUT META phenodata_mirna.tsv: phenodata_mirna.tsv TYPE GENERIC 
+# INPUT META phenodata_gene.tsv: phenodata_gene.tsv TYPE GENERIC 
 # OUTPUT mirna-gene-positive-correlation.tsv: mirna-gene-positive-correlation.tsv 
 # OUTPUT mirna-gene-negative-correlation.tsv: mirna-gene-negative-correlation.tsv 
 # PARAMETER order.column.mirna: "Order column miRNA" TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing the order of the samples, so that the gene expression and miRNA expression arrays can be correctly matched in the analysis. For time course experiments the actual time can be used, for multiple-condition type of experiments it is adviced to encode the different conditions with a number, e.g. 1, 2, 3, 4 and 5 for an experiment where five different conditions have been assessed. NOTE: If a custom array was used for assessing the gene expression it is crucial that ENTREZ gene ID or HUGO gene symbols have been specified as identifier when importing the data into CHIPSTER.)

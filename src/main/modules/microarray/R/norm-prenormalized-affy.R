@@ -1,4 +1,4 @@
-# TOOL norm-prenormalized-affy.R: "Process prenormalized affy" (If you import prenormalized Affymetrix data that is not in Chipster format, you need to import it through the Import Wizard, and then use this tool for preprocessing it. During data import, make sure to mark every column containing normalized expression values as Sample and the column containing the Affymetrix probe ID:s as Identifier. If you want to be able to use annotation, you need to SPECIFY THE CHIPTYPE, e.g. hgu133a2.db.)
+# TOOL norm-prenormalized-affy.R: "Process prenormalized affy" (If you import prenormalized Affymetrix data that is not in Chipster format, you need to import it through the Import tool, and then use this tool for preprocessing it. During data import, make sure to mark every column containing normalized expression values as Sample and the column containing the Affymetrix probe ID:s as Identifier. If you want to be able to use annotation, you need to SPECIFY THE CHIPTYPE, e.g. hgu133a2.db.)
 # INPUT microarray{...}.tsv: microarray{...}.tsv TYPE CDNA 
 # OUTPUT normalized.tsv: normalized.tsv 
 # OUTPUT META phenodata.tsv: phenodata.tsv 
@@ -21,8 +21,7 @@ columns<-list(R="sample")
 annotation<-c("identifier")
 columns.other<-c("flag", "Flag", "FLAG", "annotation", "Annotation", "ANNOTATION")
 
-files<-dir()
-files<-files[files!="phenodata.tsv"]
+files<-dir(pattern = "microarray")
 #seems to check columns from the first file only. If the column is not there, attribute is ignored. If the column is there, but not
 #in the others, function crashes
 dat<-read.maimages(files=files, columns=columns, annotation=annotation, other.columns=columns.other) 

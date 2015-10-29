@@ -6,11 +6,11 @@
 # OUTPUT OPTIONAL macs2-summits.bed
 # OUTPUT OPTIONAL macs2_narrowpeak.bed
 # OUTPUT OPTIONAL macs2_broad_peaks.bed
-# OUTPUT OPTIONAL macs2_model.pdf  
+# OUTPUT OPTIONAL macs2_model.pdf
 # PARAMETER file.format: "Input file format" TYPE [ELAND, BAM, BED] DEFAULT BAM (The format of the input files.)
 # PARAMETER precalculated.size: "Mappable genome size" TYPE [2.7e9: "human hg18 (2.7e9\)", 2.72e9: "human hg19 (2.72e9\)", 1.87e9: "mouse mm9 (1.87e9\)", 1.89e9: "mouse mm10 (1.89e9\)", 2.32e9: "rat rn5 (2.32e9\)", user_specified: "User specified"] DEFAULT 2.72e9 (Mappable genome size. You can use one of the precalculated ones or choose User specified and provide the size in the field below.)
 # PARAMETER OPTIONAL userspecified.size: "User specified mappable genome size" TYPE STRING (You can also use scientific notation, e.g. 1.23e9 . Remember to select User specified as Mappable genome size.)
-# PARAMETER OPTIONAL q.value.threshold: "q-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.01 (The minimum FDR for peak detection.)
+# PARAMETER OPTIONAL q.value.threshold: "q-value cutoff" TYPE DECIMAL FROM 0 TO 0.99 DEFAULT 0.01 (The minimum FDR for peak detection.)
 # PARAMETER OPTIONAL read.length: "Read length" TYPE INTEGER FROM 0 TO 200 DEFAULT 0 (The read length in nucleotides. Read length is autodetected if you set this to 0.)
 # PARAMETER OPTIONAL keep.dup: "Keep duplicate reads" TYPE [auto, all, 1] DEFAULT auto (Procedure used to handle duplicate reads. If auto, MACS computes the maximum reads at the exact same location based on binomal distribution using 1e-5 p-value cutoff. The option All option keeps all reads, while 1 keeps only one read per site.)
 # PARAMETER OPTIONAL build.model: "Build peak model" TYPE [yes, no] DEFAULT yes (If enabled, a peak model is built from the data. Disabling model building means the extension size has to be guessed and set with the parameter.)
@@ -102,27 +102,31 @@ macs.command <- paste(macs.binary, options, "2> macs2-log.txt")
 system(macs.command)
 
 # Read in and parse the results (rename and the p- and q-value columns, sort)
-output <- read.table(file="macs2_peaks.xls", skip=0, header=TRUE, stringsAsFactors=FALSE)
-colnames(output)[7] <- "neglog10pvalue"
-colnames(output)[9] <- "neglog10qvalue"
-# output <- output[ order(output[,9], decreasing=TRUE), ]
-output <- output[order(output$chr, output$start),]
-write.table(output, file="macs2-peaks.tsv", sep="\t", quote=FALSE, row.names=FALSE)
+output <- try(read.table(file="macs2_peaks.xls", skip=0, header=TRUE, stringsAsFactors=FALSE))
+if (class(output) != "try-error") {
+	colnames(output)[7] <- "neglog10pvalue"
+	colnames(output)[9] <- "neglog10qvalue"
+	# output <- output[ order(output[,9], decreasing=TRUE), ]
+	output <- output[order(output$chr, output$start),]
+	write.table(output, file="macs2-peaks.tsv", sep="\t", quote=FALSE, row.names=FALSE)
+}
 
 # Sort the summit BED
 source(file.path(chipster.common.path, "bed-utils.R"))
-if (file.exists("macs2_summits.bed")){
-	bed <- read.table(file="macs2_summits.bed", skip=0, sep="\t")
+bed <- try(read.table(file="macs2_summits.bed", skip=0, sep="\t"))
+if (class(bed) != "try-error") {
 	colnames(bed)[1:2] <- c("chr", "start")
 	bed <- sort.bed(bed)
 	write.table(bed, file="macs2-summits.bed", sep="\t", row.names=F, col.names=F, quote=F)
 }
 
 # Add BED extension to the narrow peak format file
-system ("mv macs2_peaks.narrowPeak macs2_narrowpeak.bed")
-
+if (file.exists("macs2_peaks.narrowPeak") && file.info("macs2_peaks.narrowPeak")$size > 0){
+	system ("mv macs2_peaks.narrowPeak macs2_narrowpeak.bed")
+}
 
 # Source the R code for plotting the MACS model
 if (build.model == "yes") {
-	source("macs2_model.r")
+	try(source("macs2_model.r"), silent=TRUE)
 }
+

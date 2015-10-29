@@ -135,11 +135,14 @@ public class BedLineParser extends AbstractTsvLineParser {
 			String string = getString(column);
 			List<Long> rgb = splitStringToList(string);
 
-			int r = (int)(long)rgb.get(0);
-			int g = (int)(long)rgb.get(1);
-			int b = (int)(long)rgb.get(2);
-			Color c = new Color(r, g, b);
-			line.setItemRgb(c);
+			// don't care if the color parsing fails, for example '0'
+			if (rgb.size() == 3) {
+				int r = (int)(long)rgb.get(0);
+				int g = (int)(long)rgb.get(1);
+				int b = (int)(long)rgb.get(2);
+				Color c = new Color(r, g, b);
+				line.setItemRgb(c);
+			}
 		}
 		
 		column = Column.BLOCK_COUNT.ordinal();
