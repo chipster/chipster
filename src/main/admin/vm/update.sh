@@ -37,7 +37,6 @@ if [ -e $MAIN_UPDATE_FILE ]; then
 	
 	# Clean up
 	sudo rm $MAIN_UPDATE_FILE
-	
 	exit 0
 
 else

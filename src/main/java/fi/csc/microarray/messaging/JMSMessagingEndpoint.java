@@ -80,7 +80,7 @@ public class JMSMessagingEndpoint implements MessagingEndpoint, MessagingListene
 	 * @throws TimeoutExpiredException when broker can not be reached
 	 */
 	public JMSMessagingEndpoint(Node master) throws MicroarrayException {
-		this(master, null);
+		this(master, null, false);
 	}
 	
 	/**
@@ -89,7 +89,7 @@ public class JMSMessagingEndpoint implements MessagingEndpoint, MessagingListene
 	 * 
 	 * @see #MessagingEndpoint(Node)
 	 */
-	public JMSMessagingEndpoint(Node master, AuthenticationRequestListener authenticationListener) throws MicroarrayException {
+	public JMSMessagingEndpoint(Node master, AuthenticationRequestListener authenticationListener, boolean useFailoverAtStartup) throws MicroarrayException {
 		this.master = master;
 		this.authenticationListener = authenticationListener;
 
@@ -130,7 +130,7 @@ public class JMSMessagingEndpoint implements MessagingEndpoint, MessagingListene
 		try {
 			logger.info("connecting to " + brokerUrl);
 			String completeBrokerUrl = brokerUrl;
-			if (useReliable) {
+			if (useFailoverAtStartup) {
 				// tests connecting with unreliable, so that if broker is not available, 
 				// we won't initiate retry sequence
 				logger.debug("testing connecting to " + completeBrokerUrl);
@@ -139,8 +139,10 @@ public class JMSMessagingEndpoint implements MessagingEndpoint, MessagingListene
 				tempConnection.start();
 				tempConnection.stop();
 				tempConnection.close(); // it worked, we have a network connection
-				
-				// switch to reliable
+			}
+
+			// switch to reliable
+			if (useReliable) {
 				completeBrokerUrl = RELIABLE_CONNECTION_SPECIFIER + completeBrokerUrl;
 			}
 			
