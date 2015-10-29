@@ -77,12 +77,12 @@ run() {
         $CHIPSTER_HOME/$1/bin/$PLATFORM/$BIN_FILE $2
     
     	# wait if needed    
-        if [ "$1" == "activemq" ]; then
-	        if [ "$2" == "start" ]; then
-    			#echo Waiting $ACTIVEMQ_START_DELAY seconds for ActiveMQ to start...
-    			#sleep $ACTIVEMQ_START_DELAY
-    		fi
-    	fi
+        #if [ "$1" == "activemq" ]; then
+	    #    if [ "$2" == "start" ]; then
+    	#			#echo Waiting $ACTIVEMQ_START_DELAY seconds for ActiveMQ to start...
+    	#		#sleep $ACTIVEMQ_START_DELAY
+    	#	fi
+    	#fi
     fi
 }
 
