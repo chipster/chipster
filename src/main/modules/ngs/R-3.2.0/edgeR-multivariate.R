@@ -121,9 +121,10 @@ design<-with(phenodata, model.matrix(as.formula(formula)))
 design <- design[, colSums(abs(design),na.rm = TRUE) != 0]
 
 # Estimate dispersions
-dge <- estimateGLMCommonDisp(dge, design)
-dge <- estimateGLMTrendedDisp(dge, design)
-dge <- estimateGLMTagwiseDisp(dge, design)
+dge <- estimateDisp(dge, design)
+#dge <- estimateGLMCommonDisp(dge, design)
+#dge <- estimateGLMTrendedDisp(dge, design)
+#dge <- estimateGLMTagwiseDisp(dge, design)
 
 # Dispersion plot
 pdf(file="dispersion-edger-glm.pdf", width=w/72, height=h/72)
