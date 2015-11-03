@@ -11,6 +11,8 @@ public class ToolboxTool {
 	private String module;
 	private String runtime;
 
+	public ToolboxTool() {
+	}
 	
 	public ToolboxTool(String SADL, String code, String source, String resourceName, String module, String runtime) {
 		this.SADL = SADL;
