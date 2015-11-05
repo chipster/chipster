@@ -5,7 +5,7 @@
 	<category name="Normalisation" color="#d5c796">
 		<tool runtime="R"><resource>norm-affy.R</resource></tool>
 		<tool runtime="R"><resource>norm-affy-exon.R</resource></tool>
-		<!-- <tool runtime="R"><resource>norm-affy-gene.R</resource></tool>  -->
+		<tool runtime="R"><resource>norm-affy-gene.R</resource></tool>
 		<tool runtime="R"><resource>norm-affy-snp.R</resource></tool>
 		<tool runtime="R"><resource>norm-agilent-one-color.R</resource></tool>
 		<tool runtime="R"><resource>norm-agilent.R</resource></tool>

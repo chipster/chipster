@@ -55,7 +55,7 @@ results_name <- NULL
 # Calculate statistic for differential expression, merge with original data table, keep significant DEGs, remove NAs and sort by FDR. If there are more than 2 groups, get pairwise results for each comparison.
 if (length(unique(groups)) == 2) {
 	dds <- DESeq(dds)
-	res <- results(nbinomWaldTest(dds))
+	res <- results(dds)
 	
 	sig <- cbind(dat, res)
 	sig <- as.data.frame(sig)

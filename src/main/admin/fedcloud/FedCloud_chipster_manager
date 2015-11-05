@@ -11,43 +11,48 @@
 #
 
 list_chipster_instances() {
-echo "Listing  Virtual Machines with name: chipster-vm-${user}"
-echo "in endpoint $endpoint" 
-echo "This may take some time."
-#echo "occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms -r compute -a list"
-echo ""
-for re in $(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms -r compute -a list | awk -F "/compute/" '{print "/compute/"$2}' )
+
+for endpoint in ${clusters[*]}
 do
- rline=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $re -a describe | awk '{if ( $3 == "chipster-vm-'$user'") print "'$re' "$0 }')
- if [[ $rline != "" ]]
- then
-    vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $re | grep occi.networkinterface.address| awk '{print $3}'| head -1)
-    echo "$rline IP: $vmip"
- fi
-#occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $re -a describe | awk 'BEGIN{id=0}{if ( $1 == "occi.core.id" ) id=$3 }{if ( $3 == "chipster-vm-'$user'") print "'$endpoint'/copute/"id }'
+ echo "Listing Virtual Machines with name: chipster-vm-${user}"
+ echo "in endpoint:"
+ echo ""
+ echo "   $endpoint" 
+ echo ""
+ for re in $(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms -r compute -a list | awk -F "/compute/" '{print "/compute/"$2}' )
+ do
+  rline=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $re -a describe | awk '{if ( $3 == "chipster-vm-'$user'") print "'$re' "$0 }')
+  if [[ $rline != "" ]]
+  then
+     vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $re | grep occi.networkinterface.address| awk '{print $3}'| head -1)
+     echo "$rline IP: $vmip"
+  fi
+ done
 done
 }
 
 
 check_chipster_instances() {
-echo "Listing  Virtual Machines with name: chipster-vm-${user}"
-echo "in endpoint $endpoint" 
-echo "This may take some time."
-#echo "occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms -r compute -a list"
-echo ""
-for re in $(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms -r compute -a list | awk -F "/compute/" '{print "/compute/"$2}' )
+
+for endpoint in ${clusters[*]}
 do
- echo ""
- echo "-------------------------------------------------------------------------------------"
- echo ""
- rline=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $re -a describe | awk '{if ( $3 == "chipster-vm-'$user'") print "'$re' "$0 }')
- if [[ $rline != "" ]]
- then
+  echo "Listing  Virtual Machines with name: chipster-vm-${user}"
+  echo "in endpoint $endpoint" 
+  echo "This may take some time."
+  echo ""
+  for re in $(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms -r compute -a list | awk -F "/compute/" '{print "/compute/"$2}' )
+  do
+    echo ""
+    echo "-------------------------------------------------------------------------------------"
+    echo ""
+    rline=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $re -a describe | awk '{if ( $3 == "chipster-vm-'$user'") print "'$re' "$0 }')
+  if [[ $rline != "" ]]
+  then
     vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $re | grep occi.networkinterface.address| awk '{print $3}'| head -1)
     echo "$rline IP: $vmip"
-    ssh -i $keyname ubuntu@$vmip "sudo service chipster status; echo Cheking IP in chipster configuration; grep https /opt/chipster/fileserver/conf/chipster-config.xml; echo If the value above is not $vmip, then use FedCloud_chipster_manager to restart the Chipster server."
- fi
-#occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $re -a describe | awk 'BEGIN{id=0}{if ( $1 == "occi.core.id" ) id=$3 }{if ( $3 == "chipster-vm-'$user'") print "'$endpoint'/copute/"id }'
+    ssh -i $keyname ubuntu@$vmip "sudo service chipster status; echo Checking IP in chipster configuration; grep https /opt/chipster/fileserver/conf/chipster-config.xml; echo If the value above is not $vmip, then use FedCloud_chipster_manager to restart the Chipster server."
+  fi
+  done
 done
 } 
 
@@ -55,7 +60,6 @@ restart_chipster_instance() {
 echo "Restarting chipster server running in instance: $re"
 echo "in endpoint $endpoint" 
 echo "This may take some time."
-#echo "occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms -r compute -a list"
 echo ""
 echo "-------------------------------------------------------------------------------------"
 echo ""
@@ -63,7 +67,6 @@ rline=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $r
 
 if [[ $rline != "" ]]
 then
-   #vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $re | grep occi.networkinterface.address| awk '{print $3}'| head -1)
    occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $re | grep occi.networkinterface.address| awk '{print $3}' > /tmp/vmip_$$_tmp
    nips=$(cat /tmp/vmip_$$_tmp | wc -l )
    if [[ $nips -eq 1 ]]
@@ -115,11 +118,11 @@ echo "in endpoint $endpoint"
 rline=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $re -a describe | awk '{if ( $3 == "chipster-vm-'$user'") print "'$re' "$0 }')
 if [[ $rline != "" ]]
 then
-    vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $re | grep occi.networkinterface.address| awk '{print $3}')
+    vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $re | grep occi.networkinterface.address| awk '{print $3}'| head -1)
     echo "$rline IP: $vmip"
     echo "scp -i $keyname $userlist ubuntu@$vmip:new_users_tmp"
     scp -i $keyname $userlist ubuntu@$vmip:new_users_tmp
-    ssh -i $keyname ubuntu@$vmip "cp /opt/chipster/auth/security/users ./users_tmp_$$ ; sudo cat new_users_tmp >> users_tmp_$$; rm -f new_users_$$; sudo mv -f users_tmp_$$ /opt/chipster/auth/security/users; sudo chown chipster /opt/chipster/auth/security/users;  sudo chgrp chipster /opt/chipster/auth/security/users  "
+    ssh -i $keyname ubuntu@$vmip "cp /opt/chipster/auth/security/users ./users_tmp_$$ ; sudo cat new_users_tmp >> users_tmp_$$; rm -f new_users_$$; sudo mv -f users_tmp_$$ /opt/chipster/auth/security/users; sudo chown chipster /opt/chipster/auth/security/users;  sudo chgrp chipster /opt/chipster/auth/security/users; echo Users:; cut -d : -f1,3  /opt/chipster/auth/security/users  "
 fi
 
 }
@@ -186,7 +189,7 @@ Other options:
                  trng_2:4eoU8hmx:2015-11-30
                  trng_3:4eoU8hmx:2015-11-30
 
-                 Launching a Chipster server with thise accounts could be done with commad
+                 Launching a Chipster server with thise accounts could be done with command
 
                  ./FedCloud_chipster_manager -key FedCloud.key -users course_accounts -launch
                                     
@@ -275,6 +278,7 @@ if [[ $vo_name == "chipster.csc.fi" ]]
 then 
 echo "Available endpoints:"
 echo "  https://prisma-cloud.ba.infn.it:8787"
+clusters=( "https://prisma-cloud.ba.infn.it:8787" )
 echo ""
    if [[ $endpoint == "0" ]]
    then
@@ -289,6 +293,7 @@ echo "Available endpoints:"
 echo "  http://server4-epsh.unizar.es:8787"
 echo "  https://controller.ceta-ciemat.es:8787"
 echo "  https://stack-server-01.ct.infn.it:8787"
+clusters=(  "http://server4-epsh.unizar.es:8787" "https://controller.ceta-ciemat.es:8787" "https://stack-server-01.ct.infn.it:8787" )
 echo ""
    if [[ $endpoint == "0" ]]
    then
@@ -374,7 +379,7 @@ endpoint=(0)
 
 user=$(voms-proxy-info | grep identity | awk '{print $5}' | sed s/'@'/"-at-"/g)
 usercred=$(ls /tmp/x509up_u${UID})
-volumesize=100
+volumesize=20
 keyflag=(0)
 listflag=(0)
 launchflag=(0)
@@ -437,6 +442,13 @@ do
               ;;
               '-add_users')
                   userlist=($2)
+                  if [[ ! -e $userlist ]] 
+                  then
+		     echo ""
+		     echo "User account list $userlist not found."
+                     echo "-----------------------------------------------------------"
+                     exit 1
+                  fi
                   re=($3)
                   addusersflag=(1) 
                   shift  
@@ -445,9 +457,14 @@ do
               ;;
               '-users')
                   userlist=($2)
-                  re=($3)
-                  usersflag=(1) 
-                  shift  
+                  if [[ ! -e $userlist ]] 
+                  then
+		     echo ""
+		     echo "User account list $userlist not found."
+                     echo "-----------------------------------------------------------"
+                     exit 1
+                  fi
+                  usersflag=(1)   
                   shift
                   shift
               ;;
@@ -479,7 +496,7 @@ do
 done
 
 #Check that just one task is defined
-(( ntask = launchflag + listflag + deleteflag + statusflag + restartflag + usersflag ))
+(( ntask = launchflag + listflag + deleteflag + statusflag + restartflag + addusersflag ))
 if [[ $ntask -ne 1 ]]
 then
   printhelp
@@ -632,6 +649,11 @@ EOF
 
 fi
 
+#
+#wget https://ecsft.cern.ch/dist/cvmfs/cvmfs-config/cvmfs-config-default_latest_all.deb
+#wget https://ecsft.cern.ch/dist/cvmfs/cvmfs-2.1.20/cvmfs_2.1.20_amd64.deb
+#
+
 #mounting tools directory in the case of CVMFS setup
 if [[ $tools_source == "CVMFS" ]]
 then
@@ -645,8 +667,8 @@ pwd >> /home/ubuntu/cvmfsstartup.log
 whoami >>  /home/ubuntu/cvmfsstartup.log
 sudo apt-get update  >>  /home/ubuntu/cvmfsstartup.log
 echo Y | sudo apt-get install gdebi 2>&1 >> /home/ubuntu/cvmfsstartup.log
-wget https://ecsft.cern.ch/dist/cvmfs/cvmfs-config/cvmfs-config-default_latest_all.deb
-wget https://ecsft.cern.ch/dist/cvmfs/cvmfs-2.1.20/cvmfs_2.1.20_amd64.deb
+wget https://cvmrepo.web.cern.ch/cvmrepo/deb/cvmfs-config/cvmfs-config-default_latest_all.deb 2>&1 >> /home/ubuntu/cvmfsstartup.log
+wget https://cvmrepo.web.cern.ch/cvmrepo/deb/cvmfs-2.1.20/cvmfs_2.1.20_amd64.deb 2>&1 >> /home/ubuntu/cvmfsstartup.log
 echo y | sudo gdebi cvmfs-config-default_latest_all.deb   2>&1 >>  /home/ubuntu/cvmfsstartup.log
 echo y | sudo gdebi cvmfs_2.1.20_amd64.deb  2>&1 >>  /home/ubuntu/cvmfsstartup.log
 sudo cvmfs_config setup  2>&1 >>  /home/ubuntu/cvmfsstartup.log 
@@ -799,7 +821,7 @@ echo "This can take several minutes (up to 30 min)"
 
 from_port8081=(0)
 wait_start=$(date +%s)
-while  [[ $from_port8081 -lt 3 ]]
+while [[ $from_port8081 -lt 50 ]]
 do
  from_port8081=$(curl ${vmip}:8081 2> /dev/null | wc -l )
  sleep 15
@@ -831,9 +853,11 @@ else
 fi
 
 vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $vmaddress | grep occi.networkinterface.address| awk '{print $3}' | head -1 )
-
+echo ""
+echo "---------------------------------------------------------------------"
 echo "Your new Chipster server is now running in a virtual machine with ID:" 
 echo "  $vmaddress"
+echo ""
 echo "In EGI Federated Cloud endpoint: "
 echo "  $endpoint"
 echo " "
