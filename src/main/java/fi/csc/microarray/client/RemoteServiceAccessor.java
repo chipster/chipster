@@ -37,7 +37,7 @@ public class RemoteServiceAccessor implements ServiceAccessor {
 
 	public void initialise(DataManager manager, AuthenticationRequestListener authenticationRequestListener) throws Exception {								
 		
-		endpoint = new JMSMessagingEndpoint(nodeSupport, authenticationRequestListener);
+		endpoint = new JMSMessagingEndpoint(nodeSupport, authenticationRequestListener, true);
 		this.initialise(endpoint, 
 				manager, 
 				new JMSFileBrokerClient(endpoint.createTopic(Topics.Name.FILEBROKER_TOPIC, AccessMode.WRITE)));

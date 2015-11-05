@@ -115,20 +115,8 @@ public class ToolDescription {
 	private String sadl;
 	private String helpURL = null;
 
-	private JobFactory handler;
-
 	private String initialiser;
 	
-	/**
-	 * Initializes empty (non-usable) description.
-	 * 
-	 * @param module 
-	 *
-	 */
-	public ToolDescription(JobFactory handler) {
-		this.handler = handler;
-	}
-
 	public String getCommand() {
 		return command;
 	}
@@ -231,10 +219,6 @@ public class ToolDescription {
 	    return helpURL;
 	}
 	
-	public JobFactory getHandler() {
-		return this.handler;
-	}
-  
 	public void setID(String id) {
 		this.id = id;
 	}

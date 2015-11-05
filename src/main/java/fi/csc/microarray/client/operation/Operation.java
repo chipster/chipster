@@ -10,7 +10,6 @@ import org.apache.log4j.Logger;
 import fi.csc.microarray.client.operation.OperationDefinition.Suitability;
 import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.description.SADLSyntax.InputType;
 import fi.csc.microarray.exception.MicroarrayException;
 

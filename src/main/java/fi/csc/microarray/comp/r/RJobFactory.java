@@ -1,6 +1,5 @@
 package fi.csc.microarray.comp.r;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
@@ -28,7 +27,7 @@ public class RJobFactory extends InterpreterJobFactory {
 	@Override
 	public CompJob createCompJob(JobMessage message, ToolboxTool tool, ResultCallback resultHandler) throws CompException {
 
-		ToolDescription description = createToolDescription(tool.getParsedScript(), tool.getResourceName(), new File(tool.getModule()));
+		ToolDescription description = createToolDescription(tool);
 		
 		RCompJob analysisJob = new RCompJob();
 		analysisJob.construct(message, description, resultHandler);

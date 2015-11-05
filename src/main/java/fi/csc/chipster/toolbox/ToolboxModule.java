@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -20,7 +21,6 @@ import org.xml.sax.SAXException;
 
 import fi.csc.chipster.toolbox.SADLTool.ParsedScript;
 import fi.csc.chipster.toolbox.toolpartsparser.ToolPartsParser;
-import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.description.SADLDescription;
 import fi.csc.microarray.description.SADLDescription.Input;
 import fi.csc.microarray.description.SADLDescription.Output;
@@ -109,6 +109,10 @@ public class ToolboxModule {
 		return tools.get(id);
 	}
 
+	public Collection<ToolboxTool> getAll() {
+		return tools.values();
+	}
+	
 
 	public String getSummary() {
 		return summary;
@@ -208,7 +212,7 @@ public class ToolboxModule {
 		    	File toolModuleDir;
 		    	String nonDefaultModuleName = toolElement.getAttribute("module");
 		    	if (nonDefaultModuleName != null && !nonDefaultModuleName.equals("")) {
-		    		toolModuleDir = new File(DirectoryLayout.getInstance().getModulesDir(), nonDefaultModuleName);
+		    		toolModuleDir = new File(moduleDir.getParentFile(), nonDefaultModuleName);
 		    	} else {
 		    		toolModuleDir = moduleDir;
 		    	}
@@ -300,7 +304,7 @@ public class ToolboxModule {
 		    	
 		    	// Register the tool, override existing
 		    	
-		    	tools.put(toolId, new ToolboxTool(parsedScript, resource, moduleDir.getName(), runtimeName));
+		    	tools.put(toolId, new ToolboxTool(parsedScript.SADL, parsedScript.code, parsedScript.source, resource, moduleDir.getName(), runtimeName));
 		    	successfullyLoadedCount++;
 
 	    		// Add to category, which gets sent to the client
