@@ -1,12 +1,10 @@
 package fi.csc.microarray.comp.java;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.chipster.toolbox.SADLTool.ParsedScript;
 import fi.csc.chipster.toolbox.ToolboxTool;
 import fi.csc.microarray.comp.CompException;
 import fi.csc.microarray.comp.CompJob;
@@ -37,7 +35,7 @@ public class JavaJobFactory implements JobFactory {
 
 	@SuppressWarnings(value="unchecked")
 	public CompJob createCompJob(JobMessage message, ToolboxTool tool, ResultCallback resultHandler) throws CompException {
-		ToolDescription description = createToolDescription(tool.getParsedScript(), tool.getResourceName(), new File(tool.getModule()));
+		ToolDescription description = createToolDescription(tool);
 		
 		try {
 			Class<? extends Object> jobClass = (Class<? extends Object>)description.getImplementation();
@@ -54,29 +52,29 @@ public class JavaJobFactory implements JobFactory {
 		return parameters;
 	}
 
-	private ToolDescription createToolDescription(ParsedScript parsedScript, String sourceResourceName, File moduleDir) throws CompException {
+	private ToolDescription createToolDescription(ToolboxTool tool) throws CompException {
 		
 		// get the job class
 		Class<? extends Object> jobClass = null;
 		try { 
-			 jobClass = Class.forName(sourceResourceName);
+			 jobClass = Class.forName(tool.getResourceName());
 		} catch (ClassNotFoundException e) {
-			logger.error("could not load job class: " + sourceResourceName);
-			throw new CompException("could not load job class: " + sourceResourceName);
+			logger.error("could not load job class: " + tool.getResourceName());
+			throw new CompException("could not load job class: " + tool.getResourceName());
 		}
 		
 		
 		// parse SADL		
 		SADLDescription sadlDescription;
 		try {
-			sadlDescription = new ChipsterSADLParser().parse(parsedScript.SADL);
+			sadlDescription = new ChipsterSADLParser().parse(tool.getSADL());
 		} catch (ParseException e) {
 			throw new CompException(e);
 		}
 		
 		// create analysis description
 		ToolDescription ad;
-		ad = new ToolDescriptionGenerator().generate(sadlDescription, this);
+		ad = new ToolDescriptionGenerator().generate(sadlDescription);
 		
 		// SADL back to string
 		SADLGenerator.generate(sadlDescription);

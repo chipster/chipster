@@ -6,7 +6,6 @@ import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.chipster.toolbox.SADLTool.ParsedScript;
 import fi.csc.chipster.toolbox.ToolboxTool;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
@@ -79,19 +78,21 @@ public abstract class InterpreterJobFactory implements JobFactory {
 	protected abstract String getStringDelimeter();
 	protected abstract String getVariableNameSeparator();
 
-	protected ToolDescription createToolDescription(ParsedScript parsedScript, String sourceResourceName, File moduleDir) throws CompException {
+	protected ToolDescription createToolDescription(ToolboxTool tool) throws CompException {
 
+		File moduleDir = new File(tool.getModule());
+		
 		// parse SADL		
 		SADLDescription sadlDescription;
 		try {
-			sadlDescription = new ChipsterSADLParser().parse(parsedScript.SADL);
+			sadlDescription = new ChipsterSADLParser().parse(tool.getSADL());
 		} catch (ParseException e) {
 			throw new CompException(e);
 		}
 
 		// create description
 		ToolDescription ad;
-		ad = new ToolDescriptionGenerator().generate(sadlDescription, this);
+		ad = new ToolDescriptionGenerator().generate(sadlDescription);
 
 		// SADL back to string
 		SADLGenerator.generate(sadlDescription);
@@ -99,8 +100,8 @@ public abstract class InterpreterJobFactory implements JobFactory {
 
 		// add interpreter specific stuff to ToolDescription
 		ad.setCommand(interpreterCommand);
-		ad.setImplementation(parsedScript.source); // include headers
-		ad.setSourceCode(parsedScript.source);
+		ad.setImplementation(tool.getSource()); // include headers
+		ad.setSourceCode(tool.getSource());
 
 		// tool and script locations and other variables
 		int threadsMax = 2;

@@ -121,6 +121,7 @@ design<-with(phenodata, model.matrix(as.formula(formula)))
 design <- design[, colSums(abs(design),na.rm = TRUE) != 0]
 
 # Estimate dispersions
+#dge <- estimateDisp(dge, design)
 dge <- estimateGLMCommonDisp(dge, design)
 dge <- estimateGLMTrendedDisp(dge, design)
 dge <- estimateGLMTagwiseDisp(dge, design)
