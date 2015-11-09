@@ -328,7 +328,7 @@ then
 
    if [[  $flavor == "0" ]]
    then
-      flavor=('resource_tpl#m1-large')
+      flavor=('resource_tpl#m1-medium')
    fi
    link_ip=(1)
 fi
@@ -343,7 +343,7 @@ then
 
    if [[  $flavor == "0" ]]
    then
-      flavor=('resource_tpl#m1-large')
+      flavor=('resource_tpl#m1-medium')
    fi
    link_ip=(1)
 fi
@@ -357,7 +357,7 @@ then
 
    if [[  $flavor == "0" ]]
    then
-      flavor=('resource_tpl#m1-large')
+      flavor=('resource_tpl#m1-medium')
    fi
    link_ip=(1)
 fi
@@ -378,6 +378,11 @@ endpoint=(0)
 
 
 user=$(voms-proxy-info | grep identity | awk '{print $5}' | sed s/'@'/"-at-"/g)
+if [[ $user == "Training" ]]
+then
+  user="training"
+fi
+
 usercred=$(ls /tmp/x509up_u${UID})
 volumesize=20
 keyflag=(0)
@@ -680,6 +685,7 @@ sudo service autofs stop  2>&1 >>  /home/ubuntu/cvmfsstartup.log
 sudo service autofs status  2>&1 >>  /home/ubuntu/cvmfsstartup.log 
 sudo service autofs start  2>&1 >>  /home/ubuntu/cvmfsstartup.log 
 ls /cvmfs/chipster.egi.eu 2>&1 >>  /home/ubuntu/cvmfsstartup.log 
+echo "Content of tools:" 2>&1 >>  /home/ubuntu/cvmfsstartup.log 
 ls -l /cvmfs/chipster.egi.eu/tools 2>&1 >>  /home/ubuntu/cvmfsstartup.log  
 sudo rm -rf /mnt/tools  2>&1 >>  /home/ubuntu/cvmfsstartup.log 
 sudo ln -s /cvmfs/chipster.egi.eu/tools /mnt/tools  2>&1 >>  /home/ubuntu/cvmfsstartup.log 
@@ -821,7 +827,7 @@ echo "This can take several minutes (up to 30 min)"
 
 from_port8081=(0)
 wait_start=$(date +%s)
-while [[ $from_port8081 -lt 50 ]]
+while  [[ $from_port8081 -lt 50 ]]
 do
  from_port8081=$(curl ${vmip}:8081 2> /dev/null | wc -l )
  sleep 15
@@ -837,6 +843,7 @@ do
    exit 1
  fi 
 done
+
 
 echo "Time waited ${wait_time}s"
 
