@@ -680,6 +680,7 @@ sudo cvmfs_config setup  2>&1 >>  /home/ubuntu/cvmfsstartup.log
 cd /etc/cvmfs
 #cp default.local ~/default.local.cvmfs.tmp
 echo CVMFS_HTTP_PROXY=DIRECT > /home/ubuntu/default.local.cvmfs.tmp
+echo CVMFS_SERVER_URL='http://cvmfs-egi.gridpp.rl.ac.uk:8000/cvmfs/@fqrn@;http://cvmfsrepo.lcg.triumf.ca:8000/cvmfs/@fqrn@;http://cvmfsrep.grid.sinica.edu.tw:8000/cvmfs/@fqrn@' >>  /home/ubuntu/default.local.cvmfs.tmp
 sudo cp  /home/ubuntu/default.local.cvmfs.tmp ./default.local
 sudo service autofs stop  2>&1 >>  /home/ubuntu/cvmfsstartup.log 
 sudo service autofs status  2>&1 >>  /home/ubuntu/cvmfsstartup.log 
@@ -733,10 +734,10 @@ cat >> /tmp/chipster_server_startup_$$.sh <<EOF
 sudo service chipster restart   2>&1 >>  /home/ubuntu/startup.log 
 sudo service chipster-comp restart  2>&1 >>  /home/ubuntu/startup.log 
 n=1
-while [[ $n -le 5 ]]
+while [[ \$n -le 5 ]]
 do
   check=$\( sudo service chipster status | grep "not running" -i -c \)
-  if [[ $check -ne 0 ]]
+  if [[ \$check -ne 0 ]]
   then
     sleep 30 
     sudo rm -rf /opt/chipster/fileserver/db-root/ChipsterFilebrokerMetadataDatabase
@@ -749,7 +750,11 @@ do
 done
 echo "Startup finished" >>  /home/ubuntu/startup.log 
 date >>  /home/ubuntu/startup.log 
-sudo service chipster status 2>&1 >>  /home/ubuntu/startup.log 
+sudo service chipster status 2>&1 >>  /home/ubuntu/startup.log
+cat /home/ubuntu/cvmfsstartup.log > /opt/chipster/webstart/web-root/building.html
+cat  /home/ubuntu/startup.log  >>  /opt/chipster/webstart/web-root/building.html
+echo "CHIPSTER_READY" >>  /opt/chipster/webstart/web-root/building.html
+chmod go+rx /opt/chipster/webstart/web-root/building.html
 
 EOF
 
@@ -787,7 +792,7 @@ echo "$volume"
 echo "Resource template: "$flavor
 
 # Remove user data file
-rm -f /tmp/chipster_server_startup_$$.sh
+#rm -f /tmp/chipster_server_startup_$$.sh
 
 #get the IP address
 
@@ -827,9 +832,9 @@ echo "This can take several minutes (up to 30 min)"
 
 from_port8081=(0)
 wait_start=$(date +%s)
-while  [[ $from_port8081 -lt 50 ]]
+while  [[ $from_port8081 -ne 1 ]]
 do
- from_port8081=$(curl ${vmip}:8081 2> /dev/null | wc -l )
+ from_port8081=$(curl ${vmip}:8081/building.html 2> /dev/null | grep "CHIPSTER_READY" | wc -l )
  sleep 15
  wait_now=$(date +%s)
  (( wait_time =  wait_now - wait_start))
