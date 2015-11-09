@@ -7,7 +7,7 @@
 
 # Latest version, matching tar-packages must be available 
 ##
-LATEST_VERSION=3.4.0
+LATEST_VERSION=3.6.2
 R_VERSION=3.0.2
 
 # Exit immediately if some command fails
@@ -154,6 +154,24 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
     echo ""
     exit 0
 fi
+
+# 3.6.2
+compare_to_current_and_latest "3.6.2"
+if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
+
+    echo ""
+    echo "Download the latest virtual machine"
+    echo ""
+    echo "Because of the following changes, an automatic update isn't available for this version: "
+    echo "- update genomes in tools package to latest Ensembl release"
+    echo "- install jobmanager to support long running jobs"
+    echo ""
+    echo "Please download the latest virtual machine from http://chipster.github.io/chipster/"
+    echo ""
+    exit 0
+fi
+
+
 
 #####################################
 # VERSION SPECIFIC ENTRIES END HERE #
