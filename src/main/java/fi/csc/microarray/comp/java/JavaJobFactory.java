@@ -67,7 +67,7 @@ public class JavaJobFactory implements JobFactory {
 		// parse SADL		
 		SADLDescription sadlDescription;
 		try {
-			sadlDescription = new ChipsterSADLParser().parse(tool.getSADL());
+			sadlDescription = new ChipsterSADLParser().parse(tool.getSadl());
 		} catch (ParseException e) {
 			throw new CompException(e);
 		}
