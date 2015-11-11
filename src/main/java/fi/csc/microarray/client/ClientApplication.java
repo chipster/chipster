@@ -241,8 +241,9 @@ public abstract class ClientApplication {
 			
 			try {
 				serviceAccessor.initialise(manager, getAuthenticationRequestListener());
-			} finally {
+			} catch (Exception e) {
 				serviceAccessor.close();
+				throw e;
 			}
 			
 			this.taskExecutor = serviceAccessor.getTaskExecutor();
