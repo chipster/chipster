@@ -78,6 +78,8 @@ public class FeedbackDialog extends JDialog implements ActionListener {
         c.gridy++;
         this.add(new JLabel("Message"), c);
         detailArea = new JTextArea();
+        detailArea.setLineWrap(true);
+        detailArea.setWrapStyleWord(true);
         detailArea.setPreferredSize(new Dimension(300, 150));
         c.insets.set(0, 10, 10, 10);  
         c.gridy++;
