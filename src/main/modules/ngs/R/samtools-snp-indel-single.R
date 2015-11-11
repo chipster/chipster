@@ -2,7 +2,7 @@
 # INPUT alignment{...}.bam: "Sorted BAM files" TYPE BAM 
 # INPUT OPTIONAL ownref.fa: "Reference sequence FASTA" TYPE GENERIC
 # OUTPUT variants.vcf
-# PARAMETER organism: "Reference sequence" TYPE [other, Arabidopsis_thaliana.TAIR10.28, Bos_taurus.UMD3.1, Canis_familiaris.BROADD2.67, Canis_familiaris.CanFam3.1, Drosophila_melanogaster.BDGP5, Drosophila_melanogaster.BDGP6, Felis_catus.Felis_catus_6.2, Gallus_gallus.Galgal4, Gasterosteus_aculeatus.BROADS1, Halorubrum_lacusprofundi_atcc_49239.GCA_000022205.1.28, Homo_sapiens.GRCh37.75, Homo_sapiens.GRCh38, Homo_sapiens.NCBI36.54, mature, Medicago_truncatula.GCA_000219495.2.28, Mus_musculus.GRCm38, Mus_musculus.NCBIM37.67, Ovis_aries.Oar_v3.1, Populus_trichocarpa.JGI2.0.28, Rattus_norvegicus.RGSC3.4.69, Rattus_norvegicus.Rnor_5.0, Rattus_norvegicus.Rnor_6.0, Schizosaccharomyces_pombe.ASM294v2.28, Solanum_tuberosum.3.0.28, Sus_scrofa.Sscrofa10.2, Vitis_vinifera.IGGP_12x.28, Yersinia_enterocolitica_subsp_palearctica_y11.GCA_000253175.1.28, Yersinia_pseudotuberculosis_ip_32953_gca_000047365_1.GCA_000047365.1.28] DEFAULT Homo_sapiens.GRCh38 (Reference sequence.)
+# PARAMETER organism: "Reference sequence" TYPE [other, Arabidopsis_thaliana.TAIR10.28, Bos_taurus.UMD3.1, Canis_familiaris.BROADD2.67, Canis_familiaris.CanFam3.1, Drosophila_melanogaster.BDGP5, Drosophila_melanogaster.BDGP6, Felis_catus.Felis_catus_6.2, Gallus_gallus.Galgal4, Gasterosteus_aculeatus.BROADS1, Halorubrum_lacusprofundi_atcc_49239.GCA_000022205.1.28, Homo_sapiens.GRCh37.75, Homo_sapiens.GRCh38, Homo_sapiens.NCBI36.54, mature, Medicago_truncatula.GCA_000219495.2.28, Mus_musculus.GRCm38, Mus_musculus.NCBIM37.67, Ovis_aries.Oar_v3.1, Populus_trichocarpa.JGI2.0.28, Rattus_norvegicus.RGSC3.4.69, Rattus_norvegicus.Rnor_5.0, Rattus_norvegicus.Rnor_6.0, Schizosaccharomyces_pombe.ASM294v2.28, Solanum_tuberosum.3.0.28, Sus_scrofa.Sscrofa10.2, Vitis_vinifera.IGGP_12x.28, Yersinia_enterocolitica_subsp_palearctica_y11.GCA_000253175.1.28, Yersinia_pseudotuberculosis_ip_32953_gca_000047365_1.GCA_000047365.1.28] DEFAULT other (Reference sequence.)
 # PARAMETER chr: "Chromosome names in my BAM file look like" TYPE [chr1, 1] DEFAULT 1 (Chromosome names must match in the BAM file and in the reference sequence. Check your BAM and choose accordingly. This only applies to provided reference genomes.)
 # PARAMETER OPTIONAL mpileup.ui: "Call only SNPs, INDELs not considered" TYPE [yes, no] DEFAULT no (Do not perform INDEL calling.)
 # PARAMETER OPTIONAL vcfutils.d: "Minimum read depth" TYPE INTEGER DEFAULT 2 (Minimum read depth.)
@@ -104,10 +104,9 @@ system(command3)
 system("mv vcftools.recode.vcf variants.vcf")
 
 # Change bam names in VCF to original names
-system("grep \"alignment[0-9]*\\.bam\" chipster-inputs.tsv > bam_files.tsv")
-bam.names <- read.table("bam_files.tsv", header=F, sep="\t")
-for (i in 1:nrow(bam.names)) {
-	sed.command <- paste("s/", bam.names[i,1], "/", bam.names[i,2], "/", sep="")
+input.names <- read.table("chipster-inputs.tsv", header=F, sep="\t")
+for (i in 1:nrow(input.names)) {
+	sed.command <- paste("s/", input.names[i,1], "/", input.names[i,2], "/", sep="")
 	system(paste("sed -i", sed.command, "variants.vcf"))
 }
 
