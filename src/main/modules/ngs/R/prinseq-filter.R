@@ -198,7 +198,7 @@ source(file.path(chipster.common.path, "tool-utils.R"))
 inputnames <- read_input_definitions()
 
 # Make a matrix of output names
-outputnames <- matrix(NA, nrow=16, ncol=2)
+outputnames <- matrix(NA, nrow=17, ncol=2)
 
 base1 <- strip_name(inputnames$fastqfile)
 if (is_paired_end) {
@@ -208,25 +208,26 @@ if (is_paired_end) {
 }
 
 # SE fastq	
-outputnames[1,] <- c("accepted.fastq.gz", paste(base1, ".fastq.gz", sep =""))
-outputnames[2,] <- c("rejected.fastq.gz", paste(base1, "_rejected.fastq.gz", sep =""))
+outputnames[1,] <- c("accepted.fastq.gz", paste(base1, "_filtered.fq.gz", sep =""))
+outputnames[2,] <- c("rejected.fastq.gz", paste(base1, "_rejected.fq.gz", sep =""))
 # SE fasta
-outputnames[3,] <- c("accepted.fasta.gz", paste(base1, ".fasta.gz", sep =""))
-outputnames[4,] <- c("rejected.fasta.gz", paste(base1, "_rejected.fasta.gz", sep =""))
+outputnames[3,] <- c("accepted.fasta.gz", paste(base1, "_filtered.fa.gz", sep =""))
+outputnames[4,] <- c("rejected.fasta.gz", paste(base1, "_rejected.fa.gz", sep =""))
 # PE fastq
-outputnames[5,] <- c("accepted_1.fastq.gz", paste(base1, ".fastq.gz", sep =""))
-outputnames[6,] <- c("accepted_1_singletons.fastq.gz", paste(base1, "_singletons.fastq.gz", sep =""))
-outputnames[7,] <- c("accepted_2.fastq.gz", paste(base2, ".fastq.gz", sep =""))
-outputnames[8,] <- c("accepted_2_singletons.fastq.gz", paste(base2, "_singletons.fastq.gz", sep =""))
-outputnames[9,] <- c("rejected_1.fastq.gz", paste(base1, "_rejected.fastq.gz", sep =""))
-outputnames[10,] <- c("rejected_2.fastq.gz", paste(base2, "_rejected.fastq.gz", sep =""))
+outputnames[5,] <- c("accepted_1.fastq.gz", paste(base1, "_filtered.fq.gz", sep =""))
+outputnames[6,] <- c("accepted_1_singletons.fastq.gz", paste(base1, "_singletons_filtered.fq.gz", sep =""))
+outputnames[7,] <- c("accepted_2.fastq.gz", paste(base2, "_filtered.fq.gz", sep =""))
+outputnames[8,] <- c("accepted_2_singletons.fastq.gz", paste(base2, "_singletons_filtered.fq.gz", sep =""))
+outputnames[9,] <- c("rejected_1.fastq.gz", paste(base1, "_rejected.fq.gz", sep =""))
+outputnames[10,] <- c("rejected_2.fastq.gz", paste(base2, "_rejected.fq.gz", sep =""))
 # PE FASTA
-outputnames[11,] <- c("accepted_1.fasta.gz", paste(base1, ".fasta.gz", sep =""))
-outputnames[12,] <- c("accepted_1_singletons.fasta.gz", paste(base1, "_singletons.fasta.gz", sep =""))
-outputnames[13,] <- c("accepted_2.fasta.gz", paste(base2, ".fasta.gz", sep =""))
-outputnames[14,] <- c("accepted_2_singletons.fasta.gz", paste(base2, "_singletons.fasta.gz", sep =""))
-outputnames[15,] <- c("rejected_1.fasta.gz", paste(base1, "_rejected.fasta.gz", sep =""))
-outputnames[16,] <- c("rejected_2.fasta.gz", paste(base2, "_rejected.fasta.gz", sep =""))
+outputnames[11,] <- c("accepted_1.fasta.gz", paste(base1, "_filtered.fa.gz", sep =""))
+outputnames[12,] <- c("accepted_1_singletons.fasta.gz", paste(base1, "_singletons_filtered.fa.gz", sep =""))
+outputnames[13,] <- c("accepted_2.fasta.gz", paste(base2, "_filtered.fa.gz", sep =""))
+outputnames[14,] <- c("accepted_2_singletons.fasta.gz", paste(base2, "_singletons_filtered.fa.gz", sep =""))
+outputnames[15,] <- c("rejected_1.fasta.gz", paste(base1, "_rejected.fa.gz", sep =""))
+outputnames[16,] <- c("rejected_2.fasta.gz", paste(base2, "_rejected.fa.gz", sep =""))
+outputnames[17,] <- c("filter.log", paste(base1, "_filterlog.txt", sep =""))
 
 # Write output definitions file
 write_output_definitions(outputnames)

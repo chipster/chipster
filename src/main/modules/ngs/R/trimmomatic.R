@@ -111,7 +111,7 @@ source(file.path(chipster.common.path, "tool-utils.R"))
 inputnames <- read_input_definitions()
 
 # Make a matrix of output names
-outputnames <- matrix(NA, nrow=5, ncol=2)
+outputnames <- matrix(NA, nrow=6, ncol=2)
 
 base1 <- strip_name(inputnames$reads1.fastaq)
 if (file.exists("reads2.fastaq")){
@@ -120,11 +120,12 @@ if (file.exists("reads2.fastaq")){
 	base2 <- ""
 }
 
-outputnames[1,] <- c("trimmed.fq.gz", paste(base1, ".fq.gz", sep =""))
-outputnames[2,] <- c("trimmed_reads1_paired.fq.gz", paste(base1, "_paired.fq.gz", sep =""))
-outputnames[3,] <- c("trimmed_reads1_unpaired.fq.gz", paste(base1, "_unpaired.fq.gz", sep =""))
-outputnames[4,] <- c("trimmed_reads2_paired.fq.gz", paste(base2, "_paired.fq.gz", sep =""))
-outputnames[5,] <- c("trimmed_reads2_unpaired.fq.gz", paste(base2, "_unpaired.fq.gz", sep =""))
+outputnames[1,] <- c("trimmed.fq.gz", paste(base1, "_trimmed.fq.gz", sep =""))
+outputnames[2,] <- c("trimmed_reads1_paired.fq.gz", paste(base1, "_trimmed.fq.gz", sep =""))
+outputnames[3,] <- c("trimmed_reads1_unpaired.fq.gz", paste(base1, "_unpaired_trimmed.fq.gz", sep =""))
+outputnames[4,] <- c("trimmed_reads2_paired.fq.gz", paste(base2, "_trimmed.fq.gz", sep =""))
+outputnames[5,] <- c("trimmed_reads2_unpaired.fq.gz", paste(base2, "_unpaired_trimmed.fq.gz", sep =""))
+outputnames[6,] <- c("trimlog.txt", paste(base1, "_trimlog.txt", sep =""))
 
 # Write output definitions file
 write_output_definitions(outputnames)

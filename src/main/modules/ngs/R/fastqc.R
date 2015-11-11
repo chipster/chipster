@@ -5,7 +5,7 @@
 # PARAMETER filetype: "File type" TYPE [fastq: "FASTQ", bam: "BAM"] DEFAULT fastq (Select input file type.)
 
 # 2014.12.16 AMS Changed output to PDF, removed parameter for all plots
-# 2015.09-10 AMS New version embeds pictures in html, so changed output to html 
+# 2015.09.10 AMS New version embeds pictures in html, so changed output to html 
 
 #library(png)
 #library(gplots)
@@ -37,7 +37,7 @@ inputnames <- read_input_definitions()
 
 # Make a matrix of output names
 outputnames <- matrix(NA, nrow=1, ncol=2)
-outputnames[1,] <- c("reads_fastqc.html", paste(strip_name(inputnames$reads), ".html", sep=""))
+outputnames[1,] <- c("reads_fastqc.html", paste(strip_name(inputnames$reads), "_fastqc.html", sep=""))
 
 # Write output definitions file
 write_output_definitions(outputnames)

@@ -14,7 +14,11 @@
 # PARAMETER OPTIONAL save_log: "Collect a log file" TYPE [yes: Yes, no: No] DEFAULT no (Collect a log file about the analysis run.)
 
 # KM 10.4.2015
+# AMS 9.11.2015 Added support for compressed input files
 
+# check out if the file is compressed and if so unzip it
+source(file.path(chipster.common.path, "zip-utils.R"))
+unzipIfGZipFile("input")
 
 if ( nchar(sstring)>50 ){
 stop(paste("CHIPSTER-NOTE:", "Too long search string"))

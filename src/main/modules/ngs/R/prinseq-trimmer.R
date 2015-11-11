@@ -161,22 +161,23 @@ if (is_paired_end) {
 }
 
 # Make a matrix of output names
-outputnames <- matrix(NA, nrow=10, ncol=2)
+outputnames <- matrix(NA, nrow=11, ncol=2)
 
 # SE fastq
-outputnames[1,] <- c("trimmed.fastq.gz", paste(base1, ".fastq.gz", sep =""))
+outputnames[1,] <- c("trimmed.fastq.gz", paste(base1, "_trimmed.fq.gz", sep =""))
 # SE fasta
-outputnames[2,] <- c("trimmed.fasta.gz", paste(base1, ".fasta.gz", sep =""))
+outputnames[2,] <- c("trimmed.fasta.gz", paste(base1, "_trimmed.fa.gz", sep =""))
 # PE fastq
-outputnames[3,] <- c("trimmed_1.fastq.gz", paste(base1, ".fastq.gz", sep =""))
-outputnames[4,] <- c("trimmed_1_singletons.fastq.gz", paste(base1, "_singletons.fastq.gz", sep =""))
-outputnames[5,] <- c("trimmed_2.fastq.gz", paste(base2, ".fastq.gz", sep =""))
-outputnames[6,] <- c("trimmed_2_singletons.fastq.gz", paste(base2, "_singletons.fastq.gz", sep =""))
+outputnames[3,] <- c("trimmed_1.fastq.gz", paste(base1, "_trimmed.fq.gz", sep =""))
+outputnames[4,] <- c("trimmed_1_singletons.fastq.gz", paste(base1, "_singletons_trimmed.fq.gz", sep =""))
+outputnames[5,] <- c("trimmed_2.fastq.gz", paste(base2, "_trimmed.fq.gz", sep =""))
+outputnames[6,] <- c("trimmed_2_singletons.fastq.gz", paste(base2, "_singletons_trimmed.fq.gz", sep =""))
 # PE fasta
-outputnames[7,] <- c("trimmed_1.fasta.gz", paste(base1, ".fasta.gz", sep =""))
-outputnames[8,] <- c("trimmed_1_singletons.fasta.gz", paste(base1, "_singletons.fasta.gz", sep =""))
-outputnames[9,] <- c("trimmed_2.fasta.gz", paste(base2, ".fasta.gz", sep =""))
-outputnames[10,] <- c("trimmed_2_singletons.fasta.gz", paste(base2, "_singletons.fasta.gz", sep =""))
+outputnames[7,] <- c("trimmed_1.fasta.gz", paste(base1, "_trimmed.fa.gz", sep =""))
+outputnames[8,] <- c("trimmed_1_singletons.fasta.gz", paste(base1, "_singletons_trimmed.fa.gz", sep =""))
+outputnames[9,] <- c("trimmed_2.fasta.gz", paste(base2, "_trimmed.fa.gz", sep =""))
+outputnames[10,] <- c("trimmed_2_singletons.fasta.gz", paste(base2, "_singletons_trimmed.fa.gz", sep =""))
+outputnames[11,] <- c("trim.log", paste(base1, "_trimlog.txt", sep =""))
 
 # Write output definitions file
 write_output_definitions(outputnames)
