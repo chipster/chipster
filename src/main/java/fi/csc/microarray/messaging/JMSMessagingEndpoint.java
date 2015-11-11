@@ -138,7 +138,12 @@ public class JMSMessagingEndpoint implements MessagingEndpoint, MessagingListene
 				Connection tempConnection = connectionFactory.createTopicConnection();
 				tempConnection.start();
 				tempConnection.stop();
-				tempConnection.close(); // it worked, we have a network connection
+				
+				try {
+					tempConnection.close(); // it worked, we have a network connection
+				} catch (Exception e) {
+					logger.warn("got exception when closing test connection");
+				}
 			}
 
 			// switch to reliable
