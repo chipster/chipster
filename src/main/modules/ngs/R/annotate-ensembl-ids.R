@@ -4,6 +4,7 @@
 # PARAMETER species: Species TYPE [human: human, mouse: mouse, rat: rat] DEFAULT human (The species needs to be specified in order to annotate the Ensembl IDs.)
 
 # ML, 05.02.2015
+# ML, 12.11.2015, fixed
 
 # ATM only for human, mouse, rat. 
 # The ensembl IDs need to be either the row names or in the first column.
@@ -38,7 +39,8 @@ if (species=="rat") {
 	filt <- "rgd_symbol"
 }
 
-ensembl <- useMart("ensembl", dataset=dataset)
+# ensembl <- useMart("ensembl", dataset=dataset)
+ensembl <- useMart("ENSEMBL_MART_ENSEMBL", dataset=dataset, host="www.ensembl.org")
 genes_ensembl_org <- getBM(attributes <- c("entrezgene", "ensembl_gene_id", "external_gene_name", "description"), filters = "ensembl_gene_id", values = genes, mart = ensembl, uniqueRows=T)
 
 pmatch_table		<- pmatch(genes, genes_ensembl_org[,2], duplicates.ok=T)
