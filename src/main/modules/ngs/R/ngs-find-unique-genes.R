@@ -46,7 +46,8 @@ if("ensembl_id" %in% colnames(ensembl_list)) {
 }
 
 # Fetch additional gene info from BioMart database
-ensembl_annotations <- useMart("ensembl", dataset=as.character(ensembl_dataset))
+# ensembl_annotations <- useMart("ensembl", dataset=as.character(ensembl_dataset))
+ensembl_annotations <- useMart("ENSEMBL_MART_ENSEMBL", dataset=as.character(ensembl_dataset), host="www.ensembl.org")
 #gene_annotations <- getBM(filters="ensembl_gene_id", values=ensembl_id_list, attributes=c("ensembl_gene_id","external_gene_id","description","entrezgene"), mart=ensembl_annotations)
 gene_annotations <- getBM(filters="ensembl_gene_id", values=ensembl_id_list, attributes=c("ensembl_gene_id","external_gene_name","description","entrezgene"), mart=ensembl_annotations)
 
