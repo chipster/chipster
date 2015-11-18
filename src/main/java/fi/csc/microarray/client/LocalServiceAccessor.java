@@ -64,14 +64,14 @@ public class LocalServiceAccessor implements ServiceAccessor {
 		
         OperationDefinition od = new OperationDefinition(sadl.getName().getID(), 
                                                                     sadl.getName().getDisplayName(), category,
-                                                                    sadl.getComment(), true,
+                                                                    sadl.getDescription(), true,
                                                                     null, true);        
         
         for (Input input : sadl.getInputs()) {
             if (input.getName().isNameSet()) {
-                od.addInput(input.getName().getPrefix(), input.getName().getPostfix(), input.getName().getDisplayName(), input.getComment(), input.getType(), input.isOptional());
+                od.addInput(input.getName().getPrefix(), input.getName().getPostfix(), input.getName().getDisplayName(), input.getDescription(), input.getType(), input.isOptional());
             } else {
-                od.addInput(input.getName(), input.getComment(), input.getType(), input.isOptional());
+                od.addInput(input.getName(), input.getDescription(), input.getType(), input.isOptional());
             }
         }
 
@@ -80,7 +80,7 @@ public class LocalServiceAccessor implements ServiceAccessor {
             od.addParameter(fi.csc.microarray.client.
                                        operation.parameter.Parameter.createInstance(
                 parameter.getName(), parameter.getType(), parameter.getSelectionOptions(),
-                parameter.getComment(), parameter.getFrom(), parameter.getTo(),
+                parameter.getDescription(), parameter.getFrom(), parameter.getTo(),
                 parameter.getDefaultValues(), parameter.isOptional()));      
         }
         

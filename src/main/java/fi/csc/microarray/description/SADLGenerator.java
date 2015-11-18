@@ -31,7 +31,7 @@ public class SADLGenerator {
 	 */
 	public static String generate(SADLDescription sadl) {
 		
-		String string =	"TOOL " + generateName(sadl.getName()) + " (" + escapeIfNeeded(sadl.getComment()) + ")\n";
+		String string =	"TOOL " + generateName(sadl.getName()) + " (" + escapeIfNeeded(sadl.getDescription()) + ")\n";
 		
 		string += generateInputs("INPUT", sadl.getInputs());		
 		
@@ -76,7 +76,7 @@ public class SADLGenerator {
 					}
 				}
 
-				paramString += possibleComment(parameter.getComment());
+				paramString += possibleComment(parameter.getDescription());
 				
 				string += paramString + "\n";
 			}			
@@ -97,7 +97,7 @@ public class SADLGenerator {
 		String string = "";
 		if (!outputList.isEmpty()) {
 			for (Output output : outputList) {
-				string += header + " " + generateExtensions(output) + generateName(output.getName()) + " " + possibleComment(output.getComment()) + "\n";
+				string += header + " " + generateExtensions(output) + generateName(output.getName()) + " " + possibleComment(output.getDescription()) + "\n";
 			}
 		}
 		return string;
@@ -107,7 +107,7 @@ public class SADLGenerator {
 		String string = "";
 		if (!inputList.isEmpty()) {
 			for (Input input : inputList) {
-				string += header + " " + generateExtensions(input) + generateName(input.getName()) + " TYPE " + input.getType().getName() + " " + possibleComment(input.getComment()) + "\n";
+				string += header + " " + generateExtensions(input) + generateName(input.getName()) + " TYPE " + input.getType().getName() + " " + possibleComment(input.getDescription()) + "\n";
 			}
 			
 		}
