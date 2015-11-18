@@ -39,15 +39,15 @@ public class CSCTextToToolClickListener implements ClickListener{
 			root.getToolEditor().removeItems();
 			root.getTreeToolEditor().removeAllChildren();
 			root.getToolEditor().addTool(description);
-			List<Input> inputs = description.inputs();
+			List<Input> inputs = description.getInputs();
 			for(int i = 0 ; i < inputs.size(); i++) {
 				root.getToolEditor().addInput(inputs.get(i));
 			}
-			List<Output> outputs = description.outputs();
+			List<Output> outputs = description.getOutputs();
 			for(int i = 0 ; i < outputs.size(); i++) {
 				root.getToolEditor().addOutput(outputs.get(i));
 			}
-			List<Parameter> parameters = description.parameters();
+			List<Parameter> parameters = description.getParameters();
 			for(int i = 0 ; i < parameters.size(); i++) {
 				root.getToolEditor().addParameter(parameters.get(i));
 			}

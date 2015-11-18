@@ -33,12 +33,12 @@ public class SADLGenerator {
 		
 		String string =	"TOOL " + generateName(sadl.getName()) + " (" + escapeIfNeeded(sadl.getComment()) + ")\n";
 		
-		string += generateInputs("INPUT", sadl.inputs());		
+		string += generateInputs("INPUT", sadl.getInputs());		
 		
-		string += generateOutputs("OUTPUT", sadl.outputs());		
+		string += generateOutputs("OUTPUT", sadl.getOutputs());		
 
-		if (!sadl.parameters().isEmpty()) {
-			for (Parameter parameter: sadl.parameters()) {
+		if (!sadl.getParameters().isEmpty()) {
+			for (Parameter parameter: sadl.getParameters()) {
 				String paramString = "PARAMETER " + generateOptional(parameter) + parameter.getName() + " TYPE ";
 				
 				if (parameter.getType() == ParameterType.ENUM) {

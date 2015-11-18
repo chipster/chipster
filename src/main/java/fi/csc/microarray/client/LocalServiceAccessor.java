@@ -67,7 +67,7 @@ public class LocalServiceAccessor implements ServiceAccessor {
                                                                     sadl.getComment(), true,
                                                                     null, true);        
         
-        for (Input input : sadl.inputs()) {
+        for (Input input : sadl.getInputs()) {
             if (input.getName().isNameSet()) {
                 od.addInput(input.getName().getPrefix(), input.getName().getPostfix(), input.getName().getDisplayName(), input.getComment(), input.getType(), input.isOptional());
             } else {
@@ -75,8 +75,8 @@ public class LocalServiceAccessor implements ServiceAccessor {
             }
         }
 
-        od.setOutputCount(sadl.outputs().size());
-        for (Parameter parameter : sadl.parameters()) {
+        od.setOutputCount(sadl.getOutputs().size());
+        for (Parameter parameter : sadl.getParameters()) {
             od.addParameter(fi.csc.microarray.client.
                                        operation.parameter.Parameter.createInstance(
                 parameter.getName(), parameter.getType(), parameter.getSelectionOptions(),

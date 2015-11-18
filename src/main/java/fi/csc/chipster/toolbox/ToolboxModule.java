@@ -276,11 +276,11 @@ public class ToolboxModule {
 		    	HashSet<String> uniqueNames = new HashSet<>();
 		    	ArrayList<String> allNames = new ArrayList<>();
 		    	
-		    	for (Input input : sadlDescription.inputs()) {
+		    	for (Input input : sadlDescription.getInputs()) {
 		    		allNames.add(input.getName().getID());
 		    	}
 		    	
-		    	for (Output output : sadlDescription.outputs()) {
+		    	for (Output output : sadlDescription.getOutputs()) {
 		    		allNames.add(output.getName().getID());
 		    	}
 		    	

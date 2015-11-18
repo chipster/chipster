@@ -42,7 +42,7 @@ public class ChipsterSADLParser extends SADLParser {
 		}
 		
 		private void checkParsedContent(SADLDescription description) {
-			for (Parameter parameter : description.parameters()) {
+			for (Parameter parameter : description.getParameters()) {
 				
 				// ENUM
 				if (parameter.getType() == ParameterType.ENUM) {

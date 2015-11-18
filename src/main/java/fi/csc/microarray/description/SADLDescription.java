@@ -382,15 +382,15 @@ public class SADLDescription {
 		this.comment = comment;
 	}
 
-	public List<Input> inputs() {
+	public List<Input> getInputs() {
 		return inputs;
 	}
 	
-	public List<Output> outputs() {
+	public List<Output> getOutputs() {
 		return outputs;		
 	}
 	
-	public List<Parameter> parameters() {
+	public List<Parameter> getParameters() {
 		return parameters;
 	}
 
