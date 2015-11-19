@@ -38,7 +38,7 @@ public class ToolboxModule {
 
 	private static final Logger logger = Logger.getLogger(ToolboxModule.class);
 	
-	private LinkedList<CategoryInModule> categories = new LinkedList<CategoryInModule>();
+	private LinkedList<ToolboxCategory> categories = new LinkedList<ToolboxCategory>();
 	private LinkedHashMap<String, ToolboxTool> tools = new LinkedHashMap<String, ToolboxTool>();
 
 	private File moduleDir;
@@ -47,13 +47,14 @@ public class ToolboxModule {
 	private String summary = null;
 	private String moduleName = null;
 	
-    public static class CategoryInModule {
+    public static class ToolboxCategory {
         private String name;
         private String color;
         private Boolean hidden;
-        private List<ParsedScript> tools = new LinkedList<ParsedScript>();
+        private List<ParsedScript> toolsAsParsedScripts = new LinkedList<ParsedScript>();
+        private List<ToolboxTool> tools = new LinkedList<ToolboxTool>();
         
-        public CategoryInModule(String name, String color, Boolean hidden) {
+        public ToolboxCategory(String name, String color, Boolean hidden) {
             this.name = name;
             this.color = color;
             this.hidden = hidden;
@@ -71,13 +72,19 @@ public class ToolboxModule {
             return hidden;
         }
         
-        public void addTool(ParsedScript tool) {
+        public void addTool(ToolboxTool tool, ParsedScript toolAsParsedScript) {
+            toolsAsParsedScripts.add(toolAsParsedScript);
             tools.add(tool);
         }
         
-        public List<ParsedScript> getTools() {
-            return tools;
+        public List<ParsedScript> getToolsAsParsedScripts() {
+            return toolsAsParsedScripts;
         }
+        
+        public List<ToolboxTool> getTools() {
+        	return tools;
+        }
+        
     }
 
 	public ToolboxModule(File moduleDir, File moduleFile) throws ParserConfigurationException, FileNotFoundException, SAXException, IOException {
@@ -91,10 +98,10 @@ public class ToolboxModule {
 		// Construct description message using the current state 
 		ModuleDescriptionMessage msg = new ModuleDescriptionMessage(moduleName);
 		
-		for (CategoryInModule categoryInModule : categories) {
+		for (ToolboxCategory categoryInModule : categories) {
 			Category category = new Category(categoryInModule.getName(), categoryInModule.getColor(), categoryInModule.isHidden());
 			
-			for (ParsedScript parsedScript : categoryInModule.getTools()) {
+			for (ParsedScript parsedScript : categoryInModule.getToolsAsParsedScripts()) {
 				
 				// help url not supported (or used) at the moment
 				category.addTool(parsedScript.SADL, null);
@@ -179,7 +186,7 @@ public class ToolboxModule {
 		    boolean categoryHidden = Boolean.valueOf(categoryElement.getAttribute("hidden"));
 
 		    // Create and register the category
-		    CategoryInModule category = new CategoryInModule(categoryName, categoryColor, categoryHidden);
+		    ToolboxCategory category = new ToolboxCategory(categoryName, categoryColor, categoryHidden);
 		    categories.add(category);
 		    
 		    // Load tools and add them to category
@@ -304,11 +311,12 @@ public class ToolboxModule {
 		    	
 		    	// Register the tool, override existing
 		    	
-		    	tools.put(toolId, new ToolboxTool(parsedScript.SADL, parsedScript.code, parsedScript.source, resource, moduleDir.getName(), runtimeName));
+		    	ToolboxTool toolboxTool = new ToolboxTool(toolId, parsedScript.SADL, parsedScript.code, parsedScript.source, resource, moduleDir.getName(), runtimeName);
+		    	tools.put(toolId, toolboxTool);
 		    	successfullyLoadedCount++;
 
 	    		// Add to category, which gets sent to the client
-	    		category.addTool(parsedScript);
+	    		category.addTool(toolboxTool, parsedScript);
 	    		
                 // Set hidden if needed    		
                 String hiddenStatus = "";
@@ -328,4 +336,12 @@ public class ToolboxModule {
 		logger.info(summary);
 	}
 
+	public String getName() {
+		return this.moduleName;
+	}
+	
+	public List<ToolboxCategory> getCategories() {
+		return this.categories;
+	}
+	
 }

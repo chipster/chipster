@@ -3,6 +3,7 @@ package fi.csc.chipster.toolbox;
 
 public class ToolboxTool {
 
+	private String toolId;
 	private String sadl;
 	private String source;
 	private String code;
@@ -14,7 +15,8 @@ public class ToolboxTool {
 	public ToolboxTool() {
 	}
 	
-	public ToolboxTool(String sadl, String code, String source, String resourceName, String module, String runtime) {
+	public ToolboxTool(String toolId, String sadl, String code, String source, String resourceName, String module, String runtime) {
+		this.toolId = toolId;
 		this.sadl = sadl;
 		this.source = source;
 		this.code = code;
@@ -23,6 +25,10 @@ public class ToolboxTool {
 		this.module = module;
 	}
 
+	public String getId() {
+		return toolId;
+	}
+	
 	public String getRuntime() {
 		return runtime;
 	}
@@ -46,7 +52,5 @@ public class ToolboxTool {
 	public String getModule() {
 		return module;
 	}
-
-	
 	
 }
