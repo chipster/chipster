@@ -13,11 +13,7 @@ import fi.csc.microarray.comp.ResultCallback;
 import fi.csc.microarray.comp.ToolDescription;
 import fi.csc.microarray.comp.ToolDescriptionGenerator;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
-import fi.csc.microarray.description.SADLDescription;
-import fi.csc.microarray.description.SADLGenerator;
-import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.messaging.message.JobMessage;
-import fi.csc.microarray.module.chipster.ChipsterSADLParser;
 
 public class JavaJobFactory implements JobFactory {
 
@@ -63,28 +59,15 @@ public class JavaJobFactory implements JobFactory {
 			throw new CompException("could not load job class: " + tool.getResourceName());
 		}
 		
-		
-		// parse SADL		
-		SADLDescription sadlDescription;
-		try {
-			sadlDescription = new ChipsterSADLParser().parse(tool.getSadl());
-		} catch (ParseException e) {
-			throw new CompException(e);
-		}
-		
 		// create analysis description
-		ToolDescription ad;
-		ad = new ToolDescriptionGenerator().generate(sadlDescription);
+		ToolDescription td;
+		td = new ToolDescriptionGenerator().generate(tool.getSadlDescription());
 		
-		// SADL back to string
-		SADLGenerator.generate(sadlDescription);
-		ad.setSADL(SADLGenerator.generate(sadlDescription));
+		td.setImplementation(jobClass);
+		td.setCommand("java");
+		td.setSourceCode("Source code for this tool is available within Chipster source code.");
 		
-		ad.setImplementation(jobClass);
-		ad.setCommand("java");
-		ad.setSourceCode("Source code for this tool is available within Chipster source code.");
-		
-		return ad;
+		return td;
 	}
 
 

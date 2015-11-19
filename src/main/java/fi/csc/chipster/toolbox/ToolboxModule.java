@@ -311,7 +311,7 @@ public class ToolboxModule {
 		    	
 		    	// Register the tool, override existing
 		    	
-		    	ToolboxTool toolboxTool = new ToolboxTool(toolId, parsedScript.SADL, parsedScript.code, parsedScript.source, resource, moduleDir.getName(), runtimeName);
+		    	ToolboxTool toolboxTool = new ToolboxTool(toolId, sadlDescription, parsedScript.SADL, parsedScript.code, parsedScript.source, resource, moduleDir.getName(), runtimeName);
 		    	tools.put(toolId, toolboxTool);
 		    	successfullyLoadedCount++;
 

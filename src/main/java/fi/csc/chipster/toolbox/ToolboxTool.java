@@ -1,10 +1,12 @@
 package fi.csc.chipster.toolbox;
 
+import fi.csc.microarray.description.SADLDescription;
 
 public class ToolboxTool {
 
 	private String toolId;
-	private String sadl;
+	private SADLDescription sadlDescription;
+	private String sadlString;
 	private String source;
 	private String code;
 
@@ -15,9 +17,10 @@ public class ToolboxTool {
 	public ToolboxTool() {
 	}
 	
-	public ToolboxTool(String toolId, String sadl, String code, String source, String resourceName, String module, String runtime) {
+	public ToolboxTool(String toolId, SADLDescription sadlDescription, String sadlString, String code, String source, String resourceName, String module, String runtime) {
 		this.toolId = toolId;
-		this.sadl = sadl;
+		this.sadlDescription = sadlDescription;
+		this.sadlString = sadlString;
 		this.source = source;
 		this.code = code;
 		this.runtime = runtime;
@@ -29,6 +32,10 @@ public class ToolboxTool {
 		return toolId;
 	}
 	
+	public SADLDescription getSadlDescription() {
+		return sadlDescription;
+	}
+	
 	public String getRuntime() {
 		return runtime;
 	}
@@ -37,8 +44,8 @@ public class ToolboxTool {
 		return resourceName;
 	}
 
-	public String getSadl() {
-		return sadl;
+	public String getSadlString() {
+		return sadlString;
 	}
 
 	public String getSource() {
