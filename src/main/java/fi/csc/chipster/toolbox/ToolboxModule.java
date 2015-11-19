@@ -51,7 +51,6 @@ public class ToolboxModule {
         private String name;
         private String color;
         private Boolean hidden;
-        private List<ParsedScript> toolsAsParsedScripts = new LinkedList<ParsedScript>();
         private List<ToolboxTool> tools = new LinkedList<ToolboxTool>();
         
         public ToolboxCategory(String name, String color, Boolean hidden) {
@@ -72,13 +71,8 @@ public class ToolboxModule {
             return hidden;
         }
         
-        public void addTool(ToolboxTool tool, ParsedScript toolAsParsedScript) {
-            toolsAsParsedScripts.add(toolAsParsedScript);
+        public void addTool(ToolboxTool tool) {
             tools.add(tool);
-        }
-        
-        public List<ParsedScript> getToolsAsParsedScripts() {
-            return toolsAsParsedScripts;
         }
         
         public List<ToolboxTool> getTools() {
@@ -98,13 +92,13 @@ public class ToolboxModule {
 		// Construct description message using the current state 
 		ModuleDescriptionMessage msg = new ModuleDescriptionMessage(moduleName);
 		
-		for (ToolboxCategory categoryInModule : categories) {
-			Category category = new Category(categoryInModule.getName(), categoryInModule.getColor(), categoryInModule.isHidden());
+		for (ToolboxCategory toolboxCategory : categories) {
+			Category category = new Category(toolboxCategory.getName(), toolboxCategory.getColor(), toolboxCategory.isHidden());
 			
-			for (ParsedScript parsedScript : categoryInModule.getToolsAsParsedScripts()) {
+			for (ToolboxTool tool : toolboxCategory.getTools()) {
 				
 				// help url not supported (or used) at the moment
-				category.addTool(parsedScript.SADL, null);
+				category.addTool(tool.getSadlString(), null);
 			}
 			msg.addCategory(category);
 		}
@@ -316,7 +310,7 @@ public class ToolboxModule {
 		    	successfullyLoadedCount++;
 
 	    		// Add to category, which gets sent to the client
-	    		category.addTool(toolboxTool, parsedScript);
+	    		category.addTool(toolboxTool);
 	    		
                 // Set hidden if needed    		
                 String hiddenStatus = "";
