@@ -16,10 +16,10 @@
 # Loads the data
 file <- c("results.tsv")
 if (has.rownames == "yes") {
-	dat <- read.table(file, header=TRUE, sep="\t", row.names=1, check.names=FALSE)
+	dat <- read.table(file, header=TRUE, sep="\t", row.names=1, check.names=FALSE, quote = "")
 }
 if (has.rownames == "no") {
-	dat <- read.table(file, header=TRUE, sep="\t", row.names=NULL) 
+	dat <- read.table(file, header=TRUE, sep="\t", row.names=NULL, quote = "") 
 }
 
 # Extract the data to a vector
