@@ -104,7 +104,7 @@ if (ontology == 'biological_process' || ontology == 'all') {
       go.table$ontology <- 'biological process'
       colnames(go.table) <- colnames(output)
       output <- rbind(output, go.table)
-      go.table$description <- paste('<a href="http://amigo.geneontology.org/cgi-bin/amigo/term-details.cgi?term=', rownames(go.table), '">', go.table$description, '</a>', sep='')
+      go.table$description <- paste('<a href="http://amigo1.geneontology.org/cgi-bin/amigo/term_details?term=', rownames(go.table), '">', go.table$description, '</a>', sep='')
       HTML(go.table, file='hypergeo.html', append=TRUE, Border=0, innerBorder=1)
     }
   }
@@ -123,7 +123,7 @@ if (ontology == 'molecular_function' || ontology == 'all') {
       go.table$ontology <- 'molecular function'
       colnames(go.table) <- colnames(output)
       output <- rbind(output, go.table)
-      go.table$description <- paste('<a href="http://amigo.geneontology.org/cgi-bin/amigo/term-details.cgi?term=', rownames(go.table), '">', go.table$description, '</a>', sep='')
+      go.table$description <- paste('<a href="http://amigo1.geneontology.org/cgi-bin/amigo/term_details?term=', rownames(go.table), '">', go.table$description, '</a>', sep='')
       HTML(go.table, file='hypergeo.html', append=TRUE, Border=0, innerBorder=1)
     }
   }
@@ -142,7 +142,7 @@ if (ontology == 'cellular_component' || ontology == 'all') {
       go.table$ontology <- 'cellular component'
       colnames(go.table) <- colnames(output)
       output <- rbind(output, go.table)
-      go.table$description <- paste('<a href="http://amigo.geneontology.org/cgi-bin/amigo/term-details.cgi?term=', rownames(go.table), '">', go.table$description, '</a>', sep='')
+      go.table$description <- paste('<a href="http://amigo1.geneontology.org/cgi-bin/amigo/term_details?term=', rownames(go.table), '">', go.table$description, '</a>', sep='')
       HTML(go.table, file='hypergeo.html', append=TRUE, Border=0, innerBorder=1)
     }
   }
