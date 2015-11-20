@@ -61,7 +61,7 @@ public class Input extends InputOutputUI{
 	public void fillWithData(SADLDescription.Input input) {
 		type2.select(input.getType());
 		name.setValue(input.getName().getDisplayName());
-		description.setValue(getValue(input.getComment()));
+		description.setValue(getValue(input.getDescription()));
 		cbMeta.setValue(input.isMeta());
 		optional.setValue(input.isOptional());
 		
@@ -85,7 +85,7 @@ public class Input extends InputOutputUI{
 		SADLDescription.Input input = new SADLDescription.Input();
 		input.setName(getNameFromUI(type.getValue().toString()));
 		input.setOptional(optional.getValue());
-		input.setComment(getValueOrNull(description.getValue()));
+		input.setDescription(getValueOrNull(description.getValue()));
 		input.setType((InputType) type2.getValue());
 		input.setMeta(cbMeta.getValue());
 		return input;

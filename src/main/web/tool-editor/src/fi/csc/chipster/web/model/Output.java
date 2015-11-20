@@ -50,7 +50,7 @@ public class Output extends InputOutputUI{
 	public void fillWithData(SADLDescription.Output output) {
 		name.setValue(output.getName().getDisplayName());
 		cbMeta.setValue(output.isMeta());
-		description.setValue(getValue(output.getComment()));
+		description.setValue(getValue(output.getDescription()));
 		optional.setValue(output.isOptional());
 		
 		if(output.getName().getPrefix() == null || output.getName().getPrefix().isEmpty()) {
@@ -73,7 +73,7 @@ public class Output extends InputOutputUI{
 		SADLDescription.Output output = new SADLDescription.Output();
 		output.setName(getNameFromUI(type.getValue().toString()));
 		output.setOptional(optional.getValue());
-		output.setComment(getValueOrNull(description.getValue()));
+		output.setDescription(getValueOrNull(description.getValue()));
 		output.setMeta(cbMeta.getValue());
 		
 		return output;

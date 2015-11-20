@@ -23,7 +23,7 @@ import fi.csc.microarray.description.SADLSyntax.ParameterType;
 public class SADLDescription {
 
 	private Name name;
-	private String comment;
+	private String description;
 	
 	private LinkedList<Input> inputs = new LinkedList<Input>();
 	private LinkedList<Output> outputs = new LinkedList<Output>();
@@ -152,7 +152,7 @@ public class SADLDescription {
 		
 		private Name name;
 		private boolean isOptional;
-		protected String comment;
+		protected String description;
 
 		public Entity(Name name, boolean isOptional) {
             this.name = name;
@@ -175,12 +175,12 @@ public class SADLDescription {
 			return name;
 		}
 
-		public void setComment(String comment) {
-			this.comment = comment;
+		public void setDescription(String description) {
+			this.description = description;
 		}
 
-		public String getComment() {
-			return comment;
+		public String getDescription() {
+			return description;
 		}
 	}
 	
@@ -285,10 +285,10 @@ public class SADLDescription {
 		}
 
 		public Parameter(Name name, ParameterType type, Name[] selectionOptions,
-				String from, String to, String defaultValue, String comment) {
+				String from, String to, String defaultValue, String description) {
 			this(name, type, selectionOptions, from, to,
 			     defaultValue == null ? new String[] {} : new String[] {defaultValue},
-			     comment);
+			     description);
 		}
 
 		public Parameter(Name name, ParameterType type, Name[] selectionOptions,
@@ -297,14 +297,14 @@ public class SADLDescription {
 		}
 
 		public Parameter(Name name, ParameterType type, Name[] selectionOptions,
-				String from, String to, String[] defaultValues, String comment) {
+				String from, String to, String[] defaultValues, String description) {
 			super(name, false);
 			this.type = type;
 			this.selectionOptions = selectionOptions;
 			this.from = from;
 			this.to = to;
 			this.defaultValues = defaultValues;
-			this.comment = comment;
+			this.description = description;
 		}
 		
 		public ParameterType getType() {
@@ -324,10 +324,12 @@ public class SADLDescription {
 		}
 		
 		public String getDefaultValue() {
-			if (defaultValues.length != 1) {
-				throw new IllegalStateException("there needs to be 1 default value, not " + defaultValues.length);
+			if (defaultValues.length == 0) {
+				// don't throw exception anymore, as it would break serialization to json
+				return null;
+			} else {
+				return defaultValues[0];
 			}
-			return defaultValues[0];
 		}
 
 		public String[] getDefaultValues() {
@@ -346,12 +348,12 @@ public class SADLDescription {
 	 * Returns a new (mostly empty) object presentation for parsed SADL.
 	 * 
 	 * @param name name of the new description
-	 * @param comment free text description of the tool
+	 * @param free text description of the tool
 	 */
-	public SADLDescription(Name name, String comment) {
+	public SADLDescription(Name name, String description) {
 		super();
 		this.name = name;
-		this.comment = comment;
+		this.description = description;
 	}
 
 	public void addInput(Input input) {
@@ -371,26 +373,25 @@ public class SADLDescription {
 	}
 
 	/**
-	 * Gets free text description of the tool. Would be called "description" if it would
-	 * not cause confusion.
+	 * Gets free text description of the tool. 
 	 */
-	public String getComment() {
-		return comment;
+	public String getDescription() {
+		return description;
 	}
 
-	public void setComment(String comment) {
-		this.comment = comment;
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
-	public List<Input> inputs() {
+	public List<Input> getInputs() {
 		return inputs;
 	}
 	
-	public List<Output> outputs() {
+	public List<Output> getOutputs() {
 		return outputs;		
 	}
 	
-	public List<Parameter> parameters() {
+	public List<Parameter> getParameters() {
 		return parameters;
 	}
 

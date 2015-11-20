@@ -111,8 +111,8 @@ public class SADLParser {
 		Name name = parseName(tokens);		
 		SADLDescription description = new SADLDescription(name);
 
-		if (tokens.peekType() == TokenType.COMMENT) {
-			description.setComment(tokens.next());
+		if (tokens.peekType() == TokenType.DESCRIPTION) {
+			description.setDescription(tokens.next());
 		}
 
 		// read possible inputs
@@ -192,8 +192,8 @@ public class SADLParser {
 
 		output.setName(parseName(tokens));
 
-		if (tokens.peekType() == TokenType.COMMENT) {
-			output.setComment(tokens.next());
+		if (tokens.peekType() == TokenType.DESCRIPTION) {
+			output.setDescription(tokens.next());
 		}
 
 		return output;
@@ -218,8 +218,8 @@ public class SADLParser {
 		}
 		input.setType(inputType);
 		
-		if (tokens.peekType() == TokenType.COMMENT) {
-			input.setComment(tokens.next());
+		if (tokens.peekType() == TokenType.DESCRIPTION) {
+			input.setDescription(tokens.next());
 		}
 
 		return input;
@@ -287,8 +287,8 @@ public class SADLParser {
 		Parameter parameter = new Parameter(name, type, options, from, to, defaultValues);
 		parameter.setOptional(isOptional);
 
-		if (tokens.peekType() == TokenType.COMMENT) {
-			parameter.setComment(tokens.next());
+		if (tokens.peekType() == TokenType.DESCRIPTION) {
+			parameter.setDescription(tokens.next());
 		}
 
 		return parameter;

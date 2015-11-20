@@ -210,7 +210,7 @@ public class Parameter extends BasicModel {
 		}
 		id.setValue(getValue(parameter.getName().getID()));
 		name.setValue(getValue(parameter.getName().getDisplayName()));
-		description.setValue(getValue(parameter.getComment()));
+		description.setValue(getValue(parameter.getDescription()));
 		optional.setValue(parameter.isOptional());
 		if (parameter.getDefaultValues().length >= 1) {
 			String defaultVal = parameter.getDefaultValues()[0];

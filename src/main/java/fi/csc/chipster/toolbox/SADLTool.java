@@ -94,12 +94,12 @@ public class SADLTool {
 			SADLDescription sadl = new ChipsterSADLParser().parse(parsedScript.SADL);
 			
 			// Do necessary tweaks to meta inputs/outputs
-			for (Input input : sadl.inputs()) {
+			for (Input input : sadl.getInputs()) {
 				if ("phenodata.tsv".equals(input.getName().getID())) {
 					input.setMeta(true);
 				}
 			}
-			for (Output output : sadl.outputs()) {
+			for (Output output : sadl.getOutputs()) {
 				if ("phenodata.tsv".equals(output.getName().getID())) {
 					output.setMeta(true);
 				}

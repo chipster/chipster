@@ -112,7 +112,6 @@ public class ToolDescription {
 	private List<OutputDescription> outputFiles = new LinkedList<OutputDescription>();
 	private List<ParameterDescription> parameters = new LinkedList<ParameterDescription>();
 	private String sourceCode;
-	private String sadl;
 	private String helpURL = null;
 
 	private String initialiser;
@@ -196,19 +195,6 @@ public class ToolDescription {
 
 	public String getSourceCode() {
 		return sourceCode;
-	}
-
-	public void setSADL(String sadl) {
-		this.sadl = sadl;
-	}
-	
-	public String getSADL() {
-		
-		if (sadl != null) {
-			return sadl;
-		} else {
-			throw new RuntimeException("sadl is null");
-		}
 	}
 
 	public void setHelpURL(String helpURL) {
