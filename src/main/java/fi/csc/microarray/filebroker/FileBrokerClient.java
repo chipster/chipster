@@ -8,8 +8,6 @@ import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.jms.JMSException;
-
 import fi.csc.microarray.messaging.admin.StorageAdminAPI.StorageEntryMessageListener;
 import fi.csc.microarray.util.IOUtils.CopyProgressListener;
 
