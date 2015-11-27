@@ -13,7 +13,7 @@ import fi.csc.microarray.comp.ResultCallback;
 import fi.csc.microarray.comp.ToolDescription;
 import fi.csc.microarray.comp.ToolDescriptionGenerator;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
-import fi.csc.microarray.messaging.message.JobMessage;
+import fi.csc.microarray.messaging.message.GenericJobMessage;
 
 public class JavaJobFactory implements JobFactory {
 
@@ -30,7 +30,7 @@ public class JavaJobFactory implements JobFactory {
 	}
 
 	@SuppressWarnings(value="unchecked")
-	public CompJob createCompJob(JobMessage message, ToolboxTool tool, ResultCallback resultHandler) throws CompException {
+	public CompJob createCompJob(GenericJobMessage message, ToolboxTool tool, ResultCallback resultHandler) throws CompException {
 		ToolDescription description = createToolDescription(tool);
 		
 		try {

@@ -11,7 +11,7 @@ import fi.csc.microarray.comp.CompJob;
 import fi.csc.microarray.comp.InterpreterJobFactory;
 import fi.csc.microarray.comp.ResultCallback;
 import fi.csc.microarray.comp.ToolDescription;
-import fi.csc.microarray.messaging.message.JobMessage;
+import fi.csc.microarray.messaging.message.GenericJobMessage;
 
 public class RJobFactory extends InterpreterJobFactory {
 
@@ -25,7 +25,7 @@ public class RJobFactory extends InterpreterJobFactory {
 	}
 
 	@Override
-	public CompJob createCompJob(JobMessage message, ToolboxTool tool, ResultCallback resultHandler) throws CompException {
+	public CompJob createCompJob(GenericJobMessage message, ToolboxTool tool, ResultCallback resultHandler) throws CompException {
 
 		ToolDescription description = createToolDescription(tool);
 		

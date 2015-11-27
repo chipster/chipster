@@ -14,7 +14,7 @@ import org.apache.log4j.Logger;
 import fi.csc.microarray.messaging.JobState;
 
 /**
- * For returning job results to clients.
+ * For returning job results to clients through JMS.
  * 
  * @author hupponen, akallio
  *
@@ -60,6 +60,20 @@ public class ResultMessage extends PayloadMessage {
 		super();
 	}
 	
+	public ResultMessage(GenericResultMessage genericReply) {
+		this.jobId = genericReply.getJobId();
+		this.state = genericReply.getState();
+		this.stateDetail = genericReply.getStateDetail();
+		this.errorMessage = genericReply.getErrorMessage();
+		this.outputText = genericReply.getOutputText();
+		this.sourceCode = genericReply.getSourceCode();
+		this.heartbeat = genericReply.isHeartbeat();
+		
+		for (String outputName : genericReply.getOutputNames()) {
+			this.addPayload(outputName, genericReply.getDatasetId(outputName), genericReply.getDatasetName(outputName));
+		}
+	}
+
 	public void unmarshal(MapMessage from) throws JMSException {
 		super.unmarshal(from);
 	

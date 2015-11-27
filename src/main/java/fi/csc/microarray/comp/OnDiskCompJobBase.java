@@ -13,7 +13,7 @@ import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient.FileBrokerArea;
 import fi.csc.microarray.filebroker.NotEnoughDiskSpaceException;
 import fi.csc.microarray.messaging.JobState;
-import fi.csc.microarray.messaging.message.JobMessage;
+import fi.csc.microarray.messaging.message.GenericJobMessage;
 import fi.csc.microarray.security.CryptoKey;
 import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.Files;
@@ -32,7 +32,7 @@ public abstract class OnDiskCompJobBase extends CompJob {
 	protected File jobWorkDir;
 
 	@Override
-	public void construct(JobMessage inputMessage, ToolDescription toolDescription, ResultCallback resultHandler) {
+	public void construct(GenericJobMessage inputMessage, ToolDescription toolDescription, ResultCallback resultHandler) {
 		super.construct(inputMessage, toolDescription, resultHandler);
 		this.jobWorkDir = new File(resultHandler.getWorkDir(), getId());
 	}
@@ -145,7 +145,7 @@ public abstract class OnDiskCompJobBase extends CompJob {
 	                resultHandler.getFileBrokerClient().addFile(dataId, FileBrokerArea.CACHE, outputFile, null);
 	                String nameInClient = nameMap.get(outputFile.getName());
 	                // put dataId to result message
-	                outputMessage.addPayload(outputFile.getName(), dataId, nameInClient);
+	                outputMessage.addDataset(outputFile.getName(), dataId, nameInClient);
 	                logger.debug("transferred output file: " + fileDescription.getFileName());
 
 	            } catch (FileNotFoundException e) {

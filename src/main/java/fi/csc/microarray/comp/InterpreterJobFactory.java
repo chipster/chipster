@@ -9,7 +9,7 @@ import org.apache.log4j.Logger;
 import fi.csc.chipster.toolbox.ToolboxTool;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.messaging.message.JobMessage;
+import fi.csc.microarray.messaging.message.GenericJobMessage;
 
 /**
  * Abstract base class for any JobFactory that connects to external interpreter to run commands.
@@ -69,7 +69,7 @@ public abstract class InterpreterJobFactory implements JobFactory {
 	}
 
 	@Override
-	public abstract CompJob createCompJob(JobMessage message, ToolboxTool tool, ResultCallback resultHandler) throws CompException;
+	public abstract CompJob createCompJob(GenericJobMessage message, ToolboxTool tool, ResultCallback resultHandler) throws CompException;
 
 	protected abstract String getStringDelimeter();
 	protected abstract String getVariableNameSeparator();
