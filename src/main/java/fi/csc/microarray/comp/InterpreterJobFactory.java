@@ -9,11 +9,7 @@ import org.apache.log4j.Logger;
 import fi.csc.chipster.toolbox.ToolboxTool;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.description.SADLDescription;
-import fi.csc.microarray.description.SADLGenerator;
-import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.messaging.message.JobMessage;
-import fi.csc.microarray.module.chipster.ChipsterSADLParser;
 
 /**
  * Abstract base class for any JobFactory that connects to external interpreter to run commands.
@@ -82,21 +78,9 @@ public abstract class InterpreterJobFactory implements JobFactory {
 
 		File moduleDir = new File(tool.getModule());
 		
-		// parse SADL		
-		SADLDescription sadlDescription;
-		try {
-			sadlDescription = new ChipsterSADLParser().parse(tool.getSADL());
-		} catch (ParseException e) {
-			throw new CompException(e);
-		}
-
 		// create description
 		ToolDescription ad;
-		ad = new ToolDescriptionGenerator().generate(sadlDescription);
-
-		// SADL back to string
-		SADLGenerator.generate(sadlDescription);
-		ad.setSADL(SADLGenerator.generate(sadlDescription));
+		ad = new ToolDescriptionGenerator().generate(tool.getSadlDescription());
 
 		// add interpreter specific stuff to ToolDescription
 		ad.setCommand(interpreterCommand);

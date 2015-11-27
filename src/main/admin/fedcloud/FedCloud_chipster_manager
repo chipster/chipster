@@ -209,7 +209,7 @@ then
 fi
 
 #check that proxy is valid
-proxytime=$( voms-proxy-info  | grep "timeleft" | awk '{print $3}')
+proxytime=$( voms-proxy-info | grep "timeleft" | awk '{print $3}')
 if [[ "$proxytime" == "" || "$proxytime" == "00:00:00"  ]] 
 then
      echo "---------------------------------------"
@@ -328,7 +328,7 @@ then
 
    if [[  $flavor == "0" ]]
    then
-      flavor=('resource_tpl#m1-large')
+      flavor=('resource_tpl#m1-medium')
    fi
    link_ip=(1)
 fi
@@ -343,7 +343,7 @@ then
 
    if [[  $flavor == "0" ]]
    then
-      flavor=('resource_tpl#m1-large')
+      flavor=('resource_tpl#m1-medium')
    fi
    link_ip=(1)
 fi
@@ -357,7 +357,7 @@ then
 
    if [[  $flavor == "0" ]]
    then
-      flavor=('resource_tpl#m1-large')
+      flavor=('resource_tpl#m1-medium')
    fi
    link_ip=(1)
 fi
@@ -376,8 +376,8 @@ link_ip=(0)
 endpoint=(0)
 
 
+user=$(voms-proxy-info --identity | awk '{print $NF}' | sed s/'@'/"-at-"/g | tr "[:upper:]" "[:lower:]" )
 
-user=$(voms-proxy-info | grep identity | awk '{print $5}' | sed s/'@'/"-at-"/g)
 usercred=$(ls /tmp/x509up_u${UID})
 volumesize=20
 keyflag=(0)
@@ -675,11 +675,13 @@ sudo cvmfs_config setup  2>&1 >>  /home/ubuntu/cvmfsstartup.log
 cd /etc/cvmfs
 #cp default.local ~/default.local.cvmfs.tmp
 echo CVMFS_HTTP_PROXY=DIRECT > /home/ubuntu/default.local.cvmfs.tmp
+echo CVMFS_SERVER_URL='http://cvmfs-egi.gridpp.rl.ac.uk:8000/cvmfs/@fqrn@;http://cvmfsrepo.lcg.triumf.ca:8000/cvmfs/@fqrn@;http://cvmfsrep.grid.sinica.edu.tw:8000/cvmfs/@fqrn@' >>  /home/ubuntu/default.local.cvmfs.tmp
 sudo cp  /home/ubuntu/default.local.cvmfs.tmp ./default.local
 sudo service autofs stop  2>&1 >>  /home/ubuntu/cvmfsstartup.log 
 sudo service autofs status  2>&1 >>  /home/ubuntu/cvmfsstartup.log 
 sudo service autofs start  2>&1 >>  /home/ubuntu/cvmfsstartup.log 
 ls /cvmfs/chipster.egi.eu 2>&1 >>  /home/ubuntu/cvmfsstartup.log 
+echo "Content of tools:" 2>&1 >>  /home/ubuntu/cvmfsstartup.log 
 ls -l /cvmfs/chipster.egi.eu/tools 2>&1 >>  /home/ubuntu/cvmfsstartup.log  
 sudo rm -rf /mnt/tools  2>&1 >>  /home/ubuntu/cvmfsstartup.log 
 sudo ln -s /cvmfs/chipster.egi.eu/tools /mnt/tools  2>&1 >>  /home/ubuntu/cvmfsstartup.log 
@@ -727,10 +729,10 @@ cat >> /tmp/chipster_server_startup_$$.sh <<EOF
 sudo service chipster restart   2>&1 >>  /home/ubuntu/startup.log 
 sudo service chipster-comp restart  2>&1 >>  /home/ubuntu/startup.log 
 n=1
-while [[ $n -le 5 ]]
+while [[ \$n -le 5 ]]
 do
   check=$\( sudo service chipster status | grep "not running" -i -c \)
-  if [[ $check -ne 0 ]]
+  if [[ \$check -ne 0 ]]
   then
     sleep 30 
     sudo rm -rf /opt/chipster/fileserver/db-root/ChipsterFilebrokerMetadataDatabase
@@ -743,7 +745,11 @@ do
 done
 echo "Startup finished" >>  /home/ubuntu/startup.log 
 date >>  /home/ubuntu/startup.log 
-sudo service chipster status 2>&1 >>  /home/ubuntu/startup.log 
+sudo service chipster status 2>&1 >>  /home/ubuntu/startup.log
+cat /home/ubuntu/cvmfsstartup.log > /opt/chipster/webstart/web-root/building.html
+cat  /home/ubuntu/startup.log  >>  /opt/chipster/webstart/web-root/building.html
+echo "CHIPSTER_READY" >>  /opt/chipster/webstart/web-root/building.html
+chmod go+rx /opt/chipster/webstart/web-root/building.html
 
 EOF
 
@@ -781,7 +787,7 @@ echo "$volume"
 echo "Resource template: "$flavor
 
 # Remove user data file
-rm -f /tmp/chipster_server_startup_$$.sh
+#rm -f /tmp/chipster_server_startup_$$.sh
 
 #get the IP address
 
@@ -821,9 +827,9 @@ echo "This can take several minutes (up to 30 min)"
 
 from_port8081=(0)
 wait_start=$(date +%s)
-while [[ $from_port8081 -lt 50 ]]
+while  [[ $from_port8081 -ne 1 ]]
 do
- from_port8081=$(curl ${vmip}:8081 2> /dev/null | wc -l )
+ from_port8081=$(curl ${vmip}:8081/building.html 2> /dev/null | grep "CHIPSTER_READY" | wc -l )
  sleep 15
  wait_now=$(date +%s)
  (( wait_time =  wait_now - wait_start))
@@ -837,6 +843,7 @@ do
    exit 1
  fi 
 done
+
 
 echo "Time waited ${wait_time}s"
 

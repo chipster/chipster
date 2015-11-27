@@ -37,7 +37,7 @@ public interface ServiceAccessor {
 
 	public TaskExecutor getTaskExecutor();
 
-	public void close() throws Exception;
+	public void close();
 
 	public SourceMessageListener retrieveSourceCode(String id) throws Exception;
 

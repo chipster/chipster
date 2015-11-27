@@ -18,7 +18,7 @@ import fi.csc.microarray.description.SADLParser.ParseException;
 public class SADLTokeniser {
 
 	public static enum TokenType {
-		COMMENT,
+		DESCRIPTION,
 		QUOTED,
 		OPERATOR,
 		NORMAL
@@ -117,7 +117,7 @@ public class SADLTokeniser {
 					setEscapingEnabled(false);
 					next(); // skip ')'
 					
-					type = TokenType.COMMENT;
+					type = TokenType.DESCRIPTION;
 
 				// read special quoted block
 				} else if (peek() == SADLSyntax.QUOTE.charAt(0)) {

@@ -13,12 +13,9 @@ echo ""
 
 # Update file web location and name
 UPDATE_URL_PREFIX=http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/virtual_machines/updates
-MAIN_UPDATE_FILE=update-exec3.sh
+MAIN_UPDATE_FILE=update-exec-3.6.2.sh
 
-# Figure out Chipster major version and corresponding URL
-CHIPSTER_VERSION=`ls -1 shared/lib | grep ^chipster-[0-9\\.]*.jar | gawk 'match($0, "chipster-([0-9\\\\.]*).jar", g) {print g[1]}'`
-CHIPSTER_MAJOR_VERSION=`echo $CHIPSTER_VERSION | gawk 'match($0, "([0-9]*.[0-9]*).[0-9]*", g) {print g[1]}'`
-MAIN_UPDATE_FILE_URL=$UPDATE_URL_PREFIX/$CHIPSTER_MAJOR_VERSION/$MAIN_UPDATE_FILE
+MAIN_UPDATE_FILE_URL=$UPDATE_URL_PREFIX//$MAIN_UPDATE_FILE
 
 # Remove old update file, if exists
 if [ -e $MAIN_UPDATE_FILE ]; then

@@ -238,7 +238,13 @@ public abstract class ClientApplication {
 			logger.debug("Initialise JMS connection.");
 			Session.getSession().setServiceAccessor(serviceAccessor);
 			reportInitialisationThreadSafely("Connecting to broker at " + configuration.getString("messaging", "broker-host") + "...", false);
-			serviceAccessor.initialise(manager, getAuthenticationRequestListener());
+			
+			try {
+				serviceAccessor.initialise(manager, getAuthenticationRequestListener());
+			} catch (Exception e) {
+				serviceAccessor.close();
+				throw e;
+			}
 			
 			this.taskExecutor = serviceAccessor.getTaskExecutor();
 
