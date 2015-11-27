@@ -28,7 +28,7 @@ public interface FileBrokerClient {
 	 * @param size bytes
 	 * @return true if space was available
 	 */
-	public boolean requestDiskSpace(long size) throws JMSException;
+	public boolean requestDiskSpace(long size) throws FileBrokerException;
 	
 	
 	/**
@@ -43,7 +43,7 @@ public interface FileBrokerClient {
 	 * @throws IOException
 	 * @throws NotEnoughDiskSpaceException
 	 */
-	public abstract String addFile(String dataId, FileBrokerArea area, InputStream file, long contentLength, CopyProgressListener progressListener) throws NotEnoughDiskSpaceException, FileBrokerException, JMSException, IOException;
+	public abstract String addFile(String dataId, FileBrokerArea area, InputStream file, long contentLength, CopyProgressListener progressListener) throws NotEnoughDiskSpaceException, FileBrokerException, IOException;
 
 	/**
 	 * Add file to file broker. Might use local transfer instead of uploading.
@@ -59,7 +59,7 @@ public interface FileBrokerClient {
 	 * @throws IOException
 	 * @throws NotEnoughDiskSpaceException
 	 */
-	public abstract void addFile(String dataId, FileBrokerArea area, File file, CopyProgressListener progressListener) throws NotEnoughDiskSpaceException, FileBrokerException, JMSException, IOException;
+	public abstract void addFile(String dataId, FileBrokerArea area, File file, CopyProgressListener progressListener) throws NotEnoughDiskSpaceException, FileBrokerException, IOException;
 
 	/**
 	 *  Get the InputStream for a file from the FileBroker.
@@ -78,7 +78,7 @@ public interface FileBrokerClient {
 	 * @throws IOException
 	 * @throws JMSException 
 	 */
-	public abstract ChecksumInputStream getInputStream(String dataId) throws IOException, JMSException;
+	public abstract ChecksumInputStream getInputStream(String dataId) throws IOException, FileBrokerException;
 	
 	/**
 	 * Get File pointed by url to destFile. Might use local file transfer instead
@@ -91,7 +91,7 @@ public interface FileBrokerClient {
 	 * @throws JMSException 
 	 * @throws ChecksumException 
 	 */
-	public abstract void getFile(String dataId, File destFile) throws IOException, JMSException, ChecksumException;	
+	public abstract void getFile(String dataId, File destFile) throws IOException, FileBrokerException, ChecksumException;	
 
 	/**
 	 * Retrieves the list of public files or folders from the file broker. Method blocks until result is
@@ -102,7 +102,7 @@ public interface FileBrokerClient {
 	 * @throws JMSException
 	 * @throws MalformedURLException 
 	 */
-	public abstract List<URL> getPublicFiles() throws JMSException, MalformedURLException;
+	public abstract List<URL> getPublicFiles() throws FileBrokerException, MalformedURLException;
 
 	/**
 	 * @param name
@@ -110,7 +110,7 @@ public interface FileBrokerClient {
 	 * @param dataIds dataIds of other files in session
 	 * @throws JMSException
 	 */
-	public abstract void saveRemoteSession(String name, String sessionId, LinkedList<String> dataIds) throws JMSException;
+	public abstract void saveRemoteSession(String name, String sessionId, LinkedList<String> dataIds) throws FileBrokerException;
 	
 	/**
 	 * Returns storage sessions (remote sessions) available at server. Returned array contains human readable names and corresponding URL's.
@@ -118,13 +118,13 @@ public interface FileBrokerClient {
 	 * 
 	 * @return array of names and URL's
 	 */
-	public abstract List<DbSession> listRemoteSessions() throws JMSException;
-	public abstract List<DbSession> listPublicRemoteSessions() throws JMSException;
+	public abstract List<DbSession> listRemoteSessions() throws FileBrokerException;
+	public abstract List<DbSession> listPublicRemoteSessions() throws FileBrokerException;
 	/**
 	 * @param dataId dataId of the session metadata file
 	 * @throws JMSException
 	 */
-	public void removeRemoteSession(String dataId) throws JMSException;
+	public void removeRemoteSession(String dataId) throws FileBrokerException;
 
 	/**
 	 * @param dataId
@@ -134,10 +134,10 @@ public interface FileBrokerClient {
 	 * @return
 	 * @throws JMSException
 	 */
-	public boolean isAvailable(String dataId, Long contentLength, String checksum, FileBrokerArea area) throws JMSException;
+	public boolean isAvailable(String dataId, Long contentLength, String checksum, FileBrokerArea area) throws FileBrokerException;
 
 
-	public boolean moveFromCacheToStorage(String dataId) throws JMSException, FileBrokerException;
+	public boolean moveFromCacheToStorage(String dataId) throws FileBrokerException;
 
 
 	/**
@@ -151,11 +151,11 @@ public interface FileBrokerClient {
 	 * @throws FileBrokerException
 	 * @throws MalformedURLException 
 	 */
-	public String getExternalURL(String dataId) throws JMSException, FileBrokerException, MalformedURLException;
+	public String getExternalURL(String dataId) throws FileBrokerException, MalformedURLException;
 
 
-	public Long getContentLength(String dataId) throws IOException, JMSException, FileBrokerException;
+	public Long getContentLength(String dataId) throws IOException, FileBrokerException;
 
 
-	StorageEntryMessageListener getStorageUsage() throws JMSException, InterruptedException;
+	StorageEntryMessageListener getStorageUsage() throws InterruptedException, FileBrokerException;
 }

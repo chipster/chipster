@@ -13,6 +13,7 @@ import fi.csc.microarray.client.serverfiles.ServerFile;
 import fi.csc.microarray.client.serverfiles.ServerFileSystemView;
 import fi.csc.microarray.client.serverfiles.ServerFileUtils;
 import fi.csc.microarray.filebroker.DbSession;
+import fi.csc.microarray.filebroker.FileBrokerException;
 
 public class RemoteSessionChooserFactory {
 	
@@ -33,7 +34,7 @@ public class RemoteSessionChooserFactory {
 	
 
 	public static ServerFileSystemView updateRemoteSessions(SessionManager sessionManager,
-			JFileChooser sessionFileChooser) throws JMSException, MalformedURLException {
+			JFileChooser sessionFileChooser) throws FileBrokerException, MalformedURLException {
 		List<DbSession> sessions = sessionManager.listRemoteSessions();
 		ServerFileSystemView view = ServerFileSystemView.parseFromPaths(ServerFile.SERVER_SESSION_ROOT_FOLDER, sessions);		
 		sessionFileChooser.setFileSystemView(view);

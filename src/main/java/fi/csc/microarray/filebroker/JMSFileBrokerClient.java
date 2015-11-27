@@ -99,7 +99,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	 * @see fi.csc.microarray.filebroker.FileBrokerClient#addFile(File, CopyProgressListener)
 	 */
 	@Override
-	public void addFile(String dataId, FileBrokerArea area, File file, CopyProgressListener progressListener) throws FileBrokerException, JMSException, IOException {
+	public void addFile(String dataId, FileBrokerArea area, File file, CopyProgressListener progressListener) throws FileBrokerException, IOException {
 		
 		if (area != FileBrokerArea.CACHE) {
 			throw new UnsupportedOperationException();
@@ -143,7 +143,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	 * @see fi.csc.microarray.filebroker.FileBrokerClient#addFile(InputStream, CopyProgressListener)
 	 */
 	@Override
-	public String addFile(String dataId, FileBrokerArea area, InputStream file, long contentLength, CopyProgressListener progressListener) throws FileBrokerException, JMSException, IOException {
+	public String addFile(String dataId, FileBrokerArea area, InputStream file, long contentLength, CopyProgressListener progressListener) throws FileBrokerException, IOException {
 		
 		URL url;
 		if (area == FileBrokerArea.CACHE) {
@@ -180,7 +180,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	}
 	
 	@Override
-	public ChecksumInputStream getInputStream(String dataId) throws IOException, JMSException {
+	public ChecksumInputStream getInputStream(String dataId) throws IOException, FileBrokerException {
 		URL url = null;
 		try {
 			url = getURL(dataId);
@@ -231,7 +231,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	 * @see fi.csc.microarray.filebroker.FileBrokerClient#getFile(File, URL)
 	 */
 	@Override
-	public void getFile(String dataId, File destFile) throws IOException, JMSException, ChecksumException {
+	public void getFile(String dataId, File destFile) throws IOException, FileBrokerException, ChecksumException {
 		
 		// Try to find the file locally and symlink/copy it
 		if (localFilebrokerCache != null && localFilebrokerStorage != null) {
@@ -275,7 +275,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	}
 
 	@Override
-	public boolean isAvailable(String dataId, Long contentLength, String checksum, FileBrokerArea area) throws JMSException {
+	public boolean isAvailable(String dataId, Long contentLength, String checksum, FileBrokerArea area) throws FileBrokerException {
 		BooleanMessageListener replyListener = new BooleanMessageListener();  
 		try {
 			
@@ -302,7 +302,8 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 			} else {
 				return success;
 			}
-			
+		} catch (JMSException e) {
+			throw new FileBrokerException(e);
 		} finally {
 			replyListener.cleanUp();
 		}
@@ -310,7 +311,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 
 	
 	@Override
-	public boolean moveFromCacheToStorage(String dataId) throws JMSException, FileBrokerException {
+	public boolean moveFromCacheToStorage(String dataId) throws FileBrokerException {
 		logger.debug("moving from cache to storage: " + dataId);
 	
 		SuccessMessageListener replyListener = new SuccessMessageListener();  
@@ -334,7 +335,8 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 			} else {
 				return successMessage.success();
 			}
-			
+		} catch (JMSException e) {
+			throw new FileBrokerException(e);
 		} finally {
 			replyListener.cleanUp();
 		}
@@ -344,11 +346,11 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	 * @see fi.csc.microarray.filebroker.FileBrokerClient#getPublicFiles()
 	 */
 	@Override
-	public List<URL> getPublicFiles() throws JMSException {
+	public List<URL> getPublicFiles() throws FileBrokerException {
 		return fetchPublicFiles();
 	}
 
-	private List<URL> fetchPublicFiles() throws JMSException {
+	private List<URL> fetchPublicFiles() throws FileBrokerException {
 
 		UrlListMessageListener replyListener = new UrlListMessageListener();  
 		List<URL> urlList;
@@ -357,6 +359,8 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 			
 			filebrokerTopic.sendReplyableMessage(fileRequestMessage, replyListener);
 			urlList = replyListener.waitForReply(QUICK_POLL_OPERATION_TIMEOUT, TimeUnit.SECONDS);
+		} catch (JMSException e) {
+			throw new FileBrokerException(e);
 		} finally {
 			replyListener.cleanUp();
 		}
@@ -365,7 +369,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	}
 
 	@Override
-	public boolean requestDiskSpace(long size) throws JMSException {
+	public boolean requestDiskSpace(long size) throws FileBrokerException {
 
 		BooleanMessageListener replyListener = new BooleanMessageListener();  
 		Boolean spaceAvailable;
@@ -374,6 +378,8 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 			spaceRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_DISK_SPACE, String.valueOf(size));
 			filebrokerTopic.sendReplyableMessage(spaceRequestMessage, replyListener);
 			spaceAvailable = replyListener.waitForReply(SPACE_REQUEST_TIMEOUT, TimeUnit.SECONDS);
+		} catch (JMSException e) {
+			throw new FileBrokerException(e);
 		} finally {
 			replyListener.cleanUp();
 		}
@@ -387,7 +393,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	}
 
 	@Override
-	public void saveRemoteSession(String sessionName, String sessionId, LinkedList<String> dataIds) throws JMSException {
+	public void saveRemoteSession(String sessionName, String sessionId, LinkedList<String> dataIds) throws FileBrokerException {
 		ReplyMessageListener replyListener = new ReplyMessageListener();  
 		try {
 			CommandMessage storeRequestMessage = new CommandMessage(CommandMessage.COMMAND_STORE_SESSION);
@@ -403,13 +409,15 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 			}
 
 			
+		} catch (JMSException e) {
+			throw new FileBrokerException(e);
 		} finally {
 			replyListener.cleanUp();
 		}
 	}
 
 	@Override
-	public List<DbSession> listRemoteSessions() throws JMSException {
+	public List<DbSession> listRemoteSessions() throws FileBrokerException {
 		ReplyMessageListener replyListener = new ReplyMessageListener();  
 		
 		try {
@@ -441,21 +449,27 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 			
 			return sessions;
 			
+		} catch (JMSException e) {
+			throw new FileBrokerException(e);
 		} finally {
 			replyListener.cleanUp();
 		}
 	}
 	
 	@Override
-	public StorageEntryMessageListener getStorageUsage() throws JMSException, InterruptedException {
+	public StorageEntryMessageListener getStorageUsage() throws InterruptedException, FileBrokerException {
 		
 		StorageEntryMessageListener listener = new StorageEntryMessageListener();
-		listener.query(filebrokerTopic, null);
+		try {
+			listener.query(filebrokerTopic, null);
+		} catch (JMSException e) {
+			throw new FileBrokerException(e);
+		}
 		return listener;
 	}
 
 	@Override
-	public List<DbSession> listPublicRemoteSessions() throws JMSException {
+	public List<DbSession> listPublicRemoteSessions() throws FileBrokerException {
 		List<DbSession> allSessions = listRemoteSessions();
 		List<DbSession> publicSessions = new LinkedList<>();
 		
@@ -468,7 +482,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	}
 
 	@Override
-	public void removeRemoteSession(String dataId) throws JMSException {
+	public void removeRemoteSession(String dataId) throws FileBrokerException {
 		SuccessMessageListener replyListener = new SuccessMessageListener();  
 		
 		try {
@@ -481,6 +495,8 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 				throw new JMSException("failed to remove session");
 			}
 			
+		} catch (JMSException e) {
+			throw new FileBrokerException(e);
 		} finally {
 			replyListener.cleanUp();
 		}
@@ -502,7 +518,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	 * @throws FileBrokerException 
 	 * @throws MalformedURLException 
 	 */
-	private URL getNewURL(String dataId, boolean useCompression, FileBrokerArea area, long contentLength) throws JMSException, FileBrokerException, MalformedURLException {
+	private URL getNewURL(String dataId, boolean useCompression, FileBrokerArea area, long contentLength) throws FileBrokerException, MalformedURLException {
 		logger.debug("getting new url");
 	
 		UrlMessageListener replyListener = new UrlMessageListener();  
@@ -518,6 +534,8 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 			}
 			filebrokerTopic.sendReplyableMessage(urlRequestMessage, replyListener);
 			url = replyListener.waitForReply(SPACE_REQUEST_TIMEOUT, TimeUnit.SECONDS);
+		} catch (JMSException e) {
+			throw new FileBrokerException(e);
 		} finally {
 			replyListener.cleanUp();
 		}
@@ -529,7 +547,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		return url;
 	}
 
-	private URL getURL(String dataId) throws JMSException, FileBrokerException, MalformedURLException {
+	private URL getURL(String dataId) throws FileBrokerException, MalformedURLException {
 		
 		logger.debug("getting url for dataId " + dataId);
 		
@@ -541,6 +559,8 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	
 			filebrokerTopic.sendReplyableMessage(getURLMessage, replyListener);
 			url = replyListener.waitForReply(QUICK_POLL_OPERATION_TIMEOUT, TimeUnit.SECONDS);
+		} catch (JMSException e) {
+			throw new FileBrokerException(e);
 		} finally {
 			replyListener.cleanUp();
 		}
@@ -562,12 +582,12 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	}
 
 	@Override
-	public String getExternalURL(String dataId) throws JMSException, FileBrokerException, MalformedURLException {
+	public String getExternalURL(String dataId) throws FileBrokerException, MalformedURLException {
 		return getURL(dataId).toExternalForm();
 	}
 
 	@Override
-	public Long getContentLength(String dataId) throws IOException, JMSException, FileBrokerException {
+	public Long getContentLength(String dataId) throws IOException, FileBrokerException {
 		URL url = getURL(dataId);
 		if (url == null) {
 			return null;

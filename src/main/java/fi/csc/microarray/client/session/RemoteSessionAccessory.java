@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import javax.jms.JMSException;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -22,16 +21,17 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
 
-import net.miginfocom.swing.MigLayout;
 import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.operation.ColoredCircleIcon;
 import fi.csc.microarray.client.serverfiles.ServerFile;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.filebroker.DbSession;
 import fi.csc.microarray.filebroker.DerbyMetadataServer;
+import fi.csc.microarray.filebroker.FileBrokerException;
 import fi.csc.microarray.messaging.admin.StorageAdminAPI.StorageEntryMessageListener;
 import fi.csc.microarray.messaging.admin.StorageEntry;
 import fi.csc.microarray.util.Strings;
+import net.miginfocom.swing.MigLayout;
 
 public class RemoteSessionAccessory extends JPanel implements ActionListener, PropertyChangeListener {
 
@@ -156,7 +156,7 @@ public class RemoteSessionAccessory extends JPanel implements ActionListener, Pr
 				update();
 			}
 
-		} catch (JMSException e) {
+		} catch (FileBrokerException e) {
 			app.reportException(e);
 		}
 	}
@@ -218,7 +218,7 @@ public class RemoteSessionAccessory extends JPanel implements ActionListener, Pr
 			
 			selectedSessionChanged();
 
-		} catch (MalformedURLException | JMSException | InterruptedException e) {
+		} catch (MalformedURLException | FileBrokerException | InterruptedException e) {
 			app.reportException(e);
 		}		
 	}

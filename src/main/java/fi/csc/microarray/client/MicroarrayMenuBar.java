@@ -12,7 +12,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
-import javax.jms.JMSException;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -33,6 +32,7 @@ import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataItem;
+import fi.csc.microarray.filebroker.FileBrokerException;
 import fi.csc.microarray.module.Module;
 import fi.csc.microarray.module.basic.BasicModule;
 import fi.csc.microarray.util.Files;
@@ -832,7 +832,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 				public void actionPerformed(ActionEvent e) {
 					try {
 						application.clearSession();
-					} catch (MalformedURLException | JMSException e1) {
+					} catch (MalformedURLException | FileBrokerException e1) {
 						application.reportException(e1);
 					}
 				}

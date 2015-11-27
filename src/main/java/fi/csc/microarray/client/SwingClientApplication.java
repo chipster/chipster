@@ -110,6 +110,7 @@ import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.exception.ErrorReportAsException;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.DbSession;
+import fi.csc.microarray.filebroker.FileBrokerException;
 import fi.csc.microarray.messaging.JMSMessagingEndpoint;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
 import fi.csc.microarray.module.basic.BasicModule.VisualisationMethods;
@@ -1662,7 +1663,7 @@ public class SwingClientApplication extends ClientApplication {
 
 					// load the new session
 					loadSession(sessionFile, sessionId, remote, false, false, xOffset);			
-				} catch (MalformedURLException | JMSException e) {
+				} catch (MalformedURLException | FileBrokerException e) {
 					reportException(e);
 				}
 			}
@@ -1794,7 +1795,7 @@ public class SwingClientApplication extends ClientApplication {
 	 * @throws JMSException 
 	 * @throws MalformedURLException 
 	 */
-	public boolean clearSession() throws MalformedURLException, JMSException {
+	public boolean clearSession() throws MalformedURLException, FileBrokerException {
 
 		if (!killUploadingTasks()) {
 			return false;
