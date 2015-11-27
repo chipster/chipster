@@ -7,6 +7,7 @@ package fi.csc.microarray.messaging.message;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
@@ -171,6 +172,12 @@ public class JobMessage extends PayloadMessage implements GenericJobMessage {
 		
 		// Everything was ok, return the parameters
 		return parameters;
+	}
+
+	@Override
+	public UUID getSessionId() {
+		// the datasetId is enough in JMS Chipster to access a dataset
+		return null;
 	}
 }
 	

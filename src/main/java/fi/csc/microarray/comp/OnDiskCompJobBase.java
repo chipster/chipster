@@ -70,7 +70,7 @@ public abstract class OnDiskCompJobBase extends CompJob {
 				File localFile = new File(jobWorkDir, fileName);
 				
 				// make local file available, by downloading, copying or symlinking
-				resultHandler.getFileBrokerClient().getFile(dataId, new File(jobWorkDir, fileName));
+				resultHandler.getFileBrokerClient().getFile(inputMessage.getSessionId(), dataId, new File(jobWorkDir, fileName));
 				logger.debug("made available local file: " + localFile.getName() + " " + localFile.length());
 				
 				nameMap.put(fileName, inputMessage.getName(fileName));
@@ -142,7 +142,7 @@ public abstract class OnDiskCompJobBase extends CompJob {
 	            // copy file to file broker
 	            String dataId = CryptoKey.generateRandom();
 	            try {
-	                resultHandler.getFileBrokerClient().addFile(dataId, FileBrokerArea.CACHE, outputFile, null);
+	                resultHandler.getFileBrokerClient().addFile(inputMessage.getSessionId(), dataId, FileBrokerArea.CACHE, outputFile, null);
 	                String nameInClient = nameMap.get(outputFile.getName());
 	                // put dataId to result message
 	                outputMessage.addDataset(outputFile.getName(), dataId, nameInClient);

@@ -10,6 +10,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.messaging.admin.StorageAdminAPI.StorageEntryMessageListener;
@@ -64,12 +65,12 @@ public class SimpleFileBrokerClient implements FileBrokerClient {
 	}
 
 	@Override
-	public void getFile(String dataId, File file) throws IOException {
+	public void getFile(UUID sessionId, String dataId, File file) throws IOException {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void addFile(String dataId, FileBrokerArea area, File file, CopyProgressListener progressListener) throws FileBrokerException, FileBrokerException, IOException {
+	public void addFile(UUID sessionId, String dataId, FileBrokerArea area, File file, CopyProgressListener progressListener) throws FileBrokerException, FileBrokerException, IOException {
 		throw new UnsupportedOperationException();
 	}
 

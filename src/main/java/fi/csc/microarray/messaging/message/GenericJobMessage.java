@@ -2,6 +2,7 @@ package fi.csc.microarray.messaging.message;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import fi.csc.microarray.comp.ToolDescription;
 import fi.csc.microarray.messaging.message.JobMessage.ParameterSecurityPolicy;
@@ -29,5 +30,7 @@ public interface GenericJobMessage {
 	public String getName(String fileName);
 
 	public List<String> getParameters(ParameterSecurityPolicy securityPolicy, ToolDescription description) throws ParameterValidityException;
+
+	public UUID getSessionId();
 
 }

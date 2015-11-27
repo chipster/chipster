@@ -12,6 +12,7 @@ import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.XmlUtil;
+import fi.csc.microarray.util.ZipUtils;
 
 public class SessionLoader {
 	
@@ -60,7 +61,7 @@ public class SessionLoader {
 
 		} finally {
 			IOUtils.closeIfPossible(metadataReader);
-			IOUtils.closeIfPossible(zipFile);
+			ZipUtils.closeIfPossible(zipFile);
 		}
 		
 		if (Integer.toString(UserSession.PREVIOUS_SESSION_VERSION).equals(version)) {

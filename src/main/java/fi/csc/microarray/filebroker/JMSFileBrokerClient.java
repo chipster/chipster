@@ -18,6 +18,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.InflaterInputStream;
 
@@ -99,7 +100,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	 * @see fi.csc.microarray.filebroker.FileBrokerClient#addFile(File, CopyProgressListener)
 	 */
 	@Override
-	public void addFile(String dataId, FileBrokerArea area, File file, CopyProgressListener progressListener) throws FileBrokerException, IOException {
+	public void addFile(UUID sessionId, String dataId, FileBrokerArea area, File file, CopyProgressListener progressListener) throws FileBrokerException, IOException {
 		
 		if (area != FileBrokerArea.CACHE) {
 			throw new UnsupportedOperationException();
@@ -231,7 +232,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	 * @see fi.csc.microarray.filebroker.FileBrokerClient#getFile(File, URL)
 	 */
 	@Override
-	public void getFile(String dataId, File destFile) throws IOException, FileBrokerException, ChecksumException {
+	public void getFile(UUID sessionId, String dataId, File destFile) throws IOException, FileBrokerException, ChecksumException {
 		
 		// Try to find the file locally and symlink/copy it
 		if (localFilebrokerCache != null && localFilebrokerStorage != null) {

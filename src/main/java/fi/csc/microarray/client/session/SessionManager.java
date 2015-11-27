@@ -9,6 +9,7 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.swing.Timer;
 
@@ -33,6 +34,7 @@ import fi.csc.microarray.messaging.admin.StorageAdminAPI.StorageEntryMessageList
 import fi.csc.microarray.security.CryptoKey;
 import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.Files;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class SessionManager {
 
@@ -675,5 +677,10 @@ public class SessionManager {
 
 	public void setUnsavedChanges() {
 		this.unsavedChanges = true;
+	}
+	
+	public UUID getSessionId() {
+		// going to be used in RestFileBrokerClient
+		throw new NotImplementedException();
 	}
 }

@@ -7,6 +7,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
 import fi.csc.microarray.messaging.admin.StorageAdminAPI.StorageEntryMessageListener;
 import fi.csc.microarray.util.IOUtils.CopyProgressListener;
@@ -57,7 +58,7 @@ public interface FileBrokerClient {
 	 * @throws IOException
 	 * @throws NotEnoughDiskSpaceException
 	 */
-	public abstract void addFile(String dataId, FileBrokerArea area, File file, CopyProgressListener progressListener) throws NotEnoughDiskSpaceException, FileBrokerException, IOException;
+	public abstract void addFile(UUID sessionId, String dataId, FileBrokerArea area, File file, CopyProgressListener progressListener) throws NotEnoughDiskSpaceException, FileBrokerException, IOException;
 
 	/**
 	 *  Get the InputStream for a file from the FileBroker.
@@ -89,7 +90,7 @@ public interface FileBrokerClient {
 	 * @throws JMSException 
 	 * @throws ChecksumException 
 	 */
-	public abstract void getFile(String dataId, File destFile) throws IOException, FileBrokerException, ChecksumException;	
+	public abstract void getFile(UUID sessionId, String dataId, File destFile) throws IOException, FileBrokerException, ChecksumException;	
 
 	/**
 	 * Retrieves the list of public files or folders from the file broker. Method blocks until result is
