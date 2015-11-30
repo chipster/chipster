@@ -23,20 +23,20 @@ public class ToolDescriptionGenerator {
 		
 		description.setID(source.getName().getID());
 		description.setDisplayName(source.getName().getDisplayName());
-		description.setComment(source.getComment());
+		description.setComment(source.getDescription());
 
 		// not interested in inputs, they were figured out when job was submitted
 		// I'm interested in inputs in java jobs
-		for (Input input : source.inputs()) {
+		for (Input input : source.getInputs()) {
 			description.addInputFile(input.getName().getID());
 		}
 		
-		for (Output output : source.outputs()) {
+		for (Output output : source.getOutputs()) {
 			description.addOutputFile(output.getName(), output.isOptional());
 		}
 		
-		for (Parameter parameter : source.parameters()) {
-			description.addParameter(new ToolDescription.ParameterDescription(parameter.getName().getID(), parameter.getComment(), parameter.getType().isNumeric()));
+		for (Parameter parameter : source.getParameters()) {
+			description.addParameter(new ToolDescription.ParameterDescription(parameter.getName().getID(), parameter.getDescription(), parameter.getType().isNumeric()));
 		}
 		
 		return description;

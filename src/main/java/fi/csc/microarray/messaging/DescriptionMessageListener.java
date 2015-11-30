@@ -138,23 +138,23 @@ public class DescriptionMessageListener extends TempTopicMessagingListenerBase {
             		// create definition (also has the side effect of adding the new tool to the category, argh..)
             		OperationDefinition newDefinition = new OperationDefinition(sadl.getName().getID(), 
             				sadl.getName().getDisplayName(), toolCategory,
-            				sadl.getComment(), true,
+            				sadl.getDescription(), true,
             				tool.getHelpURL());
             		
-            		for (Input input : sadl.inputs()) {
+            		for (Input input : sadl.getInputs()) {
             			if (input.getName().isNameSet()) {
-            				newDefinition.addInput(input.getName().getPrefix(), input.getName().getPostfix(), input.getName().getDisplayName(), input.getComment(), input.getType(), input.isOptional());
+            				newDefinition.addInput(input.getName().getPrefix(), input.getName().getPostfix(), input.getName().getDisplayName(), input.getDescription(), input.getType(), input.isOptional());
             			} else {
-            				newDefinition.addInput(input.getName(), input.getComment(), input.getType(), input.isOptional());
+            				newDefinition.addInput(input.getName(), input.getDescription(), input.getType(), input.isOptional());
             			}
             		}
 
-            		newDefinition.setOutputCount(sadl.outputs().size());
-            		for (Parameter parameter : sadl.parameters()) {
+            		newDefinition.setOutputCount(sadl.getOutputs().size());
+            		for (Parameter parameter : sadl.getParameters()) {
             			newDefinition.addParameter(fi.csc.microarray.client.
             					operation.parameter.Parameter.createInstance(
             							parameter.getName(), parameter.getType(), parameter.getSelectionOptions(),
-            							parameter.getComment(), parameter.getFrom(), parameter.getTo(),
+            							parameter.getDescription(), parameter.getFrom(), parameter.getTo(),
             							parameter.getDefaultValues(), parameter.isOptional()));      
             		}
             		

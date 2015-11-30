@@ -31,14 +31,14 @@ public class SADLGenerator {
 	 */
 	public static String generate(SADLDescription sadl) {
 		
-		String string =	"TOOL " + generateName(sadl.getName()) + " (" + escapeIfNeeded(sadl.getComment()) + ")\n";
+		String string =	"TOOL " + generateName(sadl.getName()) + " (" + escapeIfNeeded(sadl.getDescription()) + ")\n";
 		
-		string += generateInputs("INPUT", sadl.inputs());		
+		string += generateInputs("INPUT", sadl.getInputs());		
 		
-		string += generateOutputs("OUTPUT", sadl.outputs());		
+		string += generateOutputs("OUTPUT", sadl.getOutputs());		
 
-		if (!sadl.parameters().isEmpty()) {
-			for (Parameter parameter: sadl.parameters()) {
+		if (!sadl.getParameters().isEmpty()) {
+			for (Parameter parameter: sadl.getParameters()) {
 				String paramString = "PARAMETER " + generateOptional(parameter) + parameter.getName() + " TYPE ";
 				
 				if (parameter.getType() == ParameterType.ENUM) {
@@ -76,7 +76,7 @@ public class SADLGenerator {
 					}
 				}
 
-				paramString += possibleComment(parameter.getComment());
+				paramString += possibleComment(parameter.getDescription());
 				
 				string += paramString + "\n";
 			}			
@@ -97,7 +97,7 @@ public class SADLGenerator {
 		String string = "";
 		if (!outputList.isEmpty()) {
 			for (Output output : outputList) {
-				string += header + " " + generateExtensions(output) + generateName(output.getName()) + " " + possibleComment(output.getComment()) + "\n";
+				string += header + " " + generateExtensions(output) + generateName(output.getName()) + " " + possibleComment(output.getDescription()) + "\n";
 			}
 		}
 		return string;
@@ -107,7 +107,7 @@ public class SADLGenerator {
 		String string = "";
 		if (!inputList.isEmpty()) {
 			for (Input input : inputList) {
-				string += header + " " + generateExtensions(input) + generateName(input.getName()) + " TYPE " + input.getType().getName() + " " + possibleComment(input.getComment()) + "\n";
+				string += header + " " + generateExtensions(input) + generateName(input.getName()) + " TYPE " + input.getType().getName() + " " + possibleComment(input.getDescription()) + "\n";
 			}
 			
 		}

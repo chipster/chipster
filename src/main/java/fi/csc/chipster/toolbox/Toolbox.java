@@ -56,7 +56,9 @@ public class Toolbox {
 		return list;
 	}
 	
-	
+	public List<ToolboxModule> getModules() {
+		return this.modules;
+	}
 	
 	
 	/**

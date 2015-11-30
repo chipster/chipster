@@ -209,7 +209,7 @@ then
 fi
 
 #check that proxy is valid
-proxytime=$( voms-proxy-info  | grep "timeleft" | awk '{print $3}')
+proxytime=$( voms-proxy-info | grep "timeleft" | awk '{print $3}')
 if [[ "$proxytime" == "" || "$proxytime" == "00:00:00"  ]] 
 then
      echo "---------------------------------------"
@@ -376,12 +376,7 @@ link_ip=(0)
 endpoint=(0)
 
 
-
-user=$(voms-proxy-info | grep identity | awk '{print $5}' | sed s/'@'/"-at-"/g)
-if [[ $user == "Training" ]]
-then
-  user="training"
-fi
+user=$(voms-proxy-info --identity | awk '{print $NF}' | sed s/'@'/"-at-"/g | tr "[:upper:]" "[:lower:]" )
 
 usercred=$(ls /tmp/x509up_u${UID})
 volumesize=20

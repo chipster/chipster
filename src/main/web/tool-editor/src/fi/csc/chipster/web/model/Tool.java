@@ -68,7 +68,7 @@ public class Tool extends BasicModel{
 	private void fillWithData(SADLDescription sadlDescription) {
 		id.setValue(sadlDescription.getName().getID());
 		name.setValue(sadlDescription.getName().getDisplayName());
-		description.setValue(getValue(sadlDescription.getComment()));
+		description.setValue(getValue(sadlDescription.getDescription()));
 	}
 	
 	/**
@@ -83,7 +83,7 @@ public class Tool extends BasicModel{
 				nname.setDisplayName(name.getValue());
 			SADLDescription sadlDescription = new SADLDescription(nname);
 			if(getValueOrNull(description.getValue()) != null)
-			sadlDescription.setComment(description.getValue());
+			sadlDescription.setDescription(description.getValue());
 			return sadlDescription;
 		} else {
 			return null;

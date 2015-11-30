@@ -17,7 +17,7 @@
 	<property name="tool-editor-bin" location="${tool-editor}/bin/ant" />
 	<property name="modules-src-microarray" location="src/main/modules/microarray/java" />
 	<property name="modules-src-ngs" location="src/main/modules/ngs/java" />
-	<property name="modules" location="src/main/modules" />
+	<property name="modules" location="../chipster-tools/modules" />
 	<property name="test-src" location="src/test/java" />
 	<property name="ext-src" location="src/main/applications" />
 	<property name="lib" location="ext/lib" />
@@ -25,7 +25,7 @@
 	<property name="lib-ext" location="ext/lib-ext" />
 	<property name="ext-apps" location="ext/applications" />
 	<property name="data" location="src/main/resources" />
-	<property name="manual" location="src/main/manual" />
+	<property name="manual" location="../chipster-tools/manual" />
 	<property name="workflows" location="src/main/workflows" />
 	<property name="build" location="bin/ant" />	
 	<property name="dist" location="dist" />
@@ -39,7 +39,7 @@
     <typedef name="fatjar.filesource" classname="net.sf.fjep.anttask.FJFileSourceType" classpath="${fjepPath}" loaderref="lib.path.loader"/>
 
 	<!-- version numbering -->
-	<property name="release-version" value="3.6.2" />
+	<property name="release-version" value="3.6.3" />
 	<property name="release-jar" value="${dist}/chipster-${release-version}.jar" />
 	<property name="release-tar" value="${dist}/chipster-${release-version}.tar.gz" />
 	<property name="release-zip" value="${dist}/chipster-${release-version}.zip" />

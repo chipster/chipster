@@ -89,7 +89,7 @@ public class JMSMessagingEndpoint implements MessagingEndpoint, MessagingListene
 	 * 
 	 * @see #MessagingEndpoint(Node)
 	 */
-	public JMSMessagingEndpoint(Node master, AuthenticationRequestListener authenticationListener, boolean useFailoverAtStartup) throws MicroarrayException {
+	public JMSMessagingEndpoint(Node master, AuthenticationRequestListener authenticationListener, boolean useUnreliableAtStartup) throws MicroarrayException {
 		this.master = master;
 		this.authenticationListener = authenticationListener;
 
@@ -130,7 +130,7 @@ public class JMSMessagingEndpoint implements MessagingEndpoint, MessagingListene
 		try {
 			logger.info("connecting to " + brokerUrl);
 			String completeBrokerUrl = brokerUrl;
-			if (useFailoverAtStartup) {
+			if (useUnreliableAtStartup) {
 				// tests connecting with unreliable, so that if broker is not available, 
 				// we won't initiate retry sequence
 				logger.debug("testing connecting to " + completeBrokerUrl);
@@ -138,7 +138,12 @@ public class JMSMessagingEndpoint implements MessagingEndpoint, MessagingListene
 				Connection tempConnection = connectionFactory.createTopicConnection();
 				tempConnection.start();
 				tempConnection.stop();
-				tempConnection.close(); // it worked, we have a network connection
+				
+				try {
+					tempConnection.close(); // it worked, we have a network connection
+				} catch (Exception e) {
+					logger.warn("got exception when closing test connection");
+				}
 			}
 
 			// switch to reliable

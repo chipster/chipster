@@ -2,6 +2,8 @@ package fi.csc.microarray.client;
 
 import java.util.Collection;
 
+import org.apache.log4j.Logger;
+
 import fi.csc.microarray.client.operation.ToolModule;
 import fi.csc.microarray.client.tasks.TaskExecutor;
 import fi.csc.microarray.databeans.DataManager;
@@ -23,6 +25,8 @@ import fi.csc.microarray.module.Module;
 
 public class RemoteServiceAccessor implements ServiceAccessor {
 
+	static final Logger logger = Logger.getLogger(RemoteServiceAccessor.class);
+	
 	protected MessagingEndpoint endpoint;
 	protected MessagingTopic requestTopic;
 	protected TaskExecutor taskExecutor;
@@ -97,8 +101,14 @@ public class RemoteServiceAccessor implements ServiceAccessor {
 	}
 	
 	@Override
-	public void close() throws Exception {
-		endpoint.close();
+	public void close() {
+		if (endpoint != null) {
+			try {
+				endpoint.close();
+			} catch (Exception e) {
+				logger.warn("closing endpoint failed", e);
+			}
+		}
 	}
 
 	@Override
