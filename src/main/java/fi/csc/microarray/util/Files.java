@@ -439,7 +439,7 @@ public class Files {
 	 * @param postfix '.' is added to the beginning, don't include it
 	 * @return
 	 */
-	public static File getNewestVersion(File dir, String prefix, String postfix) {
+	public static File getNewestVersion(final File dir, final String prefix, final String postfix) {
 		
 		File[] files = dir.listFiles(new FilenameFilter() {
 
