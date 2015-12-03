@@ -424,9 +424,56 @@ public class Files {
 	public static boolean partitionHasUsableSpaceBytes(File file, long bytes) {
 		return file.getUsableSpace() >= bytes;
 	}
+
 	
-	public static void main(String[] args) throws IOException {
-		new File("/home/akallio/link_session").delete();
-		new File("/home/akallio/link_test").delete();
+	/**
+	 * Searches the given dir for files that have the prefix and postfix
+	 * and version in their filename. Returns the file with newest version
+	 * 
+	 * Filename format: prefix-version.postfix
+	 * 
+	 * For example chipster-tools-2.3.0.tar.gz 
+	 * 
+	 * @param dir directory from where to search the files
+	 * @param prefix '-' is added to the end, don't include it
+	 * @param postfix '.' is added to the beginning, don't include it
+	 * @return
+	 */
+	public static File getNewestVersion(File dir, String prefix, String postfix) {
+		
+		File[] files = dir.listFiles(new FilenameFilter() {
+
+			@Override
+			public boolean accept(File dir, String name) {
+				if (name.startsWith(prefix + "-") && name.endsWith("." + postfix)) {
+					return true;
+				}
+				return false;
+			}
+		});
+
+		
+		File newest = null;
+		Version newestVersion = null;
+		for (File f: files) {
+			// get version
+			String n = f.getName();
+			String versionString = n.substring(prefix.length()+1, n.lastIndexOf(postfix)-1);
+			
+			// parse version
+			Version v = Version.parse(versionString);
+			
+			// compare
+			if (newest == null) {
+				newest = f;
+				newestVersion = v;
+			} else if (newestVersion.compareTo(v) < 0) {
+				newest = f;
+				newestVersion = v;
+			}
+		}
+		
+		return newest;
 	}
+	
 }
