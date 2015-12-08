@@ -21,6 +21,9 @@ arraySort() {
 		 
 # for array size
 	for i in "${array[@]}"; do
+	
+	# debug
+	echo "$i"
 		
 	# take one module depency
 	depency=( $(cut -d : -f2 $i) )
@@ -77,26 +80,22 @@ arraySort() {
 cd modules/
 
 # List files from directory to the array
-echo "list .bash files..."		
 modules=( $(find $1*.bash) )
 
 
 # Call arraySort function with modules
-echo "sort..."
 arraySort "${modules[@]}"
 
 
 # Save filenames from array to $1-given file
 # if parallel in use, do two files
 	if [ $parallel == "1" ]; then
-		echo "create a file for parallel"
 		for i in "${parallel_array[@]}"; do
 			sort_array=( ${sort_array[@]/$i} )
 		done
 		printf "%s\n" "${parallel_array[@]}" > $2_parallel
 	fi
 
-echo "write to a file..."	
 printf "%s\n" "${sort_array[@]}" > $2
 sed '/^$/d' $2 > $2.out
 mv  $2.out $2
