@@ -170,7 +170,6 @@ public class Toolbox {
 	 * @throws IOException
 	 */
 	private void loadModuleDescriptions() throws IOException {
-		logger.info("loading modules");
 	
 		// Iterate over all module directories, and over all module files inside them
 		List<String> moduleLoadSummaries = new LinkedList<String>();
