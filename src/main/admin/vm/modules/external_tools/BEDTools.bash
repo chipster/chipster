@@ -7,7 +7,7 @@ source ../installation_files/functions.bash
   #wget_retry -nv https://github.com/arq5x/bedtools2/archive/v2.25.0.tar.gz
   wget_retry -nv http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/bedtools_v2.25.0.tar.gz
 
-  tar xf v2.25.0.tar.gz
+  tar xf bedtools_v2.25.0.tar.gz
   cd bedtools2-2.25.0
     make clean
   make all
