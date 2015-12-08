@@ -3,6 +3,8 @@ package fi.csc.chipster.toolbox;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -32,9 +34,10 @@ public class Toolbox {
 	 * 
 	 * @param the root workDir for the jobs of the computing service
 	 * @throws IOException 
+	 * @throws URISyntaxException 
 	 * @throws Exception
 	 */
-	public Toolbox(final File modulesDir) throws IOException {
+	public Toolbox(final File modulesDir) throws IOException, URISyntaxException {
 		// decide tools location
 		File rootDir = new TFile(".").getCanonicalFile();
 		
@@ -98,8 +101,9 @@ public class Toolbox {
 	 * @param rootDir
 	 * @throws IOException
 	 * @throws FileNotFoundException
+	 * @throws URISyntaxException 
 	 */
-	private void findModulesDir(final File modulesDir, File rootDir) throws IOException, FileNotFoundException {
+	private void findModulesDir(final File modulesDir, File rootDir) throws IOException, FileNotFoundException, URISyntaxException {
 		// modules dir
 		logger.info("looking for modules dir " + modulesDir.getAbsolutePath());
 		if (modulesDir.exists() && modulesDir.isDirectory()) {
@@ -127,28 +131,22 @@ public class Toolbox {
 				logger.info(rootDir + File.separator + TOOLS_DIST_BASENAME + "-x.y.z dir not found");
 			}
 			
-			// finally if still not found, try chipster-tools-x.y.z-tar.gz
+			// still not found, try chipster-tools-x.y.z-tar.gz
 			if (this.modulesDir == null) {
 				logger.info("looking for " + new File(rootDir, TOOLS_DIST_BASENAME + "-x.y.z" + ".tar.gz"));
 				File toolsTar = Files.getLatestVersion(rootDir, TOOLS_DIST_BASENAME, "tar.gz");
-				if (toolsTar != null && toolsTar.exists()) {
-					logger.info("found " + toolsTar);
-					logger.info("looking for " + toolsTar.getAbsolutePath() + File.separator + TOOLS_DIST_BASENAME + "-x.y.z" + File.separator + MODULES_DIR_NAME);
-					TFile distFile = new TFile(toolsTar);
-					TFile toolsDirInTar = new TFile(Files.getLatestVersion(distFile, TOOLS_DIST_BASENAME, null));
-					if (toolsDirInTar != null && toolsDirInTar.exists()) {
-						File possibleModulesDir = new TFile(toolsDirInTar, MODULES_DIR_NAME);
-						if (possibleModulesDir.exists() && possibleModulesDir.isDirectory()) {
-							this.modulesDir = possibleModulesDir;
-							logger.info("modules dir " + this.modulesDir + " found");
-						} else {
-							logger.info("modules dir " + possibleModulesDir + " not found");
-						}
-					} else {
-						logger.info("no " + toolsTar.getAbsolutePath() + ":" + TOOLS_DIST_BASENAME + "-x.y.z found");
-					}
-				}
+				loadFromTar(toolsTar);
 			}
+
+			// still not found, try chipster-tools-x.y.z-tar.gz from classpath
+			if (this.modulesDir == null) {
+				URL url = this.getClass().getResource("/");
+				File lib = new File(url.toURI());
+				logger.info("looking for " + new File(lib, TOOLS_DIST_BASENAME + "-x.y.z" + ".tar.gz"));
+				File toolsTar = Files.getLatestVersion(lib, "chipster-tools", "tar.gz");
+				loadFromTar(toolsTar);
+			}
+		
 		}
 	
 		if (this.modulesDir != null) {
@@ -161,6 +159,26 @@ public class Toolbox {
 					MODULES_DIR_NAME, MODULES_DIR_NAME, MODULES_DIR_NAME, MODULES_DIR_NAME));
 			logger.error(s);
 			throw new FileNotFoundException(s);
+		}
+	}
+
+	private void loadFromTar(File toolsTar) {
+		if (toolsTar != null && toolsTar.exists()) {
+			logger.info("found " + toolsTar);
+			logger.info("looking for " + toolsTar.getAbsolutePath() + File.separator + TOOLS_DIST_BASENAME + "-x.y.z" + File.separator + MODULES_DIR_NAME);
+			TFile distFile = new TFile(toolsTar);
+			TFile toolsDirInTar = new TFile(Files.getLatestVersion(distFile, TOOLS_DIST_BASENAME, null));
+			if (toolsDirInTar != null && toolsDirInTar.exists()) {
+				File possibleModulesDir = new TFile(toolsDirInTar, MODULES_DIR_NAME);
+				if (possibleModulesDir.exists() && possibleModulesDir.isDirectory()) {
+					this.modulesDir = possibleModulesDir;
+					logger.info("modules dir " + this.modulesDir + " found");
+				} else {
+					logger.info("modules dir " + possibleModulesDir + " not found");
+				}
+			} else {
+				logger.info("no " + toolsTar.getAbsolutePath() + ":" + TOOLS_DIST_BASENAME + "-x.y.z found");
+			}
 		}
 	}
 
