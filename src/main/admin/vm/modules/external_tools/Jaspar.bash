@@ -1,4 +1,4 @@
-##depends:external_tools/ClusterBuster.bash
+ ##depends:none
 
 source ../installation_files/functions.bash
 

@@ -36,10 +36,11 @@ read_dirs $moduledir
 echo "Starting to generate installation files"
 
 for i in "${folders[@]}"; do
+	echo "$i.bash"
 	source installation_files/generate_installation_file.bash $i/ inst_files/$i.bash
 done
 
-echo "Installation files rdy, proceed to installation"
+echo "Installation files redy, proceed to installation"
 
 
 # Set execution trace
