@@ -2,7 +2,6 @@
 package fi.csc.chipster.toolbox;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,6 +18,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
+import de.schlichtherle.truezip.file.TFileReader;
 import fi.csc.chipster.toolbox.SADLTool.ParsedScript;
 import fi.csc.chipster.toolbox.toolpartsparser.ToolPartsParser;
 import fi.csc.microarray.description.SADLDescription;
@@ -135,7 +135,7 @@ public class ToolboxModule {
 	private void load() throws FileNotFoundException, SAXException, IOException, ParserConfigurationException {
 		
 		// Load module description file
-		Document document = XmlUtil.parseReader(new FileReader(moduleFile));
+		Document document = XmlUtil.parseReader(new TFileReader(moduleFile));
 		Element moduleElement = (Element)document.getElementsByTagName("module").item(0);
 		
 		// Load and check module name 
