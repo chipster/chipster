@@ -13,7 +13,7 @@ source ../installation_files/functions.bash
   make all
   cd ../
   mv bedtools2-2.25.0 ${TOOLS_PATH}/
-  rm v2.25.0.tar.gz
+  rm bedtools_v2.25.0.tar.gz
   cd ${TOOLS_PATH}
   ln -s bedtools2-2.25.0 ${TOOLS_PATH}/bedtools
   
