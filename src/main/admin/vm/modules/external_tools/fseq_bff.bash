@@ -5,8 +5,10 @@ source ../installation_files/functions.bash
 # Fseq bff files
   cd ${TMPDIR_PATH}/
   
-  wget_retry -nv -O unique20bp_hg19.tgz http://fureylab.med.unc.edu/fseq/unique20bp_hg19.tgz
-  wget_retry -nv -O unique35bp_hg19.tgz http://fureylab.med.unc.edu/fseq/unique35bp_hg19.tgz
+  #wget_retry -nv -O unique20bp_hg19.tgz http://fureylab.med.unc.edu/fseq/unique20bp_hg19.tgz
+  #wget_retry -nv -O unique35bp_hg19.tgz http://fureylab.med.unc.edu/fseq/unique35bp_hg19.tgz
+  wget_retry -nv -O unique20bp_hg19.tgz http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/fseq_bff/unique20bp_hg19.tgz
+  wget_retry -nv -O unique35bp_hg19.tgz http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/fseq_bff/unique35bp_hg19.tgz
   
   mkdir -p unique20bp_hg19
   mkdir -p unique35bp_hg19
