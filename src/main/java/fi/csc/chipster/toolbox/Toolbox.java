@@ -139,6 +139,7 @@ public class Toolbox {
 			}
 
 			// still not found, try chipster-tools-x.y.z-tar.gz from classpath
+			// the way it is implemented now, does not always work
 			if (this.modulesDir == null) {
 				URL url = this.getClass().getResource("/");
 				File lib = new File(url.toURI());
@@ -155,8 +156,9 @@ public class Toolbox {
 			String s = (String.format("no %s dir found after looking for: " +
 					rootDir + File.separator + "%s, " + 
 					rootDir + File.separator + TOOLS_DIST_BASENAME + "-x.y.z/%s, " +
-					rootDir + File.separator + TOOLS_DIST_BASENAME + "-x.y.z.tar.gz" + File.separator + TOOLS_DIST_BASENAME + "-x.y.z/%s",
-					MODULES_DIR_NAME, MODULES_DIR_NAME, MODULES_DIR_NAME, MODULES_DIR_NAME));
+					rootDir + File.separator + TOOLS_DIST_BASENAME + "-x.y.z.tar.gz" + File.separator + TOOLS_DIST_BASENAME + "-x.y.z/%s, " + 
+					new File(this.getClass().getResource("/").toURI()) + File.separator + TOOLS_DIST_BASENAME + "-x.y.z" + ".tar.gz/%s",
+					MODULES_DIR_NAME, MODULES_DIR_NAME, MODULES_DIR_NAME, MODULES_DIR_NAME, MODULES_DIR_NAME));
 			logger.error(s);
 			throw new FileNotFoundException(s);
 		}
