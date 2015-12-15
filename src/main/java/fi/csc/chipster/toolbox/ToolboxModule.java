@@ -319,7 +319,7 @@ public class ToolboxModule {
 		    		hiddenCount++;
 		    	}
 
-		    	logger.info(String.format("loaded %s %s from %s %s" , toolId, sadlDescription.getName().getDisplayName(), resource, hiddenStatus));
+		    	logger.debug(String.format("loaded %s %s from %s %s" , toolId, sadlDescription.getName().getDisplayName(), resource, hiddenStatus));
 		    }
 
 		}
