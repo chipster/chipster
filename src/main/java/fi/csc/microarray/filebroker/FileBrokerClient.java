@@ -9,6 +9,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
+import javax.jms.JMSException;
+
 import fi.csc.microarray.messaging.admin.StorageAdminAPI.StorageEntryMessageListener;
 import fi.csc.microarray.util.IOUtils.CopyProgressListener;
 
@@ -58,7 +60,7 @@ public interface FileBrokerClient {
 	 * @throws IOException
 	 * @throws NotEnoughDiskSpaceException
 	 */
-	public abstract void addFile(UUID sessionId, String dataId, FileBrokerArea area, File file, CopyProgressListener progressListener) throws NotEnoughDiskSpaceException, FileBrokerException, IOException;
+	public abstract void addFile(UUID jobId, UUID sessionId, String dataId, FileBrokerArea area, File file, CopyProgressListener progressListener, String datsetName) throws FileBrokerException, IOException;
 
 	/**
 	 *  Get the InputStream for a file from the FileBroker.

@@ -70,7 +70,7 @@ public class SimpleFileBrokerClient implements FileBrokerClient {
 	}
 
 	@Override
-	public void addFile(UUID sessionId, String dataId, FileBrokerArea area, File file, CopyProgressListener progressListener) throws FileBrokerException, FileBrokerException, IOException {
+	public void addFile(UUID jobId, UUID sessionId, String dataId, FileBrokerArea area, File file, CopyProgressListener progressListener, String datsetName) throws FileBrokerException, IOException {
 		throw new UnsupportedOperationException();
 	}
 

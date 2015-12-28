@@ -100,7 +100,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	 * @see fi.csc.microarray.filebroker.FileBrokerClient#addFile(File, CopyProgressListener)
 	 */
 	@Override
-	public void addFile(UUID sessionId, String dataId, FileBrokerArea area, File file, CopyProgressListener progressListener) throws FileBrokerException, IOException {
+	public void addFile(UUID jobId, UUID sessionId, String dataId, FileBrokerArea area, File file, CopyProgressListener progressListener, String datsetName) throws FileBrokerException, IOException {
 		
 		if (area != FileBrokerArea.CACHE) {
 			throw new UnsupportedOperationException();

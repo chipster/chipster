@@ -32,7 +32,6 @@ public abstract class InterpreterJobFactory implements JobFactory {
 
 
 	public InterpreterJobFactory(HashMap<String, String> parameters) throws IOException {
-		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
 		
 		String command = parameters.get("command");
 		if (command == null || command.equals("")) {
@@ -53,13 +52,28 @@ public abstract class InterpreterJobFactory implements JobFactory {
 		}		
 		
 		// initialize process pool
-		// TODO fix R specificity
-		int poolSizeMin = configuration.getInt("comp", "r-process-pool-size-min");
-		int poolSizeMax = configuration.getInt("comp", "r-process-pool-size-max");
-		int poolTimeout = configuration.getInt("comp", "r-process-pool-timeout");
-		int processUseCountMax = configuration.getInt("comp", "r-process-pool-process-use-count-max");
-		int processLifetimeMax = configuration.getInt("comp", "r-process-pool-process-lifetime-max");
-	
+		int poolSizeMin = 5;
+		int poolSizeMax = 20;
+		int poolTimeout = 360;
+		int processUseCountMax = 10;
+		int processLifetimeMax = 36_000;
+
+		try {
+			// TODO fix R specificity
+			Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
+
+			poolSizeMin = configuration.getInt("comp", "r-process-pool-size-min");
+			poolSizeMax = configuration.getInt("comp", "r-process-pool-size-max");
+			poolTimeout = configuration.getInt("comp", "r-process-pool-timeout");
+			processUseCountMax = configuration.getInt("comp", "r-process-pool-process-use-count-max");
+			processLifetimeMax = configuration.getInt("comp", "r-process-pool-process-lifetime-max");
+		} catch (IllegalStateException e) {
+			// DirectoryLayout isn't configured in RestCompServer
+			// use above hard coded values for now, because this class is still in the old chipster project
+			// and we can't use the new Config class here		
+			logger.info("process pool config missing, using hard coded defaults (" + e.getMessage() + ")");
+		}
+		
 		try {
 			processPool = new ProcessPool(new File(parameters.get("workDir")), interpreterCommand, poolSizeMin, poolSizeMax, 
 				poolTimeout, processUseCountMax, processLifetimeMax);
@@ -94,7 +108,7 @@ public abstract class InterpreterJobFactory implements JobFactory {
 		} catch (Exception e) {
 			logger.warn("could not read job-threads-max from configuration", e);
 		}
-		int memoryMax = 1024;
+		int memoryMax = 8192;
 		try {
 			memoryMax = DirectoryLayout.getInstance().getConfiguration().getInt("comp", "job-memory-max");
 		} catch (Exception e) {

@@ -1,6 +1,7 @@
 package fi.csc.microarray.comp;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -155,7 +156,8 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 		this.executorService = Executors.newCachedThreadPool();
 
 		// initialize runtime and tools
-		this.runtimeRepository = new RuntimeRepository(this.workDir);
+		FileInputStream runtimesStream = new FileInputStream(new File(DirectoryLayout.getInstance().getConfDir(), "runtimes.xml"));
+		this.runtimeRepository = new RuntimeRepository(this.workDir, runtimesStream);
 		this.toolbox = new Toolbox(DirectoryLayout.getInstance().getModulesDir());
 		this.toolboxClient = new OldToolboxClient(this.toolbox);
 					

@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.log4j.Logger;
 
@@ -141,9 +142,10 @@ public abstract class OnDiskCompJobBase extends CompJob {
 			for (File outputFile : describedFiles) {
 	            // copy file to file broker
 	            String dataId = CryptoKey.generateRandom();
-	            try {
-	                resultHandler.getFileBrokerClient().addFile(inputMessage.getSessionId(), dataId, FileBrokerArea.CACHE, outputFile, null);
-	                String nameInClient = nameMap.get(outputFile.getName());
+	            try {	            	
+	            	String nameInClient = nameMap.get(outputFile.getName());
+	            	String nameInSessionDb = nameInClient != null? nameInClient : outputFile.getName();
+	                resultHandler.getFileBrokerClient().addFile(UUID.fromString(inputMessage.getJobId()), inputMessage.getSessionId(), dataId, FileBrokerArea.CACHE, outputFile, null, nameInSessionDb);
 	                // put dataId to result message
 	                outputMessage.addDataset(outputFile.getName(), dataId, nameInClient);
 	                logger.debug("transferred output file: " + fileDescription.getFileName());
