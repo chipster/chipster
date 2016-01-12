@@ -41,6 +41,10 @@ import fi.csc.microarray.config.DirectoryLayout;
  *
  */
 public class DerbyMetadataServer {
+	
+	private static final String DB_ROOT = "db-root";
+	private static final String DB_NAME = "ChipsterFilebrokerMetadataDatabase";
+
 	/**
 	 * Logger for this class
 	 */
@@ -141,14 +145,31 @@ public class DerbyMetadataServer {
 	 */
 	public DerbyMetadataServer() throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException, IOException, IllegalConfigurationException {
 		
-		// initialise connection
-		System.setProperty("derby.system.home", "db-root");
-		Class.forName("org.apache.derby.jdbc.EmbeddedDriver").newInstance(); // allows multiple connections in one JVM, but not from multiple JVM's
-		String strUrl = "jdbc:derby:ChipsterFilebrokerMetadataDatabase;create=true";
+		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
 		
-		// One way to restore a backup
-		// See http://db.apache.org/derby/docs/10.1/adminguide/tadminhubbkup44.html
-		//String strUrl = "jdbc:derby:ChipsterFilebrokerMetadataDatabase;restoreFrom=path";
+		// initialise connection
+		System.setProperty("derby.system.home", DB_ROOT);
+		Class.forName("org.apache.derby.jdbc.EmbeddedDriver").newInstance(); // allows multiple connections in one JVM, but not from multiple JVM's
+		
+		String strUrl = "jdbc:derby:" + DB_NAME + ";";
+		
+		File metadataBackupDir = DirectoryLayout.getInstance().getFilebrokerMetadataBackupDir();
+		String restorePath = configuration.getString("filebroker", "metadata-restore-path");
+		String fullRestorePath = metadataBackupDir + File.separator + restorePath + File.separator + DB_NAME;
+		
+		if (restorePath != null && !restorePath.isEmpty()) {
+			logger.info("restoring metadata database from " + fullRestorePath);
+			File dbDir = new File(DB_ROOT, DB_NAME);
+			if (dbDir.exists()) {
+				throw new IllegalConfigurationException("metadata restore isn't allowed, because the database " + dbDir + " exists already");
+			}
+			// One way to restore a backup
+			// See http://db.apache.org/derby/docs/10.1/adminguide/tadminhubbkup44.html
+			strUrl += "restoreFrom=" + fullRestorePath;
+		} else {
+			strUrl += "create=true";
+		}
+			
 		
 		connection = DriverManager.getConnection(strUrl);
 		
@@ -159,11 +180,9 @@ public class DerbyMetadataServer {
 		
 		
 		// initialise metadata database backup
-		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
 		if (configuration.getBoolean("filebroker", "enable-metadata-backups")) {
 		
 			// get backup configuration
-			File metadataBackupDir = DirectoryLayout.getInstance().getFilebrokerMetadataBackupDir();
 			int metadataBackupKeepCount = configuration.getInt("filebroker", "metadata-backup-keep-count");
 			String backupTime = configuration.getString("filebroker", "metadata-backup-time").trim();
 			
