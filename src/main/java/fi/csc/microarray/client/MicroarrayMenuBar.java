@@ -845,9 +845,9 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem getLoadSessionMenuItem(final boolean clear) {
 		JMenuItem loadSessionMenuItem = new JMenuItem();
 		if (clear) {			
-			loadSessionMenuItem.setText("Open cloud session...");
+			loadSessionMenuItem.setText("Open cloud session... (BETA)");
 		} else {
-			loadSessionMenuItem.setText("cloud session...");
+			loadSessionMenuItem.setText("Cloud session... (BETA)");
 		}
 		loadSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -869,7 +869,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			loadLocalSessionMenuItem.setText("Open local session...");
 			loadLocalSessionMenuItem.setAccelerator(KeyStroke.getKeyStroke('O', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
 		} else {
-			loadLocalSessionMenuItem.setText("local session...");
+			loadLocalSessionMenuItem.setText("Local session...");
 		}
 		loadLocalSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -887,7 +887,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem getSaveSessionMenuItem() {
 		if (saveSessionMenuItem == null) {
 			saveSessionMenuItem = new JMenuItem();
-			saveSessionMenuItem.setText("Save cloud session...");
+			saveSessionMenuItem.setText("Save cloud session... (BETA)");
 			saveSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					application.saveSession(SessionSavingMethod.UPLOAD_DATA_TO_SERVER);
@@ -900,7 +900,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem getManageSessionsMenuItem() {
 		if (manageSessionsMenuItem == null) {
 			manageSessionsMenuItem = new JMenuItem();
-			manageSessionsMenuItem.setText("Manage cloud sessions...");
+			manageSessionsMenuItem.setText("Manage cloud sessions... (BETA)");
 			manageSessionsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					application.manageRemoteSessions();
