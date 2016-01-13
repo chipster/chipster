@@ -9,8 +9,8 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
-import javax.jms.JMSException;
 import javax.swing.Timer;
 
 import org.apache.log4j.Logger;
@@ -28,11 +28,13 @@ import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.filebroker.DbSession;
 import fi.csc.microarray.filebroker.DerbyMetadataServer;
 import fi.csc.microarray.filebroker.FileBrokerClient;
+import fi.csc.microarray.filebroker.FileBrokerException;
 import fi.csc.microarray.filebroker.QuotaExceededException;
 import fi.csc.microarray.messaging.admin.StorageAdminAPI.StorageEntryMessageListener;
 import fi.csc.microarray.security.CryptoKey;
 import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.Files;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class SessionManager {
 
@@ -317,16 +319,16 @@ public class SessionManager {
 		return sessionId;
 	}
 
-	public List<DbSession> listRemoteSessions() throws JMSException {
+	public List<DbSession> listRemoteSessions() throws FileBrokerException {
 		return fileBrokerClient.listRemoteSessions();
 	}
 	
-	public StorageEntryMessageListener getStorageUsage() throws JMSException, InterruptedException {
+	public StorageEntryMessageListener getStorageUsage() throws FileBrokerException, InterruptedException {
 		return fileBrokerClient.getStorageUsage();
 	}
 
 	public void setSession(File sessionFile, String sessionId)
-			throws MalformedURLException, JMSException {
+			throws MalformedURLException, FileBrokerException {
 		if (sessionFile != null) {
 			currentRemoteSession = null;
 			String oldValue = currentSessionName;
@@ -549,7 +551,7 @@ public class SessionManager {
 	}
 
 	public void clearSessionWithoutConfirming() throws MalformedURLException,
-			JMSException {
+	FileBrokerException {
 		dataManager.deleteAllDataItems();
 		taskExecutor.clear();
 		setSessionNotes(null);
@@ -557,7 +559,7 @@ public class SessionManager {
 		unsavedChanges = false;
 	}
 
-	public boolean removeRemoteSession(String sessionUuid) throws JMSException {
+	public boolean removeRemoteSession(String sessionUuid) throws FileBrokerException {
 
 		if (currentRemoteSession != null
 				&& currentRemoteSession.equals(sessionUuid)
@@ -675,5 +677,10 @@ public class SessionManager {
 
 	public void setUnsavedChanges() {
 		this.unsavedChanges = true;
+	}
+	
+	public UUID getSessionId() {
+		// going to be used in RestFileBrokerClient
+		throw new NotImplementedException();
 	}
 }

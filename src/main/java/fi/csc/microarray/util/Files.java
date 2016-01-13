@@ -27,6 +27,8 @@ import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.OrFileFilter;
 import org.eclipse.jetty.util.IO;
 
+import de.schlichtherle.truezip.file.TFile;
+
 /**
  * @author Taavi Hupponen, Aleksi Kallio
  *
@@ -424,9 +426,100 @@ public class Files {
 	public static boolean partitionHasUsableSpaceBytes(File file, long bytes) {
 		return file.getUsableSpace() >= bytes;
 	}
+
 	
-	public static void main(String[] args) throws IOException {
-		new File("/home/akallio/link_session").delete();
-		new File("/home/akallio/link_test").delete();
+	/**
+	 * Searches the given dir for filenames that have have the following format:
+	 *
+	 * basename-version.extension
+	 * 
+	 * For example chipster-tools-2.3.0.tar.gz
+	 * 
+	 * Extension is optional give null if not in use. Null extension also filters out
+	 * regular files and only returns directories.
+	 * 
+	 * Uses Truezip to search inside archives.
+	 * 
+	 * @param dir directory from where to search the files
+	 * @param basename '-' is added to the end of the basename, don't include it
+	 * @param extension '.' is added to the beginning of the extension, don't include it 
+	 * @return
+	 */
+	public static File getLatestVersion(final File dir, final String basename, final String extension) {
+		
+		File[] files = dir.listFiles(new FilenameFilter() {
+			
+			@Override
+			public boolean accept(File dir, String name) {
+				
+				// match basename
+				if (!name.startsWith(basename + "-")) {
+					return false;
+				}
+				
+				String versionString = null;
+
+				// match and rip extension
+				if (extension != null) {
+					if (!name.endsWith("." + extension)) {
+						return false;
+					} else {
+						versionString = name.substring(basename.length()+1, name.lastIndexOf(extension)-1);
+					}
+				} 
+
+				// no extension
+				else {
+					// only accept directories here
+					if (!new TFile(dir, name).isDirectory()) {
+						return false;
+					}
+					versionString = name.substring(basename.length()+1);
+				}
+
+				// basename and possible extension removed, version should me parseable
+				Version v = null;
+				try {
+					v = Version.parse(versionString); 
+				} catch (Exception e) {
+					return false; // not really needed
+				}
+				
+				if (v != null) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+		});
+
+		
+		File latest = null;
+		Version latestVersion = null;
+		for (File f: files) {
+			// get version
+			String n = f.getName();
+			String versionString;
+			if (extension != null) {
+				versionString = n.substring(basename.length()+1, n.lastIndexOf(extension)-1);
+			} else {
+				versionString = n.substring(basename.length()+1);
+			}
+			
+			// parse version
+			Version v = Version.parse(versionString);
+			
+			// compare
+			if (latest == null) {
+				latest = f;
+				latestVersion = v;
+			} else if (latestVersion.compareTo(v) < 0) {
+				latest = f;
+				latestVersion = v;
+			}
+		}
+		
+		return latest;
 	}
+	
 }

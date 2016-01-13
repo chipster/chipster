@@ -21,7 +21,7 @@ import fi.csc.microarray.util.Strings;
 public class FeedbackMessage extends ParameterMessage {
 
     private static final Logger logger = Logger
-            .getLogger(JobMessage.class);
+            .getLogger(FeedbackMessage.class);
     
     private static final String KEY_DETAILS = "details";
     private static final String KEY_EMAIL = "email";

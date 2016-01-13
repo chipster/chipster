@@ -56,6 +56,7 @@ import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.ChecksumInputStream;
 import fi.csc.microarray.filebroker.DbSession;
+import fi.csc.microarray.filebroker.FileBrokerException;
 import fi.csc.microarray.messaging.auth.SimpleAuthenticationRequestListener;
 import fi.csc.microarray.util.Strings;
 
@@ -560,7 +561,7 @@ public class CliClient {
 		app.deleteDatasWithoutConfirming(bean);
 	}
 	
-	private void clearSession() throws MalformedURLException, JMSException {		
+	private void clearSession() throws MalformedURLException, FileBrokerException {		
 		app.getSessionManager().clearSessionWithoutConfirming();
 	}
 	

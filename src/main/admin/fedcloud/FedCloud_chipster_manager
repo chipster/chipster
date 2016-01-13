@@ -51,7 +51,35 @@ do
     vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $re | grep occi.networkinterface.address| awk '{print $3}'| head -1)
     echo "$rline IP: $vmip"
     ssh -i $keyname ubuntu@$vmip "sudo service chipster status; echo Checking IP in chipster configuration; grep https /opt/chipster/fileserver/conf/chipster-config.xml; echo If the value above is not $vmip, then use FedCloud_chipster_manager to restart the Chipster server."
+    echo ""
+    echo "Cheking ports 8080, 8081 and 61616:"
+    #check ports 8080 and 61616
+    from_port8080=$(curl ${vmip}:8080 2> /dev/null | wc -l )
+    if [[ $from_port8080 -eq 1 ]]
+    then
+       echo "  server port  ${vmip}:8080 OK"
+    else
+       echo "Check the availabality of port  ${vmip}:8080 !"
+       echo "Possible need for firewall reconfiguration."
+    fi
+    from_port8081=$(curl ${vmip}:8081 2> /dev/null | wc -l )
+    if [[ $from_port8081 -gt 10 ]]
+    then
+       echo "  server port  ${vmip}:8081 OK"
+    else
+       echo "Check the availabality of port  ${vmip}:8080 !"
+       echo "Possible need for firewall reconfiguration."
+    fi
+    from_port61616=$(curl ${vmip}:61616 2> /dev/null | wc -l )
+    if [[ $from_port61616 -eq 1 ]]
+    then
+       echo "  server port  ${vmip}:61616 OK"
+    else
+       echo "Check the availabality of port ${vmip}:61616 !"
+       echo "Possible need for firewall reconfiguration."
+    fi
   fi
+  echo "----------------------------------------------------------------------------------"
   done
 done
 } 
@@ -293,7 +321,9 @@ echo "Available endpoints:"
 echo "  http://server4-epsh.unizar.es:8787"
 echo "  https://controller.ceta-ciemat.es:8787"
 echo "  https://stack-server-01.ct.infn.it:8787"
-clusters=(  "http://server4-epsh.unizar.es:8787" "https://controller.ceta-ciemat.es:8787" "https://stack-server-01.ct.infn.it:8787" )
+echo "  https://cloud.ifca.es:8787"
+
+clusters=( "http://server4-epsh.unizar.es:8787" "https://controller.ceta-ciemat.es:8787" "https://stack-server-01.ct.infn.it:8787" "https://cloud.ifca.es:8787" )
 echo ""
    if [[ $endpoint == "0" ]]
    then
@@ -308,7 +338,8 @@ if [[ $endpoint == "https://prisma-cloud.ba.infn.it:8787" ]]
 then
    if [[ $chipster_img == "0"  ]]
    then
-      chipster_img=("os_tpl#87b6a944-007f-4f6d-b9ad-bba9dd4ff02f")
+      #3.4.0 chipster_img=("os_tpl#87b6a944-007f-4f6d-b9ad-bba9dd4ff02f")
+      chipster_img=("os_tpl#28f3a6d6-e0e3-4677-9933-19b18430ef3a")
    fi
 
    if [[  $flavor == "0" ]]
@@ -361,6 +392,29 @@ then
    fi
    link_ip=(1)
 fi
+
+if [[ $endpoint == "https://cloud.ifca.es:8787" ]]
+then
+   if [[ $chipster_img == "0"  ]]
+   then
+       chipster_img=("os_tpl#9f0fc873-30f0-4ab8-8e8f-788afd832b9b")
+   fi
+
+   if [[  $flavor == "0" ]]
+   then
+      flavor=('resource_tpl#m1-medium')
+   fi
+   link_ip=(1)
+fi
+
+
+
+
+
+
+
+
+
 }
 
 

@@ -29,6 +29,10 @@ public class SADLDescription {
 	private LinkedList<Output> outputs = new LinkedList<Output>();
 	private LinkedList<Parameter> parameters = new LinkedList<Parameter>();
 
+	public SADLDescription() {
+		// for Jackson
+	}
+
 	/**
 	 * Name for some description entity, such as input or parameter. Name consists 
 	 * of two major parts:
@@ -46,6 +50,10 @@ public class SADLDescription {
 		private String displayName = null;
 		private String prefix;
 		private String postfix;
+		
+		public Name() {
+			//for Jackson
+		}
 
 		public static Name createEmptyName() {
 			return new Name(null, null, null, null);			
@@ -153,6 +161,10 @@ public class SADLDescription {
 		private Name name;
 		private boolean isOptional;
 		protected String description;
+		
+		public Entity() {
+			// for Jackson
+		}
 
 		public Entity(Name name, boolean isOptional) {
             this.name = name;
@@ -192,6 +204,10 @@ public class SADLDescription {
 	public static class IOEntity extends Entity {
 
 		private boolean isMeta;
+		
+		public IOEntity() {
+			// for Jackson
+		}
 		
 		public IOEntity(Name name, boolean isOptional, boolean isMeta) {
 			super(name, isOptional);
@@ -278,6 +294,10 @@ public class SADLDescription {
 		private String from;
 		private String to;
 		private String[] defaultValues; 
+		
+		public Parameter() {
+			// for Jackson
+		}
 
 		public Parameter(Name name, ParameterType type, Name[] selectionOptions,
 				String from, String to, String defaultValue) {

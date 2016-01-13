@@ -16,6 +16,5 @@ R_VER=3.1.2
 #cd ../
 #rm -rf R-${R_VER}/
 
-#curl -L http://bio.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.1.2-vmbin/R-3.1.2-2015-02-05.tar.gz | tar -xz -C ${TOOLS_PATH}/
-#curl -L http://nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.1.2-vmbin/R-3.1.2-2015-04-08.tar.gz | tar -xz -C ${TOOLS_PATH}/
-curl -L http://nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.1.2-vmbin/R-3.1.2-2015-06-01.tar.gz | tar -xz -C ${TOOLS_PATH}/
+#curl -L http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.1.2-vmbin/R-3.1.2-2015-04-08.tar.gz | tar -xz -C ${TOOLS_PATH}/
+curl -L http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.1.2-vmbin/R-3.1.2-2015-06-01.tar.gz | tar -xz -C ${TOOLS_PATH}/

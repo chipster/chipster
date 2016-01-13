@@ -1,14 +1,14 @@
 package fi.csc.microarray.comp;
 
 import java.io.File;
-import java.io.FileReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.util.XmlUtil;
 
 
@@ -23,11 +23,12 @@ public class RuntimeRepository {
 		
 	/**
 	 * 
+	 * @param runtimesStream 
 	 * @param the root workDir for the jobs of the computing service
 	 * @throws Exception
 	 */
-	public RuntimeRepository(File workDir) throws CompException {
-		loadRuntimes(workDir);
+	public RuntimeRepository(File workDir, InputStream runtimeConfig) throws CompException {
+		loadRuntimes(workDir, runtimeConfig);
 	}
 	
 	public ToolRuntime getRuntime(String name) {
@@ -39,15 +40,14 @@ public class RuntimeRepository {
 	 * Load available runtimes.
 	 * 
 	 * @param workDir
+	 * @param runtimeConfig 
 	 * @throws CompException 
 	 */
-	private synchronized void loadRuntimes(File workDir) throws CompException  { 
+	private synchronized void loadRuntimes(File workDir, InputStream runtimeConfig) throws CompException  { 
 		logger.info("loading runtimes");
 
 		try {
-			File runtimeConfig = new File(DirectoryLayout.getInstance().getConfDir(), "runtimes.xml");
-
-			Document document = XmlUtil.parseReader(new FileReader(runtimeConfig));
+			Document document = XmlUtil.parseReader(new InputStreamReader(runtimeConfig));
 			Element runtimesElement = (Element)document.getElementsByTagName("runtimes").item(0);
 
 

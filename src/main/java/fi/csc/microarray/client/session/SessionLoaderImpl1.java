@@ -43,6 +43,7 @@ import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.ContentLengthException;
 import fi.csc.microarray.util.IOUtils;
+import fi.csc.microarray.util.ZipUtils;
 
 public class SessionLoaderImpl1 {
 	/**
@@ -96,7 +97,7 @@ public class SessionLoaderImpl1 {
 			}
 		}
 		finally {
-			IOUtils.closeIfPossible(zipFile);
+			ZipUtils.closeIfPossible(zipFile);
 		}
 	}
 

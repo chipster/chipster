@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import javax.jms.JMSException;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -22,17 +21,19 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
 
-import net.miginfocom.swing.MigLayout;
 import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.operation.ColoredCircleIcon;
 import fi.csc.microarray.client.serverfiles.ServerFile;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.filebroker.DbSession;
 import fi.csc.microarray.filebroker.DerbyMetadataServer;
+import fi.csc.microarray.filebroker.FileBrokerException;
 import fi.csc.microarray.messaging.admin.StorageAdminAPI.StorageEntryMessageListener;
 import fi.csc.microarray.messaging.admin.StorageEntry;
 import fi.csc.microarray.util.Strings;
+import net.miginfocom.swing.MigLayout;
 
+@SuppressWarnings("serial")
 public class RemoteSessionAccessory extends JPanel implements ActionListener, PropertyChangeListener {
 
 	private static final Color LOW_DISK_USAGE_COLOR = VisualConstants.COLOR_BLUE_GREEN;
@@ -42,15 +43,35 @@ public class RemoteSessionAccessory extends JPanel implements ActionListener, Pr
 			+ "Storage here is for working copies and may not be backed up. Store "
 			+ "another copy of all your valuable data elsewhere.";
 
+	private String cloudInfo = "<html>"
+			+ "<div style=\"width:300px\""
+
+			+ "<p>Cloud sessions store the data files on server side instead of your local computer."
+			+ "This way you need less storage space on your computer and data transfers are minimized.</p>"
+			+ "<p><br/>Important things to consider when using cloud sessions:</p>"
+			+ "<ul>"
+			+ "<li><strong>no backups</strong></li>"
+			+ "<li>use for <strong>temporary storage</strong> while working with your data</li>"
+			+ "<li>beta, may be disabled in the future</li>"
+			+ "</ul>"
+
+			+ "<p>Please <strong>store a copy of your valuable data also elsewhere!</strong><br/>"
+			+ "</p></div></html>";
+	
 	private JPanel panel = new JPanel();
-	private JLabel manageTitle = new JLabel("Selected session");
-	private JLabel diskUsageTitle = new JLabel("Disk usage");
+	private JLabel manageTitle = new JLabel("Session info");
+	private JLabel diskUsageTitle = new JLabel("Total disk usage");
 	private JLabel disclaimerTitle = new JLabel("No backups");
 	private JLabel previewLabel = new JLabel(" ");
-	private JButton removeButton = new JButton("Remove");
+	private JLabel cloudTitle = new JLabel("Cloud sessions (BETA)");
+	private JLabel temporaryTitle = new JLabel("Temporary only");
+	
+	private JButton removeButton = new JButton("Delete");
 	private JProgressBar quotaBar = new JProgressBar();
 	private JTextArea disclaimerText = new JTextArea(disclaimer);
+	@SuppressWarnings("unused")
 	private JLabel lowDiskUsageIcon = new JLabel(new ColoredCircleIcon(LOW_DISK_USAGE_COLOR));
+	@SuppressWarnings("unused")
 	private JLabel highDiskUsageIcon = new JLabel(new ColoredCircleIcon(HIGH_DISK_USAGE_COLOR));	
 	private JTextArea lowDiskUsageText = new JTextArea();
 	private JTextArea highDiskUsageText = new JTextArea();
@@ -103,24 +124,33 @@ public class RemoteSessionAccessory extends JPanel implements ActionListener, Pr
 		manageTitle.setFont(UIManager.getFont("TitledBorder.font"));
 		diskUsageTitle.setFont(UIManager.getFont("TitledBorder.font"));
 		disclaimerTitle.setFont(UIManager.getFont("TitledBorder.font"));
+		cloudTitle.setFont(UIManager.getFont("TitledBorder.font"));
+		temporaryTitle.setFont(UIManager.getFont("TitledBorder.font"));
 		
 		manageTitle.setForeground(UIManager.getColor("TitledBorder.titleColor"));
 		diskUsageTitle.setForeground(UIManager.getColor("TitledBorder.titleColor"));		
 		disclaimerTitle.setForeground(UIManager.getColor("TitledBorder.titleColor"));
+		cloudTitle.setForeground(UIManager.getColor("TitledBorder.titleColor"));
+		temporaryTitle.setForeground(UIManager.getColor("TitledBorder.titleColor"));
+		
 
-		panel.add(manageTitle, "span, wrap");
+		panel.add(cloudTitle, "span, wrap");
+		panel.add(new JLabel(cloudInfo), "skip, wrap");
+
+//		panel.add(disclaimerTitle, "span, wrap, gap top 15");
+//		panel.add(disclaimerText, "skip, wrap");
+
+		panel.add(manageTitle, "span, wrap, gap top 15");
 		panel.add(previewLabel, "skip, wrap");
 		panel.add(removeButton, "sizegroup actions, skip, growx 0, wrap");
 		
-		panel.add(diskUsageTitle, "span, wrap");
+		panel.add(diskUsageTitle, "span, wrap, gap top 15");
 		panel.add(quotaPanel, "skip, wrap");
-		panel.add(lowDiskUsageIcon, "aligny top, gap top 5");
-		panel.add(lowDiskUsageText, "wrap");
-		panel.add(highDiskUsageIcon, "aligny top, gap top 5");
-		panel.add(highDiskUsageText, "wrap");
+//		panel.add(lowDiskUsageIcon, "aligny top, gap top 5");
+//		panel.add(lowDiskUsageText, "wrap");
+//		panel.add(highDiskUsageIcon, "aligny top, gap top 5");
+//		panel.add(highDiskUsageText, "wrap");
 				
-		panel.add(disclaimerTitle, "span, wrap");
-		panel.add(disclaimerText, "skip, wrap");
 		
 		this.setLayout(new MigLayout("fill, insets 0 0 1 1"));
 		this.add(panel, "grow");
@@ -156,7 +186,7 @@ public class RemoteSessionAccessory extends JPanel implements ActionListener, Pr
 				update();
 			}
 
-		} catch (JMSException e) {
+		} catch (FileBrokerException e) {
 			app.reportException(e);
 		}
 	}
@@ -178,7 +208,7 @@ public class RemoteSessionAccessory extends JPanel implements ActionListener, Pr
 
 	private void update() {
 		try {
-			RemoteSessionChooserFactory.updateRemoteSessions(sessionManager, fileChooser);
+			RemoteSessionChooserFactory.updateRemoteSessions(sessionManager, fileChooser, true);
 
 			StorageEntryMessageListener reply = sessionManager.getStorageUsage();
 			
@@ -191,12 +221,15 @@ public class RemoteSessionAccessory extends JPanel implements ActionListener, Pr
 			quotaBar.setValue((int) (diskUsage / 1024 / 1024));
 			String humanReadableDiskUsage = Strings.toHumanReadable(diskUsage, true, true);
 			String humanReadableQuota = Strings.toHumanReadable(quota, true, true);
-			quotaBar.setString("Disk usage: " + humanReadableDiskUsage + "B / " +humanReadableQuota + "B");
-			if (diskUsage < quotaWarning) {
-				quotaBar.setForeground(LOW_DISK_USAGE_COLOR);
-			} else {
-				quotaBar.setForeground(HIGH_DISK_USAGE_COLOR);
-			}
+			quotaBar.setString("Total disk usage: " + humanReadableDiskUsage + "B / " +humanReadableQuota + "B");
+
+			// set color
+			quotaBar.setForeground(LOW_DISK_USAGE_COLOR);
+//			if (diskUsage < quotaWarning) {
+//				quotaBar.setForeground(LOW_DISK_USAGE_COLOR);
+//			} else {
+//				quotaBar.setForeground(HIGH_DISK_USAGE_COLOR);
+//			}
 			
 			String quotaWarningString = Strings.toHumanReadable(quotaWarning, true, true).trim() + "B";
 			String quotaString = Strings.toHumanReadable(quota, true, true).trim() + "B";
@@ -218,7 +251,7 @@ public class RemoteSessionAccessory extends JPanel implements ActionListener, Pr
 			
 			selectedSessionChanged();
 
-		} catch (MalformedURLException | JMSException | InterruptedException e) {
+		} catch (MalformedURLException | FileBrokerException | InterruptedException e) {
 			app.reportException(e);
 		}		
 	}

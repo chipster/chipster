@@ -5,7 +5,8 @@ source ../installation_files/functions.bash
 # mview
 
 cd ${TMPDIR_PATH}/
-wget http://downloads.sourceforge.net/project/bio-mview/bio-mview/mview-1.59/mview-1.59.tar.bz2
+#wget http://downloads.sourceforge.net/project/bio-mview/bio-mview/mview-1.59/mview-1.59.tar.bz2
+wget http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/mview-1.59.tar.bz2
 tar xf mview-1.59.tar.bz2 --use-compress-program=pbzip2
 cd mview-1.59
 sed -e  s/'home\/brown\/HOME\/work\/MView\/dev'/'opt\/chipster\/tools\/mview'/g bin/mview > bin/mview_chipster

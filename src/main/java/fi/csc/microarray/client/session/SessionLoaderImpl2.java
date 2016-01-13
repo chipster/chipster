@@ -48,6 +48,7 @@ import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.util.IOUtils;
+import fi.csc.microarray.util.ZipUtils;
 
 public class SessionLoaderImpl2 {
 	/**
@@ -168,7 +169,7 @@ public class SessionLoaderImpl2 {
 			}
 		}
 		finally {
-			IOUtils.closeIfPossible(zipFile);
+			ZipUtils.closeIfPossible(zipFile);
 			IOUtils.closeIfPossible(zipStream);
 		}
 	}
@@ -524,7 +525,7 @@ public class SessionLoaderImpl2 {
 			stringWriter.flush();
 		}
 		finally {
-			IOUtils.closeIfPossible(zipFile);
+			ZipUtils.closeIfPossible(zipFile);
 			IOUtils.closeIfPossible(zipStream);
 			IOUtils.closeIfPossible(stringWriter);
 		}

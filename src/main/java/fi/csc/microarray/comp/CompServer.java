@@ -1,6 +1,7 @@
 package fi.csc.microarray.comp;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,6 +38,8 @@ import fi.csc.microarray.messaging.MonitoredNodeBase;
 import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.CommandMessage;
+import fi.csc.microarray.messaging.message.GenericJobMessage;
+import fi.csc.microarray.messaging.message.GenericResultMessage;
 import fi.csc.microarray.messaging.message.JobLogMessage;
 import fi.csc.microarray.messaging.message.JobMessage;
 import fi.csc.microarray.messaging.message.ModuleDescriptionMessage;
@@ -153,7 +156,8 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 		this.executorService = Executors.newCachedThreadPool();
 
 		// initialize runtime and tools
-		this.runtimeRepository = new RuntimeRepository(this.workDir);
+		FileInputStream runtimesStream = new FileInputStream(new File(DirectoryLayout.getInstance().getConfDir(), "runtimes.xml"));
+		this.runtimeRepository = new RuntimeRepository(this.workDir, runtimesStream);
 		this.toolbox = new Toolbox(DirectoryLayout.getInstance().getModulesDir());
 		this.toolboxClient = new OldToolboxClient(this.toolbox);
 					
@@ -217,7 +221,7 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 	 *  
 	 */
 	public void onChipsterMessage(ChipsterMessage chipsterMessage) {
-
+				
 		// sanity check username
 		if (chipsterMessage.getUsername() == null || chipsterMessage.getUsername().equals("")) {
 			logger.warn("not accepting message with null or empty username");
@@ -449,12 +453,17 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 	 * 
 	 * 
 	 */
-	public void sendResultMessage(ChipsterMessage original, ResultMessage reply) {
+	public void sendResultMessage(GenericJobMessage original, GenericResultMessage genericReply) {
+		
+		ResultMessage reply = new ResultMessage(genericReply);
+		
 		// for debugging
 		reply.addNamedParameter(ParameterMessage.PARAMETER_AS_ID, id);
 		
+		reply.setReplyTo(((JobMessage)original).getReplyTo());
+		
 		try {
-			endpoint.replyToMessage(original, reply);
+			endpoint.replyToMessage((JobMessage)original, reply);
 		} catch (JMSException e) {
 			logger.error("Could not send ResultMessage " + reply.getMessageID());
 		}
@@ -468,7 +477,7 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 	
 	/**
 	 * Sends the message in new thread.
-	 * @param original
+	 * @param genericJobMessage
 	 * @param reply
 	 */
 	private void sendReplyMessage(final ChipsterMessage original, final ChipsterMessage reply) {
@@ -476,6 +485,8 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 		if (reply instanceof ResultMessage) {
 			((ResultMessage)reply).addNamedParameter(ParameterMessage.PARAMETER_AS_ID, id);	
 		}
+		
+		reply.setReplyTo(original.getReplyTo());
 
 		new Thread(new Runnable() {
 			public void run() {
@@ -496,15 +507,15 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 		sendCompAvailable();
 	}
 	
-	private void receiveJob(JobMessage jobMessage) {
+	private void receiveJob(GenericJobMessage jobMessage) {
 
 		logger.info("received job request from: " + jobMessage.getUsername());
 		logger.info("checking if matches guest account: " + DirectoryLayout.getInstance().getConfiguration().getString("security", "guest-username"));
 		
 		if (jobMessage.getUsername().equals(DirectoryLayout.getInstance().getConfiguration().getString("security", "guest-username"))) {
 			ResultMessage resultMessage = new ResultMessage("", JobState.FAILED_USER_ERROR, "", "Running tools is disabled for guest users.", 
-					"", jobMessage.getReplyTo());
-			sendReplyMessage(jobMessage, resultMessage);
+					"", ((JobMessage)jobMessage).getReplyTo());
+			sendReplyMessage((ChipsterMessage)jobMessage, resultMessage);
 			return;
 		}
 		
@@ -538,8 +549,8 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 			
 			// could also just return without sending result, would result in retry by jobmanager
 			ResultMessage resultMessage = new ResultMessage("", JobState.ERROR, "", "Creating job failed", 
-					"", jobMessage.getReplyTo());
-			sendReplyMessage(jobMessage, resultMessage);
+					"", ((JobMessage)jobMessage).getReplyTo());
+			sendReplyMessage((ChipsterMessage)jobMessage, resultMessage);
 			return;
 		}
 		
@@ -555,8 +566,8 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 			
 			// no slot to run it now, ignore it
 			else {
-				ResultMessage resultMessage = new ResultMessage(jobMessage.getJobId(), JobState.COMP_BUSY, "", "", "", jobMessage.getReplyTo());
-				sendReplyMessage(jobMessage, resultMessage);
+				ResultMessage resultMessage = new ResultMessage(jobMessage.getJobId(), JobState.COMP_BUSY, "", "", "", ((JobMessage)jobMessage).getReplyTo());
+				sendReplyMessage((ChipsterMessage)jobMessage, resultMessage);
 				return;
 			}
 		}
@@ -611,7 +622,7 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 		offerMessage.addNamedParameter(ParameterMessage.PARAMETER_HOST, this.getHost());
 
 		// try to send the message
-		sendReplyMessage(job.getInputMessage(), offerMessage);
+		sendReplyMessage((ChipsterMessage)job.getInputMessage(), offerMessage);
 	}
 	
 	private List<ModuleDescriptionMessage>

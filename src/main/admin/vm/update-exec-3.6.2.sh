@@ -153,7 +153,7 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   
   # Get install package (override, if exists)
   sudo rm -f chipster-$LATEST_VERSION.tar.gz
-  sudo -u chipster wget http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/versions/$LATEST_VERSION/chipster-$LATEST_VERSION.tar.gz
+  sudo -u chipster wget http://bio.nic.funet.fi/pub/sci/molbio/chipster/dist/versions/$LATEST_VERSION/chipster-$LATEST_VERSION.tar.gz
 
   # Unpack libs
   echo "** Updating Chipster libs: shared/libs"
