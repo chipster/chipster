@@ -21,6 +21,7 @@ import org.xml.sax.SAXException;
 import de.schlichtherle.truezip.file.TFileReader;
 import fi.csc.chipster.toolbox.SADLTool.ParsedScript;
 import fi.csc.chipster.toolbox.toolpartsparser.ToolPartsParser;
+import fi.csc.chipster.util.StringUtils;
 import fi.csc.microarray.description.SADLDescription;
 import fi.csc.microarray.description.SADLDescription.Input;
 import fi.csc.microarray.description.SADLDescription.Output;
@@ -332,6 +333,14 @@ public class ToolboxModule {
 
 	public String getName() {
 		return this.moduleName;
+	}
+	
+	public String getNamePretty() {
+		if (moduleName.equals("ngs")) {
+			return moduleName.toUpperCase();
+		} else {
+			return StringUtils.capitalizeFirstLetter(moduleName);
+		}
 	}
 	
 	public List<ToolboxCategory> getCategories() {
