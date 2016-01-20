@@ -75,6 +75,15 @@ public class Toolbox {
 		return this.modules;
 	}
 	
+	public ToolboxModule getModule(String name) {
+		for (ToolboxModule module : modules) {
+			if (module.getName().equals(name)) {
+				return module;
+			}
+		}
+		return null;
+	}
+	
 	
 	/**
 	 * @return a list of DescriptionMessages about available tool modules
