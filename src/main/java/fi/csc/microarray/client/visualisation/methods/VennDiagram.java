@@ -52,7 +52,11 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 	private JButton useButton;
 	private JComboBox colBox;
 	private Variable colVar;
+	
+	private static final Variable SPACE_ID = new Variable("identifier", "/column/ ");
+	private static final Variable IDENTIFIER_ID = new Variable("identifier", "/column/identifier");
 
+	
 	@Override
 	public JPanel getParameterPanel() {
 		if (paramPanel == null) {
@@ -129,19 +133,19 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 		//xValues = data.queryFeatures(xVar.getExpression()).asFloats().iterator();
 		
 		int i = 0;
-		for (String name : datas.get(0).queryFeatures(colVar.getExpression()).asStrings()) {
+		for (String name : getIdentifiers(datas.get(0), colVar)) {
 			A.put(name, i++);
 
 		}
 
 		i = 0;
-		for (String name : datas.get(1).queryFeatures(colVar.getExpression()).asStrings()) {
+		for (String name : getIdentifiers(datas.get(1), colVar)) {
 			B.put(name, i++);
 		}
 
 		i = 0;
 		if (datas.size() == 3) {
-			for (String name : datas.get(2).queryFeatures(colVar.getExpression()).asStrings()) {
+			for (String name : getIdentifiers(datas.get(2), colVar)) {
 				C.put(name, i++);
 			}
 		}
@@ -207,6 +211,15 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 		application.addClientEventListener(this);
 
 		return chartPanel;
+	}
+
+	private Iterable<String> getIdentifiers(DataBean dataBean, Variable var) throws MicroarrayException {
+		// if there is no identifier column, try with a column name " " 
+		if (IDENTIFIER_ID.equals(var) && !dataBean.queryFeatures(var.getExpression()).exists()) {
+			var = SPACE_ID;
+		}
+		
+		return dataBean.queryFeatures(var.getExpression()).asStrings();
 	}
 
 	@Override
@@ -313,18 +326,36 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 		List<Variable> colsB = Arrays.asList(this.getVariablesFor(datas.get(1)));		
 		List<Variable> colsC = null;
 		
+		normalize(colsA);
+		normalize(colsB);
+		
 		List<Variable> commonCols = new LinkedList<Variable>();
 		commonCols.addAll(colsA);
 		commonCols.retainAll(colsB);
 		
 		if (datas.size() > 2) {
 			colsC = Arrays.asList(this.getVariablesFor(datas.get(2)));
+			normalize(colsC);
 			commonCols.retainAll(colsC);
 		}
 							
 		Visualisation.fillComboBox(colBox, commonCols.toArray());
 	}
 	
+	/**
+	 * Datasets' identifier column is either "identifier" or " ". Replace all occurrences of the latter 
+	 * variable with the first one because those are synonyms. 
+	 * 
+	 * @param vars
+	 */
+	private void normalize(List<Variable> vars) {
+		for (int i = 0; i < vars.size(); i++) {
+			if (SPACE_ID.equals(vars.get(i))) {
+				vars.set(i, IDENTIFIER_ID);
+			}
+		}
+	}
+
 	@Override
 	public Variable[] getVariablesFor(DataBean data) {
 		
