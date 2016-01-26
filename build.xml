@@ -464,6 +464,9 @@
 			<fileset dir="${tool-editor}/WebContent">
 				<include name="VAADIN/**"/>
 			</fileset>
+			<fileset dir="${src}">
+				<include name="fi/csc/chipster/toolbox/SADLTool.java"/>
+			</fileset>
 			<classes dir="${tool-editor-bin}" />
 		</war>
 	</target>
