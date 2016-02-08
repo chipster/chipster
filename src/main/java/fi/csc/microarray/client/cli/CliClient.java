@@ -60,6 +60,14 @@ import fi.csc.microarray.filebroker.FileBrokerException;
 import fi.csc.microarray.messaging.auth.SimpleAuthenticationRequestListener;
 import fi.csc.microarray.util.Strings;
 
+/**
+ * Run in project root with command
+ * 
+ * java -cp bin/eclipse:ext/lib/* fi.csc.microarray.client.cli.CliClient
+ * 
+ * @author klemela
+ *
+ */
 public class CliClient {
 	
 	private static final String KEY_INPUTS = "inputs";
@@ -97,6 +105,7 @@ public class CliClient {
 	private static final String OPT_WORKING_COPY = "working-copy";
 	private static final String OPT_LOCAL = "local";
 	private static final String OPT_CLOUD = "cloud";
+	private static final String OPT_SHOW_ID = "show-id";
 	
 	private static final String CMD_INTERACTIVE = "interactive";
 	private static final String CMD_EXIT = "exit";
@@ -236,7 +245,7 @@ public class CliClient {
         runWorkflow.addArgument(ARG_DATASET).help("start running from this dataset").required(true);
         
         addCommand(subparsers, CMD_OPEN_SESSION, "open zip session or cloud session", ARG_SESSION, OPT_CLOUD, OPT_LOCAL);
-        addCommand(subparsers, CMD_SAVE_SESSION, "save zip session or cloud session", ARG_SESSION, OPT_CLOUD, OPT_LOCAL);
+        addCommand(subparsers, CMD_SAVE_SESSION, "save zip session or cloud session", ARG_SESSION, OPT_CLOUD, OPT_LOCAL, OPT_SHOW_ID);
         addCommand(subparsers, CMD_CLEAR_SESSION, "delete all datasets of the working copy session");
         addCommand(subparsers, CMD_LIST_SESSIONS, "list cloud sessions");
         addCommand(subparsers, CMD_DELETE_SESSION, "delete cloud session", ARG_SESSION, OPT_CLOUD, OPT_LOCAL);
@@ -533,6 +542,9 @@ public class CliClient {
 		} else {
 			checkCloudConfiguration();
 			app.getSessionManager().saveSessionAndWait(true, null, workingCopy);
+			if (isBooleanOption(OPT_SHOW_ID)) {
+				System.out.println(app.getSessionManager().getSessionId());
+			}
 		}
 	}
 
