@@ -526,6 +526,9 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 		
 		// get tool from toolbox along with the runtime name
 		ToolboxTool toolboxTool = toolboxClient.getTool(jobMessage.getToolId());
+		if (toolboxTool == null) {
+			return;
+		}
 		
 		// ... and the runtime from runtime repo
 		ToolRuntime runtime = runtimeRepository.getRuntime(toolboxTool.getRuntime());
