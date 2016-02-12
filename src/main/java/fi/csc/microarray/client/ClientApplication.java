@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -24,6 +25,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLParameters;
 import javax.swing.Icon;
 
 import org.apache.log4j.Logger;
@@ -70,6 +73,7 @@ import fi.csc.microarray.databeans.HistoryText;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.ChecksumException;
 import fi.csc.microarray.filebroker.ChecksumInputStream;
+import fi.csc.microarray.filebroker.DbSession;
 import fi.csc.microarray.messaging.SourceMessageListener;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
 import fi.csc.microarray.messaging.auth.ClientLoginListener;
@@ -260,6 +264,31 @@ public abstract class ClientApplication {
 					throw new Exception(status);
 				}
 				reportInitialisationThreadSafely(" ok", true);
+				
+				reportInitialisationThreadSafely("Checking file broker connection...", false);
+				// download the session xml file of the first example session to check
+				// that connection works
+				List<DbSession> sessions = serviceAccessor.getFileBrokerClient().listPublicRemoteSessions();
+				if (!sessions.isEmpty()) {
+					String dataId = null;
+					for (DbSession session : sessions) {
+						dataId = session.getDataId();
+						if (dataId != null && !dataId.isEmpty()) {
+							break;
+						}
+					}
+					if (dataId != null && !dataId.isEmpty()) {
+						File tempFile = File.createTempFile("chipster-file-broker-connection-check", "");
+						tempFile.deleteOnExit();
+						serviceAccessor.getFileBrokerClient().getFile(null, dataId, tempFile);				
+						tempFile.delete();
+						reportInitialisationThreadSafely(" ok", true);
+					} else {
+						reportInitialisationThreadSafely(" skip", true);	
+					}
+				} else {
+					reportInitialisationThreadSafely(" skip", true);
+				}
 			}
 			
 			// Fetch descriptions from compute server
@@ -305,11 +334,37 @@ public abstract class ClientApplication {
 			
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new MicroarrayException(e);
+			throw new MicroarrayException("Startup failed\nDebug info:\n" + getConnectionDebugInfo(), e);
 		}
-
-
-	}	
+	}
+	
+	private String getConnectionDebugInfo() {
+		String msg = "";
+	
+		msg += "\nSystem properties\n";
+		for (Object key : System.getProperties().keySet()) {
+			msg += key + ": \t" + System.getProperty(key.toString()) + "\n";
+		}
+		
+		try {
+			SSLParameters sslParams = SSLContext.getDefault().getSupportedSSLParameters();
+			
+			msg += "\nProtocols\n";
+			for (String protocol : sslParams.getProtocols()) {
+				msg += protocol + "\n";
+			}
+			
+			msg += "\nCipher suites\n";
+			for (String cipher : sslParams.getCipherSuites()) {
+				msg += cipher + "\n";
+			}
+		} catch (NoSuchAlgorithmException e) {
+			logger.error("failed to get ssl debug info", e);
+			msg += "failed to get ssl debug info\n";
+		}
+		
+		return msg;
+	}
 	
 	public class ClientSessionManagerCallback implements SessionManagerCallback {
 
