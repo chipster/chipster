@@ -73,7 +73,6 @@ import fi.csc.microarray.databeans.HistoryText;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.ChecksumException;
 import fi.csc.microarray.filebroker.ChecksumInputStream;
-import fi.csc.microarray.filebroker.DbSession;
 import fi.csc.microarray.messaging.SourceMessageListener;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
 import fi.csc.microarray.messaging.auth.ClientLoginListener;
@@ -264,31 +263,6 @@ public abstract class ClientApplication {
 					throw new Exception(status);
 				}
 				reportInitialisationThreadSafely(" ok", true);
-				
-				reportInitialisationThreadSafely("Checking file broker connection...", false);
-				// download the session xml file of the first example session to check
-				// that connection works
-				List<DbSession> sessions = serviceAccessor.getFileBrokerClient().listPublicRemoteSessions();
-				if (!sessions.isEmpty()) {
-					String dataId = null;
-					for (DbSession session : sessions) {
-						dataId = session.getDataId();
-						if (dataId != null && !dataId.isEmpty()) {
-							break;
-						}
-					}
-					if (dataId != null && !dataId.isEmpty()) {
-						File tempFile = File.createTempFile("chipster-file-broker-connection-check", "");
-						tempFile.deleteOnExit();
-						serviceAccessor.getFileBrokerClient().getFile(null, dataId, tempFile);				
-						tempFile.delete();
-						reportInitialisationThreadSafely(" ok", true);
-					} else {
-						reportInitialisationThreadSafely(" skip", true);	
-					}
-				} else {
-					reportInitialisationThreadSafely(" skip", true);
-				}
 			}
 			
 			// Fetch descriptions from compute server
