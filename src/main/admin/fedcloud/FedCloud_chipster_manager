@@ -18,13 +18,15 @@ do
  echo "in endpoint:"
  echo ""
  echo "   $endpoint" 
+# echo "occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms -r compute -a list"
  echo ""
- for re in $(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms -r compute -a list | awk -F "/compute/" '{print "/compute/"$2}' )
+ # for re in $(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms -r compute -a list | awk -F "/compute/" '{print "/compute/"$2}' )
+ for re in $(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms -r compute -a list 2>/dev/null ) 
  do
-  rline=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $re -a describe | awk '{if ( $3 == "chipster-vm-'$user'") print "'$re' "$0 }')
+  rline=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $re -a describe | awk '{if ( $3 == "chipster-vm_'$user'") print $0 }'| awk '{if ( $1 == "occi.core.title") print "'$re' "$0 }')
   if [[ $rline != "" ]]
   then
-     vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $re | grep occi.networkinterface.address| awk '{print $3}'| head -1)
+     vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $re | grep occi.networkinterface.address | awk '{print $3}'| head -1)
      echo "$rline IP: $vmip"
   fi
  done
@@ -236,6 +238,9 @@ then
   exit 1
 fi
 
+#check that occi
+#
+
 #check that proxy is valid
 proxytime=$( voms-proxy-info | grep "timeleft" | awk '{print $3}')
 if [[ "$proxytime" == "" || "$proxytime" == "00:00:00"  ]] 
@@ -305,49 +310,66 @@ echo "Virtual Organization in use: $vo_name"
 if [[ $vo_name == "chipster.csc.fi" ]]
 then 
 echo "Available endpoints:"
-echo "  https://prisma-cloud.ba.infn.it:8787"
-clusters=( "https://prisma-cloud.ba.infn.it:8787" )
+#https://prisma-cloud.ba.infn.it:8787
+echo "  http://cloud.recas.ba.infn.it:8787/occi"
+clusters=( "http://cloud.recas.ba.infn.it:8787/occi" )
 echo ""
    if [[ $endpoint == "0" ]]
    then
-      endpoint=("https://prisma-cloud.ba.infn.it:8787")
+      endpoint=("http://cloud.recas.ba.infn.it:8787/occi")
       echo "Using endpoint: $endpoint"
    fi
 fi
 
 if [[ $vo_name == "training.egi.eu" ]]
 then
-echo "Available endpoints:"
-echo "  http://server4-epsh.unizar.es:8787"
-echo "  https://controller.ceta-ciemat.es:8787"
-echo "  https://stack-server-01.ct.infn.it:8787"
-echo "  https://cloud.ifca.es:8787"
+  echo "Available endpoints:"
+  #echo "  http://server4-epsh.unizar.es:8787"
+  echo "  https://controller.ceta-ciemat.es:8787"
+  echo "  https://stack-server-01.ct.infn.it:8787"
+  echo "  https://cloud.ifca.es:8787/occi"
 
-clusters=( "http://server4-epsh.unizar.es:8787" "https://controller.ceta-ciemat.es:8787" "https://stack-server-01.ct.infn.it:8787" "https://cloud.ifca.es:8787" )
-echo ""
-   if [[ $endpoint == "0" ]]
+  clusters=( "https://controller.ceta-ciemat.es:8787" "https://stack-server-01.ct.infn.it:8787" "https://cloud.ifca.es:8787/occi" )
+  echo ""
+  if [[ $endpoint == "0" ]]
    then
-      endpoint=("http://server4-epsh.unizar.es:8787")
+      endpoint=("https://controller.ceta-ciemat.es:8787")
       echo "Using endpoint: $endpoint"
-   fi
+  fi
 fi 
 
 # Set os template and VM flavor if they are not defined
 #Prisma/Bari
-if [[ $endpoint == "https://prisma-cloud.ba.infn.it:8787" ]]
+if [[ $endpoint == "http://cloud.recas.ba.infn.it:8787/occi" ]]
 then
    if [[ $chipster_img == "0"  ]]
    then
       #3.4.0 chipster_img=("os_tpl#87b6a944-007f-4f6d-b9ad-bba9dd4ff02f")
-      chipster_img=("os_tpl#28f3a6d6-e0e3-4677-9933-19b18430ef3a")
+      chipster_img=("os_tpl#f9bc3e51-9099-4e0b-9ad9-b70a830bd77e")
    fi
 
    if [[  $flavor == "0" ]]
    then
-      flavor=('resource_tpl#4cpu-8gb-20dsk')
+      flavor=('resource_tpl#9')
    fi
    link_ip=(0)
 fi
+#Cesnet-metacloud
+if [[ $endpoint == "https://carach5.ics.muni.cz:11443" ]]
+then
+   if [[ $chipster_img == "0"  ]]
+   then
+      #3.4.0 chipster_img=("os_tpl#87b6a944-007f-4f6d-b9ad-bba9dd4ff02f")
+      chipster_img=("os_tpl#uuid_chipster_ubuntu_server_12_04_lts_vo_fedcloud_warg_116")
+   fi
+
+   if [[  $flavor == "0" ]]
+   then
+      flavor=('1.0#mem_large')
+   fi
+   link_ip=(0)
+fi
+
 
 #BIFI
 if [[ $endpoint == "http://server4-epsh.unizar.es:8787" ]]
@@ -369,12 +391,12 @@ if [[ $endpoint == "https://controller.ceta-ciemat.es:8787" ]]
 then
    if [[ $chipster_img == "0"  ]]
    then
-       chipster_img=("os_tpl#72fc1c12-1f10-4faa-bf78-dfdb7fb163b4")
+       chipster_img=("os_tpl#95476989-91a6-40b7-9ba2-4a0cef8f3454")
    fi
 
    if [[  $flavor == "0" ]]
    then
-      flavor=('resource_tpl#m1-medium')
+      flavor=('resource_tpl#m1-large')
    fi
    link_ip=(1)
 fi
@@ -383,36 +405,29 @@ if [[ $endpoint == "https://stack-server-01.ct.infn.it:8787" ]]
 then
    if [[ $chipster_img == "0"  ]]
    then
-       chipster_img=("os_tpl#500d5a2d-daa8-453c-afaf-3309c7be3187")
+       chipster_img=("os_tpl#07ab8317-e7eb-4c7b-8fc7-94414c0f336d")
    fi
 
    if [[  $flavor == "0" ]]
    then
-      flavor=('resource_tpl#m1-medium')
+      flavor=('resource_tpl#m1.large')
    fi
    link_ip=(1)
 fi
 
-if [[ $endpoint == "https://cloud.ifca.es:8787" ]]
+if [[ $endpoint == "https://cloud.ifca.es:8787/occi1.1" ]]
 then
    if [[ $chipster_img == "0"  ]]
    then
-       chipster_img=("os_tpl#9f0fc873-30f0-4ab8-8e8f-788afd832b9b")
+       chipster_img=("os_tpl#c6401ebc-9cff-4597-aff3-44128523548a")
    fi
 
    if [[  $flavor == "0" ]]
    then
-      flavor=('resource_tpl#m1-medium')
+      flavor=('resource_tpl#m1.large')
    fi
    link_ip=(1)
 fi
-
-
-
-
-
-
-
 
 
 }
@@ -655,7 +670,7 @@ then
   echo "Could not create volume for chipster"
   exit 1
 else
-  volume=$(echo $volume | awk -F "/storage/" '{print "/storage/"$2}')
+  #volume=$(echo $volume | awk -F "/storage/" '{print "/storage/"$2}')
   echo "Created data volume: $volume ${volumesize}GB"
 fi
 
@@ -664,6 +679,7 @@ volume_name=("xxx")
 while [[ $volume_name != "chipster-data_$user" ]]
 do
  sleep 5
+ echo "occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe -r $volume "
  volume_name=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe -r $volume | grep occi.core.title | awk '{print $3}')
  occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe -r $volume
  echo "Volume name: $volume_name"
@@ -764,7 +780,7 @@ sudo rm -rf /opt/chipster/fileserver/db-root/ChipsterFilebrokerMetadataDatabase 
 sleep 5
 cd /opt/chipster 
 sudo bash ./configure.sh auto   2>&1 >>  /home/ubuntu/startup.log 
-sudo ln -s /mnt/data data   2>&1 >> ~/home/ubuntu/startup.log 
+sudo ln -s /mnt/data data   2>&1 >> /home/ubuntu/startup.log 
 
 EOF
 
@@ -812,8 +828,10 @@ userdata="file:///tmp/chipster_server_startup_$$.sh"
 sleep 5
 echo
 echo "Launching a new virtual machine with command:"
-echo "occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action create -r compute -M $chipster_img -M $flavor -t occi.core.title="chipster-vm_$user" --context user_data="$userdata" --link $volume"
-vmaddress=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action create -r compute -M $chipster_img -M $flavor -t occi.core.title="chipster-vm_$user" --context user_data="$userdata" --link $volume | awk -F "/compute/" '{print "/compute/"$2}' )
+echo "occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action create -r compute -M $chipster_img -M $flavor -t occi.core.title="chipster-vm_$user" --context user_data="$userdata" "
+#vmaddress=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action create -r compute -M $chipster_img -M $flavor -t occi.core.title="chipster-vm_$user" --context user_data="$userdata" --link $volume | awk -F "/compute/" '{print "/compute/"$2}' )
+vmaddress=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action create -r compute -M $chipster_img -M $flavor -t occi.core.title="chipster-vm_$user" --context user_data="$userdata" )
+
 
 
 if [[ $vmaddress == "" ]]
@@ -823,7 +841,7 @@ then
   sleep 15 
   occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe -r $volume
   vmaddress=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action create \
--r compute -M $chipster_img -M $flavor -t occi.core.title="chipster-vm_$user" --context user_data="$userdata" --link $volume | awk -F "/compute/" '{print "/compute/"$2}')
+-r compute -M $chipster_img -M $flavor -t occi.core.title="chipster-vm_$user" --context user_data="$userdata" )
   if [[ $vmaddress == "" ]]
   then
       echo "Second attempt faided too. Exiting"
@@ -831,6 +849,19 @@ then
       exit 1
   fi
 fi
+
+#Link the 
+
+vmstate=XX
+while [[ $vmstate != "active" ]]
+do
+   vmstate=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe -r $vmaddress | grep occi.networkinterface.state | awk '{print $3}')
+   echo $vmstate
+   sleep 10
+done
+
+occi -e $endpoint --auth x509 --user-cred $usercred -s --voms -a link -r $vmaddress -j $volume
+
 
 echo "-------------------------------------------------------------------------------------"
 echo New virtual machine launched with following ID:
