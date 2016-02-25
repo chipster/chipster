@@ -103,7 +103,7 @@ public class SADLDescriptionTest {
 		}
 		
 		// Iterate through all tools and collect their resource definitions (filename, classname etc.) 
-		for (File file : Files.listFilesRecursively(new File("src/main/modules/"))) {
+		for (File file : Files.listFilesRecursively(new File("../chipster-tools/modules/"))) {
 			if (file.getName().endsWith("-module.xml")) {
 				Document module = XmlUtil.parseFile(file);
 				String moduleName = module.getDocumentElement().getAttribute("name");
@@ -151,7 +151,7 @@ public class SADLDescriptionTest {
 					manualName = toolspec.resource.substring(0, toolspec.resource.indexOf('.'));
 					
 					// Determine which file it is
-					File file = new File(new File("src/main/modules"), toolspec.toolSpecificModule + File.separator + toolspec.runtimeDir + File.separator + toolspec.resource);
+					File file = new File(new File("../chipster-tools/modules"), toolspec.toolSpecificModule + File.separator + toolspec.runtimeDir + File.separator + toolspec.resource);
 
 					// Determine file type and process it
 					if (file.getName().endsWith(".R") || file.getName().endsWith(".py")) {
@@ -183,7 +183,7 @@ public class SADLDescriptionTest {
 					if (isFile) {
 						Assert.assertEquals(toolspec.resource, descriptions.get(0).getName().getID());
 					}
-					if (!toolspec.isHidden && !new File("src/main/manual/" + manualName + ".html").exists()) {
+					if (!toolspec.isHidden && !new File("../chipster-tools/manual/" + manualName + ".html").exists()) {
 						missingManuals += "\nManual page missing for " + toolspec.resource;
 					}
 					
