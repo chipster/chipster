@@ -184,4 +184,27 @@
 		</handler>
 	</runtime>
 	
+	<runtime>
+		<name>python3</name>
+		<handler>
+			<class>fi.csc.microarray.comp.python.PythonJobFactory</class>
+			<parameter>
+				<name>command</name>
+				<value>python3</value>
+			</parameter>
+			<parameter>
+				<name>commandParameters</name>
+				<value></value>
+			</parameter>
+			<parameter>
+				<name>toolPath</name>
+				<value>/python3</value>
+			</parameter>
+			<parameter>
+				<name>externalToolPath</name>
+				<value>/opt/chipster/tools</value>
+			</parameter>
+		</handler>
+	</runtime>
+	
 </runtimes>
