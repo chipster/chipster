@@ -133,7 +133,7 @@ public class PythonCompJob extends OnDiskCompJobBase {
 					} 
 					
 					// read script successful
-					else if (line.contains(SCRIPT_SUCCESSFUL_STRING)) {
+					else if (line.equals(SCRIPT_SUCCESSFUL_STRING)) {
 						updateState(JobState.COMPLETED, "Python script finished successfully");
 						readMore = false;
 					}
@@ -255,8 +255,7 @@ public class PythonCompJob extends OnDiskCompJobBase {
 		inputReaders.add(new BufferedReader(new StringReader(script)));
 		
 		// load script finished trigger
-		inputReaders.add(new BufferedReader(new StringReader("print '" + SCRIPT_SUCCESSFUL_STRING + "'\n")));
-		
+		inputReaders.add(new BufferedReader(new StringReader("print()\nprint('" + SCRIPT_SUCCESSFUL_STRING + "')\n"))); 	
 		
 		// get a process
 		cancelCheck();

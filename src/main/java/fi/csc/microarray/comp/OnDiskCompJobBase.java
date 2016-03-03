@@ -78,6 +78,8 @@ public abstract class OnDiskCompJobBase extends CompJob {
 			}
 			
 			ToolUtils.writeInputDescription(new File(jobWorkDir, "chipster-inputs.tsv"), nameMap);
+
+			inputMessage.preExecute(jobWorkDir);
 			
 		} catch (Exception e) {
 			outputMessage.setErrorMessage("Transferring input data to computing service failed.");

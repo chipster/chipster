@@ -1,5 +1,6 @@
 package fi.csc.microarray.messaging.message;
 
+import java.io.File;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -33,4 +34,5 @@ public interface GenericJobMessage {
 
 	public UUID getSessionId();
 
+	public void preExecute(File jobWorkDir);
 }
