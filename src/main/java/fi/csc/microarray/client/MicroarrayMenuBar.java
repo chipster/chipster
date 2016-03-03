@@ -731,7 +731,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			startedMenuItem.setText("Getting started");
 			startedMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					application.viewHelp("basic-functionality.html");
+					application.viewHelp(Session.getSession().getPrimaryModule().getManualHome() + "/basic-functionality.html");
 				}
 			});
 		}
@@ -759,7 +759,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			aboutMenuItem.setText("About");
 			aboutMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					application.viewHelp("about.html");
+					application.viewHelp(Session.getSession().getPrimaryModule().getManualHome() + "/about.html");
 				}
 			});
 		}
