@@ -5,8 +5,8 @@ import java.util.Date;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.messaging.JobState;
-import fi.csc.microarray.messaging.message.JobMessage;
-import fi.csc.microarray.messaging.message.ResultMessage;
+import fi.csc.microarray.messaging.message.GenericJobMessage;
+import fi.csc.microarray.messaging.message.GenericResultMessage;
 import fi.csc.microarray.util.Exceptions;
 
 /**
@@ -61,7 +61,7 @@ public abstract class CompJob implements Runnable {
 
 	private static final Logger logger = Logger.getLogger(CompJob.class);
 	
-	protected JobMessage inputMessage;
+	protected GenericJobMessage inputMessage;
 	protected ResultCallback resultHandler;
 	protected ToolDescription toolDescription;
 
@@ -75,7 +75,7 @@ public abstract class CompJob implements Runnable {
 	private JobState state;
 	private String stateDetail;
 	private boolean toBeCanceled = false;
-	protected ResultMessage outputMessage;
+	protected GenericResultMessage outputMessage;
 	
 	public CompJob() {
 		this.state = JobState.NEW;
@@ -83,16 +83,15 @@ public abstract class CompJob implements Runnable {
 	}
 	
 
-	public void construct(JobMessage inputMessage, ToolDescription analysis, ResultCallback resultHandler) {
+	public void construct(GenericJobMessage inputMessage, ToolDescription analysis, ResultCallback resultHandler) {
 		this.constructed = true;
 		this.toolDescription = analysis;
 		this.inputMessage = inputMessage;
 		this.resultHandler = resultHandler;
 		
 		// initialize result message
-		outputMessage = new ResultMessage();
+		outputMessage = new GenericResultMessage();
 		outputMessage.setJobId(this.getId());
-		outputMessage.setReplyTo(inputMessage.getReplyTo());
 		outputMessage.setState(this.state);
 		outputMessage.setStateDetail(this.stateDetail);
 	}
@@ -294,11 +293,11 @@ public abstract class CompJob implements Runnable {
 	}
 
 
-	public JobMessage getInputMessage() {
+	public GenericJobMessage getInputMessage() {
 		return inputMessage;
 	}
 
-	public ResultMessage getResultMessage() {
+	public GenericResultMessage getResultMessage() {
 		return outputMessage;
 	}
 
@@ -344,5 +343,9 @@ public abstract class CompJob implements Runnable {
 
 	public String getStateDetail() {
 		return this.stateDetail;
+	}
+	
+	public ToolDescription getToolDescription() {
+		return toolDescription;
 	}
 }

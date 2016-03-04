@@ -1,10 +1,11 @@
 package fi.csc.chipster.toolbox.toolpartsparser;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import de.schlichtherle.truezip.file.TFile;
+import de.schlichtherle.truezip.file.TFileInputStream;
 import fi.csc.chipster.toolbox.SADLTool;
 import fi.csc.chipster.toolbox.SADLTool.ParsedScript;
 
@@ -21,9 +22,9 @@ public class HeaderAsCommentParser implements ToolPartsParser {
 	@Override
 	public ParsedScript parse(File moduleDir, String toolFilename) throws IOException {
 
-		File toolFile = new File(moduleDir, toolPath + File.separator + toolFilename);
+		TFile toolFile = new TFile(moduleDir, toolPath + File.separator + toolFilename);
 		InputStream scriptSource;
-		scriptSource = new FileInputStream(toolFile);
+		scriptSource = new TFileInputStream(toolFile);
 
 		// read the SADL from the comment block in the beginning of file
 		// and the actual source code

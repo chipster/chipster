@@ -11,7 +11,7 @@ import java.util.LinkedList;
 
 public class ServerFile extends File {
 	
-	public static final String SERVER_SESSION_ROOT_FOLDER = "Sessions at server";
+	public static final String SERVER_SESSION_ROOT_FOLDER = "Cloud sessions";
 
 	private String name;
 	private String url;

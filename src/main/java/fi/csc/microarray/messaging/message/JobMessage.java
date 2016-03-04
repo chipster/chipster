@@ -7,6 +7,7 @@ package fi.csc.microarray.messaging.message;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
@@ -23,7 +24,7 @@ import fi.csc.microarray.comp.ToolDescription.ParameterDescription;
  * @author Taavi Hupponen, Aleksi Kallio
  *
  */
-public class JobMessage extends PayloadMessage {
+public class JobMessage extends PayloadMessage implements GenericJobMessage {
 
 	public static interface ParameterSecurityPolicy {
 		/**
@@ -127,6 +128,20 @@ public class JobMessage extends PayloadMessage {
 	 */
 	public List<String> getParameters(ParameterSecurityPolicy securityPolicy, ToolDescription description) throws ParameterValidityException {
 		
+		return checkParameterSafety(securityPolicy, description, super.getParameters());
+	}
+	
+	/**
+	 * This should really be in the GenericJobMessage, but static methods in 
+	 * interfaces are only allowed starting from Java 1.8.
+	 * 
+	 * @param securityPolicy
+	 * @param description
+	 * @param parameters
+	 * @return
+	 * @throws ParameterValidityException
+	 */
+	public static List<String> checkParameterSafety(ParameterSecurityPolicy securityPolicy, ToolDescription description, List<String> parameters) throws ParameterValidityException {
 		// Do argument checking first
 		if (securityPolicy == null) {
 			throw new IllegalArgumentException("security policy cannot be null");
@@ -140,9 +155,6 @@ public class JobMessage extends PayloadMessage {
 		for (Iterator<ParameterDescription> iterator = description.getParameters().iterator(); iterator.hasNext(); iterator.next()) {
 			parameterDescriptionCount++;
 		}
-
-		// Get the actual values
-		List<String> parameters = super.getParameters();
 
 		// Check that description and values match
 		if (parameterDescriptionCount != parameters.size()) {
@@ -160,6 +172,12 @@ public class JobMessage extends PayloadMessage {
 		
 		// Everything was ok, return the parameters
 		return parameters;
+	}
+
+	@Override
+	public UUID getSessionId() {
+		// the datasetId is enough in JMS Chipster to access a dataset
+		return null;
 	}
 }
 	

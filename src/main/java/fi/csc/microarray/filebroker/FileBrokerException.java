@@ -15,4 +15,8 @@ public class FileBrokerException extends Exception {
 	public FileBrokerException(Exception e) {
 		super(e);
 	}
+	
+	public FileBrokerException(String message, Exception cause) {
+		super(message, cause);
+	}
 }

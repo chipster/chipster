@@ -2,7 +2,8 @@
 
 # Weeder, custom license, according to developers VM bundling is ok
   cd ${TMPDIR_PATH}/
-  curl -s http://159.149.160.51/modtools/downloads/weeder1.4.2.tar.gz | tar -xz
+  #curl -s http://159.149.160.51/modtools/downloads/weeder1.4.2.tar.gz | tar -xz
+  curl -s http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/weeder1.4.2.tar.gz | tar -xz
   cd Weeder1.4.2/
   ./compileall
   cd ../

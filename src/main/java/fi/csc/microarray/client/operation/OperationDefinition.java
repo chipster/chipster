@@ -566,40 +566,40 @@ public class OperationDefinition implements ExecutionItem {
 	// TODO update to new type tag system
 	private boolean doBackwardsCompatibleTypeCheck(InputType type, DataBean data) {
 		
-		if (type == ChipsterInputTypes.AFFY) {
+		if (type.equals(ChipsterInputTypes.AFFY)) {
 			return data.hasTypeTag(MicroarrayModule.TypeTags.RAW_AFFYMETRIX_EXPRESSION_VALUES);
 			
-		} else if (type == ChipsterInputTypes.CDNA) {
+		} else if (type.equals(ChipsterInputTypes.CDNA)) {
 			return data.hasTypeTag(MicroarrayModule.TypeTags.RAW_EXPRESSION_VALUES);
 			
-		} else if (type == ChipsterInputTypes.GENE_EXPRS) {
+		} else if (type.equals(ChipsterInputTypes.GENE_EXPRS)) {
 			return data.hasTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
 			
-		} else if (type == ChipsterInputTypes.GENELIST) {
+		} else if (type.equals(ChipsterInputTypes.GENELIST)) {
 			return data.hasTypeTag(MicroarrayModule.TypeTags.GENENAMES);
 		
-		} else if (type == ChipsterInputTypes.BAM) {
+		} else if (type.equals(ChipsterInputTypes.BAM)) {
 			return data.hasTypeTag(MicroarrayModule.TypeTags.BAM_FILE);
 			
-		} else if (type == ChipsterInputTypes.FASTA) {
+		} else if (type.equals(ChipsterInputTypes.FASTA)) {
 			return data.hasTypeTag(MicroarrayModule.TypeTags.FASTA_FILE);
 			
-		} else if (type == ChipsterInputTypes.GTF) {
+		} else if (type.equals(ChipsterInputTypes.GTF)) {
 			return data.hasTypeTag(MicroarrayModule.TypeTags.GTF_FILE);
 			
-		} else if (type == ChipsterInputTypes.PHENODATA) {
+		} else if (type.equals(ChipsterInputTypes.PHENODATA)) {
 			return data.hasTypeTag(MicroarrayModule.TypeTags.PHENODATA);
 			
-		} else if (type == GenericInputTypes.GENERIC) {
+		} else if (type.equals(GenericInputTypes.GENERIC)) {
 			return true;
 			
-		} else if (type == ChipsterInputTypes.MOTHUR_OLIGOS) {
+		} else if (type.equals(ChipsterInputTypes.MOTHUR_OLIGOS)) {
 			return data.hasTypeTag(MicroarrayModule.TypeTags.MOTHUR_OLIGOS);
 			
-		} else if (type == ChipsterInputTypes.MOTHUR_NAMES) {
+		} else if (type.equals(ChipsterInputTypes.MOTHUR_NAMES)) {
 			return data.hasTypeTag(MicroarrayModule.TypeTags.MOTHUR_NAMES);
 			
-		} else if (type == ChipsterInputTypes.MOTHUR_GROUPS) {
+		} else if (type.equals(ChipsterInputTypes.MOTHUR_GROUPS)) {
 				return data.hasTypeTag(MicroarrayModule.TypeTags.MOTHUR_GROUPS);
 		
 		} else {

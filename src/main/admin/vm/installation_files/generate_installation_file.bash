@@ -21,6 +21,9 @@ arraySort() {
 		 
 # for array size
 	for i in "${array[@]}"; do
+	
+	# debug
+	echo "$i"
 		
 	# take one module depency
 	depency=( $(cut -d : -f2 $i) )
@@ -75,7 +78,7 @@ arraySort() {
 
 # Move to working directory
 cd modules/
-		
+
 # List files from directory to the array
 modules=( $(find $1*.bash) )
 
@@ -92,7 +95,7 @@ arraySort "${modules[@]}"
 		done
 		printf "%s\n" "${parallel_array[@]}" > $2_parallel
 	fi
-	
+
 printf "%s\n" "${sort_array[@]}" > $2
 sed '/^$/d' $2 > $2.out
 mv  $2.out $2

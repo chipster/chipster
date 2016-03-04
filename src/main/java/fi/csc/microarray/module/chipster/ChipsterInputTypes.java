@@ -6,192 +6,63 @@ import fi.csc.microarray.description.SADLSyntax.InputType;
 import fi.csc.microarray.exception.MicroarrayException;
 
 public class ChipsterInputTypes {
-
 	
-	public static final InputType CDNA = new InputType() {
-
-		public String getName() {			
-			return "CDNA";
-		}
-
-		public boolean isTypeOf(DataBean dataBean) {
+	public static final InputType CDNA = new InputType("CDNA");	
+	public static final InputType AFFY = new InputType("AFFY");	
+	public static final InputType GENE_EXPRS = new InputType("GENE_EXPRS");	
+	public static final InputType GENELIST = new InputType("GENELIST");	
+	public static final InputType PHENODATA = new InputType("PHENODATA");	
+	public static final InputType BAM = new InputType("BAM");	
+	public static final InputType FASTA = new InputType("FASTA");	
+	public static final InputType GTF = new InputType("GTF");	
+	public static final InputType MOTHUR_OLIGOS = new InputType("MOTHUR_OLIGOS");	
+	public static final InputType MOTHUR_NAMES = new InputType("MOTHUR_NAMES");
+	public static final InputType MOTHUR_GROUPS = new InputType("MOTHUR_GROUPS");
+	
+	public static boolean isTypeOf(DataBean dataBean, InputType type) {
+		
+		if (CDNA.equals(type)) {
 			return dataBean.queryFeatures("/column/sample").exists();
 		}
-
-		public boolean isMetadata() {
-			return false;
-		}		
-
-	};
-	
-	
-	public static final InputType AFFY = new InputType() {
-
-		public String getName() {
-			return "AFFY";
-		}
-
-		public boolean isTypeOf(DataBean dataBean) {
+		if (AFFY.equals(type)) {
 			return dataBean.isContentTypeCompatitible("application/cel");
 		}
-
-		public boolean isMetadata() {
-			return false;
-		}
-
-	};
-	
-	public static final InputType GENE_EXPRS = new InputType() {
-
-		public String getName() {
-			return "GENE_EXPRS";
-		}
-
-		public boolean isTypeOf(DataBean dataBean) {
+		if (GENE_EXPRS.equals(type)) {
 			try (Table chips = dataBean.queryFeatures("/column/chip.*").asTable()) {
-				return chips != null && chips.getColumnCount() > 0;
+					return chips != null && chips.getColumnCount() > 0;
 			} catch (MicroarrayException e) {
 				throw new RuntimeException(e);
 			}
 		}
-
-		public boolean isMetadata() {
-			return false;
-		}
-		
-	};
-
-	public static final InputType GENELIST = new InputType() {
-
-		public String getName() {
-			return "GENELIST";
-		}
-
-		public boolean isTypeOf(DataBean dataBean) {
+		if (GENELIST.equals(type)) {
 			return dataBean.queryFeatures("/identifier").exists();
 		}
-
-		public boolean isMetadata() {
-			return false;
-		}
-	
-	};
-
-	public static final InputType PHENODATA = new InputType() {
-
-		public String getName() {
-			return "PHENODATA";
-		}
-
-		public boolean isTypeOf(DataBean dataBean) {
+		if (PHENODATA.equals(type)) {
 			return dataBean.queryFeatures("/phenodata").exists();
 		}
-		
-		public boolean isMetadata() {
-			return true;
-		}
-	};
-	
-	public static final InputType BAM = new InputType() {
-
-		public String getName() {
-			return "BAM";
-		}
-
-		public boolean isTypeOf(DataBean dataBean) {
+		if (BAM.equals(type)) {
 			return dataBean.isContentTypeCompatitible("application/bam");
 		}
-
-		public boolean isMetadata() {
-			return false;
-		}
-
-	};
-	
-	public static final InputType FASTA = new InputType() {
-
-		public String getName() {
-			return "FASTA";
-		}
-
-		public boolean isTypeOf(DataBean dataBean) {
+		if (FASTA.equals(type)) {
 			return dataBean.isContentTypeCompatitible("chemical/x-fasta");
 		}
-
-		public boolean isMetadata() {
-			return false;
-		}
-
-	};
-
-	public static final InputType GTF = new InputType() {
-
-		public String getName() {
-			return "GTF";
-		}
-
-		public boolean isTypeOf(DataBean dataBean) {
+		if (GTF.equals(type)) {
 			return dataBean.isContentTypeCompatitible("text/gtf");
 		}
-
-		public boolean isMetadata() {
-			return false;
-		}
-
-	};
-
-	public static final InputType MOTHUR_OLIGOS = new InputType() {
-
-		public String getName() {
-			return "MOTHUR_OLIGOS";
-		}
-
-		public boolean isTypeOf(DataBean dataBean) {
+		if (MOTHUR_OLIGOS.equals(type)) {
 			return dataBean.isContentTypeCompatitible("text/mothur-oligos");
 		}
-
-		public boolean isMetadata() {
-			return false;
-		}
-
-	};
-
-	public static final InputType MOTHUR_NAMES = new InputType() {
-
-		public String getName() {
-			return "MOTHUR_NAMES";
-		}
-
-		public boolean isTypeOf(DataBean dataBean) {
+		if (MOTHUR_NAMES.equals(type)) {
 			return dataBean.isContentTypeCompatitible("text/mothur-names");
 		}
-
-		public boolean isMetadata() {
-			return false;
-		}
-
-	};
-
-	public static final InputType MOTHUR_GROUPS = new InputType() {
-
-		public String getName() {
-			return "MOTHUR_GROUPS";
-		}
-
-		public boolean isTypeOf(DataBean dataBean) {
+		if (MOTHUR_GROUPS.equals(type)) {
 			return dataBean.isContentTypeCompatitible("text/mothur-groups");
 		}
+		return false;
+}
 
-		public boolean isMetadata() {
-			return false;
-		}
-
-	};
-
-	
-	
 	
 	public static boolean hasRawType(DataBean data) {
-		return AFFY.isTypeOf(data) || CDNA.isTypeOf(data);
+		return isTypeOf(data, AFFY) || isTypeOf(data, CDNA);
 	}
 }

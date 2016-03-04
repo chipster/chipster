@@ -1,8 +1,5 @@
 package fi.csc.microarray.description;
 
-import fi.csc.microarray.databeans.DataBean;
-
-
 /**
  * <p>SADL (Simple Analysis Description Language) is a simple language for 
  * describing analysis operations so that they can be used in the Chipster system. Operations
@@ -91,10 +88,36 @@ public class SADLSyntax {
 	public static final String QUOTE = "\"";
 	public static final String ESCAPE = "\\";
 	
-	public static interface InputType {
-		public boolean isTypeOf(DataBean dataBean);
-		public String getName();
-		public boolean isMetadata();
+	public static class InputType {
+		private String name;
+		
+		public InputType() {
+			// for Jackson
+		}
+		
+		public InputType(String name) {
+			this.name = name;
+		}
+		public String getName() {
+			return name;
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			InputType other = (InputType) obj;
+			if (name == null) {
+				if (other.name != null)
+					return false;
+			} else if (!name.equals(other.name))
+				return false;
+			return true;
+		}
 	}
 	
 	public static enum ParameterType {

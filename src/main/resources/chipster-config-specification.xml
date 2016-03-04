@@ -160,6 +160,10 @@
         <entry entryKey="metadata-backup-dir" type="string" description="base directory for metadata backups">
 			<value>metadata-backups</value>
 		</entry>
+		
+		<entry entryKey="metadata-restore-path" type="string" description="directory name in the metadata-backup-dir to restore. This will overwrite the current database">
+			<value></value>
+		</entry>
 
         <entry entryKey="metadata-backup-time" type="string" description="cron like syntax for scheduling backups, see http://www.sauronsoftware.it/projects/cron4j/manual.php#p02 or cron manual for more info">
 			<value>10 0 * * *</value> <!-- ten past midnight, every day -->

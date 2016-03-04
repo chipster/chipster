@@ -10,13 +10,12 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.LinkedList;
 import java.util.List;
-
-import javax.jms.JMSException;
+import java.util.UUID;
 
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.messaging.admin.StorageAdminAPI.StorageEntryMessageListener;
-import fi.csc.microarray.util.KeyAndTrustManager;
 import fi.csc.microarray.util.IOUtils.CopyProgressListener;
+import fi.csc.microarray.util.KeyAndTrustManager;
 
 /**
  * Simple file broker client for the standalone mode.
@@ -31,7 +30,7 @@ public class SimpleFileBrokerClient implements FileBrokerClient {
 	private static final String PUBLIC_FILES = "public-files.txt";
 
 	@Override
-	public String addFile(String dataId, FileBrokerArea area, InputStream content, long contentLength, CopyProgressListener progressListener) throws FileBrokerException, JMSException, IOException {
+	public String addFile(String dataId, FileBrokerArea area, InputStream content, long contentLength, CopyProgressListener progressListener) throws FileBrokerException, IOException {
 		throw new UnsupportedOperationException();
 	}
 
@@ -41,7 +40,7 @@ public class SimpleFileBrokerClient implements FileBrokerClient {
 	}
 	
 	@Override
-	public List<URL> getPublicFiles() throws JMSException, MalformedURLException {
+	public List<URL> getPublicFiles() throws FileBrokerException, MalformedURLException {
 		
 		String publicRoot = DirectoryLayout.getInstance().getConfiguration().getString("messaging", "public-files-url") + "/";
 		URL filesListing = new URL(publicRoot + PUBLIC_FILES);
@@ -66,12 +65,12 @@ public class SimpleFileBrokerClient implements FileBrokerClient {
 	}
 
 	@Override
-	public void getFile(String dataId, File file) throws IOException {
+	public void getFile(UUID sessionId, String dataId, File file) throws IOException {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void addFile(String dataId, FileBrokerArea area, File file, CopyProgressListener progressListener) throws FileBrokerException, JMSException, IOException {
+	public void addFile(UUID jobId, UUID sessionId, String dataId, FileBrokerArea area, File file, CopyProgressListener progressListener, String datsetName) throws FileBrokerException, IOException {
 		throw new UnsupportedOperationException();
 	}
 
@@ -81,18 +80,18 @@ public class SimpleFileBrokerClient implements FileBrokerClient {
 	}
 
 	@Override
-	public List<DbSession> listRemoteSessions() throws JMSException {
+	public List<DbSession> listRemoteSessions() throws FileBrokerException {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void removeRemoteSession(String dataId) throws JMSException {
+	public void removeRemoteSession(String dataId) throws FileBrokerException {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public void saveRemoteSession(String name, String dataId, LinkedList<String> dataIds)
-			throws JMSException {
+			throws FileBrokerException {
 		throw new UnsupportedOperationException();
 	}
 
@@ -107,24 +106,24 @@ public class SimpleFileBrokerClient implements FileBrokerClient {
 	}
 
 	@Override
-	public List<DbSession> listPublicRemoteSessions() throws JMSException {
+	public List<DbSession> listPublicRemoteSessions() throws FileBrokerException {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public String getExternalURL(String dataId) throws JMSException,
+	public String getExternalURL(String dataId) throws FileBrokerException,
 			FileBrokerException {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public Long getContentLength(String dataId) throws IOException,
-			JMSException, FileBrokerException {
+	FileBrokerException, FileBrokerException {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public StorageEntryMessageListener getStorageUsage() throws JMSException,
+	public StorageEntryMessageListener getStorageUsage() throws FileBrokerException,
 			InterruptedException {
 		throw new UnsupportedOperationException();
 	}

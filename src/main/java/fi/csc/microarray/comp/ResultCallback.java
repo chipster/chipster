@@ -8,8 +8,8 @@ package fi.csc.microarray.comp;
 import java.io.File;
 
 import fi.csc.microarray.filebroker.FileBrokerClient;
-import fi.csc.microarray.messaging.message.ChipsterMessage;
-import fi.csc.microarray.messaging.message.ResultMessage;
+import fi.csc.microarray.messaging.message.GenericJobMessage;
+import fi.csc.microarray.messaging.message.GenericResultMessage;
 
 /**
  * For reporting back analysis results. These methods are called by the thread running a job.
@@ -27,7 +27,7 @@ public interface ResultCallback {
 	 * @param inputMessage
 	 * @param resultMessage
 	 */
-	public void sendResultMessage(ChipsterMessage inputMessage, ResultMessage resultMessage); 
+	public void sendResultMessage(GenericJobMessage jobMessage, GenericResultMessage resultMessage); 
 	
 	public File getWorkDir();
 	public boolean shouldSweepWorkDir();
