@@ -25,7 +25,7 @@ public abstract class RegionTool extends JavaCompJobBase {
 			RegionOperations tool = new RegionOperations();
 			LinkedList<List<Feature>> inputs = new LinkedList<List<Feature>>();
 			for (int i = 0; i < toolDescription.getInputFiles().size(); i++) {
-				File inputFile = new File(jobWorkDir, toolDescription.getInputFiles().get(i).getFileName());
+				File inputFile = new File(jobDataDir, toolDescription.getInputFiles().get(i).getFileName());
 				inputs.add(tool.loadFile(inputFile));
 			}
 
@@ -39,7 +39,7 @@ public abstract class RegionTool extends JavaCompJobBase {
 			// Write output
 			FileOutputStream outputStream = null;
 			try {
-				outputStream = new FileOutputStream(new File(jobWorkDir, toolDescription.getOutputFiles().get(0).getFileName().getID())); 
+				outputStream = new FileOutputStream(new File(jobDataDir, toolDescription.getOutputFiles().get(0).getFileName().getID())); 
 				tool.print(output, outputStream);
 
 			} finally {
