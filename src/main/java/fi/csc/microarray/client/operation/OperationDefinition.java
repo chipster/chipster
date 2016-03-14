@@ -601,7 +601,10 @@ public class OperationDefinition implements ExecutionItem {
 			
 		} else if (type.equals(ChipsterInputTypes.MOTHUR_GROUPS)) {
 				return data.hasTypeTag(MicroarrayModule.TypeTags.MOTHUR_GROUPS);
-		
+
+		} else if (type.equals(ChipsterInputTypes.MOTHUR_STABILITY)) {
+			return data.hasTypeTag(MicroarrayModule.TypeTags.MOTHUR_STABILITY);
+				
 		} else {
 			throw new IllegalArgumentException();
 		}
