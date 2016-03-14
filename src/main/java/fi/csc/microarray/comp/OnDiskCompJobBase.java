@@ -1,17 +1,27 @@
 package fi.csc.microarray.comp;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.UUID;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.comp.ToolDescription.OutputDescription;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.filebroker.ChecksumException;
 import fi.csc.microarray.filebroker.FileBrokerClient.FileBrokerArea;
+import fi.csc.microarray.filebroker.FileBrokerException;
 import fi.csc.microarray.filebroker.NotEnoughDiskSpaceException;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.message.GenericJobMessage;
@@ -59,43 +69,24 @@ public abstract class OnDiskCompJobBase extends CompJob {
 		updateStateDetailToClient("transferring input data");
 
 		// create directories for the job
-		if (!(this.jobDir.mkdir() && this.jobDataDir.mkdir() && this.jobToolboxDir.mkdir())) {
-			outputMessage.setErrorMessage("Creating working directories failed.");
+		if (!this.jobDir.mkdir()) {
+			outputMessage.setErrorMessage("Creating job working directory failed.");
 			updateState(JobState.ERROR, "");
 			return;
 		}
 
-		
-		// get input files to data dir
+		// get input files and toolbox
 		try {
-			
-			LinkedHashMap<String, String> nameMap = new LinkedHashMap<>();
-			
-			for (String fileName : inputMessage.getKeys()) {
-				cancelCheck();
-
-				// get url and output file
-				String dataId = inputMessage.getId(fileName);
-				File localFile = new File(jobDataDir, fileName);
-				
-				// make local file available, by downloading, copying or symlinking
-				resultHandler.getFileBrokerClient().getFile(inputMessage.getSessionId(), dataId, new File(jobDataDir, fileName));
-				logger.debug("made available local file: " + localFile.getName() + " " + localFile.length());
-				
-				nameMap.put(fileName, inputMessage.getName(fileName));
-			}
-			
-			ToolUtils.writeInputDescription(new File(jobDataDir, "chipster-inputs.tsv"), nameMap);
-
-			inputMessage.preExecute(jobDataDir);
-			
+			getInputFiles();
+			getToolbox();
 		} catch (Exception e) {
-			outputMessage.setErrorMessage("Transferring input data to computing service failed.");
+			outputMessage.setErrorMessage("Transferring input data and tools to computing service failed.");
 			outputMessage.setOutputText(Exceptions.getStackTrace(e));
 			updateState(JobState.ERROR, "");
 			return;
 		}			
 	}
+
 
 	/**
 	 * Copy output files from job work dir to file broker.
@@ -206,4 +197,98 @@ public abstract class OnDiskCompJobBase extends CompJob {
 			super.cleanUp();
 		}
 	}
+
+
+	private void getInputFiles()
+			throws Exception, JobCancelledException, IOException, FileBrokerException, ChecksumException {
+		LinkedHashMap<String, String> nameMap = new LinkedHashMap<>();
+		
+		if (!this.jobDataDir.mkdir()) {
+			throw new IOException("Creating job data dir failed.");
+		}
+		
+		for (String fileName : inputMessage.getKeys()) {
+			cancelCheck();
+	
+			// get url and output file
+			String dataId = inputMessage.getId(fileName);
+			File localFile = new File(jobDataDir, fileName);
+			
+			// make local file available, by downloading, copying or symlinking
+			resultHandler.getFileBrokerClient().getFile(inputMessage.getSessionId(), dataId, new File(jobDataDir, fileName));
+			logger.debug("made available local file: " + localFile.getName() + " " + localFile.length());
+			
+			nameMap.put(fileName, inputMessage.getName(fileName));
+		}
+		
+		ToolUtils.writeInputDescription(new File(jobDataDir, "chipster-inputs.tsv"), nameMap);
+	
+		inputMessage.preExecute(jobDataDir);
+	}
+	
+	private void getToolbox() throws IOException {
+
+		if (!this.jobToolboxDir.mkdir()) {
+			throw new IOException("Creating job toolbox dir failed.");
+		}
+
+//		unzip("/Users/hupponen/git/chipster-tools/build/distributions/chipster-tools-3.6.3.zip", jobToolboxDir);
+		unzip("http://chipster.csc.fi/dev/chipster-tools-3.6.3.zip", jobToolboxDir);
+	}
+	
+	
+	  public void unzip(String zipFilePath, File destDirectory) throws IOException {
+	        long startTime = System.currentTimeMillis();
+		  
+		  	File destDir = destDirectory;
+	        if (!destDir.exists()) {
+	            destDir.mkdir();
+	        }
+	        
+	        URL url = new URL(zipFilePath);
+	        InputStream in = new BufferedInputStream(url.openStream(), 1024);
+	        
+//	        new FileInputStream(zipFilePath)
+
+	        ZipInputStream zipIn = new ZipInputStream(in);
+	        ZipEntry entry = zipIn.getNextEntry();
+	        // iterates over entries in the zip file
+	        while (entry != null) {
+	            String filePath = destDirectory + File.separator + entry.getName();
+	            if (!entry.isDirectory()) {
+	                // if the entry is a file, extracts it
+	                extractFile(zipIn, filePath);
+	            } else {
+	                // if the entry is a directory, make the directory
+	                File dir = new File(filePath);
+	                dir.mkdir();
+	            }
+	            zipIn.closeEntry();
+	            entry = zipIn.getNextEntry();
+	        }
+	        zipIn.close();
+	        
+	        logger.info("toolbox download took " + (System.currentTimeMillis() - startTime) + " ms");
+	    }
+
+	  /**
+	     * Extracts a zip entry (file entry)
+	     * @param zipIn
+	     * @param filePath
+	     * @throws IOException
+	     */
+	    private void extractFile(ZipInputStream zipIn, String filePath) throws IOException {
+	        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath));
+	        byte[] bytesIn = new byte[4096];
+	        int read = 0;
+	        while ((read = zipIn.read(bytesIn)) != -1) {
+	            bos.write(bytesIn, 0, read);
+	        }
+	        bos.close();
+	    }
+	
+	
+	
+	
+	
 }
