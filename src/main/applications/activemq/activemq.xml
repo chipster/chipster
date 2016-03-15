@@ -98,11 +98,12 @@
       		<simpleAuthenticationPlugin>
          		<users>
            			<authenticationUser groups="clients,all" password="client" username="client"/>
-				<authenticationUser groups="analysers,all" password="comp" username="comp"/>
-				<authenticationUser groups="jobmanagers,all" password="jobmanager" username="jobmanager"/>
+					<authenticationUser groups="analysers,all" password="comp" username="comp"/>
+					<authenticationUser groups="jobmanagers,all" password="jobmanager" username="jobmanager"/>
            			<authenticationUser groups="authenticators,all" password="auth" username="auth"/>
            			<authenticationUser groups="managers,all" password="manager" username="manager"/>
            			<authenticationUser groups="filebrokers,all" password="filebroker" username="filebroker"/>
+           			<authenticationUser groups="toolboxes,all" password="toolbox" username="toolbox"/>
            			<authenticationUser groups="clients,analysers,all" password="nonauth" username="nonauth"/>
           		</users>
       		</simpleAuthenticationPlugin>
@@ -110,7 +111,7 @@
          		<map>
            			<authorizationMap>
              			<authorizationEntries>
-               				<authorizationEntry admin="all" read="jobmanagers" topic="authorised-request-topic" write="authenticators"/>
+               				<authorizationEntry admin="all" read="jobmanagers,toolboxes" topic="authorised-request-topic" write="authenticators"/>
                				<authorizationEntry admin="all" read="authenticators" topic="request-topic" write="clients"/>
                				<authorizationEntry admin="all" read="filebrokers" topic="authorised-filebroker-topic" write="analysers,authenticators"/>
                				<authorizationEntry admin="all" read="authenticators" topic="filebroker-topic" write="clients"/>
