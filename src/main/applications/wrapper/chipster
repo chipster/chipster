@@ -90,6 +90,7 @@ run() {
 
 start() {
 	run activemq start
+    run toolbox start
     run fileserver start
     run jobmanager start
     run webstart start
@@ -105,11 +106,13 @@ stopit() {
 	run jobmanager stop
     run fileserver stop
     run webstart stop
+    run toolbox stop
     run activemq stop
 }
 
 status() {
     run activemq status
+	run toolbox status
     run fileserver status
 	run jobmanager status
     run webstart status
