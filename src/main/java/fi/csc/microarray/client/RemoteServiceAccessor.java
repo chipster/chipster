@@ -29,6 +29,7 @@ public class RemoteServiceAccessor implements ServiceAccessor {
 	
 	protected MessagingEndpoint endpoint;
 	protected MessagingTopic requestTopic;
+	protected MessagingTopic toolboxTopic;
 	protected TaskExecutor taskExecutor;
 	protected FileBrokerClient filebrokerClient;
 
@@ -58,7 +59,8 @@ public class RemoteServiceAccessor implements ServiceAccessor {
 	 */
 	public void initialise(MessagingEndpoint endpoint, DataManager manager, FileBrokerClient fileBrokerClient) throws Exception {
 		this.endpoint = endpoint;
-	    this.requestTopic = endpoint.createTopic(Topics.Name.REQUEST_TOPIC,AccessMode.WRITE);	    
+	    this.requestTopic = endpoint.createTopic(Topics.Name.REQUEST_TOPIC,AccessMode.WRITE);
+	    this.toolboxTopic = endpoint.createTopic(Topics.Name.TOOLBOX_TOPIC,AccessMode.WRITE);
 		this.filebrokerClient = fileBrokerClient;
 	    this.taskExecutor = new TaskExecutor(endpoint, manager);
 	}
@@ -83,7 +85,7 @@ public class RemoteServiceAccessor implements ServiceAccessor {
 	@Override
 	public String fetchDescriptions(Module module) throws Exception {
 		DescriptionMessageListener descriptionListener = new DescriptionMessageListener(module.getServerModuleNames());
-		this.requestTopic.sendReplyableMessage(new CommandMessage(CommandMessage.COMMAND_DESCRIBE), descriptionListener);
+		this.toolboxTopic.sendReplyableMessage(new CommandMessage(CommandMessage.COMMAND_DESCRIBE), descriptionListener);
 		descriptionListener.waitForResponse();
 		this.modules = descriptionListener.getModules();
 		descriptionListener.cleanUp();
@@ -116,7 +118,7 @@ public class RemoteServiceAccessor implements ServiceAccessor {
 		SourceMessageListener sourceListener = new SourceMessageListener();
 		CommandMessage commandMessage = new CommandMessage(CommandMessage.COMMAND_GET_SOURCE);
 		commandMessage.addParameter(id);
-		this.requestTopic.sendReplyableMessage(commandMessage, sourceListener);
+		this.toolboxTopic.sendReplyableMessage(commandMessage, sourceListener);
 		return sourceListener;
 	}
 
