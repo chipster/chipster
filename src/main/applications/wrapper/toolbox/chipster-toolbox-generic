@@ -1,0 +1,4 @@
+#!/bin/sh
+
+CHIPSTER_HOME="$(dirname "$(readlink -f ${BASH_SOURCE[0]})")/../.."
+$CHIPSTER_HOME/shared/bin/chipster-generic.sh jobmanager $1
