@@ -20,8 +20,8 @@
 # Optimized for use with version 3.3.0 of the Wrapper.
 
 # Application
-APP_NAME="chipster-jobmanager"
-APP_LONG_NAME="Chipster Jobmanager Service"
+APP_NAME="chipster-toolbox"
+APP_LONG_NAME="Chipster Toolbox Service"
 
 # Wrapper
 WRAPPER_CMD="./wrapper"
