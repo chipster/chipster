@@ -693,10 +693,17 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 		// close messaging endpoint
 		try {
 			this.endpoint.close();
-		} catch (JMSException e) {
-			logger.error("closing messaging endpoint failed", e);
+		} catch (Exception e) {
+			logger.warn("closing messaging endpoint failed", e);
 		}
 
+		// close toolbox client
+		try {
+			toolboxClient.close();
+		} catch (Exception e) {
+			logger.warn("closing toolbox client failed", e);
+		}
+		
 		logger.info("shutting down");
 	}
 	
