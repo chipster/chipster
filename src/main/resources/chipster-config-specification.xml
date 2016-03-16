@@ -182,6 +182,24 @@
 	</configuration-module>
 
 
+	<configuration-module moduleId="toolbox" description="toolbox service">
+	
+		<entry entryKey="host" type="string" description="hostname of the server running the toolbox">
+			<value>localhost</value>
+		</entry>
+
+		<entry entryKey="path" type="string" description="path part toolbox of the toolbox url">
+			<value>/toolbox</value>
+		</entry>
+
+        <entry entryKey="port" type="int" mustBeSet="true" description="server port where toolbox runs">
+       		<value>8084</value>
+		</entry>
+
+
+	</configuration-module>
+
+
 	<configuration-module moduleId="webstart" description="Java Web Start service">
 	    
         <entry entryKey="port" type="int" mustBeSet="true" description="server port to use in this file broker instance">
