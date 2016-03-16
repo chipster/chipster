@@ -91,6 +91,27 @@
 	<classpathentry kind="lib" path="ext/lib/jboss-transaction-api_1.2_spec-jar-1.0.0.Final.jar"/>
 	<classpathentry kind="lib" path="ext/lib/c3p0-0.9.2.1.jar"/>
 	<classpathentry kind="lib" path="ext/lib/mchange-commons-java-0.2.3.4.jar"/>
+	<classpathentry kind="lib" path="ext/lib/javax.ws.rs-api-2.0.1.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jersey-client-2.22.2.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jersey-common-2.22.2.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jersey-entity-filtering-2.22.2.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jersey-guava-2.22.2.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jersey-media-jaxb-2.22.2.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jersey-media-json-jackson-2.22.2.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jersey-container-grizzly2-http-2.22.2.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jersey-server-2.22.2.jar"/>
+	<classpathentry kind="lib" path="ext/lib/hk2-api-2.4.0-b34.jar"/>
+	<classpathentry kind="lib" path="ext/lib/hk2-locator-2.4.0-b34.jar"/>
+	<classpathentry kind="lib" path="ext/lib/hk2-utils-2.4.0-b34.jar"/>
+	<classpathentry kind="lib" path="ext/lib/javax.inject-1.jar"/>
+	<classpathentry kind="lib" path="ext/lib/javax.inject-2.4.0-b34.jar"/>
+	<classpathentry kind="lib" path="ext/lib/javax.annotation-api-1.2.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jackson-annotations-2.5.4.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jackson-core-2.5.4.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jackson-databind-2.5.4.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jackson-jaxrs-base-2.5.4.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jackson-jaxrs-json-provider-2.5.4.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jackson-module-jaxb-annotations-2.5.4.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/argparse4j-0.4.3.jar" sourcepath="ext/lib-src/argparse4j-0.4.3-sources.jar"/>
 	<classpathentry kind="lib" path="ext/lib/hibernate-c3p0-jar-4.3.8.Final.jar"/>

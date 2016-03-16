@@ -16,8 +16,7 @@ import javax.jms.JMSException;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.chipster.toolbox.Toolbox;
-import fi.csc.chipster.toolbox.ToolboxClient;
+import fi.csc.chipster.toolbox.ToolboxClientImpl;
 import fi.csc.chipster.toolbox.ToolboxTool;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
@@ -84,8 +83,7 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 	
 	
 	private RuntimeRepository runtimeRepository;
-	private ToolboxClient toolboxClient;
-	private Toolbox toolbox;
+	private ToolboxClientImpl toolboxClient;
 	
 	
 	/**
@@ -152,8 +150,7 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 		// initialize runtime and tools
 		FileInputStream runtimesStream = new FileInputStream(new File(DirectoryLayout.getInstance().getConfDir(), "runtimes.xml"));
 		this.runtimeRepository = new RuntimeRepository(this.workDir, runtimesStream);
-		this.toolbox = new Toolbox(DirectoryLayout.getInstance().getModulesDir());
-		this.toolboxClient = new OldToolboxClient(this.toolbox);
+		this.toolboxClient = new ToolboxClientImpl("http://127.0.0.1:8008/toolbox");
 					
 		// initialize timeout checker
 		timeoutTimer = new Timer(true);
@@ -494,7 +491,12 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 		}
 		
 		// get tool from toolbox along with the runtime name
-		ToolboxTool toolboxTool = toolboxClient.getTool(jobMessage.getToolId());
+		ToolboxTool toolboxTool = null;
+		try {
+			toolboxTool = toolboxClient.getTool(jobMessage.getToolId());
+		} catch (Exception e) {
+			logger.warn("exception when getting tool", e);
+		}
 		if (toolboxTool == null) {
 			return;
 		}
