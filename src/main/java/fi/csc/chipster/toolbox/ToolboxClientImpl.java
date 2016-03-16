@@ -62,5 +62,9 @@ public class ToolboxClientImpl {
 
 		return map;
 	}
+	
+	public void close() {
+		client.close();
+	}
 
 }
