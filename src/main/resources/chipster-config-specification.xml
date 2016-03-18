@@ -192,7 +192,7 @@
 			<value>/toolbox</value>
 		</entry>
 
-        <entry entryKey="port" type="int" mustBeSet="true" description="server port where toolbox runs">
+        <entry entryKey="port" type="int" description="server port where toolbox runs">
        		<value>8084</value>
 		</entry>
 

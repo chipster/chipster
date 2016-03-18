@@ -152,7 +152,7 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 		this.runtimeRepository = new RuntimeRepository(this.workDir, runtimesStream);
 		
 		// FIXME get url from configs or from toolbox using jms
-		this.toolboxClient = new ToolboxClientComp("http://127.0.0.1:8008/toolbox");
+		this.toolboxClient = new ToolboxClientComp("http://localhost:8084/toolbox");
 					
 		// initialize timeout checker
 		timeoutTimer = new Timer(true);
