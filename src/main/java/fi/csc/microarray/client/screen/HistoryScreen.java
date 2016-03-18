@@ -63,6 +63,7 @@ public class HistoryScreen extends ScreenBase
 		checkBoxes.put("name", new JCheckBox("Dataset name"));
 		checkBoxes.put("date", new JCheckBox("Creation date"));
 		checkBoxes.put("oper", new JCheckBox("Applied analysis tool"));
+		checkBoxes.put("versions", new JCheckBox("Chipster version"));
 		checkBoxes.put("param", new JCheckBox("Parameters"));
 		checkBoxes.put("notes", new JCheckBox("User notes"));
 		checkBoxes.put("code", new JCheckBox("Source code"));
@@ -112,13 +113,15 @@ public class HistoryScreen extends ScreenBase
 		c.gridy++;
 		contentPane.add(checkBoxes.get("date"), c);
 		c.gridx++; c.gridy = 1;
+		contentPane.add(checkBoxes.get("versions"), c);
+		c.gridy++;
 		contentPane.add(checkBoxes.get("oper"), c);
 		c.gridy++;
 		//c.insets.set(1, 20, 0, 2);
 		contentPane.add(checkBoxes.get("param"), c);
-        c.gridy++;
+		c.gridx++; c.gridy = 1;
       	contentPane.add(checkBoxes.get("code"), c);
-        c.gridx++; c.gridy = 1;
+		c.gridy++;
         c.insets.set(1, 2, 0, 2);
         contentPane.add(checkBoxes.get("notes"), c);
 		c.insets.set(10, 2, 1, 2);
@@ -164,6 +167,7 @@ public class HistoryScreen extends ScreenBase
 				checkBoxes.get("title").isSelected(),
 				checkBoxes.get("name").isSelected(),
 				checkBoxes.get("date").isSelected(),
+				checkBoxes.get("versions").isSelected(),
 				checkBoxes.get("oper").isSelected(),
 				checkBoxes.get("code").isSelected(),
 				checkBoxes.get("notes").isSelected(),
