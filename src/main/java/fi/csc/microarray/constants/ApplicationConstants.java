@@ -12,11 +12,13 @@ public class ApplicationConstants {
 			Properties build = new Properties();
 			build.load(ApplicationConstants.class.getResourceAsStream("/build.number"));
 			VERSION = version.getProperty("version.number") + " (build " + build.getProperty("build.number") + ")";
-
+			VERSION_WITHOUT_BUILD = version.getProperty("version.number");
+			
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
 	public static final String VERSION;
+	public static final String VERSION_WITHOUT_BUILD;
 	public static final String TITLE = "Chipster v" + VERSION;
 }

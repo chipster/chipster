@@ -27,7 +27,7 @@ public class HistoryText {
 	 * 
 	 * @return A String to be put in the textarea component of this screen.
 	 */
-	public String getHistoryText(boolean title, boolean name, boolean date, boolean oper, boolean code, boolean notes, boolean param) {
+	public String getHistoryText(boolean title, boolean name, boolean date, boolean versions, boolean oper, boolean code, boolean notes, boolean param) {
 		if (data == null) {
 			return null;
 		}
@@ -44,6 +44,9 @@ public class HistoryText {
 			}
 			if (date) {
 				historyText.append("Created " + listData.getDate().toString() + "\n");
+			}
+			if (versions) {
+				historyText.append("Created with Chipster " + listData.getToolVersions().get("Chipster") + "\n");
 			}
 			if (oper) {
 				OperationRecord operationRecord = listData.getOperationRecord();
