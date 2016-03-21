@@ -45,8 +45,8 @@ import org.jfree.data.hc.HCDataset;
 import org.jfree.data.hc.HCTreeNode;
 import org.jfree.data.hc.HeatMap;
 
-import fi.csc.microarray.client.selection.SelectionEvent;
 import fi.csc.microarray.client.selection.IntegratedSelectionManager;
+import fi.csc.microarray.client.selection.SelectionEvent;
 import fi.csc.microarray.client.visualisation.SelectionList;
 import fi.csc.microarray.client.visualisation.TableAnnotationProvider;
 import fi.csc.microarray.client.visualisation.Visualisation;
@@ -545,8 +545,20 @@ public class HierarchicalClustering extends Visualisation implements PropertyCha
 				if (obj instanceof HeatMapBlockEntity) {
 					HeatMapBlockEntity entity = (HeatMapBlockEntity) obj;
 
-					if (entity.getArea().intersects(selectionRect)) {
-
+					/* Fit to screen option may create zero height/width objects
+					 * and intersects() returns always false for them. Grow the area
+					 * by one to fix this. 
+					 */
+					Rectangle2D rect = entity.getArea().getBounds2D();
+					if (rect.getHeight() == 0) {
+						rect = new Rectangle2D.Double(rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight() + 1);
+					}
+					if (rect.getWidth() == 0) {
+						rect = new Rectangle2D.Double(rect.getX(), rect.getY(), rect.getWidth() + 1, rect.getHeight());
+					}
+					
+					if (rect.intersects(selectionRect)) {
+						
 						if (!reversed) {
 							newSelection.addAll(orders.visibleToBean(entity.getRow()));
 						} else {

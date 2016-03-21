@@ -1,3 +1,4 @@
+com.vaadin.integration.eclipse.notifyOfVaadinUpdates=false
 com.vaadin.integration.eclipse.useLatestNightly=false
 com.vaadin.integration.eclipse.widgetsetBuildsSuspended=true
 com.vaadin.integration.eclipse.widgetsetDirty=true

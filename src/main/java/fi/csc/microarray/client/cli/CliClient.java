@@ -597,7 +597,7 @@ public class CliClient {
 			System.err.println("yaml output format isn't impelemented for history");
 		}
 		
-		System.out.println(app.getHistoryText(bean, true, true, true, true, isBooleanOption(OPT_VERBOSE), true, true));
+		System.out.println(app.getHistoryText(bean, true, true, true, true, true, isBooleanOption(OPT_VERBOSE), true, true));
 	}
 
 	private void renameDataset(String oldName, String newName) throws UserErrorException {

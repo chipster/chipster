@@ -58,6 +58,7 @@
 			<xs:element name="location" type="locationType" minOccurs="0" maxOccurs="unbounded"/>
 			<xs:element name="link" type="linkType" minOccurs="0" maxOccurs="unbounded"/>
 			<xs:element name="notes" type="xs:string" minOccurs="0"/>
+			<xs:element name="toolVersions" type="xs:string" minOccurs="0"/>
 			<xs:element name="creationTime" type="xs:dateTime" minOccurs="0"/>
 			<xs:element name="size" type="xs:long" minOccurs="0"/>
 			<xs:element name="checksum" type="xs:string" minOccurs="0"/>

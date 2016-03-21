@@ -201,6 +201,9 @@ public class SessionLoaderImpl1 {
 			// notes
 			dataBean.setNotes(dataType.getNotes());
 			//			dataBean.setCreationDate(date);
+
+			// chipster version
+			dataBean.getToolVersions().put("Chipster", "older than 3.8");			
 			
 			dataBean.setContentType(dataManager.guessContentType(dataBean.getName()));
 			

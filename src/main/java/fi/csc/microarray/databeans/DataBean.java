@@ -3,12 +3,14 @@ package fi.csc.microarray.databeans;
 import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import fi.csc.microarray.client.operation.OperationRecord;
+import fi.csc.microarray.constants.ApplicationConstants;
 import fi.csc.microarray.databeans.DataManager.ContentLocation;
 import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.databeans.features.Feature;
@@ -158,7 +160,8 @@ public class DataBean extends DataItemBase {
 	
 	private OperationRecord operationRecord;
 	private String notes;
-
+	private LinkedHashMap<String, String> toolVersions = new LinkedHashMap<String, String>();
+	
 	private ContentType contentType;
 	private LinkedList<ContentLocation> contentLocations = new LinkedList<ContentLocation>();
 	
@@ -166,6 +169,7 @@ public class DataBean extends DataItemBase {
 	private String checksum;
 	private Integer x;
 	private Integer y;
+	
 	
 	public DataBean(String name, ContentType contentType, DataManager manager) {
 		this(name, contentType, manager, CryptoKey.generateRandom());
@@ -177,6 +181,7 @@ public class DataBean extends DataItemBase {
 		this.dataManager = manager;
 		this.id = dataId;
 		this.date = new Date();
+		this.toolVersions.put("Chipster", ApplicationConstants.VERSION);
 	}
 
 	public String getId() {
@@ -700,5 +705,9 @@ public class DataBean extends DataItemBase {
 	
 	public Integer getY() {
 		return this.y;
+	}
+
+	public LinkedHashMap<String, String> getToolVersions() {
+		return this.toolVersions;
 	}
 }

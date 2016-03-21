@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE ivy-module [
-	<!ENTITY vaadin.version "7.4.3">
+	<!ENTITY vaadin.version "7.6.1">
 	<!ENTITY guava.version "18.0">
 	<!ENTITY hibernate.version "4.3.8.Final">
 	<!ENTITY log4j.version "2.2">

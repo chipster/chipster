@@ -78,6 +78,7 @@ public abstract class InterpreterJobFactory implements JobFactory {
 			processPool = new ProcessPool(new File(parameters.get("workDir")), interpreterCommand, poolSizeMin, poolSizeMax, 
 				poolTimeout, processUseCountMax, processLifetimeMax);
 		} catch (Exception e) {
+			logger.warn("disabling handler " + this.getClass().getSimpleName() + ": " + e.getMessage());
 			this.isDisabled = true;
 		}
 	}
@@ -106,20 +107,25 @@ public abstract class InterpreterJobFactory implements JobFactory {
 		try {
 			threadsMax = DirectoryLayout.getInstance().getConfiguration().getInt("comp", "job-threads-max");
 		} catch (Exception e) {
-			logger.warn("could not read job-threads-max from configuration", e);
+			//logger.warn("could not read job-threads-max from configuration", e);
+			logger.info("could not read job-threads-max from configuration, using defaults");
 		}
 		int memoryMax = 8192;
 		try {
 			memoryMax = DirectoryLayout.getInstance().getConfiguration().getInt("comp", "job-memory-max");
 		} catch (Exception e) {
-			logger.warn("could not read job-memory-max from configuration", e);
+			//logger.warn("could not read job-memory-max from configuration", e);
+			logger.info("could not read job-threads-max from configuration, using defaults");
 		}
 
 		
 //		File commonScriptDir = new File(moduleDir.getParentFile(), "common" + toolPath);
-		File modulesRootDir;;
+		// use working dir as a base dir for server components
+		File modulesRootDir = new File(System.getProperty("user.dir"), DirectoryLayout.MODULES_DIR);
 		try {
 			modulesRootDir = DirectoryLayout.getInstance().getModulesDir();
+		} catch (IllegalStateException e) {
+			logger.info("modules dir configuration not available, using defaults");
 		} catch (IOException e) {
 			throw new CompException(e);
 		}

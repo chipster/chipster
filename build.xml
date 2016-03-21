@@ -39,7 +39,7 @@
     <typedef name="fatjar.filesource" classname="net.sf.fjep.anttask.FJFileSourceType" classpath="${fjepPath}" loaderref="lib.path.loader"/>
 
 	<!-- version numbering -->
-	<property name="release-version" value="3.7.2" />
+	<property name="release-version" value="3.8.0" />
 	<property name="release-jar" value="${dist}/chipster-${release-version}.jar" />
 	<property name="release-tar" value="${dist}/chipster-${release-version}.tar.gz" />
 	<property name="release-zip" value="${dist}/chipster-${release-version}.zip" />
@@ -463,6 +463,9 @@
 			<lib dir="${tool-editor}/WebContent/WEB-INF/lib-ivy" />
 			<fileset dir="${tool-editor}/WebContent">
 				<include name="VAADIN/**"/>
+			</fileset>
+			<fileset dir="${src}">
+				<include name="fi/csc/chipster/toolbox/SADLTool.java"/>
 			</fileset>
 			<classes dir="${tool-editor-bin}" />
 		</war>

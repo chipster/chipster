@@ -65,7 +65,7 @@ public class RCompJob extends OnDiskCompJobBase {
 		 * 
 		 * Interpretation: Only word characters and some special symbols are allowed.
 		 */
-		public static String TEXT_VALUE_PATTERN = "[\\w+\\-_:\\.,*() ]*";
+		public static String TEXT_VALUE_PATTERN = "[\\p{L}\\p{N}\\-+_:\\.,*() ]*";
 		
 		/**
 		 *  @see ParameterSecurityPolicy#isValueValid(String, ParameterDescription)

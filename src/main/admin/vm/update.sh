@@ -15,7 +15,7 @@ echo ""
 UPDATE_URL_PREFIX=http://bio.nic.funet.fi/pub/sci/molbio/chipster/dist/virtual_machines/updates
 MAIN_UPDATE_FILE=update-exec-3.6.2.sh
 
-MAIN_UPDATE_FILE_URL=$UPDATE_URL_PREFIX//$MAIN_UPDATE_FILE
+MAIN_UPDATE_FILE_URL=$UPDATE_URL_PREFIX/$MAIN_UPDATE_FILE
 
 # Remove old update file, if exists
 if [ -e $MAIN_UPDATE_FILE ]; then
