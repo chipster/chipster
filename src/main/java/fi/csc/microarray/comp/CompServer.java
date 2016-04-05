@@ -507,7 +507,7 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 			return;
 		}
 		if (toolboxTool == null) {
-			logger.warn("tool " + jobMessage.getToolId() + " not found");
+			logger.warn("tool " + toolId + " not found");
 			return;
 		}
 		
