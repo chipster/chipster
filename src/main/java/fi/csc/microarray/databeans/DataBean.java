@@ -181,7 +181,7 @@ public class DataBean extends DataItemBase {
 		this.dataManager = manager;
 		this.id = dataId;
 		this.date = new Date();
-		this.toolVersions.put("Chipster", ApplicationConstants.VERSION_WITHOUT_BUILD);
+		this.toolVersions.put("Chipster", ApplicationConstants.VERSION);
 	}
 
 	public String getId() {
