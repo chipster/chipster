@@ -231,6 +231,7 @@ public abstract class OnDiskCompJobBase extends CompJob {
 			throw new IOException("Creating job toolbox dir failed.");
 		}
 
+		// FIXME only extracht modules dir
 //		unzip("/Users/hupponen/git/chipster-tools/build/distributions/chipster-tools-3.6.3.zip", jobToolboxDir);
 		unzip("http://chipster.csc.fi/dev/chipster-tools-3.6.3.zip", jobToolboxDir);
 	}
