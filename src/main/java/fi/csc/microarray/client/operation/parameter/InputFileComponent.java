@@ -2,6 +2,7 @@ package fi.csc.microarray.client.operation.parameter;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.HashMap;
@@ -69,9 +70,11 @@ public class InputFileComponent extends JPanel {
         // Prepare the combo box
         choiceBox = new SteppedComboBox(dataBeans);
         choiceBox.setEnabled(enabled);
+		Dimension preferredSize = choiceBox.getPreferredSize();
         choiceBox.setPreferredSize(ParameterInputComponent.PREFERRED_SIZE);
+		choiceBox.setPopupWidth(preferredSize.width);
         choiceBox.setBackground(Color.white);
-
+        
         // Set selected bean for this combo box, if null -> no selection
         choiceBox.setSelectedItem(currentBean);
         

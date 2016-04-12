@@ -12,7 +12,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
-import javax.jms.JMSException;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -33,6 +32,7 @@ import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataItem;
+import fi.csc.microarray.filebroker.FileBrokerException;
 import fi.csc.microarray.module.Module;
 import fi.csc.microarray.module.basic.BasicModule;
 import fi.csc.microarray.util.Files;
@@ -731,7 +731,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			startedMenuItem.setText("Getting started");
 			startedMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					application.viewHelp("basic-functionality.html");
+					application.viewHelp(Session.getSession().getPrimaryModule().getManualHome() + "/basic-functionality.html");
 				}
 			});
 		}
@@ -759,7 +759,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			aboutMenuItem.setText("About");
 			aboutMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					application.viewHelp("about.html");
+					application.viewHelp(Session.getSession().getPrimaryModule().getManualHome() + "/about.html");
 				}
 			});
 		}
@@ -832,7 +832,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 				public void actionPerformed(ActionEvent e) {
 					try {
 						application.clearSession();
-					} catch (MalformedURLException | JMSException e1) {
+					} catch (MalformedURLException | FileBrokerException e1) {
 						application.reportException(e1);
 					}
 				}
@@ -845,9 +845,9 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem getLoadSessionMenuItem(final boolean clear) {
 		JMenuItem loadSessionMenuItem = new JMenuItem();
 		if (clear) {			
-			loadSessionMenuItem.setText("Open cloud session...");
+			loadSessionMenuItem.setText("Open cloud session... (BETA)");
 		} else {
-			loadSessionMenuItem.setText("cloud session...");
+			loadSessionMenuItem.setText("Cloud session... (BETA)");
 		}
 		loadSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -869,7 +869,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			loadLocalSessionMenuItem.setText("Open local session...");
 			loadLocalSessionMenuItem.setAccelerator(KeyStroke.getKeyStroke('O', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
 		} else {
-			loadLocalSessionMenuItem.setText("local session...");
+			loadLocalSessionMenuItem.setText("Local session...");
 		}
 		loadLocalSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -887,7 +887,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem getSaveSessionMenuItem() {
 		if (saveSessionMenuItem == null) {
 			saveSessionMenuItem = new JMenuItem();
-			saveSessionMenuItem.setText("Save cloud session...");
+			saveSessionMenuItem.setText("Save cloud session... (BETA)");
 			saveSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					application.saveSession(SessionSavingMethod.UPLOAD_DATA_TO_SERVER);
@@ -900,7 +900,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem getManageSessionsMenuItem() {
 		if (manageSessionsMenuItem == null) {
 			manageSessionsMenuItem = new JMenuItem();
-			manageSessionsMenuItem.setText("Manage cloud sessions...");
+			manageSessionsMenuItem.setText("Manage cloud sessions... (BETA)");
 			manageSessionsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					application.manageRemoteSessions();

@@ -135,7 +135,7 @@ public class AsynchronousView extends VerticalLayout {
 			
 			// this is needed, because the ChipsterAdminUI is configured
 			// for manual push
-			ui.access(new Runnable() {
+			ui.accessSynchronously(new Runnable() {
 				public void run() {
 					ui.push();			
 				}

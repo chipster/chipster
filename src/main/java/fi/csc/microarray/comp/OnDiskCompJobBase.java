@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.log4j.Logger;
 
@@ -13,7 +14,7 @@ import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient.FileBrokerArea;
 import fi.csc.microarray.filebroker.NotEnoughDiskSpaceException;
 import fi.csc.microarray.messaging.JobState;
-import fi.csc.microarray.messaging.message.JobMessage;
+import fi.csc.microarray.messaging.message.GenericJobMessage;
 import fi.csc.microarray.security.CryptoKey;
 import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.Files;
@@ -32,7 +33,7 @@ public abstract class OnDiskCompJobBase extends CompJob {
 	protected File jobWorkDir;
 
 	@Override
-	public void construct(JobMessage inputMessage, ToolDescription toolDescription, ResultCallback resultHandler) {
+	public void construct(GenericJobMessage inputMessage, ToolDescription toolDescription, ResultCallback resultHandler) {
 		super.construct(inputMessage, toolDescription, resultHandler);
 		this.jobWorkDir = new File(resultHandler.getWorkDir(), getId());
 	}
@@ -70,13 +71,15 @@ public abstract class OnDiskCompJobBase extends CompJob {
 				File localFile = new File(jobWorkDir, fileName);
 				
 				// make local file available, by downloading, copying or symlinking
-				resultHandler.getFileBrokerClient().getFile(dataId, new File(jobWorkDir, fileName));
+				resultHandler.getFileBrokerClient().getFile(inputMessage.getSessionId(), dataId, new File(jobWorkDir, fileName));
 				logger.debug("made available local file: " + localFile.getName() + " " + localFile.length());
 				
 				nameMap.put(fileName, inputMessage.getName(fileName));
 			}
 			
 			ToolUtils.writeInputDescription(new File(jobWorkDir, "chipster-inputs.tsv"), nameMap);
+
+			inputMessage.preExecute(jobWorkDir);
 			
 		} catch (Exception e) {
 			outputMessage.setErrorMessage("Transferring input data to computing service failed.");
@@ -141,11 +144,12 @@ public abstract class OnDiskCompJobBase extends CompJob {
 			for (File outputFile : describedFiles) {
 	            // copy file to file broker
 	            String dataId = CryptoKey.generateRandom();
-	            try {
-	                resultHandler.getFileBrokerClient().addFile(dataId, FileBrokerArea.CACHE, outputFile, null);
-	                String nameInClient = nameMap.get(outputFile.getName());
+	            try {	            	
+	            	String nameInClient = nameMap.get(outputFile.getName());
+	            	String nameInSessionDb = nameInClient != null? nameInClient : outputFile.getName();
+	                resultHandler.getFileBrokerClient().addFile(UUID.fromString(inputMessage.getJobId()), inputMessage.getSessionId(), dataId, FileBrokerArea.CACHE, outputFile, null, nameInSessionDb);
 	                // put dataId to result message
-	                outputMessage.addPayload(outputFile.getName(), dataId, nameInClient);
+	                outputMessage.addDataset(outputFile.getName(), dataId, nameInClient);
 	                logger.debug("transferred output file: " + fileDescription.getFileName());
 
 	            } catch (FileNotFoundException e) {

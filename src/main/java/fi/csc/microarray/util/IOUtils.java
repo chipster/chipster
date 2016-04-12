@@ -18,8 +18,6 @@ import java.net.URLConnection;
 
 import javax.servlet.http.HttpServletRequest;
 
-import de.schlichtherle.truezip.zip.ZipFile;
-
 /**
  * 
  * @author Aleksi Kallio
@@ -187,17 +185,6 @@ public class IOUtils {
 				// ignore
 			}
 		}		
-	}
-
-	public static void closeIfPossible(ZipFile zipFile) {
-		if (zipFile != null) {
-			try {
-				zipFile.close();
-			} catch (IOException e) {
-				// ignore
-			}
-		}
-
 	}
 
 	public static URL createURL(URL url, String postfix) throws MalformedURLException {

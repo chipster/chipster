@@ -104,6 +104,7 @@ public class MicroarrayModule implements Module {
 		public static final TypeTag MOTHUR_OLIGOS = new TypeTag("Mothur oligos data", "Mothur oligos data");
 		public static final TypeTag MOTHUR_NAMES = new TypeTag("Mothur names data", "Mothur names data");
 		public static final TypeTag MOTHUR_GROUPS = new TypeTag("Mothur groups data", "Mothur groups data");
+		public static final TypeTag MOTHUR_STABILITY = new TypeTag("Mothur stability data", "Mothur stability data");
 	}
 	
 	public static class VisualisationMethods {
@@ -138,6 +139,7 @@ public class MicroarrayModule implements Module {
 		manager.plugContentType("text/mothur-oligos", true, false, "Mothur oligos file", VisualConstants.ICON_TYPE_TEXT, "oligos");
 		manager.plugContentType("text/mothur-names", true, false, "Mothur names file", VisualConstants.ICON_TYPE_TEXT, "names");
 		manager.plugContentType("text/mothur-groups", true, false, "Mothur groups file", VisualConstants.ICON_TYPE_TEXT, "groups");
+		manager.plugContentType("text/mothur-stability", true, false, "Mothur stability file", VisualConstants.ICON_TYPE_TEXT, "files");
 		manager.plugContentType("text/sff", true, false, "sff file", VisualConstants.ICON_TYPE_TEXT, "sff");
 	}
 	
@@ -709,7 +711,11 @@ public class MicroarrayModule implements Module {
         if (data.isContentTypeCompatitible("text/mothur-groups")) {
                 data.addTypeTag(MicroarrayModule.TypeTags.MOTHUR_GROUPS);
         }
+        if (data.isContentTypeCompatitible("text/mothur-stability")) {
+            data.addTypeTag(MicroarrayModule.TypeTags.MOTHUR_STABILITY);
+        }
 
+        
 		// Rest of the tags are set only when this module is primary
 		
 		if (!(Session.getSession().getPrimaryModule() instanceof MicroarrayModule)) {

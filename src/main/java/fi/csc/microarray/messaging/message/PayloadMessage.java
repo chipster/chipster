@@ -127,7 +127,7 @@ public class PayloadMessage extends ParameterMessage {
 	 * @return
 	 * @throws JMSException
 	 */
-	public String getId(String key) throws JMSException {
+	public String getId(String key) {
 		if (ids.containsKey(key)) {
 			return ids.get(key);
 		} else {
@@ -142,7 +142,7 @@ public class PayloadMessage extends ParameterMessage {
 	 * @return
 	 * @throws JMSException
 	 */
-	public String getName(String key) throws JMSException {
+	public String getName(String key) {
 		if (names.containsKey(key)) {
 			return names.get(key);
 		} else {

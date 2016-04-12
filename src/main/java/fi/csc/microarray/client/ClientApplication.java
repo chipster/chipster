@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -24,6 +25,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLParameters;
 import javax.swing.Icon;
 
 import org.apache.log4j.Logger;
@@ -305,11 +308,37 @@ public abstract class ClientApplication {
 			
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new MicroarrayException(e);
+			throw new MicroarrayException("Startup failed\nDebug info:\n" + getConnectionDebugInfo(), e);
 		}
-
-
-	}	
+	}
+	
+	private String getConnectionDebugInfo() {
+		String msg = "";
+	
+		msg += "\nSystem properties\n";
+		for (Object key : System.getProperties().keySet()) {
+			msg += key + ": \t" + System.getProperty(key.toString()) + "\n";
+		}
+		
+		try {
+			SSLParameters sslParams = SSLContext.getDefault().getSupportedSSLParameters();
+			
+			msg += "\nProtocols\n";
+			for (String protocol : sslParams.getProtocols()) {
+				msg += protocol + "\n";
+			}
+			
+			msg += "\nCipher suites\n";
+			for (String cipher : sslParams.getCipherSuites()) {
+				msg += cipher + "\n";
+			}
+		} catch (NoSuchAlgorithmException e) {
+			logger.error("failed to get ssl debug info", e);
+			msg += "failed to get ssl debug info\n";
+		}
+		
+		return msg;
+	}
 	
 	public class ClientSessionManagerCallback implements SessionManagerCallback {
 
@@ -963,8 +992,8 @@ public abstract class ClientApplication {
 	    return url;
 	}
 	
-	public String getHistoryText(DataBean data, boolean title, boolean name, boolean date, boolean oper, boolean code, boolean notes, boolean param) {
-		return new HistoryText(data).getHistoryText(title, name, date, oper, code, notes, param);
+	public String getHistoryText(DataBean data, boolean title, boolean name, boolean date, boolean versions, boolean oper, boolean code, boolean notes, boolean param) {
+		return new HistoryText(data).getHistoryText(title, name, date, versions, oper, code, notes, param);
 	}
 	
 	public Icon getIconFor(DataItem element) {

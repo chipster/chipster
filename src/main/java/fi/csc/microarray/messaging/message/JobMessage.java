@@ -5,8 +5,9 @@
  */
 package fi.csc.microarray.messaging.message;
 
-import java.util.Iterator;
+import java.io.File;
 import java.util.List;
+import java.util.UUID;
 
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
@@ -23,7 +24,7 @@ import fi.csc.microarray.comp.ToolDescription.ParameterDescription;
  * @author Taavi Hupponen, Aleksi Kallio
  *
  */
-public class JobMessage extends PayloadMessage {
+public class JobMessage extends PayloadMessage implements GenericJobMessage {
 
 	public static interface ParameterSecurityPolicy {
 		/**
@@ -127,39 +128,17 @@ public class JobMessage extends PayloadMessage {
 	 */
 	public List<String> getParameters(ParameterSecurityPolicy securityPolicy, ToolDescription description) throws ParameterValidityException {
 		
-		// Do argument checking first
-		if (securityPolicy == null) {
-			throw new IllegalArgumentException("security policy cannot be null");
-		}
-		if (description == null) {
-			throw new IllegalArgumentException("tool description cannot be null");
-		}
+		return JobMessageUtils.checkParameterSafety(securityPolicy, description, super.getParameters());
+	}
+	
+	@Override
+	public UUID getSessionId() {
+		// the datasetId is enough in JMS Chipster to access a dataset
+		return null;
+	}
 
-		// Count parameter descriptions
-		int parameterDescriptionCount = 0;
-		for (Iterator<ParameterDescription> iterator = description.getParameters().iterator(); iterator.hasNext(); iterator.next()) {
-			parameterDescriptionCount++;
-		}
-
-		// Get the actual values
-		List<String> parameters = super.getParameters();
-
-		// Check that description and values match
-		if (parameterDescriptionCount != parameters.size()) {
-			throw new IllegalArgumentException("number of parameter descriptions does not match the number of parameter values");
-		}
-
-		// Validate parameters
-		Iterator<ParameterDescription> descriptionIterator = description.getParameters().iterator();
-		for (String parameter : parameters) {
-			ParameterDescription parameterDescription = descriptionIterator.next();
-			if (!securityPolicy.isValueValid(parameter, parameterDescription)) {
-				throw new ParameterValidityException("illegal value for parameter " + parameterDescription.getName() + ": " + parameter);
-			}
-		}
-		
-		// Everything was ok, return the parameters
-		return parameters;
+	@Override
+	public void preExecute(File jobWorkDir) {	
 	}
 }
 	

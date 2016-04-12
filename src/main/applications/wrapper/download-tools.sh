@@ -3,7 +3,7 @@
 
 CHIPSTER_PATH=/opt/chipster
 TOOLS_PATH=${CHIPSTER_PATH}/tools
-HOST=www.nic.funet.fi
+HOST=bio.nic.funet.fi
 URL_PATH_PREFIX=/pub/sci/molbio/chipster/dist/virtual_machines
 
 # get Chipster version

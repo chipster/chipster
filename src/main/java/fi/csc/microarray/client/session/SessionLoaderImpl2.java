@@ -48,6 +48,7 @@ import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.util.IOUtils;
+import fi.csc.microarray.util.ZipUtils;
 
 public class SessionLoaderImpl2 {
 	/**
@@ -168,7 +169,7 @@ public class SessionLoaderImpl2 {
 			}
 		}
 		finally {
-			IOUtils.closeIfPossible(zipFile);
+			ZipUtils.closeIfPossible(zipFile);
 			IOUtils.closeIfPossible(zipStream);
 		}
 	}
@@ -271,7 +272,27 @@ public class SessionLoaderImpl2 {
 				dataBean.setCreationDate(xmlCalendar.toGregorianCalendar().getTime());
 			}
 
+			// notes
 			dataBean.setNotes(dataType.getNotes());
+
+			// tool versions
+			// if no tool versions in session -> old version
+			if (dataType.getToolVersions() == null || dataType.getToolVersions().isEmpty()) {
+				dataBean.getToolVersions().put("Chipster", "older than 3.8");
+			} else {
+				try {
+					for (String s: dataType.getToolVersions().split(",")) {
+						String[] toolAndVersion = s.split(":");
+						dataBean.getToolVersions().put(toolAndVersion[0], toolAndVersion[1]);
+					}
+				} catch (Exception e) {
+					logger.warn("failed to parse tool versions from: " + dataType.getToolVersions());
+				}
+			}
+			if (!dataBean.getToolVersions().containsKey("Chipster")) {
+				dataBean.getToolVersions().put("Chipster", "n/a");
+			}
+			
 			dataBean.setContentType(dataManager.guessContentType(dataBean.getName()));
 			
 			dataBeans.put(id, dataBean);
@@ -524,7 +545,7 @@ public class SessionLoaderImpl2 {
 			stringWriter.flush();
 		}
 		finally {
-			IOUtils.closeIfPossible(zipFile);
+			ZipUtils.closeIfPossible(zipFile);
 			IOUtils.closeIfPossible(zipStream);
 			IOUtils.closeIfPossible(stringWriter);
 		}
