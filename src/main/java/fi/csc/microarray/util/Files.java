@@ -16,8 +16,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
@@ -521,5 +524,41 @@ public class Files {
 		
 		return latest;
 	}
+	
+	
+	public static Set<PosixFilePermission> get644Permissions() {
+		Set<PosixFilePermission> perms = new HashSet<PosixFilePermission>();
+
+		//add owners permission
+		perms.add(PosixFilePermission.OWNER_READ);
+		perms.add(PosixFilePermission.OWNER_WRITE);
+
+		//add group permissions
+		perms.add(PosixFilePermission.GROUP_READ);
+
+		//add others permissions
+		perms.add(PosixFilePermission.OTHERS_READ);
+		return perms;
+	}
+
+	public static Set<PosixFilePermission> get755Permissions() {
+		Set<PosixFilePermission> perms = new HashSet<PosixFilePermission>();
+
+		//add owners permission
+		perms.add(PosixFilePermission.OWNER_READ);
+		perms.add(PosixFilePermission.OWNER_WRITE);
+		perms.add(PosixFilePermission.OWNER_EXECUTE);
+		
+		//add group permissions
+		perms.add(PosixFilePermission.GROUP_READ);
+		perms.add(PosixFilePermission.GROUP_EXECUTE);
+
+		//add others permissions
+		perms.add(PosixFilePermission.OTHERS_READ);
+		perms.add(PosixFilePermission.OTHERS_EXECUTE);
+
+		return perms;
+	}
+
 	
 }

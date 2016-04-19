@@ -2,6 +2,7 @@ package fi.csc.microarray.comp;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -151,8 +152,12 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 		FileInputStream runtimesStream = new FileInputStream(new File(DirectoryLayout.getInstance().getConfDir(), "runtimes.xml"));
 		this.runtimeRepository = new RuntimeRepository(this.workDir, runtimesStream);
 		
-		// FIXME get url from configs or from toolbox using jms
-		this.toolboxClient = new ToolboxClientComp("http://localhost:8084/toolbox");
+		// initialize toolbox client
+		String toolboxHost = configuration.getString("messaging", "toolbox-host");
+		int toolboxPort = configuration.getInt("messaging", "toolbox-port");
+		String toolboxPath = configuration.getString("messaging", "toolbox-path");
+		String toolboxUrl = "http://" + toolboxHost + ":" + toolboxPort + toolboxPath;
+		this.toolboxClient = new ToolboxClientComp(toolboxUrl);
 					
 		// initialize timeout checker
 		timeoutTimer = new Timer(true);
@@ -442,6 +447,9 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 		return this.fileBroker;
 	}
 	
+	public ToolboxClientComp getToolboxClient() {
+		return this.toolboxClient;
+	}
 	
 	/**
 	 * Sends the message in new thread.

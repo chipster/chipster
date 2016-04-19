@@ -1,18 +1,11 @@
 package fi.csc.microarray.comp;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.UUID;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import org.apache.log4j.Logger;
 
@@ -76,8 +69,15 @@ public abstract class OnDiskCompJobBase extends CompJob {
 
 		// get input files and toolbox
 		try {
+			// input files
 			getInputFiles();
-			getToolbox();
+			
+			// toolbox
+			if (!this.jobToolboxDir.mkdir()) {
+				throw new IOException("Creating job toolbox dir failed.");
+			}
+			resultHandler.getToolboxClient().getToolboxModules(this.jobToolboxDir);
+
 		} catch (Exception e) {
 			outputMessage.setErrorMessage("Transferring input data and tools to computing service failed.");
 			outputMessage.setOutputText(Exceptions.getStackTrace(e));
@@ -224,71 +224,5 @@ public abstract class OnDiskCompJobBase extends CompJob {
 	
 		inputMessage.preExecute(jobDataDir);
 	}
-	
-	private void getToolbox() throws IOException {
-
-		if (!this.jobToolboxDir.mkdir()) {
-			throw new IOException("Creating job toolbox dir failed.");
-		}
-
-		// FIXME only extracht modules dir
-//		unzip("/Users/hupponen/git/chipster-tools/build/distributions/chipster-tools-3.6.3.zip", jobToolboxDir);
-		unzip("http://chipster.csc.fi/dev/chipster-tools-3.6.3.zip", jobToolboxDir);
-	}
-	
-	
-	  public void unzip(String zipFilePath, File destDirectory) throws IOException {
-	        long startTime = System.currentTimeMillis();
-		  
-		  	File destDir = destDirectory;
-	        if (!destDir.exists()) {
-	            destDir.mkdir();
-	        }
-	        
-	        URL url = new URL(zipFilePath);
-	        InputStream in = new BufferedInputStream(url.openStream(), 1024);
-	        
-//	        new FileInputStream(zipFilePath)
-
-	        ZipInputStream zipIn = new ZipInputStream(in);
-	        ZipEntry entry = zipIn.getNextEntry();
-	        // iterates over entries in the zip file
-	        while (entry != null) {
-	            String filePath = destDirectory + File.separator + entry.getName();
-	            if (!entry.isDirectory()) {
-	                // if the entry is a file, extracts it
-	                extractFile(zipIn, filePath);
-	            } else {
-	                // if the entry is a directory, make the directory
-	                File dir = new File(filePath);
-	                dir.mkdir();
-	            }
-	            zipIn.closeEntry();
-	            entry = zipIn.getNextEntry();
-	        }
-	        zipIn.close();
-	        
-	        logger.info("toolbox download took " + (System.currentTimeMillis() - startTime) + " ms");
-	    }
-
-	  /**
-	     * Extracts a zip entry (file entry)
-	     * @param zipIn
-	     * @param filePath
-	     * @throws IOException
-	     */
-	    private void extractFile(ZipInputStream zipIn, String filePath) throws IOException {
-	        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath));
-	        byte[] bytesIn = new byte[4096];
-	        int read = 0;
-	        while ((read = zipIn.read(bytesIn)) != -1) {
-	            bos.write(bytesIn, 0, read);
-	        }
-	        bos.close();
-	    }
-	
-	
-	
-	
 	
 }
