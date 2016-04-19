@@ -6,6 +6,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -26,6 +31,9 @@ public class ToolboxClientComp {
 	private Client client;
 
 	private final static String MODULES_ZIP_PATH = "/modules/zip";
+	
+	// set file mode to 755 for these file types when unzipping modules
+	private final static String[] executableExtensions = { "sh", "bash", "py" };
 	
 	private static final Logger logger = Logger.getLogger(ToolboxClientComp.class);
 	
@@ -57,13 +65,30 @@ public class ToolboxClientComp {
 
 	
 	public void getToolboxModules(File jobToolboxDir) throws IOException {
+		long startTime = System.currentTimeMillis();
+
 		unzip(baseUri + MODULES_ZIP_PATH, jobToolboxDir);
-		// FIXME fix permissions
+		fixPermissions(jobToolboxDir);
+
+		logger.info("get toolbox took " + (System.currentTimeMillis() - startTime) + " ms");
 	}
 	
 	
+	private void fixPermissions(File jobToolboxDir) throws IOException {
+		Files.walkFileTree(jobToolboxDir.toPath(), new SimpleFileVisitor<Path>() {
+			@Override
+			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+				for (String extension : executableExtensions) {
+					if (file.endsWith("." + extension)) {
+						Files.setPosixFilePermissions(file, fi.csc. microarray.util.Files.get755Permissions());
+					}
+				}
+				return FileVisitResult.CONTINUE;
+			}
+		});
+	}
+
 	private void unzip(String zipFilePath, File destDirectory) throws IOException {
-		long startTime = System.currentTimeMillis();
 
 		File destDir = destDirectory;
 		if (!destDir.exists()) {
@@ -91,8 +116,6 @@ public class ToolboxClientComp {
 			}
 			zipIn.close();
 		}
-		
-		logger.info("toolbox download took " + (System.currentTimeMillis() - startTime) + " ms");
 	}
 
 	/**
