@@ -158,7 +158,8 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 		String toolboxPath = configuration.getString("messaging", "toolbox-path");
 		String toolboxUrl = "http://" + toolboxHost + ":" + toolboxPort + toolboxPath;
 		this.toolboxClient = new ToolboxClientComp(toolboxUrl);
-					
+		logger.info("toolbox client is connecting to: " + toolboxUrl);
+		
 		// initialize timeout checker
 		timeoutTimer = new Timer(true);
 		timeoutTimer.schedule(new TimeoutTimerTask(), timeoutCheckInterval, timeoutCheckInterval);
