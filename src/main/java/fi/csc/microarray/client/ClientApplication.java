@@ -992,8 +992,8 @@ public abstract class ClientApplication {
 	    return url;
 	}
 	
-	public String getHistoryText(DataBean data, boolean title, boolean name, boolean date, boolean oper, boolean code, boolean notes, boolean param) {
-		return new HistoryText(data).getHistoryText(title, name, date, oper, code, notes, param);
+	public String getHistoryText(DataBean data, boolean title, boolean name, boolean date, boolean versions, boolean oper, boolean code, boolean notes, boolean param) {
+		return new HistoryText(data).getHistoryText(title, name, date, versions, oper, code, notes, param);
 	}
 	
 	public Icon getIconFor(DataItem element) {

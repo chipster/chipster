@@ -7,7 +7,7 @@
 
 # Latest version, matching tar-packages must be available 
 ##
-LATEST_VERSION=3.6.2
+LATEST_VERSION=3.7.2
 R_VERSION=3.0.2
 
 # Exit immediately if some command fails
@@ -164,7 +164,7 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   echo "** Updating Chipster web: webstart/web-root"
   sudo -u chipster cp webstart/web-root/chipster.jnlp ${BACKUPDIR_PATH}/
   sudo -u chipster cp webstart/web-root/chipster-config.xml ${BACKUPDIR_PATH}/
-  sudo -u chipster mv webstart/web-root ${BACKUPDIR_PATH}/
+  #sudo -u chipster mv webstart/web-root ${BACKUPDIR_PATH}/		# don't wipe for example client.ts
   sudo -u chipster tar -C .. -xzf chipster-$LATEST_VERSION.tar.gz chipster/webstart/web-root
   sudo -u chipster cp ${BACKUPDIR_PATH}/chipster.jnlp webstart/web-root/ 
   sudo -u chipster cp ${BACKUPDIR_PATH}/chipster-config.xml webstart/web-root/ 

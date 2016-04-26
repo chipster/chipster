@@ -144,7 +144,7 @@
 }
 
 
-.v-table-cell-content-authenticator, .v-table-cell-content-analyser, .v-table-cell-content-filebroker, 
+.v-table-cell-content-authenticator, .v-table-cell-content-comp, .v-table-cell-content-filebroker, 
 .v-table-cell-content-manager, .v-table-cell-content-client, .v-table-cell-content-jobmanager {
 	background-repeat: no-repeat;
 	background-position: 5px;
@@ -156,7 +156,7 @@
 	background-image: url("crystal/password.png");
 }
 
-.v-table-cell-content-analyser {
+.v-table-cell-content-comp {
 	background-image: url("crystal/filter.png");
 }
 

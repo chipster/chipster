@@ -237,6 +237,7 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 			panel.add(createTitleTextArea(data, true), "growx");			
 			panel.add(createSizeAndDateLabel(data), "gapx " + INDENTION);
 			panel.add(createNotes(), "gapx " + INDENTION + ", growx");			
+			panel.add(createCreatedWithLabel(data), "gapx " + INDENTION);
 			panel.add(createHistoryLink(data), "gapx " + INDENTION);
 			panel.add(createToolLabel(data), ", gapy 20");
 			createParameterTable(panel);
@@ -296,6 +297,11 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 		return link;		
 	}
 
+	private JLabel createCreatedWithLabel(DataBean data) {
+		String s = "Created with Chipster " + data.getToolVersions().get("Chipster");
+		return new JLabel(s); 
+	}
+	
 	private Component createToolLabel(DataBean data) {
 		JLabel toolLabel = new JLabel(getNameText(data));
 		toolLabel.setFont(toolLabel.getFont().deriveFont(Font.BOLD));

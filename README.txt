@@ -28,7 +28,7 @@ Fill in your data to keytool command parameters. You might want to use your orga
 also as your own name as it is shown by Java Web Start. Use the keystore password
 also as a key password.
 
-Next, issue command "ant", and the project will be built and packages are available in "dist"
+Next, issue command "ant", and the project will be built and packages will be available in "dist"
 directory.
 
 If you do not want to place your keystore in the project directory, you can create

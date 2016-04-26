@@ -504,6 +504,17 @@ public class SessionSaver {
 		// notes
 		dataType.setNotes(bean.getNotes());
 
+		// tool versions
+		String versions = "";
+		for (Entry<String, String> entry: bean.getToolVersions().entrySet()) {
+			versions += entry.getKey() + ":" + entry.getValue() + ",";
+		}
+		// remove possible trailing comma
+		if (versions.length() > 0 && versions.charAt(versions.length()-1)==',') {
+			versions = versions.substring(0, versions.length()-1);
+		}
+		dataType.setToolVersions(versions);
+		
 		// creation time
 		if (bean.getDate() != null) {
 			dataType.setCreationTime(dateToXMLGregorian(bean.getDate()));

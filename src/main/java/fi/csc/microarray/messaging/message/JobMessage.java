@@ -5,7 +5,7 @@
  */
 package fi.csc.microarray.messaging.message;
 
-import java.util.Iterator;
+import java.io.File;
 import java.util.List;
 import java.util.UUID;
 
@@ -128,56 +128,17 @@ public class JobMessage extends PayloadMessage implements GenericJobMessage {
 	 */
 	public List<String> getParameters(ParameterSecurityPolicy securityPolicy, ToolDescription description) throws ParameterValidityException {
 		
-		return checkParameterSafety(securityPolicy, description, super.getParameters());
+		return JobMessageUtils.checkParameterSafety(securityPolicy, description, super.getParameters());
 	}
 	
-	/**
-	 * This should really be in the GenericJobMessage, but static methods in 
-	 * interfaces are only allowed starting from Java 1.8.
-	 * 
-	 * @param securityPolicy
-	 * @param description
-	 * @param parameters
-	 * @return
-	 * @throws ParameterValidityException
-	 */
-	public static List<String> checkParameterSafety(ParameterSecurityPolicy securityPolicy, ToolDescription description, List<String> parameters) throws ParameterValidityException {
-		// Do argument checking first
-		if (securityPolicy == null) {
-			throw new IllegalArgumentException("security policy cannot be null");
-		}
-		if (description == null) {
-			throw new IllegalArgumentException("tool description cannot be null");
-		}
-
-		// Count parameter descriptions
-		int parameterDescriptionCount = 0;
-		for (Iterator<ParameterDescription> iterator = description.getParameters().iterator(); iterator.hasNext(); iterator.next()) {
-			parameterDescriptionCount++;
-		}
-
-		// Check that description and values match
-		if (parameterDescriptionCount != parameters.size()) {
-			throw new IllegalArgumentException("number of parameter descriptions does not match the number of parameter values");
-		}
-
-		// Validate parameters
-		Iterator<ParameterDescription> descriptionIterator = description.getParameters().iterator();
-		for (String parameter : parameters) {
-			ParameterDescription parameterDescription = descriptionIterator.next();
-			if (!securityPolicy.isValueValid(parameter, parameterDescription)) {
-				throw new ParameterValidityException("illegal value for parameter " + parameterDescription.getName() + ": " + parameter);
-			}
-		}
-		
-		// Everything was ok, return the parameters
-		return parameters;
-	}
-
 	@Override
 	public UUID getSessionId() {
 		// the datasetId is enough in JMS Chipster to access a dataset
 		return null;
+	}
+
+	@Override
+	public void preExecute(File jobWorkDir) {	
 	}
 }
 	

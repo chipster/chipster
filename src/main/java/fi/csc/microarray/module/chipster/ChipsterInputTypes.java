@@ -18,6 +18,7 @@ public class ChipsterInputTypes {
 	public static final InputType MOTHUR_OLIGOS = new InputType("MOTHUR_OLIGOS");	
 	public static final InputType MOTHUR_NAMES = new InputType("MOTHUR_NAMES");
 	public static final InputType MOTHUR_GROUPS = new InputType("MOTHUR_GROUPS");
+	public static final InputType MOTHUR_STABILITY = new InputType("MOTHUR_STABILITY");
 	
 	public static boolean isTypeOf(DataBean dataBean, InputType type) {
 		
@@ -57,6 +58,9 @@ public class ChipsterInputTypes {
 		}
 		if (MOTHUR_GROUPS.equals(type)) {
 			return dataBean.isContentTypeCompatitible("text/mothur-groups");
+		}
+		if (MOTHUR_STABILITY.equals(type)) {
+			return dataBean.isContentTypeCompatitible("text/mothur-stability");
 		}
 		return false;
 }
