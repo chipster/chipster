@@ -7,7 +7,7 @@
 
 # Latest version, matching tar-packages must be available 
 ##
-LATEST_VERSION=3.7.2
+LATEST_VERSION=3.8.0
 R_VERSION=3.0.2
 
 # Exit immediately if some command fails
@@ -202,5 +202,5 @@ echo "It is recommended to inspect the directory and then to remove it"
    
 # We are done
 echo "Update completed successfully"
-echo "Remember to start the Chipster service: 'service chipster start'"
+echo "Remember to start the Chipster service: 'sudo service chipster start' or 'service chipster start' if logged in as 'chipster'"
 echo $END_MESSAGE
