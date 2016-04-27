@@ -11,6 +11,7 @@ public interface Topics {
 	enum Name {
 		TEST_TOPIC("test-topic"),
 		REQUEST_TOPIC("request-topic"),
+		TOOLBOX_TOPIC("toolbox-topic"),
 		AUTHORISED_REQUEST_TOPIC("authorised-request-topic"),
 		FILEBROKER_TOPIC("filebroker-topic"),
 		AUTHORISED_FILEBROKER_TOPIC("authorised-filebroker-topic"),

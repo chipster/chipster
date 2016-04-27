@@ -118,8 +118,6 @@ public abstract class InterpreterJobFactory implements JobFactory {
 			logger.info("could not read job-threads-max from configuration, using defaults");
 		}
 
-		
-//		File commonScriptDir = new File(moduleDir.getParentFile(), "common" + toolPath);
 		// use working dir as a base dir for server components
 		File modulesRootDir = new File(System.getProperty("user.dir"), DirectoryLayout.MODULES_DIR);
 		try {
@@ -130,7 +128,9 @@ public abstract class InterpreterJobFactory implements JobFactory {
 			throw new CompException(e);
 		}
 		
+
 		// that toolPath is more like runtime path, e.g python or R
+		modulesRootDir = new File("../toolbox/modules");
 		File commonScriptDir = new File(modulesRootDir, "common" + toolPath);
 		
 		String vns = getVariableNameSeparator();
@@ -138,7 +138,7 @@ public abstract class InterpreterJobFactory implements JobFactory {
 		
 		ad.setInitialiser(
 				"chipster" + vns + "tools" + vns + "path = " + sd + externalToolPath + sd + "\n" +
-				"chipster" + vns + "common" + vns + "path = " + sd + commonScriptDir.getAbsolutePath() + sd + "\n" + 
+				"chipster" + vns + "common" + vns + "path = " + sd + commonScriptDir + sd + "\n" + 
 				"chipster" + vns + "module" + vns + "path = " + sd + new File(modulesRootDir, moduleDir.getName()) + sd + "\n" + 
 				"chipster" + vns + "threads" + vns + "max = " + sd + threadsMax + sd + "\n" +
 				"chipster" + vns + "memory" + vns + "max = " + sd + memoryMax + sd + "\n");

@@ -51,7 +51,8 @@ public class ConfigTool {
 			"fileserver",
 			"manager",
 			"webstart",
-			"jobmanager"
+			"jobmanager",
+			"toolbox"
 	};
 
 	private String[][] configs = new String[][] {
@@ -86,7 +87,8 @@ public class ConfigTool {
 			{"auth", ""},
 			{"filebroker", ""},
 			{"manager", ""},
-			{"jobmanager", ""}
+			{"jobmanager", ""},
+			{"toolbox", ""}
 	};
 	
 	private HashMap<String, Document> documentsToWrite = new HashMap<>();

@@ -38,6 +38,19 @@
 			<value>true</value>
 		</entry>
 		
+		
+		<entry entryKey="toolbox-host" type="string" description="hostname of the server running the toolbox">
+			<value>localhost</value>
+		</entry>
+
+        <entry entryKey="toolbox-port" type="int" description="server port where toolbox runs">
+       		<value>8084</value>
+		</entry>
+
+		<entry entryKey="toolbox-path" type="string" description="path part toolbox of the toolbox url">
+			<value>/toolbox</value>
+		</entry>
+		
 	</configuration-module>
 
 	<configuration-module moduleId="security" description="encryption and authentication">
@@ -179,6 +192,11 @@
 			<value>TLSv1,TLSv1.1,TLSv1.2</value>
 		</entry>
         
+	</configuration-module>
+
+
+	<configuration-module moduleId="toolbox" description="toolbox service">
+	
 	</configuration-module>
 
 

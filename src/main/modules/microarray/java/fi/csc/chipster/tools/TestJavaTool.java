@@ -24,12 +24,12 @@ public class TestJavaTool extends JavaCompJobBase {
 	protected void execute() throws JobCancelledException {
 		updateStateDetailToClient("Java tool running");
 		
-		File inputFile = new File(jobWorkDir, "input.tsv");
-		File outputFile = new File(jobWorkDir, "output.tsv");
+		File inputFile = new File(jobDataDir, "input.tsv");
+		File outputFile = new File(jobDataDir, "output.tsv");
 		try {
 			FileUtils.copyFile(inputFile, outputFile);
 
-			File commentFile = new File(jobWorkDir, "comment.txt");
+			File commentFile = new File(jobDataDir, "comment.txt");
 			FileWriter commentWriter = new FileWriter(commentFile);
 			commentWriter.write(inputMessage.getParameters(JAVA_PARAMETER_SECURITY_POLICY, this.toolDescription).get(0));
 			commentWriter.flush();

@@ -6,7 +6,7 @@
 package fi.csc.microarray.comp;
 
 import java.io.File;
-
+import fi.csc.chipster.toolbox.ToolboxClientComp;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.messaging.message.GenericJobMessage;
 import fi.csc.microarray.messaging.message.GenericResultMessage;
@@ -35,4 +35,6 @@ public interface ResultCallback {
 	public void removeRunningJob(CompJob job);
 	
 	public FileBrokerClient getFileBrokerClient() throws Exception;
+	
+	public ToolboxClientComp getToolboxClient();
 }
