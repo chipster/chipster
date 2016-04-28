@@ -119,7 +119,7 @@ public abstract class InterpreterJobFactory implements JobFactory {
 		}
 
 		// use working dir as a base dir for server components
-		File modulesRootDir = new File(System.getProperty("user.dir"), DirectoryLayout.MODULES_DIR);
+		File modulesRootDir = new File(System.getProperty("user.dir"), DirectoryLayout.TOOLS_DIR);
 		try {
 			modulesRootDir = DirectoryLayout.getInstance().getModulesDir();
 		} catch (IllegalStateException e) {
@@ -130,7 +130,7 @@ public abstract class InterpreterJobFactory implements JobFactory {
 		
 
 		// that toolPath is more like runtime path, e.g python or R
-		modulesRootDir = new File("../toolbox/modules");
+		modulesRootDir = new File("../toolbox/tools");
 		File commonScriptDir = new File(modulesRootDir, "common" + toolPath);
 		
 		String vns = getVariableNameSeparator();
