@@ -2,7 +2,6 @@ package fi.csc.microarray.comp;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -70,6 +69,7 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 	private int scheduleTimeout;
 	private int offerDelay;
 	private int timeoutCheckInterval;
+	@SuppressWarnings("unused")
 	private int heartbeatInterval;
 	private int compAvailableInterval;
 	private boolean sweepWorkDir;
@@ -107,6 +107,7 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 	private LinkedHashMap<String, CompJob> scheduledJobs = new LinkedHashMap<String, CompJob>();
 	private LinkedHashMap<String, CompJob> runningJobs = new LinkedHashMap<String, CompJob>();
 	private Timer timeoutTimer;
+	@SuppressWarnings("unused")
 	private Timer heartbeatTimer;
 	private Timer compAvailableTimer;
 	private String localFilebrokerPath;
