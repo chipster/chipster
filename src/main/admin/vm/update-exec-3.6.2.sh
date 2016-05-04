@@ -7,7 +7,7 @@
 
 # Latest version, matching tar-packages must be available 
 ##
-LATEST_VERSION=3.8.0
+LATEST_VERSION=3.8.1
 R_VERSION=3.0.2
 
 # Exit immediately if some command fails
