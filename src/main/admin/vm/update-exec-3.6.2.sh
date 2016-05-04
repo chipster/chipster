@@ -7,7 +7,7 @@
 
 # Latest version, matching tar-packages must be available 
 ##
-LATEST_VERSION=3.7.2
+LATEST_VERSION=3.8.1
 R_VERSION=3.0.2
 
 # Exit immediately if some command fails
@@ -85,6 +85,19 @@ CURRENT_VERSION=`ls -1 shared/lib | grep ^chipster-[0-9\\.]*.jar | gawk 'match($
 
 # Check current version
 echo Detected version $CURRENT_VERSION
+
+
+compare_to_current "3.7.0"
+
+# current is older than 3.7.0                                                                                                                                                                               
+if [ $CURRENT_COMPARED -lt 0 ]
+then
+    echo "It is no longer possible to update this Chipster version to the latest."
+    echo "Please download the latest Chipster virtual machine from http://chipster.github.io/chipster/" 
+	exit 1
+fi
+
+
 compare_to_current "$LATEST_VERSION"
 if [ $CURRENT_COMPARED -gt 0 ] ; then 
   echo "Update error: current version $CURRENT_VERSION is newer than latest $LATEST_VERSION"
@@ -202,5 +215,5 @@ echo "It is recommended to inspect the directory and then to remove it"
    
 # We are done
 echo "Update completed successfully"
-echo "Remember to start the Chipster service: 'service chipster start'"
+echo "Remember to start the Chipster service: 'sudo service chipster start' or 'service chipster start' if logged in as 'chipster'"
 echo $END_MESSAGE
