@@ -237,6 +237,7 @@ public class SessionReplayTest extends MessagingTestBase {
 			// and those which did have inputs when run, but don't have parents now (i.e. inputs have
 			// been deleted for example to save space)
 			if (OperationDefinition.IMPORT_DEFINITION_ID.equals(operationRecord.getNameID().getID()) ||
+					OperationDefinition.CREATE_DEFINITION_ID.equals(operationRecord.getNameID().getID()) ||
 					"LocalNGSPreprocess.java".equals(operationRecord.getNameID().getID()) ||
 					(dataBean.getLinkTargets(Link.derivationalTypes()).size() == 0 &&
 					operationRecord.getInputRecords().size() > 0)) {
