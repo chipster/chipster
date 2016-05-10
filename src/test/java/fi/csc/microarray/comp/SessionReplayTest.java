@@ -17,6 +17,7 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.junit.Assert;
 import org.springframework.validation.Errors;
 
@@ -215,285 +216,295 @@ public class SessionReplayTest extends MessagingTestBase {
 	}
 	
 	private void testSession(File session, ToolTestSummary summary) throws Exception {
+		System.out.println("------------- " + session.getName() + " -------------");
+		long sessionStartTime = System.currentTimeMillis();
+		try {
+			Map<DataBean, DataBean> sourceDataBeanToTargetDataBean = new HashMap<DataBean, DataBean>();
 
-		Map<DataBean, DataBean> sourceDataBeanToTargetDataBean = new HashMap<DataBean, DataBean>();
+			// Load session
+			// some loading code uses Session.getSession().getDataManagers
+			Session.getSession().setDataManager(sourceManager);
+			SessionManager sourceSessionManager = new SessionManager(sourceManager, serviceAccessor.getTaskExecutor(), serviceAccessor.getFileBrokerClient(), null);
+			sourceSessionManager.loadLocalSession(session, false);
+			Session.getSession().setDataManager(manager);
 
-		// Load session
-		// some loading code uses Session.getSession().getDataManagers
-		Session.getSession().setDataManager(sourceManager);
-		SessionManager sourceSessionManager = new SessionManager(sourceManager, serviceAccessor.getTaskExecutor(), serviceAccessor.getFileBrokerClient(), null);
-		sourceSessionManager.loadLocalSession(session, false);
-		Session.getSession().setDataManager(manager);
-		
-		// Pick import operations and copy imported data beans to target manager 
-		// Also map OperationRecords to outputs TODO check that order is right, might need to traverse links
-		LinkedList<OperationRecord> rootLevelOperationRecords = new LinkedList<OperationRecord>();
-		Map<OperationRecord, List<DataBean>> outputMap = new HashMap<OperationRecord, List<DataBean>>();
-		LinkedList<DataBean> dataBeansInSourceManagerWhichWereCopied = new LinkedList<DataBean>();
-		for (DataBean dataBean : sourceManager.databeans()) {
-			OperationRecord operationRecord = dataBean.getOperationRecord();
+			// Pick import operations and copy imported data beans to target manager 
+			// Also map OperationRecords to outputs TODO check that order is right, might need to traverse links
+			LinkedList<OperationRecord> rootLevelOperationRecords = new LinkedList<OperationRecord>();
+			Map<OperationRecord, List<DataBean>> outputMap = new HashMap<OperationRecord, List<DataBean>>();
+			LinkedList<DataBean> dataBeansInSourceManagerWhichWereCopied = new LinkedList<DataBean>();
+			for (DataBean dataBean : sourceManager.databeans()) {
+				OperationRecord operationRecord = dataBean.getOperationRecord();
 
-			// pick import operations, local operations 
-			// and those which did have inputs when run, but don't have parents now (i.e. inputs have
-			// been deleted for example to save space)
-			if (OperationDefinition.IMPORT_DEFINITION_ID.equals(operationRecord.getNameID().getID()) ||
-					OperationDefinition.CREATE_DEFINITION_ID.equals(operationRecord.getNameID().getID()) ||
-					"LocalNGSPreprocess.java".equals(operationRecord.getNameID().getID()) ||
-					(dataBean.getLinkTargets(Link.derivationalTypes()).size() == 0 &&
-					operationRecord.getInputRecords().size() > 0)) {
-				
-				// load imported databean, add mapping
-				DataBean dataBeanCopy = manager.createDataBean(dataBean.getName());
-				URL urlInSessionZip = null;
-				for (ContentLocation contentLocation : sourceManager.getContentLocationsForDataBeanSaving(dataBean)) {
-					if (contentLocation.getMethod() == StorageMethod.LOCAL_SESSION_ZIP) {
-						urlInSessionZip = contentLocation.getUrl(); 
-					}
-				}
-				
-				if (urlInSessionZip == null) {
-					throw new IllegalArgumentException("session file " + session.getName() + " must contain all data files (missing " + dataBean.getName() + ")");
-				}
-				URL url = new URL(session.toURI().toURL(), "#" + urlInSessionZip.getRef());
-				manager.addContentLocationForDataBean(dataBeanCopy, StorageMethod.LOCAL_SESSION_ZIP, url);
+				// pick import operations, local operations 
+				// and those which did have inputs when run, but don't have parents now (i.e. inputs have
+				// been deleted for example to save space)
+				if (OperationDefinition.IMPORT_DEFINITION_ID.equals(operationRecord.getNameID().getID()) ||
+						OperationDefinition.CREATE_DEFINITION_ID.equals(operationRecord.getNameID().getID()) ||
+						"LocalNGSPreprocess.java".equals(operationRecord.getNameID().getID()) ||
+						(dataBean.getLinkTargets(Link.derivationalTypes()).size() == 0 &&
+						operationRecord.getInputRecords().size() > 0)) {
 
-				sourceDataBeanToTargetDataBean.put(dataBean, dataBeanCopy);
-				dataBeansInSourceManagerWhichWereCopied.add(dataBean);
-				
-				// avoid NPE 
-				dataBeanCopy.setOperationRecord(operationRecord);
-				
-				// TODO what if not in the root folder in the source manager
-				manager.connectChild(dataBeanCopy, manager.getRootFolder());
-				rootLevelOperationRecords.add(operationRecord);
-			}
-
-			// store output mappings
-			List<DataBean> outputs = outputMap.get(operationRecord);
-			if (outputs != null) {
-				outputs.add(dataBean);
-			} else {
-				outputs = new LinkedList<DataBean>();
-				outputs.add(dataBean);
-				outputMap.put(operationRecord, outputs);
-			}
-		}
-
-		
-		// Add links between copied (imported, without parents) data beans
-		for (DataBean originalBean : dataBeansInSourceManagerWhichWereCopied) {
-			for (Link linkType : Link.values()) {
-				for (DataBean originalLinkSourceBean : originalBean.getLinkSources(linkType)) {
-					if (dataBeansInSourceManagerWhichWereCopied.contains(originalLinkSourceBean)) {
-						sourceDataBeanToTargetDataBean.get(originalLinkSourceBean).addLink(linkType, sourceDataBeanToTargetDataBean.get(originalBean));
-					}
-				}
-			}
-		}
-		
-		
-		// Get operation records, avoid duplicates for tools with many outputs
-		LinkedList<OperationRecord> operationRecords = new LinkedList<OperationRecord>();
-		for (DataBean dataBean : sourceManager.databeans()) {
-			OperationRecord operationRecord = dataBean.getOperationRecord();
-			if (!operationRecords.contains(operationRecord)) {
-				operationRecords.add(operationRecord);
-			}
-		}
-	
-		// Run operations in the order they were run originally
-		for (OperationRecord operationRecord : operationRecords) {
-
-			// Skip import operations
-			if (rootLevelOperationRecords.contains(operationRecord)) {
-				System.out.println("skipping root level operation " + operationRecord.getFullName());
-				continue;
-			}
-
-			System.out.println("setting up " + operationRecord.getFullName());
-
-			// Get inputs
-			LinkedList <DataBean> inputBeans = new LinkedList<DataBean>();
-			for (InputRecord inputRecord : operationRecord.getInputRecords()) {
-				DataBean inputBean = sourceDataBeanToTargetDataBean.get(inputRecord.getValue());
-				if (inputBean != null) {
-					inputBeans.add(inputBean);
-				} else {
-					String s = "not enough inputs for " + operationRecord.getFullName();
-					System.out.println(s);
-					throw new RuntimeException(s);
-				}
-			}
-
-			// Set up task
-			OperationDefinition operationDefinition = getOperationDefinition(operationRecord.getNameID().getID(), toolModules);
-			if (operationDefinition == null) {
-				System.out.println("Missing tool: " + operationRecord.getNameID().getID() + "  in session: " + session.getName() + " skipping rest of the session");
-				summary.getSessionsWithMissingTools().put(session, operationRecord.getNameID().getID());
-				return;
-			}
-			Operation operation = new Operation(operationDefinition, inputBeans.toArray(new DataBean[] {}));
-
-			// Parameters, copy paste from workflows
-			for (ParameterRecord parameterRecord : operationRecord.getParameters()) {
-				if (parameterRecord.getValue() != null && !parameterRecord.getValue().equals("")) {	
-					Parameter definitionParameter = operation.getDefinition().getParameter(parameterRecord.getNameID().getID()); 
-					if (definitionParameter != null) {
-						Parameter parameter = (Parameter)definitionParameter.clone();
-						if (parameter instanceof DataSelectionParameter) {
-							((DataSelectionParameter)parameter).parseValueAndSetWithoutChecks(parameterRecord.getValue());
-						} else {
-							parameter.parseValue(parameterRecord.getValue());
+					// load imported databean, add mapping
+					DataBean dataBeanCopy = manager.createDataBean(dataBean.getName());
+					URL urlInSessionZip = null;
+					for (ContentLocation contentLocation : sourceManager.getContentLocationsForDataBeanSaving(dataBean)) {
+						if (contentLocation.getMethod() == StorageMethod.LOCAL_SESSION_ZIP) {
+							urlInSessionZip = contentLocation.getUrl(); 
 						}
+					}
 
-						// Set it
-						operation.setParameter(parameter.getID(), parameter.getValue());
+					if (urlInSessionZip == null) {
+						throw new IllegalArgumentException("session file " + session.getName() + " must contain all data files (missing " + dataBean.getName() + ")");
+					}
+					URL url = new URL(session.toURI().toURL(), "#" + urlInSessionZip.getRef());
+					manager.addContentLocationForDataBean(dataBeanCopy, StorageMethod.LOCAL_SESSION_ZIP, url);
+
+					sourceDataBeanToTargetDataBean.put(dataBean, dataBeanCopy);
+					dataBeansInSourceManagerWhichWereCopied.add(dataBean);
+
+					// avoid NPE 
+					dataBeanCopy.setOperationRecord(operationRecord);
+
+					// TODO what if not in the root folder in the source manager
+					manager.connectChild(dataBeanCopy, manager.getRootFolder());
+					rootLevelOperationRecords.add(operationRecord);
+				}
+
+				// store output mappings
+				List<DataBean> outputs = outputMap.get(operationRecord);
+				if (outputs != null) {
+					outputs.add(dataBean);
+				} else {
+					outputs = new LinkedList<DataBean>();
+					outputs.add(dataBean);
+					outputMap.put(operationRecord, outputs);
+				}
+			}
+
+
+			// Add links between copied (imported, without parents) data beans
+			for (DataBean originalBean : dataBeansInSourceManagerWhichWereCopied) {
+				for (Link linkType : Link.values()) {
+					for (DataBean originalLinkSourceBean : originalBean.getLinkSources(linkType)) {
+						if (dataBeansInSourceManagerWhichWereCopied.contains(originalLinkSourceBean)) {
+							sourceDataBeanToTargetDataBean.get(originalLinkSourceBean).addLink(linkType, sourceDataBeanToTargetDataBean.get(originalBean));
+						}
 					}
 				}
 			}
 
-			Task task = executor.createNewTask(new OperationRecord(operation), operation.getDefinition().isLocal());
-			
-			// Execute the task
-			System.out.println(new Date() + " running " + operation.getDefinition().getFullName());
-			CountDownLatch latch = new CountDownLatch(1);
-			task.addTaskEventListener(new JobResultListener(latch));
-			executor.startExecuting(task);
-			latch.await(TOOL_TEST_TIMEOUT, TOOL_TEST_TIMEOUT_UNIT);
-			
-			// write screen output to disk
-			writeScreenOutputToDisk(task);
-			
-			// Task failed
-			if (!task.getState().equals(State.COMPLETED)) {
-				
-				// try to cancel if still running
-				if (task.getState().equals(State.RUNNING)) {
-					executor.kill(task);
-					summary.getToolTestResults().add(new ToolTestResult(TestResult.FAIL, session, task, "task did not finish before test timeout " +TOOL_TEST_TIMEOUT + " " + TOOL_TEST_TIMEOUT_UNIT.toString()));
+
+			// Get operation records, avoid duplicates for tools with many outputs
+			LinkedList<OperationRecord> operationRecords = new LinkedList<OperationRecord>();
+			for (DataBean dataBean : sourceManager.databeans()) {
+				OperationRecord operationRecord = dataBean.getOperationRecord();
+				if (!operationRecords.contains(operationRecord)) {
+					operationRecords.add(operationRecord);
+				}
+			}
+
+			// Run operations in the order they were run originally
+			for (OperationRecord operationRecord : operationRecords) {
+
+				// Skip import operations
+				if (rootLevelOperationRecords.contains(operationRecord)) {
+					System.out.println("skipping root level operation " + operationRecord.getFullName());
+					continue;
+				}
+
+				System.out.println("setting up " + operationRecord.getFullName());
+
+				// Get inputs
+				LinkedList <DataBean> inputBeans = new LinkedList<DataBean>();
+				for (InputRecord inputRecord : operationRecord.getInputRecords()) {
+					DataBean inputBean = sourceDataBeanToTargetDataBean.get(inputRecord.getValue());
+					if (inputBean != null) {
+						inputBeans.add(inputBean);
+					} else {
+						String s = "not enough inputs for " + operationRecord.getFullName();
+						System.out.println(s);
+						throw new RuntimeException(s);
+					}
+				}
+
+				// Set up task
+				OperationDefinition operationDefinition = getOperationDefinition(operationRecord.getNameID().getID(), toolModules);
+				if (operationDefinition == null) {
+					System.out.println("Missing tool: " + operationRecord.getNameID().getID() + "  in session: " + session.getName() + " skipping rest of the session");
+					summary.getSessionsWithMissingTools().put(session, operationRecord.getNameID().getID());
 					return;
 				}
-				summary.getToolTestResults().add(new ToolTestResult(TestResult.FAIL, session, task, "task was not completed"));
-				return;
-			}
-			
-			// Check results
-			// Target manager needs to be available through session for some of these to work
-			Session.getSession().setDataManager(manager);
-			try {
-				
-				// Link result beans, add to folders etc			
-				Session.getSession().getApplication().onFinishedTask(task, operation.getResultListener(), task.getState(), true);
+				Operation operation = new Operation(operationDefinition, inputBeans.toArray(new DataBean[] {}));
 
-				// Check that number of results and result names match
-				Iterator<DataBean> targetIterator = task.getOutputs().iterator();
-				for (DataBean sourceBean : outputMap.get(operationRecord)) {
-					if (targetIterator.hasNext()) {
-						DataBean targetBean = targetIterator.next();
+				// Parameters, copy paste from workflows
+				for (ParameterRecord parameterRecord : operationRecord.getParameters()) {
+					if (parameterRecord.getValue() != null && !parameterRecord.getValue().equals("")) {	
+						Parameter definitionParameter = operation.getDefinition().getParameter(parameterRecord.getNameID().getID()); 
+						if (definitionParameter != null) {
+							Parameter parameter = (Parameter)definitionParameter.clone();
+							if (parameter instanceof DataSelectionParameter) {
+								((DataSelectionParameter)parameter).parseValueAndSetWithoutChecks(parameterRecord.getValue());
+							} else {
+								parameter.parseValue(parameterRecord.getValue());
+							}
 
-						// check content types
-						if (!sourceBean.getContentType().getType().equals(targetBean.getContentType().getType())) {
-							summary.getToolTestResults().add(new ToolTestResult(TestResult.FAIL, session, task, "Mismatch in result content types, "
-									+ sourceBean.getName() + ": " + sourceBean.getContentType().getType() + ", " + targetBean.getName() + ": " + targetBean.getContentType().getType()));
+							// Set it
+							operation.setParameter(parameter.getID(), parameter.getValue());
+						}
+					}
+				}
+
+				Task task = executor.createNewTask(new OperationRecord(operation), operation.getDefinition().isLocal());
+
+				// Execute the task
+				System.out.println("running " + operation.getDefinition().getFullName() + " " + new Date());
+				CountDownLatch latch = new CountDownLatch(1);
+				task.addTaskEventListener(new JobResultListener(latch));
+				long jobStartTime = System.currentTimeMillis();
+				executor.startExecuting(task);
+				latch.await(TOOL_TEST_TIMEOUT, TOOL_TEST_TIMEOUT_UNIT);
+				long jobDuration = System.currentTimeMillis() - jobStartTime;
+				System.out.println(operation.getDefinition().getFullName() + " took " + DurationFormatUtils.formatDurationWords(jobDuration, true, true));
+
+				// write screen output to disk
+				writeScreenOutputToDisk(task);
+
+				// Task failed
+				if (!task.getState().equals(State.COMPLETED)) {
+
+					// try to cancel if still running
+					if (task.getState().equals(State.RUNNING)) {
+						executor.kill(task);
+						summary.getToolTestResults().add(new ToolTestResult(TestResult.FAIL, session, task, "task did not finish before test timeout " +TOOL_TEST_TIMEOUT + " " + TOOL_TEST_TIMEOUT_UNIT.toString()));
+						return;
+					}
+					summary.getToolTestResults().add(new ToolTestResult(TestResult.FAIL, session, task, "task was not completed"));
+					return;
+				}
+
+				// Check results
+				// Target manager needs to be available through session for some of these to work
+				Session.getSession().setDataManager(manager);
+				try {
+
+					// Link result beans, add to folders etc			
+					Session.getSession().getApplication().onFinishedTask(task, operation.getResultListener(), task.getState(), true);
+
+					// Check that number of results and result names match
+					Iterator<DataBean> targetIterator = task.getOutputs().iterator();
+					for (DataBean sourceBean : outputMap.get(operationRecord)) {
+						if (targetIterator.hasNext()) {
+							DataBean targetBean = targetIterator.next();
+
+							// check content types
+							if (!sourceBean.getContentType().getType().equals(targetBean.getContentType().getType())) {
+								summary.getToolTestResults().add(new ToolTestResult(TestResult.FAIL, session, task, "Mismatch in result content types, "
+										+ sourceBean.getName() + ": " + sourceBean.getContentType().getType() + ", " + targetBean.getName() + ": " + targetBean.getContentType().getType()));
+								return;
+							}
+
+							//						// check names
+							//						if (!sourceBean.getName().equals(targetBean.getName())) {
+							//							toolTestResults.add(new ToolTestResult(TestResult.FAIL, operation, session, task, "mismatch in result dataset names, "
+							//									+ "expecting: " + sourceBean.getName() + " got: " + targetBean.getName()));
+							//							return;
+							//						}
+						} 
+						// Not enough results
+						else {
+							summary.getToolTestResults().add(new ToolTestResult(TestResult.FAIL, session, task, "not enough result datasets"));
 							return;
 						}
-						
-//						// check names
-//						if (!sourceBean.getName().equals(targetBean.getName())) {
-//							toolTestResults.add(new ToolTestResult(TestResult.FAIL, operation, session, task, "mismatch in result dataset names, "
-//									+ "expecting: " + sourceBean.getName() + " got: " + targetBean.getName()));
-//							return;
-//						}
-					} 
-					// Not enough results
-					else {
-						summary.getToolTestResults().add(new ToolTestResult(TestResult.FAIL, session, task, "not enough result datasets"));
+					}
+					if (targetIterator.hasNext()) {
+						summary.getToolTestResults().add(new ToolTestResult(TestResult.FAIL, session, task, "too many result datasets"));
 						return;
 					}
-				}
-				if (targetIterator.hasNext()) {
-					summary.getToolTestResults().add(new ToolTestResult(TestResult.FAIL, session, task, "too many result datasets"));
-					return;
-				}
 
-				// Find and replace metadata 
-				targetIterator = task.getOutputs().iterator();
-				for (DataBean sourceBean : outputMap.get(operationRecord)) {
-					DataBean targetBean = targetIterator.next();
+					// Find and replace metadata 
+					targetIterator = task.getOutputs().iterator();
+					for (DataBean sourceBean : outputMap.get(operationRecord)) {
+						DataBean targetBean = targetIterator.next();
 
-					// replace metadata contents from the source session
-					if (Session.getSession().getPrimaryModule().isMetadata(targetBean)) {
-						System.out.println("copying metadata for: " + targetBean.getName());
-						OutputStream metadataOut = manager.getContentOutputStreamAndLockDataBean(targetBean);
-						InputStream sourceIn = null;
-						try {
-							sourceIn = sourceManager.getContentStream(sourceBean, DataNotAvailableHandling.EXCEPTION_ON_NA);
-							IOUtils.copy(sourceIn, metadataOut);
-						} finally {
-							IOUtils.closeIfPossible(sourceIn);
-							manager.closeContentOutputStreamAndUnlockDataBean(targetBean, metadataOut);
-						}
-					}
-				}
-
-				// Compare data beans, add source bean -> target bean mapping
-				List<String> outputsWithMisMatchingSizes = new LinkedList<String>();
-				List<String> outputsWithMisMatchingContents = new LinkedList<String>();
-
-				targetIterator = task.getOutputs().iterator();
-				for (DataBean sourceBean : outputMap.get(operationRecord)) {
-					DataBean targetBean = targetIterator.next();
-					try {
-						compareDataBeans(sourceBean, targetBean);
-					} catch (Throwable t) {
-						summary.getToolTestResults().add(new ToolTestResult(TestResult.FAIL, session, task, t.getMessage()));
-						return;
-					}
-					
-					// Add source bean -> target bean mapping, needed for further operations
-					sourceDataBeanToTargetDataBean.put(sourceBean, targetBean);
-					
-					// Collect size matches
-					if (Session.getSession().getDataManager().getContentLength(sourceBean) != Session.getSession().getDataManager().getContentLength(targetBean)) {
-						if (sourceBean.getName().equals(targetBean.getName())) {
-							outputsWithMisMatchingSizes.add(sourceBean.getName());
-						} else {
-							outputsWithMisMatchingSizes.add(sourceBean.getName() + " | " + targetBean.getName());
-						}
-					}
-
-					// Collect content matches
-					if (CHECK_CONTENTS) {
-						InputStream sourceIn = null, targetIn = null;
-						try {
-							sourceIn = sourceManager.getContentStream(sourceBean, DataNotAvailableHandling.EXCEPTION_ON_NA);
-							targetIn = manager.getContentStream(targetBean, DataNotAvailableHandling.EXCEPTION_ON_NA);
-							if (!IOUtils.contentEquals(sourceIn, targetIn)) {
-
-								if (sourceBean.getName().equals(targetBean.getName())) {
-									outputsWithMisMatchingContents.add(sourceBean.getName());
-								} else {
-									outputsWithMisMatchingContents.add(sourceBean.getName() + " | " + targetBean.getName());
-								}
+						// replace metadata contents from the source session
+						if (Session.getSession().getPrimaryModule().isMetadata(targetBean)) {
+							System.out.println("copying metadata for: " + targetBean.getName());
+							OutputStream metadataOut = manager.getContentOutputStreamAndLockDataBean(targetBean);
+							InputStream sourceIn = null;
+							try {
+								sourceIn = sourceManager.getContentStream(sourceBean, DataNotAvailableHandling.EXCEPTION_ON_NA);
+								IOUtils.copy(sourceIn, metadataOut);
+							} finally {
+								IOUtils.closeIfPossible(sourceIn);
+								manager.closeContentOutputStreamAndUnlockDataBean(targetBean, metadataOut);
 							}
-						} finally {
-							IOUtils.closeIfPossible(sourceIn);
-							IOUtils.closeIfPossible(targetIn);
 						}
 					}
+
+					// Compare data beans, add source bean -> target bean mapping
+					List<String> outputsWithMisMatchingSizes = new LinkedList<String>();
+					List<String> outputsWithMisMatchingContents = new LinkedList<String>();
+
+					targetIterator = task.getOutputs().iterator();
+					for (DataBean sourceBean : outputMap.get(operationRecord)) {
+						DataBean targetBean = targetIterator.next();
+						try {
+							compareDataBeans(sourceBean, targetBean);
+						} catch (Throwable t) {
+							summary.getToolTestResults().add(new ToolTestResult(TestResult.FAIL, session, task, t.getMessage()));
+							return;
+						}
+
+						// Add source bean -> target bean mapping, needed for further operations
+						sourceDataBeanToTargetDataBean.put(sourceBean, targetBean);
+
+						// Collect size matches
+						if (Session.getSession().getDataManager().getContentLength(sourceBean) != Session.getSession().getDataManager().getContentLength(targetBean)) {
+							if (sourceBean.getName().equals(targetBean.getName())) {
+								outputsWithMisMatchingSizes.add(sourceBean.getName());
+							} else {
+								outputsWithMisMatchingSizes.add(sourceBean.getName() + " | " + targetBean.getName());
+							}
+						}
+
+						// Collect content matches
+						if (CHECK_CONTENTS) {
+							InputStream sourceIn = null, targetIn = null;
+							try {
+								sourceIn = sourceManager.getContentStream(sourceBean, DataNotAvailableHandling.EXCEPTION_ON_NA);
+								targetIn = manager.getContentStream(targetBean, DataNotAvailableHandling.EXCEPTION_ON_NA);
+								if (!IOUtils.contentEquals(sourceIn, targetIn)) {
+
+									if (sourceBean.getName().equals(targetBean.getName())) {
+										outputsWithMisMatchingContents.add(sourceBean.getName());
+									} else {
+										outputsWithMisMatchingContents.add(sourceBean.getName() + " | " + targetBean.getName());
+									}
+								}
+							} finally {
+								IOUtils.closeIfPossible(sourceIn);
+								IOUtils.closeIfPossible(targetIn);
+							}
+						}
+					}
+
+					// Add result
+					ToolTestResult toolTestResult = new ToolTestResult(TestResult.OK, session, task, null);
+					toolTestResult.setOutputsWithMisMatchingSizes(outputsWithMisMatchingSizes);
+					toolTestResult.setOutputsWithMisMatchingContents(outputsWithMisMatchingContents);
+					summary.getToolTestResults().add(toolTestResult);
+
+				} finally {
+					// Set session data manager back to null to avoid problems
+					Session.getSession().setDataManager(null);
 				}
-
-				// Add result
-				ToolTestResult toolTestResult = new ToolTestResult(TestResult.OK, session, task, null);
-				toolTestResult.setOutputsWithMisMatchingSizes(outputsWithMisMatchingSizes);
-				toolTestResult.setOutputsWithMisMatchingContents(outputsWithMisMatchingContents);
-				summary.getToolTestResults().add(toolTestResult);
-
-			} finally {
-				// Set session data manager back to null to avoid problems
-				Session.getSession().setDataManager(null);
 			}
+		} finally {
+			long sessionDuration = System.currentTimeMillis() - sessionStartTime;
+			System.out.println(session.getName() + " took " + DurationFormatUtils.formatDurationWords(sessionDuration, true, true));
 		}
+
 	}
 
 
