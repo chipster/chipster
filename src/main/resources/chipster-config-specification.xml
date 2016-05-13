@@ -39,21 +39,8 @@
 		</entry>
 		
 		
-		<entry entryKey="toolbox-host" type="string" description="hostname of the server running the toolbox">
-			<value>localhost</value>
-		</entry>
-
-		<entry entryKey="toolbox-protocol" type="string" description="https or http">
-			<value>http</value>
-		</entry>
-
-
-        <entry entryKey="toolbox-port" type="int" description="server port where toolbox runs">
-       		<value>8084</value>
-		</entry>
-
-		<entry entryKey="toolbox-path" type="string" description="path part toolbox of the toolbox url">
-			<value>/toolbox</value>
+		<entry entryKey="toolbox-url" type="string" description="url of the toolbox service">
+			<value>http://localhost:8084/toolbox</value>
 		</entry>
 		
 	</configuration-module>
