@@ -154,10 +154,11 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 		this.runtimeRepository = new RuntimeRepository(this.workDir, runtimesStream);
 		
 		// initialize toolbox client
+		String toolboxProtocol = configuration.getString("messaging", "toolbox-protocol");
 		String toolboxHost = configuration.getString("messaging", "toolbox-host");
 		int toolboxPort = configuration.getInt("messaging", "toolbox-port");
 		String toolboxPath = configuration.getString("messaging", "toolbox-path");
-		String toolboxUrl = "http://" + toolboxHost + ":" + toolboxPort + toolboxPath;
+		String toolboxUrl = toolboxProtocol + "://" + toolboxHost + ":" + toolboxPort + toolboxPath;
 		this.toolboxClient = new ToolboxClientComp(toolboxUrl);
 		logger.info("toolbox client connecting to: " + toolboxUrl);
 		

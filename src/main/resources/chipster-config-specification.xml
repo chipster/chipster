@@ -43,6 +43,11 @@
 			<value>localhost</value>
 		</entry>
 
+		<entry entryKey="toolbox-protocol" type="string" description="https or http">
+			<value>http</value>
+		</entry>
+
+
         <entry entryKey="toolbox-port" type="int" description="server port where toolbox runs">
        		<value>8084</value>
 		</entry>
