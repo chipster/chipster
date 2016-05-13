@@ -429,6 +429,7 @@
 			<tarfileset dir="${ext-src}/wrapper/toolbox/conf" prefix="chipster/toolbox/conf" />
 			<tarfileset dir="${ext-src}/wrapper/toolbox/logs" prefix="chipster/toolbox/logs" /> <!-- must exist for wrapper -->
 			<tarfileset dir="${ext-src}/wrapper/toolbox/security" prefix="chipster/toolbox/security" />
+			<tarfileset dir="${ext-src}/wrapper/toolbox/reload-tools.sh" filemode="755" prefix="chipster/toolbox" />
 
 			
 			
