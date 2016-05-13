@@ -218,8 +218,8 @@ public class PythonCompJob extends OnDiskCompJobBase {
 		inputReaders.add(new BufferedReader(new StringReader(toolDescription.getInitialiser())));
 
 		// load work dir initialiser
-		logger.debug("job work dir: " + jobWorkDir.getPath());
-		inputReaders.add(new BufferedReader(new StringReader("import os\nos.chdir('" + jobWorkDir.getName() + "')\n")));
+		logger.debug("job dir: " + jobDir.getPath());
+		inputReaders.add(new BufferedReader(new StringReader("import os\nos.chdir('" + jobDataDir.getName() + "')\n")));
 
 		// load input parameters		
 		int i = 0; 

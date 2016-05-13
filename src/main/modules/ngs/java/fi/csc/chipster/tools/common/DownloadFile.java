@@ -48,7 +48,7 @@ public class DownloadFile extends JavaCompJobBase {
 
 		try {
 			// file 
-			File outputFile = new File(jobWorkDir, toolDescription.getOutputFiles().get(0).getFileName().getID()); 
+			File outputFile = new File(jobDataDir, toolDescription.getOutputFiles().get(0).getFileName().getID()); 
 
 			// parameters
 			List<String> parameters = inputMessage.getParameters(JAVA_PARAMETER_SECURITY_POLICY, toolDescription);
@@ -96,7 +96,7 @@ public class DownloadFile extends JavaCompJobBase {
 			LinkedHashMap<String, String> nameMap = new LinkedHashMap<>();
 			nameMap.put(outputFile.getName(), datasetName);
 			
-			ToolUtils.writeOutputDescription(jobWorkDir, nameMap);
+			ToolUtils.writeOutputDescription(jobDataDir, nameMap);
 						
 		} catch (Exception e) {
 			getResultMessage().setErrorMessage(Exceptions.getStackTrace(e));

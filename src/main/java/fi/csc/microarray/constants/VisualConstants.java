@@ -106,6 +106,7 @@ public class VisualConstants {
 	public static String HEATMAP_MENUICON = "/listicons/heatmap.png";
 
 	public static final String SPLASH_SCREEN = "/splash.png";
+	public static final String SPLASH_SCREEN_KIELIPANKKI = "/mylly-splash.png";
 	public static final Color SPLASH_BORDER_COLOR = new Color(150, 150, 150);
 	public static final Font SPLASH_SCREEN_FONT = new Font("SansSerif",
 			Font.PLAIN, 10);

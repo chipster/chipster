@@ -214,13 +214,11 @@ public class RCompJob extends OnDiskCompJobBase {
 		
 		List<BufferedReader> inputReaders = new ArrayList<BufferedReader>();
 
+		// load work dir initialiser
+		inputReaders.add(new BufferedReader(new StringReader("setwd(\"" + jobDataDir.getAbsolutePath() + "\")\n")));
+
 		// load handler initialiser
 		inputReaders.add(new BufferedReader(new StringReader(toolDescription.getInitialiser())));
-		
-		// load work dir initialiser
-		logger.debug("job work dir: " + jobWorkDir.getPath());
-		inputReaders.add(new BufferedReader(new StringReader("setwd(\"" + jobWorkDir.getName() + "\")\n")));
-		
 		
 		// load input parameters		
 		int i = 0; 

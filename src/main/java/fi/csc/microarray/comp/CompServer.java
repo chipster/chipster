@@ -2,12 +2,10 @@ package fi.csc.microarray.comp;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -15,13 +13,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.jms.JMSException;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.log4j.Logger;
-import org.xml.sax.SAXException;
 
-import fi.csc.chipster.toolbox.Toolbox;
-import fi.csc.chipster.toolbox.ToolboxClient;
+import fi.csc.chipster.toolbox.ToolboxClientComp;
 import fi.csc.chipster.toolbox.ToolboxTool;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
@@ -42,11 +37,9 @@ import fi.csc.microarray.messaging.message.GenericJobMessage;
 import fi.csc.microarray.messaging.message.GenericResultMessage;
 import fi.csc.microarray.messaging.message.JobLogMessage;
 import fi.csc.microarray.messaging.message.JobMessage;
-import fi.csc.microarray.messaging.message.ModuleDescriptionMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
 import fi.csc.microarray.messaging.message.ResultMessage;
 import fi.csc.microarray.messaging.message.ServerStatusMessage;
-import fi.csc.microarray.messaging.message.SourceMessage;
 import fi.csc.microarray.messaging.message.SuccessMessage;
 import fi.csc.microarray.service.KeepAliveShutdownHandler;
 import fi.csc.microarray.service.ShutdownCallback;
@@ -76,6 +69,7 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 	private int scheduleTimeout;
 	private int offerDelay;
 	private int timeoutCheckInterval;
+	@SuppressWarnings("unused")
 	private int heartbeatInterval;
 	private int compAvailableInterval;
 	private boolean sweepWorkDir;
@@ -90,8 +84,7 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 	
 	
 	private RuntimeRepository runtimeRepository;
-	private ToolboxClient toolboxClient;
-	private Toolbox toolbox;
+	private ToolboxClientComp toolboxClient;
 	
 	
 	/**
@@ -114,6 +107,7 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 	private LinkedHashMap<String, CompJob> scheduledJobs = new LinkedHashMap<String, CompJob>();
 	private LinkedHashMap<String, CompJob> runningJobs = new LinkedHashMap<String, CompJob>();
 	private Timer timeoutTimer;
+	@SuppressWarnings("unused")
 	private Timer heartbeatTimer;
 	private Timer compAvailableTimer;
 	private String localFilebrokerPath;
@@ -158,9 +152,15 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 		// initialize runtime and tools
 		FileInputStream runtimesStream = new FileInputStream(new File(DirectoryLayout.getInstance().getConfDir(), "runtimes.xml"));
 		this.runtimeRepository = new RuntimeRepository(this.workDir, runtimesStream);
-		this.toolbox = new Toolbox(DirectoryLayout.getInstance().getModulesDir());
-		this.toolboxClient = new OldToolboxClient(this.toolbox);
-					
+		
+		// initialize toolbox client
+		String toolboxHost = configuration.getString("messaging", "toolbox-host");
+		int toolboxPort = configuration.getInt("messaging", "toolbox-port");
+		String toolboxPath = configuration.getString("messaging", "toolbox-path");
+		String toolboxUrl = "http://" + toolboxHost + ":" + toolboxPort + toolboxPath;
+		this.toolboxClient = new ToolboxClientComp(toolboxUrl);
+		logger.info("toolbox client connecting to: " + toolboxUrl);
+		
 		// initialize timeout checker
 		timeoutTimer = new Timer(true);
 		timeoutTimer.schedule(new TimeoutTimerTask(), timeoutCheckInterval, timeoutCheckInterval);
@@ -286,39 +286,14 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 			
 			// Request to send descriptions
 			else if (CommandMessage.COMMAND_DESCRIBE.equals(commandMessage.getCommand())) {
-				if (stopGracefully) {
-					return;
-				}
-				
-				logger.info("sending all descriptions");
-	            
-	            // Send descriptions for all available modules
-                try {
-                    List<ModuleDescriptionMessage> list;
-                    list = createDescriptionsMessages(commandMessage);
-
-                    for (ModuleDescriptionMessage msg : list) {
-        	            logger.info("sending descriptions for module " + msg.getModuleName());
-                        sendReplyMessage(commandMessage, msg);
-                    }
-                } catch (Exception e) {
-                    logger.error("sending descriptions message failed", e);
-                }
+				logger.info("got COMMAND_DESCRIBE, ignoring it");
 	            return; 
 			}
 
 			// source code request
 			else if (CommandMessage.COMMAND_GET_SOURCE.equals(commandMessage.getCommand())) {
-				if (stopGracefully) {
-					return;
-				}
-	            
-				logger.info("sending source code");
-				SourceMessage sourceMessage = createSourceCodeMessage(commandMessage);
-	            if (sourceMessage != null) {
-					sendReplyMessage(commandMessage, sourceMessage);
-	            }
-	            return;
+				logger.info("got COMMAND_GET_SOURCE, ignoring it");
+	            return; 
 			}			
 			
 			// Request to cancel a job
@@ -474,6 +449,9 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 		return this.fileBroker;
 	}
 	
+	public ToolboxClientComp getToolboxClient() {
+		return this.toolboxClient;
+	}
 	
 	/**
 	 * Sends the message in new thread.
@@ -525,8 +503,21 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 		}
 		
 		// get tool from toolbox along with the runtime name
-		ToolboxTool toolboxTool = toolboxClient.getTool(jobMessage.getToolId());
+		String toolId = jobMessage.getToolId();
+		if (toolId == null || toolId.isEmpty()) {
+			logger.warn("invalid tool id: " + toolId);
+			return;
+		}
+		
+		ToolboxTool toolboxTool = null;
+		try {
+			toolboxTool = toolboxClient.getTool(toolId);
+		} catch (Exception e) {
+			logger.warn("failed to get tool " + toolId + " from toolbox", e);
+			return;
+		}
 		if (toolboxTool == null) {
+			logger.warn("tool " + toolId + " not found");
 			return;
 		}
 		
@@ -628,28 +619,6 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 		sendReplyMessage((ChipsterMessage)job.getInputMessage(), offerMessage);
 	}
 	
-	private List<ModuleDescriptionMessage>
-	        createDescriptionsMessages(CommandMessage requestMessage)
-	        throws IOException, SAXException, ParserConfigurationException {
-	    List<ModuleDescriptionMessage> list = toolbox.getModuleDescriptions();
-	    for (ModuleDescriptionMessage descriptionMsg : list) {
-	        descriptionMsg.setReplyTo(requestMessage.getReplyTo());
-	    }
-	    return list;
-	}
-
-	private SourceMessage createSourceCodeMessage(CommandMessage requestMessage) {
-			String toolID = new String(requestMessage.getParameters().get(0));
-			
-			logger.info("sending source code for " + toolID);
-			String sourceCode = toolbox.getTool(toolID).getSource();
-
-			if (sourceCode != null) {
-				return new SourceMessage(sourceCode);
-			} else {
-				return null;
-			}
-	}
 	
 	private void updateStatus() {
 		synchronized(jobsLock) {
@@ -744,10 +713,17 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 		// close messaging endpoint
 		try {
 			this.endpoint.close();
-		} catch (JMSException e) {
-			logger.error("closing messaging endpoint failed", e);
+		} catch (Exception e) {
+			logger.warn("closing messaging endpoint failed", e);
 		}
 
+		// close toolbox client
+		try {
+			toolboxClient.close();
+		} catch (Exception e) {
+			logger.warn("closing toolbox client failed", e);
+		}
+		
 		logger.info("shutting down");
 	}
 	

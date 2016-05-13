@@ -26,8 +26,8 @@ public class SortVcf extends JavaCompJobBase {
 
 		try {
 			// files
-			File inputFile = new File(jobWorkDir, toolDescription.getInputFiles().get(0).getFileName()); 
-			File outputFile = new File(jobWorkDir, toolDescription.getOutputFiles().get(0).getFileName().getID()); 
+			File inputFile = new File(jobDataDir, toolDescription.getInputFiles().get(0).getFileName()); 
+			File outputFile = new File(jobDataDir, toolDescription.getOutputFiles().get(0).getFileName().getID()); 
 
 			// run sort
 			new TsvSorter().sort(

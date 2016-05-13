@@ -332,6 +332,7 @@
 			<tarfileset dir="${ext-src}/wrapper/comp/security" prefix="chipster/comp/security" />
 
 			<!-- modules, executables separated so that permissions can be set for them -->
+            <!--
 			<selector id="executable.files">
 				<or>
 					<filename name="**/*.sh" />
@@ -345,7 +346,7 @@
 			<tarfileset dir="${modules}/" prefix="chipster/comp/modules" filemode="755">
 				<selector refid="executable.files" />
 			</tarfileset>
-			
+			-->
 
 			<!-- fileserver -->
 			<tarfileset file="${ext-src}/wrapper/fileserver/chipster-fileserver-generic" filemode="755" fullpath="chipster/fileserver/bin/chipster-fileserver" />
@@ -372,7 +373,7 @@
 			<tarfileset file="${ext-src}/wrapper/webstart/chipster-webstart" filemode="755" prefix="chipster/webstart/bin/linux-x86-64" />
 
 			<tarfileset dir="${ext-src}/wrapper/webstart/web-root" prefix="chipster/webstart/web-root" />
-			<tarfileset dir="${manual}" prefix="chipster/webstart/web-root/manual" />
+			<!--<tarfileset dir="${manual}" prefix="chipster/webstart/web-root/manual" /> -->
 			<tarfileset file="${client-jar}" fullpath="chipster/webstart/web-root/lib/chipster-current.jar" />
 			<tarfileset file="${ext-src}/wrapper/chipster-client-config.xml" fullpath="chipster/webstart/web-root/chipster-config.xml" />
 			<tarfileset dir="${ext-src}/wrapper/webstart/security" prefix="chipster/webstart/security" />
@@ -415,6 +416,19 @@
 			<tarfileset dir="${ext-src}/wrapper/jobmanager/conf" prefix="chipster/jobmanager/conf" />
 			<tarfileset dir="${ext-src}/wrapper/jobmanager/logs" prefix="chipster/jobmanager/logs" /> <!-- must exist for wrapper -->
 			<tarfileset dir="${ext-src}/wrapper/jobmanager/security" prefix="chipster/jobmanager/security" />
+
+			<!-- toolbox -->
+			<tarfileset file="${ext-src}/wrapper/toolbox/chipster-toolbox-generic" filemode="755" fullpath="chipster/toolbox/bin/chipster-toolbox" />
+
+			<tarfileset file="${wrapper-linux-x86-32}/bin/wrapper" filemode="755" prefix="chipster/toolbox/bin/linux-x86-32" />
+			<tarfileset file="${ext-src}/wrapper/toolbox/chipster-toolbox" filemode="755" prefix="chipster/toolbox/bin/linux-x86-32" />
+
+			<tarfileset file="${wrapper-linux-x86-64}/bin/wrapper" filemode="755" prefix="chipster/toolbox/bin/linux-x86-64" />
+			<tarfileset file="${ext-src}/wrapper/toolbox/chipster-toolbox" filemode="755" prefix="chipster/toolbox/bin/linux-x86-64" />
+
+			<tarfileset dir="${ext-src}/wrapper/toolbox/conf" prefix="chipster/toolbox/conf" />
+			<tarfileset dir="${ext-src}/wrapper/toolbox/logs" prefix="chipster/toolbox/logs" /> <!-- must exist for wrapper -->
+			<tarfileset dir="${ext-src}/wrapper/toolbox/security" prefix="chipster/toolbox/security" />
 
 			
 			

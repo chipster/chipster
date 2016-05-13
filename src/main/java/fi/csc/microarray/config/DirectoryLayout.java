@@ -31,7 +31,6 @@ public class DirectoryLayout {
 	public static final String BIN_DIR = "bin";
 	public static final String LOGS_DIR = "logs";
 	public static final String SECURITY_DIR = "security";
-	public static final String MODULES_DIR = "modules";
 	public static final String CONF_DIR = "conf";
 	public static final String LOCAL_ANNOTATION_DIR = "genomebrowser";
 	
@@ -182,10 +181,6 @@ public class DirectoryLayout {
 
 	public File getSecurityDir() throws IOException {
 		return check(new File(getBaseDir(), SECURITY_DIR));
-	}	
-
-	public File getModulesDir() throws IOException {
-		return check(new File(getBaseDir(), MODULES_DIR));
 	}	
 
 	public File getLogsDir() throws IOException {

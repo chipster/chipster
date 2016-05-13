@@ -114,6 +114,7 @@ import fi.csc.microarray.filebroker.FileBrokerException;
 import fi.csc.microarray.messaging.JMSMessagingEndpoint;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
 import fi.csc.microarray.module.basic.BasicModule.VisualisationMethods;
+import fi.csc.microarray.module.chipster.KielipankkiModule;
 import fi.csc.microarray.util.BrowserLauncher;
 import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.Files;
@@ -213,7 +214,11 @@ public class SwingClientApplication extends ClientApplication {
         this.requestedModule = module;
 
         // show splash screen
-		splashScreen = new SplashScreen(VisualConstants.getIcon(VisualConstants.SPLASH_SCREEN));
+		if (KielipankkiModule.class.getName().equals(module)) {
+			splashScreen = new SplashScreen(VisualConstants.getIcon(VisualConstants.SPLASH_SCREEN_KIELIPANKKI));
+		} else {
+			splashScreen = new SplashScreen(VisualConstants.getIcon(VisualConstants.SPLASH_SCREEN));
+		}
 		reportInitialisationThreadSafely("Initialising " + ApplicationConstants.TITLE, true);
 
 		// try to initialise and handle exceptions gracefully

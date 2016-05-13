@@ -11,7 +11,9 @@ import org.apache.log4j.Logger;
 
 import fi.csc.microarray.comp.ToolDescription.OutputDescription;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.filebroker.ChecksumException;
 import fi.csc.microarray.filebroker.FileBrokerClient.FileBrokerArea;
+import fi.csc.microarray.filebroker.FileBrokerException;
 import fi.csc.microarray.filebroker.NotEnoughDiskSpaceException;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.message.GenericJobMessage;
@@ -30,12 +32,19 @@ public abstract class OnDiskCompJobBase extends CompJob {
 
 	private static final Logger logger = Logger.getLogger(OnDiskCompJobBase.class);
 
-	protected File jobWorkDir;
-
+	private static final String JOB_DATA_DIR_NAME = "data";
+	private static final String JOB_TOOLBOX_DIR_NAME = "toolbox";
+	
+	protected File jobDir;
+	protected File jobDataDir;
+	protected File jobToolboxDir;
+	
 	@Override
 	public void construct(GenericJobMessage inputMessage, ToolDescription toolDescription, ResultCallback resultHandler) {
 		super.construct(inputMessage, toolDescription, resultHandler);
-		this.jobWorkDir = new File(resultHandler.getWorkDir(), getId());
+		this.jobDir = new File(resultHandler.getWorkDir(), getId());
+		this.jobDataDir = new File(this.jobDir, JOB_DATA_DIR_NAME);
+		this.jobToolboxDir = new File(this.jobDir, JOB_TOOLBOX_DIR_NAME);
 	}
 
 
@@ -51,43 +60,32 @@ public abstract class OnDiskCompJobBase extends CompJob {
 
 		updateStateDetailToClient("transferring input data");
 
-		// create working dir for the job
-		if (!this.jobWorkDir.mkdir()) {
-			outputMessage.setErrorMessage("Creating working directory failed.");
+		// create directories for the job
+		if (!this.jobDir.mkdir()) {
+			outputMessage.setErrorMessage("Creating job working directory failed.");
 			updateState(JobState.ERROR, "");
 			return;
 		}
 
-		// extract input files to work dir
+		// get input files and toolbox
 		try {
+			// input files
+			getInputFiles();
 			
-			LinkedHashMap<String, String> nameMap = new LinkedHashMap<>();
-			
-			for (String fileName : inputMessage.getKeys()) {
-				cancelCheck();
-
-				// get url and output file
-				String dataId = inputMessage.getId(fileName);
-				File localFile = new File(jobWorkDir, fileName);
-				
-				// make local file available, by downloading, copying or symlinking
-				resultHandler.getFileBrokerClient().getFile(inputMessage.getSessionId(), dataId, new File(jobWorkDir, fileName));
-				logger.debug("made available local file: " + localFile.getName() + " " + localFile.length());
-				
-				nameMap.put(fileName, inputMessage.getName(fileName));
+			// toolbox
+			if (!this.jobToolboxDir.mkdir()) {
+				throw new IOException("Creating job toolbox dir failed.");
 			}
-			
-			ToolUtils.writeInputDescription(new File(jobWorkDir, "chipster-inputs.tsv"), nameMap);
+			resultHandler.getToolboxClient().getToolboxModules(this.jobToolboxDir);
 
-			inputMessage.preExecute(jobWorkDir);
-			
 		} catch (Exception e) {
-			outputMessage.setErrorMessage("Transferring input data to computing service failed.");
+			outputMessage.setErrorMessage("Transferring input data and tools to computing service failed.");
 			outputMessage.setOutputText(Exceptions.getStackTrace(e));
 			updateState(JobState.ERROR, "");
 			return;
 		}			
 	}
+
 
 	/**
 	 * Copy output files from job work dir to file broker.
@@ -112,7 +110,7 @@ public abstract class OnDiskCompJobBase extends CompJob {
 			    String prefix = fileDescription.getFileName().getPrefix();
 			    String postfix = fileDescription.getFileName().getPostfix();
 			    String regex = prefix + ".*" + postfix;
-			    describedFiles = Files.findFiles(jobWorkDir, regex);
+			    describedFiles = Files.findFiles(jobDataDir, regex);
 			    
 			    // if output is required there should be at least one
 			    if (!fileDescription.isOptional() && describedFiles.length == 0) {
@@ -125,14 +123,14 @@ public abstract class OnDiskCompJobBase extends CompJob {
 			} else {
 			    // it is a single file
 	            String outputName = fileDescription.getFileName().getID();
-			    describedFiles = new File[] {new File(jobWorkDir, outputName)};
+			    describedFiles = new File[] {new File(jobDataDir, outputName)};
 			}
 			
 			// parse a file containing 
 			String outputsFilename = "chipster-outputs.tsv";
 			LinkedHashMap<String, String> nameMap = new LinkedHashMap<>();
 			try {
-				nameMap = ToolUtils.parseOutputDescription(new File(jobWorkDir, outputsFilename));
+				nameMap = ToolUtils.parseOutputDescription(new File(jobDataDir, outputsFilename));
 			} catch (IOException | MicroarrayException e) {
 				logger.warn("couldn't parse " + outputsFilename);
 				outputMessage.setErrorMessage("couldn't parse " + outputsFilename);
@@ -190,7 +188,7 @@ public abstract class OnDiskCompJobBase extends CompJob {
 		try {
 			// sweep job working directory
 			if (resultHandler.shouldSweepWorkDir()) {
-				Files.delTree(jobWorkDir);
+				Files.delTree(jobDir);
 			}
 		} catch (Exception e) {
 			logger.error("Error when cleaning up job work dir.", e);
@@ -198,4 +196,33 @@ public abstract class OnDiskCompJobBase extends CompJob {
 			super.cleanUp();
 		}
 	}
+
+
+	private void getInputFiles()
+			throws Exception, JobCancelledException, IOException, FileBrokerException, ChecksumException {
+		LinkedHashMap<String, String> nameMap = new LinkedHashMap<>();
+		
+		if (!this.jobDataDir.mkdir()) {
+			throw new IOException("Creating job data dir failed.");
+		}
+		
+		for (String fileName : inputMessage.getKeys()) {
+			cancelCheck();
+	
+			// get url and output file
+			String dataId = inputMessage.getId(fileName);
+			File localFile = new File(jobDataDir, fileName);
+			
+			// make local file available, by downloading, copying or symlinking
+			resultHandler.getFileBrokerClient().getFile(inputMessage.getSessionId(), dataId, new File(jobDataDir, fileName));
+			logger.debug("made available local file: " + localFile.getName() + " " + localFile.length());
+			
+			nameMap.put(fileName, inputMessage.getName(fileName));
+		}
+		
+		ToolUtils.writeInputDescription(new File(jobDataDir, "chipster-inputs.tsv"), nameMap);
+	
+		inputMessage.preExecute(jobDataDir);
+	}
+	
 }
