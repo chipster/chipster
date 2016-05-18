@@ -13,6 +13,7 @@ import com.vaadin.data.util.BeanItemContainer;
 import fi.csc.chipster.web.adminweb.ui.JobsView;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.messaging.AuthCancelledException;
 import fi.csc.microarray.messaging.admin.JobmanagerAdminAPI;
 import fi.csc.microarray.messaging.admin.JobmanagerAdminAPI.JobsListener;
 import fi.csc.microarray.messaging.admin.JobsEntry;
@@ -53,7 +54,7 @@ public class JobsContainer extends BeanItemContainer<JobsEntry> implements Seria
 			Collection<JobsEntry> list = jobmanagerAdminAPI.queryRunningJobs().values();
 			statusUpdated(list);
 						
-		} catch (JMSException | InterruptedException | MicroarrayException e) {
+		} catch (JMSException | InterruptedException | MicroarrayException | AuthCancelledException e) {
 			logger.error(e);
 		}
 	}

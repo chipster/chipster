@@ -13,6 +13,7 @@ import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 
 import fi.csc.chipster.web.adminweb.ui.StorageView;
+import fi.csc.microarray.messaging.AuthCancelledException;
 import fi.csc.microarray.messaging.admin.StorageAdminAPI;
 import fi.csc.microarray.messaging.admin.StorageEntry;
 
@@ -60,7 +61,7 @@ public class StorageEntryContainer extends BeanItemContainer<StorageEntry> imple
 				Notification.show("Timeout", "Chipster filebroker server doesn't respond", Type.ERROR_MESSAGE);
 				logger.error("timeout while waiting storage usage of sessions");
 			}
-		} catch (JMSException | InterruptedException e) {
+		} catch (JMSException | InterruptedException | AuthCancelledException e) {
 			logger.error(e);
 		}
 	}

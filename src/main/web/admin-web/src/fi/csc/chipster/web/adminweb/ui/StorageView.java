@@ -27,6 +27,7 @@ import fi.csc.chipster.web.adminweb.util.Notificationutil;
 import fi.csc.chipster.web.adminweb.util.StringUtils;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.messaging.AuthCancelledException;
 import fi.csc.microarray.messaging.admin.StorageAdminAPI;
 import fi.csc.microarray.messaging.admin.StorageAggregate;
 
@@ -230,7 +231,7 @@ public class StorageView extends AsynchronousView implements ClickListener, Valu
 						logger.error("timeout while waiting storage usage totals");
 					}
 
-				} catch (JMSException | InterruptedException e) {
+				} catch (JMSException | InterruptedException | AuthCancelledException e) {
 					logger.error(e);
 				}			
 			}			
@@ -241,7 +242,7 @@ public class StorageView extends AsynchronousView implements ClickListener, Valu
 		//TODO are you sure?
 		try {
 			adminEndpoint.deleteRemoteSession(entryDataSource.getItem(itemId).getBean().getID());
-		} catch (JMSException | MicroarrayException e) {			
+		} catch (JMSException | MicroarrayException | AuthCancelledException e) {			
 			Notificationutil.showFailNotification(e.getClass().getSimpleName(), e.getMessage());
 			logger.warn("could not delete session", e);
 			return;

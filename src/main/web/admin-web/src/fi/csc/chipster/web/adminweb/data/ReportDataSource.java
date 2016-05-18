@@ -21,6 +21,7 @@ import com.vaadin.ui.VerticalLayout;
 import fi.csc.chipster.web.adminweb.ui.ReportView;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.messaging.AuthCancelledException;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.admin.CompAdminAPI;
 import fi.csc.microarray.messaging.admin.JobmanagerAdminAPI;
@@ -57,7 +58,7 @@ public class ReportDataSource {
 				logger.error("timeout while waiting status report");
 			}
 			
-		} catch (JMSException | InterruptedException | IOException | IllegalConfigurationException | MicroarrayException e) {
+		} catch (JMSException | InterruptedException | IOException | IllegalConfigurationException | MicroarrayException | AuthCancelledException e) {
 			logger.error("failed to update storage status report", e);
 		}			
 	}
@@ -112,7 +113,7 @@ public class ReportDataSource {
 				logger.error("timeout while waiting status report");
 			}
 			
-		} catch (JMSException | IOException | IllegalConfigurationException | MicroarrayException | InterruptedException e) {
+		} catch (JMSException | IOException | IllegalConfigurationException | MicroarrayException | InterruptedException | AuthCancelledException e) {
 			logger.error("failed to update storage status report", e);
 		}		
 	}
