@@ -46,8 +46,8 @@
 	<property name="config-tool-jar" value="${dist}/chipster-config-tool.jar" />
 	<property name="client-jar" value="${dist}/chipster-all-${release-version}.jar" />
 
-	<property name="javac-target" value="1.7" />
-	<property name="javac-source" value="1.7" />
+	<property name="javac-target" value="1.8" />
+	<property name="javac-source" value="1.8" />
 	
 	
 	<!-- external stuff -->

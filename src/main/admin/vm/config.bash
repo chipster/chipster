@@ -50,7 +50,5 @@ if [ ! -d $paralleldir ]; then
 	mkdir $paralleldir
 fi
 
-# squid proxy
-export http_proxy="http://192.168.15.35:3128"
 
 
