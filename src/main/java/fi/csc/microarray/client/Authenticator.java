@@ -19,7 +19,8 @@ public class Authenticator implements AuthenticationRequestListener {
 	}
 	
 	public static interface LoginCallback {
-		public boolean authenticate(String username, String password);
+		public void authenticate(String username, String password);
+		public void cancel();
 	}
 		
 	private boolean hasBeenAuthenticatedBefore = false;
@@ -37,14 +38,19 @@ public class Authenticator implements AuthenticationRequestListener {
 		final CountDownLatch loginLatch = new CountDownLatch(1);
 		final LoginCallback callback = new LoginCallback() {
 
-			public boolean authenticate(String username, String password) {
+			public void authenticate(String username, String password) {
 				// store credentials 
 				credentialsHolder.credentials = new Credentials(username, new String(password));
 				
 				// notify blocking caller
 				loginLatch.countDown();
-							
-				return true;
+			}
+			
+			public void cancel() {
+				credentialsHolder.credentials = null;
+
+				// notify blocking caller
+				loginLatch.countDown();
 			}
 		};
 		

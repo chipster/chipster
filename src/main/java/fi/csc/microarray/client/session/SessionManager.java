@@ -30,6 +30,7 @@ import fi.csc.microarray.filebroker.DerbyMetadataServer;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.filebroker.FileBrokerException;
 import fi.csc.microarray.filebroker.QuotaExceededException;
+import fi.csc.microarray.messaging.AuthCancelledException;
 import fi.csc.microarray.messaging.admin.StorageAdminAPI.StorageEntryMessageListener;
 import fi.csc.microarray.security.CryptoKey;
 import fi.csc.microarray.util.Exceptions;
@@ -318,7 +319,7 @@ public class SessionManager {
 		return sessionId;
 	}
 
-	public List<DbSession> listRemoteSessions() throws FileBrokerException {
+	public List<DbSession> listRemoteSessions() throws FileBrokerException, AuthCancelledException {
 		return fileBrokerClient.listRemoteSessions();
 	}
 	
@@ -327,7 +328,7 @@ public class SessionManager {
 	}
 
 	public void setSession(File sessionFile, String sessionId)
-			throws MalformedURLException, FileBrokerException {
+			throws MalformedURLException, FileBrokerException, AuthCancelledException {
 		if (sessionFile != null) {
 			currentRemoteSession = null;
 			String oldValue = currentSessionName;
@@ -550,7 +551,7 @@ public class SessionManager {
 	}
 
 	public void clearSessionWithoutConfirming() throws MalformedURLException,
-	FileBrokerException {
+	FileBrokerException, AuthCancelledException {
 		dataManager.deleteAllDataItems();
 		taskExecutor.clear();
 		setSessionNotes(null);
@@ -558,7 +559,7 @@ public class SessionManager {
 		unsavedChanges = false;
 	}
 
-	public boolean removeRemoteSession(String sessionUuid) throws FileBrokerException {
+	public boolean removeRemoteSession(String sessionUuid) throws FileBrokerException, AuthCancelledException {
 
 		if (currentRemoteSession != null
 				&& currentRemoteSession.equals(sessionUuid)

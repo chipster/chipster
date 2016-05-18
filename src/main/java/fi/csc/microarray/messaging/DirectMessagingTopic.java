@@ -40,7 +40,7 @@ public class DirectMessagingTopic extends MessagingTopic {
 	}
 
 	@Override
-	protected void sendReplyableMessage(fi.csc.microarray.messaging.message.ChipsterMessage message, TempTopicMessagingListener replyListener, MessagingListener authenticationListener) throws JMSException {
+	protected void sendReplyableMessage(fi.csc.microarray.messaging.message.ChipsterMessage message, TempTopicMessagingListener replyListener, AuthMessagingListener authenticationListener) throws JMSException {
 		sendReplyableMessage(message, replyListener); // ignore authentication
 	}
 		

@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.messaging.AuthCancelledException;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.SuccessMessageListener;
 import fi.csc.microarray.messaging.Topics;
@@ -42,7 +43,7 @@ public class CompAdminAPI extends ServerAdminAPI {
 			
 			checkSuccessMessage(reply, "stop comp gracefully");
 												
-		} catch (JMSException e) {
+		} catch (JMSException | AuthCancelledException e) {
 			logger.error("stopping comp gracefully failed", e);
 		}
 	}

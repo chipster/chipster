@@ -237,6 +237,12 @@ public class TaskExecutor {
 			}
 		}
 
+		@Override
+		public void cancel() {
+			taskFinished(State.CANCELLED, null, null);
+		}
+		
+		
 		private void extractOutputs(ResultMessage resultMessage) throws JMSException, MicroarrayException, IOException {
 			for (String key : resultMessage.getKeys()) {
 				logger.debug("output " + key);

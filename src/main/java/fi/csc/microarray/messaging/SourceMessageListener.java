@@ -10,16 +10,22 @@ public class SourceMessageListener extends TempTopicMessagingListenerBase {
     
     private CountDownLatch latch = new CountDownLatch(1);
     private String source = null;
+	private boolean cancelled = false;
     
     /**
      * 
      * @param timeout
      * @param unit
      * @return the source
+     * @throws AuthCancelledException 
      */
-    public String waitForResponse(long timeout, TimeUnit unit) {
+    public String waitForResponse(long timeout, TimeUnit unit) throws AuthCancelledException {
         try {
             latch.await(timeout, unit);
+            if (this.cancelled) {
+            	throw new AuthCancelledException();
+            }
+            
             return source;
         } catch (InterruptedException e) {
         	throw new RuntimeException(e);
@@ -37,4 +43,13 @@ public class SourceMessageListener extends TempTopicMessagingListenerBase {
         this.source = sourceMessage.getSource();
         latch.countDown();
     }
+
+
+	@Override
+	public void cancel() {
+		this.cancelled   = true;
+		latch.countDown();
+	}
+
+
 }

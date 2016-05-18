@@ -10,6 +10,7 @@ public class ReplyMessageListener extends TempTopicMessagingListenerBase {
 
 	private ParameterMessage reply;
 	private CountDownLatch latch = new CountDownLatch(1);
+	private boolean cancelled = false;
 	
 	@Override
 	public void onChipsterMessage(ChipsterMessage msg) {
@@ -23,9 +24,10 @@ public class ReplyMessageListener extends TempTopicMessagingListenerBase {
 	 * @param timeout in given units
 	 * @param unit unit of the timeout
 	 * @return null if no reply before timeout
+	 * @throws AuthCancelledException 
 	 * @throws RuntimeException if interrupted
 	 */
-	public ParameterMessage waitForReply(long timeout, TimeUnit unit) {
+	public ParameterMessage waitForReply(long timeout, TimeUnit unit) throws AuthCancelledException {
 		try {
 			latch.await(timeout, unit);
 		} catch (InterruptedException e) {
@@ -34,6 +36,16 @@ public class ReplyMessageListener extends TempTopicMessagingListenerBase {
 			// close temp topic
 			this.cleanUp();
 		}
+		if (this.cancelled) {
+			throw new AuthCancelledException();
+		}
+		
 		return this.reply;
+	}
+
+	@Override
+	public void cancel() {
+		this.cancelled  = true;
+		latch.countDown();
 	}
 }

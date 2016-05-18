@@ -24,4 +24,5 @@ public abstract class TempTopicMessagingListenerBase implements TempTopicMessagi
 			// nothing to do
 		}
 	}
+
 }

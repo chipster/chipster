@@ -36,6 +36,8 @@ public class DescriptionMessageListener extends TempTopicMessagingListenerBase {
     private boolean[] isModuleLoaded;
 	private ModuleDescriptionMessage[] messages;
 	private String parseErrors = "";
+
+	private boolean cancelled = false;
     
     public DescriptionMessageListener(String[] requiredModules) {
         this.requiredModules = requiredModules;
@@ -53,11 +55,15 @@ public class DescriptionMessageListener extends TempTopicMessagingListenerBase {
 		return this.parseErrors ;
 	}
 
-    public void waitForResponse() {
+    public void waitForResponse() throws AuthCancelledException {
         try {
             latch.await();
         } catch (InterruptedException e) {
             logger.warn("interrupted while waiting for latch", e);
+        }
+        
+        if (this.cancelled) {
+        	throw new AuthCancelledException();
         }
     }
     
@@ -103,6 +109,13 @@ public class DescriptionMessageListener extends TempTopicMessagingListenerBase {
     	return true;
     }
 
+	@Override
+	public void cancel() {
+		this.cancelled  = true;
+		latch.countDown();
+	}
+    
+    
     /**
      * Prepare operation category lists.
      * 

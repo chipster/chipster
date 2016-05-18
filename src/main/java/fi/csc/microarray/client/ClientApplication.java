@@ -73,6 +73,7 @@ import fi.csc.microarray.databeans.HistoryText;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.ChecksumException;
 import fi.csc.microarray.filebroker.ChecksumInputStream;
+import fi.csc.microarray.messaging.AuthCancelledException;
 import fi.csc.microarray.messaging.SourceMessageListener;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
 import fi.csc.microarray.messaging.auth.ClientLoginListener;
@@ -702,7 +703,13 @@ public abstract class ClientApplication {
 			SourceMessageListener sourceListener = null;
 			try {
 				sourceListener = serviceAccessor.retrieveSourceCode(id);
-				String source = sourceListener.waitForResponse(60, TimeUnit.SECONDS);
+				String source;
+				try {
+					source = sourceListener.waitForResponse(60, TimeUnit.SECONDS);	
+				} catch (AuthCancelledException ace) {
+					return;
+				}
+				
 				listener.updateSourceCodeAt(i, source); // source can be null
 				
 			} catch (Exception e) {

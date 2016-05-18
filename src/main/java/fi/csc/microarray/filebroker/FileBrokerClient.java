@@ -11,6 +11,7 @@ import java.util.UUID;
 
 import javax.jms.JMSException;
 
+import fi.csc.microarray.messaging.AuthCancelledException;
 import fi.csc.microarray.messaging.admin.StorageAdminAPI.StorageEntryMessageListener;
 import fi.csc.microarray.util.IOUtils.CopyProgressListener;
 
@@ -109,23 +110,26 @@ public interface FileBrokerClient {
 	 * @param name
 	 * @param sessionId dataId of the session metadata file
 	 * @param dataIds dataIds of other files in session
+	 * @throws AuthCancelledException 
 	 * @throws JMSException
 	 */
-	public abstract void saveRemoteSession(String name, String sessionId, LinkedList<String> dataIds) throws FileBrokerException;
+	public abstract void saveRemoteSession(String name, String sessionId, LinkedList<String> dataIds) throws FileBrokerException, AuthCancelledException;
 	
 	/**
 	 * Returns storage sessions (remote sessions) available at server. Returned array contains human readable names and corresponding URL's.
 	 * First name is result[0][0] and the corresponding URL is result[1][0].
 	 * 
 	 * @return array of names and URL's
+	 * @throws AuthCancelledException 
 	 */
-	public abstract List<DbSession> listRemoteSessions() throws FileBrokerException;
-	public abstract List<DbSession> listPublicRemoteSessions() throws FileBrokerException;
+	public abstract List<DbSession> listRemoteSessions() throws FileBrokerException, AuthCancelledException;
+	public abstract List<DbSession> listPublicRemoteSessions() throws FileBrokerException, AuthCancelledException;
 	/**
 	 * @param dataId dataId of the session metadata file
+	 * @throws AuthCancelledException 
 	 * @throws JMSException
 	 */
-	public void removeRemoteSession(String dataId) throws FileBrokerException;
+	public void removeRemoteSession(String dataId) throws FileBrokerException, AuthCancelledException;
 
 	/**
 	 * @param dataId
@@ -138,7 +142,7 @@ public interface FileBrokerClient {
 	public boolean isAvailable(String dataId, Long contentLength, String checksum, FileBrokerArea area) throws FileBrokerException;
 
 
-	public boolean moveFromCacheToStorage(String dataId) throws FileBrokerException;
+	public boolean moveFromCacheToStorage(String dataId) throws FileBrokerException, AuthCancelledException;
 
 
 	/**

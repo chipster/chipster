@@ -13,6 +13,7 @@ import org.joda.time.format.ISODateTimeFormat;
 
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.messaging.AuthCancelledException;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.SuccessMessageListener;
@@ -44,26 +45,26 @@ public class StorageAdminAPI extends ServerAdminAPI {
 		super(Topics.Name.FILEBROKER_ADMIN_TOPIC, endpoint);
 	}
 	
-	public Long[] getStorageUsage() throws JMSException, InterruptedException {
+	public Long[] getStorageUsage() throws JMSException, InterruptedException, AuthCancelledException {
 		
 		StorageTotalsMessageListener listener = new StorageTotalsMessageListener();
 		return listener.query();		
 	}
 
-	public List<StorageEntry> listStorageUsageOfSessions(String username) throws JMSException, InterruptedException {
+	public List<StorageEntry> listStorageUsageOfSessions(String username) throws JMSException, InterruptedException, AuthCancelledException {
 		
 		StorageEntryMessageListener listener = new StorageEntryMessageListener();
 		listener.query(getTopic(), username);
 		return listener.getEntries();
 	}
 
-	public List<StorageAggregate> listStorageUsageOfUsers() throws JMSException, InterruptedException {
+	public List<StorageAggregate> listStorageUsageOfUsers() throws JMSException, InterruptedException, AuthCancelledException {
 		
 		StorageAggregateMessageListener listener = new StorageAggregateMessageListener();
 		return listener.query();
 	}		
 	
-	public void deleteRemoteSession(String sessionID) throws JMSException, MicroarrayException {
+	public void deleteRemoteSession(String sessionID) throws JMSException, MicroarrayException, AuthCancelledException {
 		SuccessMessageListener replyListener = new SuccessMessageListener();  
 		
 		CommandMessage removeRequestMessage = new CommandMessage(CommandMessage.COMMAND_REMOVE_SESSION);
@@ -80,8 +81,9 @@ public class StorageAdminAPI extends ServerAdminAPI {
 		private CountDownLatch latch;
 		private Long usedSpace = null;
 		private Long freeSpace = null;
+		private boolean cancelled = false;;
 
-		public Long[] query() throws JMSException, InterruptedException {
+		public Long[] query() throws JMSException, InterruptedException, AuthCancelledException {
 
 			latch = new CountDownLatch(1);
 
@@ -91,6 +93,11 @@ public class StorageAdminAPI extends ServerAdminAPI {
 				getTopic().sendReplyableMessage(request, this);
 				latch.await(TIMEOUT, TIMEOUT_UNIT);
 
+				if (this.cancelled) {
+					throw new AuthCancelledException();
+				}
+				
+				
 				if (usedSpace != null && freeSpace != null) {
 					return new Long[] { usedSpace, freeSpace };
 				} else {
@@ -120,6 +127,13 @@ public class StorageAdminAPI extends ServerAdminAPI {
 			
 			latch.countDown();
 		}
+	
+		@Override
+		public void cancel() {
+			this.cancelled   = true;
+			latch.countDown();
+		}
+
 	}
 	
 	
@@ -130,8 +144,9 @@ public class StorageAdminAPI extends ServerAdminAPI {
 		private long quotaWarning;
 		private CountDownLatch latch;
 		private long storageUsage;
+		private boolean cancelled = false;
 		
-		public void query(MessagingTopic topic, String username) throws JMSException, InterruptedException {
+		public void query(MessagingTopic topic, String username) throws JMSException, InterruptedException, AuthCancelledException {
 			
 			try {
 				latch = new CountDownLatch(1);
@@ -143,6 +158,10 @@ public class StorageAdminAPI extends ServerAdminAPI {
 
 				topic.sendReplyableMessage(request, this);			
 				latch.await(TIMEOUT, TIMEOUT_UNIT);
+				if (this.cancelled) {
+					throw new AuthCancelledException();
+				}
+				
 			} finally {
 				cleanUp();
 			}
@@ -201,14 +220,22 @@ public class StorageAdminAPI extends ServerAdminAPI {
 
 			latch.countDown();
 		}
+		
+		@Override
+		public void cancel() {
+			this.cancelled   = true;
+			latch.countDown();
+		}
+
 	}
 
 	private class StorageAggregateMessageListener extends TempTopicMessagingListenerBase {
 
 		private CountDownLatch latch;
 		private List<StorageAggregate> entries;
+		private boolean cancelled = false;
 
-		public List<StorageAggregate> query() throws JMSException, InterruptedException {
+		public List<StorageAggregate> query() throws JMSException, InterruptedException, AuthCancelledException {
 
 			latch = new CountDownLatch(1);
 
@@ -217,7 +244,10 @@ public class StorageAdminAPI extends ServerAdminAPI {
 
 				getTopic().sendReplyableMessage(request, this);
 				latch.await(TIMEOUT, TIMEOUT_UNIT);
-
+				
+				if (this.cancelled) {
+					throw new AuthCancelledException();
+				}
 				return entries;
 			} finally {
 				// close temp topic
@@ -246,5 +276,12 @@ public class StorageAdminAPI extends ServerAdminAPI {
 
 			latch.countDown();
 		}
+		
+		@Override
+		public void cancel() {
+			this.cancelled   = true;
+			latch.countDown();
+		}
+
 	}
 }

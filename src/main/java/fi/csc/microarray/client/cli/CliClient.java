@@ -57,6 +57,7 @@ import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.ChecksumInputStream;
 import fi.csc.microarray.filebroker.DbSession;
 import fi.csc.microarray.filebroker.FileBrokerException;
+import fi.csc.microarray.messaging.AuthCancelledException;
 import fi.csc.microarray.messaging.auth.SimpleAuthenticationRequestListener;
 import fi.csc.microarray.util.Strings;
 
@@ -573,7 +574,7 @@ public class CliClient {
 		app.deleteDatasWithoutConfirming(bean);
 	}
 	
-	private void clearSession() throws MalformedURLException, FileBrokerException {		
+	private void clearSession() throws MalformedURLException, FileBrokerException, AuthCancelledException {		
 		app.getSessionManager().clearSessionWithoutConfirming();
 	}
 	

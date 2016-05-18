@@ -1,18 +1,21 @@
 package fi.csc.microarray.messaging.auth;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import javax.jms.JMSException;
 import javax.jms.Session;
 
 import org.apache.log4j.Logger;
 
+import fi.csc.microarray.messaging.AuthMessagingListener;
 import fi.csc.microarray.messaging.MessagingEndpoint;
-import fi.csc.microarray.messaging.MessagingListener;
 import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.TempTopicMessagingListener;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener.Credentials;
 import fi.csc.microarray.messaging.message.AuthenticationMessage;
-import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.AuthenticationMessage.AuthenticationOperation;
+import fi.csc.microarray.messaging.message.ChipsterMessage;
 
 
 /**
@@ -30,7 +33,9 @@ public class AuthenticatedTopic extends MessagingTopic {
 	
 	private AuthenticationRequestListener listener;
 	
-	private MessagingListener authTopicListener = new MessagingListener() {
+	private AuthMessagingListener authMessagingListener = new AuthMessagingListener() {
+		private List<TempTopicMessagingListener> pendingReplyListeners = new LinkedList<TempTopicMessagingListener>();
+		
 		public void onChipsterMessage(ChipsterMessage msg) {
 			
 			try {
@@ -40,11 +45,18 @@ public class AuthenticatedTopic extends MessagingTopic {
 					if (authMsg.isRequestForAuthentication()) {
 						logger.debug("got request for authentication related to topic " + getName());
 
-						getEndpoint().setSessionID(msg.getSessionID()); // record session for authenticating following messages
-
+				
 						if (listener != null) {
 							Credentials credentials = listener.authenticationRequest();
-
+							
+							// cancel from dialog, signal pending reply listeners 
+							if (credentials == null) {
+								for (TempTopicMessagingListener pendingReplyListener : pendingReplyListeners) {
+									pendingReplyListener.cancel();
+								}
+								return;
+							}
+							
 							// send reply
 							logger.debug("got authentication request, will send a reply, using session " + msg.getSessionID());
 							AuthenticationMessage replyMsg = new AuthenticationMessage(AuthenticationOperation.LOGIN);
@@ -61,6 +73,7 @@ public class AuthenticatedTopic extends MessagingTopic {
 						
 					} else if (authMsg.isLoginAck()) {						
 						fi.csc.microarray.client.Session.getSession().setUsername(authMsg.getUsername());
+						getEndpoint().setSessionID(authMsg.getSessionID()); // record session for authenticating following messages
 						listener.authenticationSucceeded();
 						
 					} else {
@@ -76,6 +89,11 @@ public class AuthenticatedTopic extends MessagingTopic {
 			}
 			
 		}
+
+		@Override
+		public void addPendingReplyListener(TempTopicMessagingListener pendingReplyListener) {
+			this.pendingReplyListeners.add(pendingReplyListener);
+		}
 	};
 
 	public AuthenticatedTopic(Session session, String topicName, Type type, AccessMode accessMode, AuthenticationRequestListener listener, MessagingEndpoint endpoint) throws JMSException {
@@ -88,14 +106,20 @@ public class AuthenticatedTopic extends MessagingTopic {
 	 */
 	@Override
 	public void sendMessage(ChipsterMessage message) throws JMSException {
-		attachSessionID(message);
+		// attach session id to messages other than login messages
+		if (!(message instanceof AuthenticationMessage && ((AuthenticationMessage)message).isLogin())) {
+			attachSessionID(message);
+		}
 		super.sendMessage(message);
 	}
 	
 	public void sendReplyableMessage(ChipsterMessage message, TempTopicMessagingListener replyListener) throws JMSException {
-		attachSessionID(message);
+		// attach session id to messages other than login messages
+		if (!(message instanceof AuthenticationMessage && ((AuthenticationMessage)message).isLogin())) {
+			attachSessionID(message);
+		}
 		logger.debug("added authentication listener to message");
-		super.sendReplyableMessage(message, replyListener, authTopicListener);
+		super.sendReplyableMessage(message, replyListener, authMessagingListener);
 	}
 	
 	private void attachSessionID(ChipsterMessage msg) {

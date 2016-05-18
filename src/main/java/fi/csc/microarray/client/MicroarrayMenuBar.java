@@ -33,6 +33,7 @@ import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.filebroker.FileBrokerException;
+import fi.csc.microarray.messaging.AuthCancelledException;
 import fi.csc.microarray.module.Module;
 import fi.csc.microarray.module.basic.BasicModule;
 import fi.csc.microarray.util.Files;
@@ -832,7 +833,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 				public void actionPerformed(ActionEvent e) {
 					try {
 						application.clearSession();
-					} catch (MalformedURLException | FileBrokerException e1) {
+					} catch (MalformedURLException | FileBrokerException | AuthCancelledException e1) {
 						application.reportException(e1);
 					}
 				}
@@ -875,7 +876,6 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			public void actionPerformed(java.awt.event.ActionEvent e) {
 				try {
 					application.loadSession(false, false, clear);
-
 				} catch (Exception ioe) {
 					application.reportException(ioe);
 				}

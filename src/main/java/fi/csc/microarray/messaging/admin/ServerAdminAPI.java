@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.messaging.AuthCancelledException;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
@@ -72,8 +73,9 @@ public class ServerAdminAPI {
 	 * @return
 	 * @throws JMSException
 	 * @throws InterruptedException
+	 * @throws AuthCancelledException 
 	 */
-	public String getStatusReport() throws JMSException, InterruptedException {
+	public String getStatusReport() throws JMSException, InterruptedException, AuthCancelledException {
 		BlockingStatusReportMessageListener listener = new BlockingStatusReportMessageListener();
 		return listener.query();
 	}
@@ -97,8 +99,9 @@ public class ServerAdminAPI {
 
 		private CountDownLatch latch;
 		private String report;
+		private boolean cancelled = false;
 
-		public String query() throws JMSException, InterruptedException {
+		public String query() throws JMSException, InterruptedException, AuthCancelledException {
 
 			latch = new CountDownLatch(1);
 
@@ -107,7 +110,10 @@ public class ServerAdminAPI {
 
 				getTopic().sendReplyableMessage(request, this);
 				latch.await(TIMEOUT, TIMEOUT_UNIT);
-
+				if (this.cancelled) {
+					throw new AuthCancelledException();
+				}
+				
 				return report;
 			} finally {
 				// close temp topic
@@ -126,6 +132,14 @@ public class ServerAdminAPI {
 			}
 			latch.countDown();
 		}
+	
+		@Override
+		public void cancel() {
+			this.cancelled  = true;
+			latch.countDown();
+		}
+
+		
 	}
 	
 	/**
@@ -195,6 +209,12 @@ public class ServerAdminAPI {
 				mutex.unlock();				
 			}
 		}
+		
+		@Override
+		public void cancel() {
+			// TODO;
+		}
+
 	}
 	
 	public MessagingTopic getTopic() {
@@ -212,4 +232,8 @@ public class ServerAdminAPI {
 			throw new MicroarrayException(context + " failed: " + reply.getErrorMessage() + " " + reply.getDetails() + " " + reply.getExceptionString());
 		}
 	}
+
+	
+
+
 }

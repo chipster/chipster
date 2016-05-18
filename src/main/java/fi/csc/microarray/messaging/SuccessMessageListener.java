@@ -10,6 +10,7 @@ public class SuccessMessageListener extends TempTopicMessagingListenerBase {
 
 	private SuccessMessage message;;
 	private CountDownLatch latch = new CountDownLatch(1);
+	private boolean cancelled = false;
 
 	public void onChipsterMessage(ChipsterMessage msg) {
 		if (msg instanceof SuccessMessage) {
@@ -18,13 +19,20 @@ public class SuccessMessageListener extends TempTopicMessagingListenerBase {
 		}
 	}
 
+	@Override
+	public void cancel() {
+		this.cancelled   = true;
+		latch.countDown();
+	}
+	
 	/**
 	 * @param timeout in given units
 	 * @param unit unit of the timeout
 	 * @return null if no reply before timeout
+	 * @throws AuthCancelledException 
 	 * @throws RuntimeException if interrupted
 	 */
-	public SuccessMessage waitForReply(long timeout, TimeUnit unit) {
+	public SuccessMessage waitForReply(long timeout, TimeUnit unit) throws AuthCancelledException {
 		try {
 			latch.await(timeout, unit);
 		} catch (InterruptedException e) {
@@ -33,6 +41,10 @@ public class SuccessMessageListener extends TempTopicMessagingListenerBase {
 			// close temp topic
 			this.cleanUp();
 		}
+		if (this.cancelled) {
+			throw new AuthCancelledException();
+		}
+		
 		return this.message;
 	}
 }

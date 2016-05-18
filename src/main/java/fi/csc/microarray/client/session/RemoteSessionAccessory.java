@@ -28,6 +28,7 @@ import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.filebroker.DbSession;
 import fi.csc.microarray.filebroker.DerbyMetadataServer;
 import fi.csc.microarray.filebroker.FileBrokerException;
+import fi.csc.microarray.messaging.AuthCancelledException;
 import fi.csc.microarray.messaging.admin.StorageAdminAPI.StorageEntryMessageListener;
 import fi.csc.microarray.messaging.admin.StorageEntry;
 import fi.csc.microarray.util.Strings;
@@ -81,7 +82,7 @@ public class RemoteSessionAccessory extends JPanel implements ActionListener, Pr
 	
 	private ExecutorService previewExecutor = Executors.newFixedThreadPool(1);
 
-	public RemoteSessionAccessory(JFileChooser fileChooser, SessionManager sessionManager, SwingClientApplication app) {
+	public RemoteSessionAccessory(JFileChooser fileChooser, SessionManager sessionManager, SwingClientApplication app) throws AuthCancelledException {
 		
 		this.fileChooser = fileChooser;
 		this.sessionManager = sessionManager;
@@ -186,7 +187,7 @@ public class RemoteSessionAccessory extends JPanel implements ActionListener, Pr
 				update();
 			}
 
-		} catch (FileBrokerException e) {
+		} catch (FileBrokerException | AuthCancelledException e) {
 			app.reportException(e);
 		}
 	}
@@ -206,7 +207,7 @@ public class RemoteSessionAccessory extends JPanel implements ActionListener, Pr
 		return sessionManager.findSessionWithName(sessions, filename);
 	}
 
-	private void update() {
+	private void update() throws AuthCancelledException {
 		try {
 			RemoteSessionChooserFactory.updateRemoteSessions(sessionManager, fileChooser, true);
 

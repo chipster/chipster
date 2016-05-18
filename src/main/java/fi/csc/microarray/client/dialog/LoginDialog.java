@@ -25,6 +25,7 @@ import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.Authenticator.LoginCallback;
 import fi.csc.microarray.constants.VisualConstants;
 
+@SuppressWarnings("serial")
 public class LoginDialog extends JDialog implements ActionListener, KeyListener {
 
 	private static final String LOGIN_ACTION = "login";
@@ -150,7 +151,9 @@ public class LoginDialog extends JDialog implements ActionListener, KeyListener 
 			login();
 
 		} else if (e.getActionCommand() == CANCEL_ACTION) {
-			System.exit(1);
+			loginCallback.cancel();
+			dispose();
+			//System.exit(1);
 
 		} else {
 			throw new RuntimeException("unknown action command: "

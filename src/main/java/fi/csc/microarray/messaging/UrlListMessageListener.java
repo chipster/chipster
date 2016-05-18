@@ -21,6 +21,8 @@ public class UrlListMessageListener extends TempTopicMessagingListenerBase {
 	private List<URL> urlList = null;
 	private CountDownLatch latch = new CountDownLatch(1);
 
+	private boolean cancelled = false;
+
 	public void onChipsterMessage(ChipsterMessage msg) {
 		if (msg instanceof UrlListMessage) {
 			UrlListMessage urlListMessage = (UrlListMessage) msg;
@@ -33,9 +35,10 @@ public class UrlListMessageListener extends TempTopicMessagingListenerBase {
 	 * @param timeout in given units
 	 * @param unit unit of the timeout
 	 * @return 
+	 * @throws AuthCancelledException 
 	 * @throws RuntimeException if interrupted
 	 */
-	public List<URL> waitForReply(long timeout, TimeUnit unit) {
+	public List<URL> waitForReply(long timeout, TimeUnit unit) throws AuthCancelledException {
 		try {
 			latch.await(timeout, unit);
 		} catch (InterruptedException e) {
@@ -44,6 +47,17 @@ public class UrlListMessageListener extends TempTopicMessagingListenerBase {
 			// close temp topic
 			this.cleanUp();
 		}
+		
+		if (this.cancelled) {
+			throw new AuthCancelledException();
+		}
+		
 		return this.urlList;
+	}
+	
+	@Override
+	public void cancel() {
+		this.cancelled   = true;
+		latch.countDown();
 	}
 }

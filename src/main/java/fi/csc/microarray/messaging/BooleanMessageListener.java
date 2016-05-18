@@ -10,6 +10,7 @@ public class BooleanMessageListener extends TempTopicMessagingListenerBase {
 
 	private Boolean value = null;
 	private CountDownLatch latch = new CountDownLatch(1);
+	private boolean cancelled = false;
 
 	public void onChipsterMessage(ChipsterMessage msg) {
 		if (msg instanceof BooleanMessage) {
@@ -23,9 +24,10 @@ public class BooleanMessageListener extends TempTopicMessagingListenerBase {
 	 * @param timeout in given units
 	 * @param unit unit of the timeout
 	 * @return null if no reply before timeout
+	 * @throws AuthCancelledException 
 	 * @throws RuntimeException if interrupted
 	 */
-	public Boolean waitForReply(long timeout, TimeUnit unit) {
+	public Boolean waitForReply(long timeout, TimeUnit unit) throws AuthCancelledException {
 		try {
 			latch.await(timeout, unit);
 		} catch (InterruptedException e) {
@@ -34,6 +36,20 @@ public class BooleanMessageListener extends TempTopicMessagingListenerBase {
 			// close temp topic
 			this.cleanUp();
 		}
+
+		if (this.cancelled) {
+			throw new AuthCancelledException();
+		}
+		
 		return this.value;
 	}
+
+	@Override
+	public void cancel() {
+		this.cancelled  = true;
+		latch.countDown();
+	}
+
+
+
 }

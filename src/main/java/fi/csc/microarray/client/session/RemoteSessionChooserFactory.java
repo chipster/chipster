@@ -16,6 +16,7 @@ import fi.csc.microarray.client.serverfiles.ServerFileUtils;
 import fi.csc.microarray.filebroker.DbSession;
 import fi.csc.microarray.filebroker.DerbyMetadataServer;
 import fi.csc.microarray.filebroker.FileBrokerException;
+import fi.csc.microarray.messaging.AuthCancelledException;
 
 public class RemoteSessionChooserFactory {
 	
@@ -32,13 +33,15 @@ public class RemoteSessionChooserFactory {
 	 * @throws JMSException
 	 * @throws Exception
 	 * @throws MalformedURLException
+	 * @throws AuthCancelledException 
+	 * @throws FileBrokerException 
 	 */
-	private JFileChooser populateFileChooserFromServer() throws JMSException, Exception, MalformedURLException {
+	private JFileChooser populateFileChooserFromServer() throws JMSException, MalformedURLException, FileBrokerException, AuthCancelledException {
 		return populateFileChooserFromServer(true);
 	}
 	
 	
-	private JFileChooser populateFileChooserFromServer(boolean excludeExampleSessions) throws JMSException, Exception, MalformedURLException {
+	private JFileChooser populateFileChooserFromServer(boolean excludeExampleSessions) throws JMSException, MalformedURLException, FileBrokerException, AuthCancelledException {
 		JFileChooser sessionFileChooser = new JFileChooser();
 		sessionFileChooser.setMultiSelectionEnabled(false);
 		updateRemoteSessions(app.getSessionManager(), sessionFileChooser, excludeExampleSessions);
@@ -49,7 +52,7 @@ public class RemoteSessionChooserFactory {
 	
 
 	public static ServerFileSystemView updateRemoteSessions(SessionManager sessionManager,
-			JFileChooser sessionFileChooser, boolean excludeExampleSessions) throws FileBrokerException, MalformedURLException {
+			JFileChooser sessionFileChooser, boolean excludeExampleSessions) throws FileBrokerException, MalformedURLException, AuthCancelledException {
 		List<DbSession> sessions = sessionManager.listRemoteSessions();
 		
 		// hide example sessions
@@ -74,7 +77,7 @@ public class RemoteSessionChooserFactory {
 		return view;
 	}
 
-	public JFileChooser getExampleSessionChooser() throws MalformedURLException, JMSException, Exception {
+	public JFileChooser getExampleSessionChooser() throws MalformedURLException, JMSException, FileBrokerException, AuthCancelledException {
 		JFileChooser exampleSessionFileChooser = populateFileChooserFromServer(false);
 		exampleSessionFileChooser.setSelectedFile(new File("session"));
 		ServerFileUtils.hideJFileChooserButtons(exampleSessionFileChooser);
@@ -86,7 +89,7 @@ public class RemoteSessionChooserFactory {
 		return exampleSessionFileChooser;
 	}
 
-	public JFileChooser getRemoteSessionChooser() throws MalformedURLException, JMSException, Exception {
+	public JFileChooser getRemoteSessionChooser() throws MalformedURLException, JMSException, FileBrokerException, AuthCancelledException {
 		JFileChooser remoteSessionFileChooser = populateFileChooserFromServer();
 		remoteSessionFileChooser.setSelectedFile(new File("session"));
 		remoteSessionFileChooser.setPreferredSize(new Dimension(800, 600));
@@ -96,17 +99,13 @@ public class RemoteSessionChooserFactory {
 		return remoteSessionFileChooser;
 	}
 
-	public JFileChooser getManagementChooser() {
+	public JFileChooser getManagementChooser() throws MalformedURLException, JMSException, FileBrokerException, AuthCancelledException {
 
 		JFileChooser sessionFileChooser = null;
 
-		try {
-			// fetch current sessions to show in the dialog and create it
-			sessionFileChooser = populateFileChooserFromServer();
+		// fetch current sessions to show in the dialog and create it
+		sessionFileChooser = populateFileChooserFromServer();
 
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
 
 
 		// tune GUI

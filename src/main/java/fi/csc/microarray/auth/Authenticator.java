@@ -47,7 +47,8 @@ public class Authenticator extends NodeBase implements ShutdownCallback {
 	 */
 	private static Logger messageLogger = null;
 	
-	private SecureSessionPool sessionPool; 
+	private SecureSessionPool pendingSessions;
+	private SecureSessionPool validSessions;
 	private MessagingEndpoint endpoint;
 	private MessagingTopic authorisedTopic;
 	private MessagingTopic authorisedFilebrokerTopic;
@@ -66,8 +67,10 @@ public class Authenticator extends NodeBase implements ShutdownCallback {
 		securityLogger = Logger.getLogger("security.frontend");
 		messageLogger = Logger.getLogger("messages.frontend");
 		
-		// initialise session pool
-		sessionPool = new SecureSessionPool();
+		// initialise session pools
+		// FIXME set proper lifetimes for pending sessions
+		pendingSessions = new SecureSessionPool();
+		validSessions = new SecureSessionPool();
 		
 		// initialise communications
 		this.endpoint = new JMSMessagingEndpoint(this);
@@ -121,113 +124,58 @@ public class Authenticator extends NodeBase implements ShutdownCallback {
 		 */
 		public void onChipsterMessage(ChipsterMessage msg) {
 			try {
-
 				logger.debug("starting to process " + msg);
-				
-				// variables
-				ChipsterMessage messageToBeRouted = null;
-				Session session = null;
 
-				//
-				// 1. authenticate
-				//
+				// pick login messages
+				if (msg instanceof AuthenticationMessage && ((AuthenticationMessage)msg).isLogin()) {
+					login((AuthenticationMessage)msg);
+					return;
+				}
 				
-				// 1.1. try to load existing session
+				// try to load existing session
+				Session session = null;
 				if (msg.getSessionID() != null) {
 					String id = msg.getSessionID();
-					if (sessionPool.getSession(id) != null) {
-						session = sessionPool.getSession(id);
+					if (validSessions.getSession(id) != null) {
+						session = validSessions.getSession(id);
 						logger.debug("message " + msg.getMessageID() + " had a proper session " + session.getID());
 					}					
 				}
 
-				// 1.2. try to authenticate
+				// message had no valid session --> request authentication
 				if (session == null) {
 					logger.debug("message " + msg + " has no session, requires authentication");
 					// 1.2.a. no existing session (possibly due to expiration)
 
 					// create session and request authentication
-					session = sessionPool.createSession();
-					logger.debug("created new session, pool size is now " + sessionPool.size());
+					session = pendingSessions.createSession();
+					logger.debug("created new session, pending sessions pool size is now " + pendingSessions.size());
 					session.putParameter(KEY_PENDING_MESSAGE, msg);
 					
 					requestAuthentication(msg, session.getID().toString());
+					return;
+				} 
+				
+				// message had a valid session
+				else {					
 					
-				} else {					
-					// 1.2.b. use existing session 
-					
+					// logout message (login has been taken care before)
 					if (msg instanceof AuthenticationMessage) {
-						// 1.2.b.a. message is authentication message (login/logout)
-
 						AuthenticationMessage authMsg = (AuthenticationMessage)msg;
-						if (authMsg.isLogin()) {
-							messageLogger.debug("message " + authMsg.getMessageID() + " is a login");
-
-							// authenticate with username/password
-							if (authenticationProvider.authenticate(authMsg.getUsername(), authMsg.getPassword().toCharArray())) {
-								
-								// ack username to client
-								try {
-									ackLogin(authMsg, session.getID().toString(), true);
-								} catch (Exception e) {
-									logger.warn("could not send acknowledge message for " + authMsg.getUsername());
-								}
-
-								session.putParameter(KEY_USERNAME, authMsg.getUsername());
-								authMsg.setSessionID(session.getID().toString());
-								securityLogger.info("authenticated user " + authMsg.getUsername() + " (auth. message JMS id was " + authMsg.getJmsMessageID() + ")");
-								
-								if (session.getParameter(KEY_PENDING_MESSAGE) != null) {
-									// route pending message
-									messageToBeRouted = (ChipsterMessage)session.getParameter(KEY_PENDING_MESSAGE);
-								}
-							} else {
-								securityLogger.info("illegal username/password (user " + authMsg.getUsername()  + ", auth. message JMS id was " + authMsg.getJmsMessageID() + ")");
-								ackLogin(authMsg, session.getID().toString(), false);
-								return;
-							}
-							
-						} else if (authMsg.isLogout()) {
+						if (authMsg.isLogout()) {
 							logger.debug("message " + msg.getMessageID() + " is a logout");
-							sessionPool.removeSession(session);
+							validSessions.removeSession(session);
 							return;
-							
 						} else {
 							throw new IllegalArgumentException("unknown authentication message: " + authMsg);
 						}
-						
-					 	
-					} else {
-						// 1.2.b.b. message is a regular message with a proper session
-						messageToBeRouted = msg;						
+					} 
+					
+					// all other messages
+					else {
+						routeMessage(msg, session);
+						session.touch(); // session succesfully used, so update timestamp
 					}
-					
-					// session succesfully used, so update timestamp
-					session.touch();
-				}
-				
-				//
-				// 2. route
-				//
-
-				if (messageToBeRouted != null) {
-					
-					// sanity check for username;
-					String username = (String)session.getParameter(KEY_USERNAME);
-					
-					if (username == null || username.equals("")) {
-						logger.warn("not routing a message with null or empty username");
-						Session sessionToBeRemoved = sessionPool.getSession(messageToBeRouted.getSessionID()); 
-						if (sessionToBeRemoved != null) {
-							sessionPool.removeSession(sessionToBeRemoved);	
-						}
-						return;
-					}
-					
-					messageLogger.info(messageToBeRouted);
-					
-					messageToBeRouted.setUsername(username);
-					routeTo.sendMessage(messageToBeRouted);
 				}
 				
 			} catch (JMSException e) {
@@ -239,15 +187,89 @@ public class Authenticator extends NodeBase implements ShutdownCallback {
 		}
 
 		
-		private void ackLogin(ChipsterMessage loginMessage, String sessionID, boolean succeeded) throws JMSException, AuthorisationException {
-			AuthenticationOperation operation = succeeded ? AuthenticationMessage.AuthenticationOperation.LOGIN_SUCCEEDED : AuthenticationMessage.AuthenticationOperation.LOGIN_FAILED; 
-			AuthenticationMessage request = new AuthenticationMessage(operation);
-			request.setSessionID(sessionID);
-			request.setReplyTo(loginMessage.getReplyTo());
-			if (succeeded) {
-				request.setUsername(loginMessage.getUsername());
+		private void login(AuthenticationMessage authMsg) throws JMSException, AuthorisationException {
+			messageLogger.debug("message " + authMsg.getMessageID() + " is a login");
+
+			// get session id from message
+			String sessionId = authMsg.getSessionID();
+			if (sessionId == null || sessionId.isEmpty()) {
+				logger.warn("got login message with invalid session id: " + sessionId);
+				return;
 			}
-			endpoint.replyToMessage(loginMessage, request, Topics.MultiplexName.AUTHORISE_TO.toString());
+			Session session = pendingSessions.getSession(sessionId);
+			
+			// get session
+			if (session == null) {
+				logger.warn("pending session " + sessionId + " not found");
+				return;
+			} 
+			
+			// authenticate with username/password ok
+			if (authenticationProvider.authenticate(authMsg.getUsername(), authMsg.getPassword().toCharArray())) {
+				
+				pendingSessions.removeSession(session);
+				session.putParameter(KEY_USERNAME, authMsg.getUsername());
+				validSessions.addSession(session);
+				securityLogger.info("authenticated user " + authMsg.getUsername() + " (auth. message JMS id was " + authMsg.getJmsMessageID() + ")");
+
+				// ack username to client
+				try {
+					ackLogin(authMsg, session.getID().toString(), true);
+				} catch (Exception e) {
+					logger.warn("could not send acknowledge message for " + authMsg.getUsername());
+				}
+
+				// send possible pending message
+				ChipsterMessage pendingMessage = (ChipsterMessage)session.getParameter(KEY_PENDING_MESSAGE);
+				if (pendingMessage != null) {
+					routeMessage(pendingMessage, session);
+				}
+				session.touch();
+			} 
+			
+			// authentication with username/password failed
+			else {
+				securityLogger.info("illegal username/password (user " + authMsg.getUsername()  + ", auth. message JMS id was " + authMsg.getJmsMessageID() + ")");
+				ackLogin(authMsg, session.getID().toString(), false);
+				return;
+			}
+		}
+
+		private void routeMessage(ChipsterMessage message, Session session) throws JMSException {
+			// sanity check for username;
+			String username = (String)session.getParameter(KEY_USERNAME);
+			if (username == null || username.equals("")) {
+				logger.warn("not routing a message with null or empty username");
+				Session sessionToBeRemoved = validSessions.getSession(session.getID()); 
+				if (sessionToBeRemoved != null) {
+					validSessions.removeSession(sessionToBeRemoved);	
+				}
+				return;
+			}
+			
+			// prepare
+			message.setUsername(username);
+			message.setSessionID(null);
+			
+			// send
+			messageLogger.info(message);
+			routeTo.sendMessage(message);
+	
+		}
+		
+		
+		private void ackLogin(ChipsterMessage loginMessage, String sessionID, boolean succeeded) throws JMSException, AuthorisationException {
+			
+			// FIXME think about what to send back
+			AuthenticationOperation operation = succeeded ? AuthenticationMessage.AuthenticationOperation.LOGIN_SUCCEEDED : AuthenticationMessage.AuthenticationOperation.LOGIN_FAILED; 
+			AuthenticationMessage ackMessage = new AuthenticationMessage(operation);
+			
+			ackMessage.setReplyTo(loginMessage.getReplyTo());
+			if (succeeded) {
+				ackMessage.setUsername(loginMessage.getUsername());
+				ackMessage.setSessionID(sessionID);
+			}
+			endpoint.replyToMessage(loginMessage, ackMessage, Topics.MultiplexName.AUTHORISE_TO.toString());
 		}
 		
 		private void requestAuthentication(ChipsterMessage msg, String sessionID) throws JMSException, AuthorisationException {

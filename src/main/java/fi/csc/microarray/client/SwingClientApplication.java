@@ -111,6 +111,7 @@ import fi.csc.microarray.exception.ErrorReportAsException;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.DbSession;
 import fi.csc.microarray.filebroker.FileBrokerException;
+import fi.csc.microarray.messaging.AuthCancelledException;
 import fi.csc.microarray.messaging.JMSMessagingEndpoint;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
 import fi.csc.microarray.module.basic.BasicModule.VisualisationMethods;
@@ -1476,7 +1477,7 @@ public class SwingClientApplication extends ClientApplication {
 		return importExportFileChooser;
 	}
 
-	private JFileChooser getSessionFileChooser(boolean remote, boolean openExampleDir) throws MalformedURLException, JMSException, Exception {
+	private JFileChooser getSessionFileChooser(boolean remote, boolean openExampleDir) throws MalformedURLException, JMSException, FileBrokerException, AuthCancelledException {
 		
 		if (openExampleDir) {
 			
@@ -1605,10 +1606,50 @@ public class SwingClientApplication extends ClientApplication {
 	}
 	
 	public void loadSession(boolean remote, boolean openExampleDir, boolean clear) {
-
 		try {
-			// create filechooser dialog
-			final JFileChooser fileChooser = getSessionFileChooser(remote, openExampleDir);						
+			if (!remote) {
+				final JFileChooser fileChooser = getSessionFileChooser(remote, openExampleDir);						
+				continueLoadSession(fileChooser, remote, clear);
+			}
+
+			else {
+				new Thread(new Runnable() {
+
+					@Override
+					public void run() {
+						final JFileChooser fileChooser;
+						try {
+							fileChooser = getSessionFileChooser(remote, openExampleDir);
+						} catch (AuthCancelledException ace) {
+							return;
+						}
+						catch (Exception e) {
+							reportExceptionThreadSafely(e);
+							return;
+						}						
+						
+						SwingUtilities.invokeLater(new Runnable() {
+
+							@Override
+							public void run() {
+								continueLoadSession(fileChooser, remote, clear);
+							}
+						});
+					}
+					
+				}).start();
+										
+			}
+
+		} catch (Exception e) {
+			reportException(e);
+		}
+
+
+	}
+
+	private void continueLoadSession(JFileChooser fileChooser, boolean remote, boolean clear) {
+		try {
 
 			int ret = fileChooser.showOpenDialog(this.getMainFrame());
 
@@ -1688,7 +1729,9 @@ public class SwingClientApplication extends ClientApplication {
 				reportException(e);
 			}
 		}
+
 	}
+	
 	
 	public void loadSession(final File sessionFile, final String sessionId, final boolean isDataless, final boolean clearDeadTempDirs, final boolean isExampleSession, final Integer xOffset) {
 
@@ -1726,7 +1769,49 @@ public class SwingClientApplication extends ClientApplication {
 
 		// create filechooser dialog
 		try {
-			JFileChooser fileChooser = getSessionFileChooser(remote, false);
+			// local
+			if (!remote) {
+				JFileChooser fileChooser = getSessionFileChooser(remote, false);
+				continueSaveSession(fileChooser, remote);
+			} 
+
+			// remote
+			else {
+				new Thread(new Runnable() {
+
+					@Override
+					public void run() {
+						final JFileChooser fileChooser;
+						try {
+							fileChooser = getSessionFileChooser(remote, false);
+						} catch (AuthCancelledException ace) {
+							return;
+						}
+						catch (Exception e) {
+							reportExceptionThreadSafely(e);
+							return;
+						}						
+						
+						SwingUtilities.invokeLater(new Runnable() {
+
+							@Override
+							public void run() {
+								continueSaveSession(fileChooser, remote);
+							}
+						});
+					}
+					
+				}).start();
+										
+
+			}
+		} catch (Exception e) {
+			reportException(e);
+		}
+	}	
+
+	private void continueSaveSession(JFileChooser fileChooser, boolean remote) {
+		try {
 
 			int ret = fileChooser.showSaveDialog(this.getMainFrame());
 
@@ -1798,14 +1883,18 @@ public class SwingClientApplication extends ClientApplication {
 				reportException(e);
 			}
 		}
-	}	
 
+	}
+	
+	
+	
 	/**
 	 * @return true if cleared, false if canceled
 	 * @throws JMSException 
 	 * @throws MalformedURLException 
+	 * @throws AuthCancelledException 
 	 */
-	public boolean clearSession() throws MalformedURLException, FileBrokerException {
+	public boolean clearSession() throws MalformedURLException, FileBrokerException, AuthCancelledException {
 
 		if (!killUploadingTasks()) {
 			return false;
@@ -1869,11 +1958,32 @@ public class SwingClientApplication extends ClientApplication {
 	}
 
 	public void manageRemoteSessions() {
-		
-		final JFileChooser fileChooser = new RemoteSessionChooserFactory(this).getManagementChooser();							
-		fileChooser.showOpenDialog(this.getMainFrame());
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				final JFileChooser fileChooser;
+				try {
+					fileChooser = new RemoteSessionChooserFactory(SwingClientApplication.this).getManagementChooser();
+				} catch (AuthCancelledException ace) {
+					return;
+				} catch (Exception e) {
+					reportExceptionThreadSafely(e);
+					return;
+				}
+				
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						fileChooser.showOpenDialog(getMainFrame());				
+					}
+				});
+			}
+			
+		}).start();
 	}
 
+	@SuppressWarnings("serial")
 	private void enableKeyboardShortcuts() {
 		// add application wide keyboard shortcuts
 		final HashMap<KeyStroke, Action> shortcutActionMap = new HashMap<KeyStroke, Action>();

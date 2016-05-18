@@ -27,6 +27,7 @@ import javax.jms.JMSException;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.config.DirectoryLayout;
+import fi.csc.microarray.messaging.AuthCancelledException;
 import fi.csc.microarray.messaging.BooleanMessageListener;
 import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.ReplyMessageListener;
@@ -303,7 +304,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 			} else {
 				return success;
 			}
-		} catch (JMSException e) {
+		} catch (JMSException | AuthCancelledException e) {
 			throw new FileBrokerException(e);
 		} finally {
 			replyListener.cleanUp();
@@ -312,7 +313,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 
 	
 	@Override
-	public boolean moveFromCacheToStorage(String dataId) throws FileBrokerException {
+	public boolean moveFromCacheToStorage(String dataId) throws FileBrokerException, AuthCancelledException {
 		logger.debug("moving from cache to storage: " + dataId);
 	
 		SuccessMessageListener replyListener = new SuccessMessageListener();  
@@ -324,7 +325,8 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 			filebrokerTopic.sendReplyableMessage(moveRequestMessage, replyListener);
 			
 			// wait
-			SuccessMessage successMessage = replyListener.waitForReply(MOVE_FROM_CACHE_TO_STORAGE_TIMEOUT, TimeUnit.HOURS); 
+			SuccessMessage successMessage = null;
+			successMessage = replyListener.waitForReply(MOVE_FROM_CACHE_TO_STORAGE_TIMEOUT, TimeUnit.HOURS);
 			
 			// check how it went
 			
@@ -360,7 +362,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 			
 			filebrokerTopic.sendReplyableMessage(fileRequestMessage, replyListener);
 			urlList = replyListener.waitForReply(QUICK_POLL_OPERATION_TIMEOUT, TimeUnit.SECONDS);
-		} catch (JMSException e) {
+		} catch (JMSException | AuthCancelledException e) {
 			throw new FileBrokerException(e);
 		} finally {
 			replyListener.cleanUp();
@@ -379,7 +381,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 			spaceRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_DISK_SPACE, String.valueOf(size));
 			filebrokerTopic.sendReplyableMessage(spaceRequestMessage, replyListener);
 			spaceAvailable = replyListener.waitForReply(SPACE_REQUEST_TIMEOUT, TimeUnit.SECONDS);
-		} catch (JMSException e) {
+		} catch (JMSException | AuthCancelledException e) {
 			throw new FileBrokerException(e);
 		} finally {
 			replyListener.cleanUp();
@@ -394,7 +396,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	}
 
 	@Override
-	public void saveRemoteSession(String sessionName, String sessionId, LinkedList<String> dataIds) throws FileBrokerException {
+	public void saveRemoteSession(String sessionName, String sessionId, LinkedList<String> dataIds) throws FileBrokerException, AuthCancelledException {
 		ReplyMessageListener replyListener = new ReplyMessageListener();  
 		try {
 			CommandMessage storeRequestMessage = new CommandMessage(CommandMessage.COMMAND_STORE_SESSION);
@@ -418,7 +420,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	}
 
 	@Override
-	public List<DbSession> listRemoteSessions() throws FileBrokerException {
+	public List<DbSession> listRemoteSessions() throws FileBrokerException, AuthCancelledException {
 		ReplyMessageListener replyListener = new ReplyMessageListener();  
 		
 		try {
@@ -463,14 +465,14 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		StorageEntryMessageListener listener = new StorageEntryMessageListener();
 		try {
 			listener.query(filebrokerTopic, null);
-		} catch (JMSException e) {
+		} catch (JMSException | AuthCancelledException e) {
 			throw new FileBrokerException(e);
 		}
 		return listener;
 	}
 
 	@Override
-	public List<DbSession> listPublicRemoteSessions() throws FileBrokerException {
+	public List<DbSession> listPublicRemoteSessions() throws FileBrokerException, AuthCancelledException {
 		List<DbSession> allSessions = listRemoteSessions();
 		List<DbSession> publicSessions = new LinkedList<>();
 		
@@ -483,7 +485,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	}
 
 	@Override
-	public void removeRemoteSession(String dataId) throws FileBrokerException {
+	public void removeRemoteSession(String dataId) throws FileBrokerException, AuthCancelledException {
 		SuccessMessageListener replyListener = new SuccessMessageListener();  
 		
 		try {
@@ -535,7 +537,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 			}
 			filebrokerTopic.sendReplyableMessage(urlRequestMessage, replyListener);
 			url = replyListener.waitForReply(SPACE_REQUEST_TIMEOUT, TimeUnit.SECONDS);
-		} catch (JMSException e) {
+		} catch (JMSException | AuthCancelledException e) {
 			throw new FileBrokerException(e);
 		} finally {
 			replyListener.cleanUp();
@@ -560,7 +562,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	
 			filebrokerTopic.sendReplyableMessage(getURLMessage, replyListener);
 			url = replyListener.waitForReply(QUICK_POLL_OPERATION_TIMEOUT, TimeUnit.SECONDS);
-		} catch (JMSException e) {
+		} catch (JMSException | AuthCancelledException e) {
 			throw new FileBrokerException(e);
 		} finally {
 			replyListener.cleanUp();

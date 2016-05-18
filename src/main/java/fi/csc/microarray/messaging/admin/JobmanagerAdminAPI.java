@@ -17,6 +17,7 @@ import com.google.gson.reflect.TypeToken;
 
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.messaging.AuthCancelledException;
 import fi.csc.microarray.messaging.JsonMessageListener;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.Topics;
@@ -37,7 +38,7 @@ public class JobmanagerAdminAPI extends ServerAdminAPI {
 		super(Topics.Name.JOBMANAGER_ADMIN_TOPIC, endpoint);
 	}
 	
-	public HashMap<String, JobsEntry> queryRunningJobs() throws JMSException, InterruptedException, MicroarrayException {
+	public HashMap<String, JobsEntry> queryRunningJobs() throws JMSException, InterruptedException, MicroarrayException, AuthCancelledException {
 		
 		JsonMessageListener replyListener = new JsonMessageListener();
 

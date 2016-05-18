@@ -76,13 +76,14 @@ public class MessagingTopic {
 	/**
 	 * Not multithread safe.
 	 */
-	protected void sendReplyableMessage(ChipsterMessage message, TempTopicMessagingListener replyListener, MessagingListener authenticationListener) throws JMSException {
+	protected void sendReplyableMessage(ChipsterMessage message, TempTopicMessagingListener replyListener, AuthMessagingListener authenticationListener) throws JMSException {
 		MessagingTopic tempTopic = new MessagingTopic(session, null, Type.TEMPORARY, AccessMode.READ_WRITE, endpoint);
 		
 		MultiplexingMessagingListener plexer = new MultiplexingMessagingListener();
 		plexer.addChannel(Topics.MultiplexName.REPLY_TO.toString(), replyListener);
 		if (authenticationListener != null) {
 			plexer.addChannel(Topics.MultiplexName.AUTHORISE_TO.toString(), authenticationListener);
+			authenticationListener.addPendingReplyListener(replyListener);
 		}
 		tempTopic.setListener(plexer);
 		

@@ -26,6 +26,8 @@ public class UrlMessageListener extends TempTopicMessagingListenerBase {
 	private FileBrokerException exception;
 	private CountDownLatch latch = new CountDownLatch(1);
 
+	private boolean cancelled = false;
+
 	public void onChipsterMessage(ChipsterMessage msg) {
 		if (msg instanceof UrlMessage) {
 			UrlMessage urlMessage = (UrlMessage) msg;
@@ -52,9 +54,10 @@ public class UrlMessageListener extends TempTopicMessagingListenerBase {
 	 * @param unit unit of the timeout
 	 * @return may be null
 	 * @throws FileBrokerException if file operation failed
+	 * @throws AuthCancelledException 
 	 * @throws RuntimeException if interrupted
 	 */
-	public URL waitForReply(long timeout, TimeUnit unit) throws FileBrokerException {
+	public URL waitForReply(long timeout, TimeUnit unit) throws FileBrokerException, AuthCancelledException {
 		try {
 			latch.await(timeout, unit);
 		} catch (InterruptedException e) {
@@ -64,10 +67,20 @@ public class UrlMessageListener extends TempTopicMessagingListenerBase {
 			this.cleanUp();
 		}
 		
+		if (this.cancelled) {
+			throw new AuthCancelledException();
+		}
+		
 		if (exception != null) {
 			throw exception;
 		}
 		
 		return this.newUrl;
+	}
+	
+	@Override
+	public void cancel() {
+		this.cancelled   = true;
+		latch.countDown();
 	}
 }

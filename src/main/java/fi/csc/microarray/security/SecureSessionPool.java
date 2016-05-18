@@ -95,6 +95,10 @@ public class SecureSessionPool {
 		return session;
 	}
 	
+	public synchronized void addSession(Session session) {
+		sessions.put(session.getID(), session);
+	}
+	
 	public synchronized Session getSession(String id) {
 		Session session = sessions.get(id);
 		if (session != null && isExpired(session)) {

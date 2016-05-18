@@ -88,6 +88,10 @@ public class DirectMessagingEndpointTest {
 			@Override
 			public void cleanUp() {
 			}
+
+			@Override
+			public void cancel() {
+			}
 		});		
 		Assert.assertEquals(message.getMessageID(), receivedMessageTopic1.getMessageID());
 		Assert.assertNull(receivedMessageTopic2);

@@ -14,7 +14,7 @@ public interface MessagingListener {
 	 * @param msg unmarshalled message
 	 */
 	public void onChipsterMessage(ChipsterMessage msg);
-	
+
 	// TODO add method for stopping listening
 
 }
