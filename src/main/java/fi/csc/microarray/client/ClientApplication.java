@@ -249,12 +249,23 @@ public abstract class ClientApplication {
 				serviceAccessor.close();
 				throw e;
 			}
+			reportInitialisationThreadSafely(" ok", true);
+			
+			// send first login
+			reportInitialisationThreadSafely("Logging in...", false);
+			try {
+				serviceAccessor.login();
+			} catch (AuthCancelledException ace) {
+				serviceAccessor.close();
+				System.exit(0);
+			}			
+			reportInitialisationThreadSafely("ok", true);
+
 			
 			this.taskExecutor = serviceAccessor.getTaskExecutor();
 
 			this.sessionManager = new SessionManager(manager, taskExecutor, serviceAccessor.getFileBrokerClient(), new ClientSessionManagerCallback(this));
 			
-			reportInitialisationThreadSafely(" ok", true);
 
 			if (!fast) {
 				// Check services

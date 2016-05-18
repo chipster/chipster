@@ -48,5 +48,7 @@ public interface ServiceAccessor {
 	public Collection<ToolModule> getModules();
 	
 	public boolean isStandalone();
+	
+	public void login() throws Exception;
 
 }

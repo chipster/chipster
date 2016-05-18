@@ -10,6 +10,7 @@ import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.filebroker.JMSFileBrokerClient;
 import fi.csc.microarray.messaging.DescriptionMessageListener;
+import fi.csc.microarray.messaging.FirstLoginListener;
 import fi.csc.microarray.messaging.JMSMessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingTopic;
@@ -136,6 +137,15 @@ public class RemoteServiceAccessor implements ServiceAccessor {
 	@Override
 	public boolean isStandalone() {
 		return false;
+	}
+
+
+	@Override
+	public void login() throws Exception {
+		CommandMessage msg = new CommandMessage(CommandMessage.COMMAND_LOGIN);
+		FirstLoginListener listener = new FirstLoginListener();
+		this.requestTopic.sendReplyableMessage(msg, listener);
+		listener.waitForReply();
 	}
 
 }

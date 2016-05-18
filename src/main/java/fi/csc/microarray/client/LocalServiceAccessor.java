@@ -129,4 +129,9 @@ public class LocalServiceAccessor implements ServiceAccessor {
 		return true;
 	}
 
+	@Override
+	public void login() {
+		// do nothing
+	}
+
 }

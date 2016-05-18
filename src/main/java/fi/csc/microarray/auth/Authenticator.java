@@ -222,7 +222,16 @@ public class Authenticator extends NodeBase implements ShutdownCallback {
 				// send possible pending message
 				ChipsterMessage pendingMessage = (ChipsterMessage)session.getParameter(KEY_PENDING_MESSAGE);
 				if (pendingMessage != null) {
-					routeMessage(pendingMessage, session);
+					// reply to first login message
+					if (pendingMessage instanceof CommandMessage && 
+							CommandMessage.COMMAND_LOGIN.equals(((CommandMessage)pendingMessage).getCommand())) {
+						sendReplyToFirstLogin((CommandMessage)pendingMessage);
+					}
+					
+					// normal messages
+					else {
+						routeMessage(pendingMessage, session);
+					}
 				}
 				session.touch();
 			} 
@@ -232,6 +241,16 @@ public class Authenticator extends NodeBase implements ShutdownCallback {
 				securityLogger.info("illegal username/password (user " + authMsg.getUsername()  + ", auth. message JMS id was " + authMsg.getJmsMessageID() + ")");
 				ackLogin(authMsg, session.getID().toString(), false);
 				return;
+			}
+		}
+
+		private void sendReplyToFirstLogin(CommandMessage loginMessage) {
+			AuthenticationMessage reply = new AuthenticationMessage(AuthenticationOperation.LOGIN_SUCCEEDED);
+			logger.debug("sending reply to first login message");
+			try {
+				endpoint.replyToMessage(loginMessage, reply, Topics.MultiplexName.REPLY_TO.toString());
+			} catch (JMSException e) {
+				logger.warn("failed to send reply to first login");
 			}
 		}
 
@@ -260,14 +279,12 @@ public class Authenticator extends NodeBase implements ShutdownCallback {
 		
 		private void ackLogin(ChipsterMessage loginMessage, String sessionID, boolean succeeded) throws JMSException, AuthorisationException {
 			
-			// FIXME think about what to send back
 			AuthenticationOperation operation = succeeded ? AuthenticationMessage.AuthenticationOperation.LOGIN_SUCCEEDED : AuthenticationMessage.AuthenticationOperation.LOGIN_FAILED; 
 			AuthenticationMessage ackMessage = new AuthenticationMessage(operation);
-			
+			ackMessage.setSessionID(sessionID); // needed both for success and fail
 			ackMessage.setReplyTo(loginMessage.getReplyTo());
 			if (succeeded) {
 				ackMessage.setUsername(loginMessage.getUsername());
-				ackMessage.setSessionID(sessionID);
 			}
 			endpoint.replyToMessage(loginMessage, ackMessage, Topics.MultiplexName.AUTHORISE_TO.toString());
 		}
