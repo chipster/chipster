@@ -259,7 +259,7 @@ public abstract class ClientApplication {
 				serviceAccessor.close();
 				System.exit(0);
 			}			
-			reportInitialisationThreadSafely("ok", true);
+			reportInitialisationThreadSafely(" ok", true);
 
 			
 			this.taskExecutor = serviceAccessor.getTaskExecutor();
