@@ -79,7 +79,8 @@ public class ToolboxClientComp {
 			@Override
 			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 				for (String extension : executableExtensions) {
-					if (file.endsWith("." + extension)) {
+					if (file.getFileName().toString().endsWith("." + extension)) {
+						logger.debug("fixing permissions for " + file.getFileName());
 						Files.setPosixFilePermissions(file, fi.csc. microarray.util.Files.get755Permissions());
 					}
 				}
