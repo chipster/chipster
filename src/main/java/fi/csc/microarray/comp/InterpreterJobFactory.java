@@ -117,16 +117,16 @@ public abstract class InterpreterJobFactory implements JobFactory {
 		File commonScriptDir = new File(toolsRootDir, "common" + toolPath);
 		File relativeModuleDir = new File(toolsRootDir, moduleDir.getName());
 		
-		File baseDir;
+		File chipsterRootDir;
 		try {
-			baseDir = new File(DirectoryLayout.getInstance().getBaseDir().getAbsolutePath());
+			chipsterRootDir = new File(DirectoryLayout.getInstance().getBaseDir().getAbsolutePath(), "../").getCanonicalFile();
 		} catch (IOException e) {
 			logger.warn("failed to get base dir, using default");
-			baseDir = new File("/opt/chipster");
+			chipsterRootDir = new File("/opt/chipster");
 		}
 
-		File javaLibsDir = new File(baseDir, "shared/lib");
-		File externalToolsDir = new File(baseDir, "tools");
+		File javaLibsDir = new File(chipsterRootDir, "shared/lib");
+		File externalToolsDir = new File(chipsterRootDir, "tools");
 		
 		String vns = getVariableNameSeparator();
 		String sd = getStringDelimeter();
