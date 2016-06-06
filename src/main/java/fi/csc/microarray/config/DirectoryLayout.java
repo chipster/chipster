@@ -300,7 +300,7 @@ public class DirectoryLayout {
 		return check(dir);
 	}
 
-	private File getBaseDir() throws IOException {
+	public File getBaseDir() throws IOException {
 
 		if (baseDirOverride != null) {
 			return baseDirOverride;

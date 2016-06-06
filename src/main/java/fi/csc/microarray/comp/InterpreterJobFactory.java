@@ -121,6 +121,16 @@ public abstract class InterpreterJobFactory implements JobFactory {
 		// toolbox tools dir relative to job data dir
 		File toolsRootDir = new File("../toolbox/tools");
 		File commonScriptDir = new File(toolsRootDir, "common" + toolPath);
+		File relativeModuleDir = new File(toolsRootDir, moduleDir.getName());
+		
+		File javaLibsDir;
+		try {
+			javaLibsDir = new File(DirectoryLayout.getInstance().getBaseDir().getAbsolutePath(), "shared/lib");
+		} catch (IOException e) {
+			logger.warn("failed to get base dir, using default");
+			javaLibsDir = new File("/opt/chipster/shared/lib");
+		}
+		
 		
 		String vns = getVariableNameSeparator();
 		String sd = getStringDelimeter();
@@ -128,10 +138,12 @@ public abstract class InterpreterJobFactory implements JobFactory {
 		ad.setInitialiser(
 				"chipster" + vns + "tools" + vns + "path = " + sd + externalToolPath + sd + "\n" +
 				"chipster" + vns + "common" + vns + "path = " + sd + commonScriptDir + sd + "\n" + 
-				"chipster" + vns + "module" + vns + "path = " + sd + new File(toolsRootDir, moduleDir.getName()) + sd + "\n" + 
+				"chipster" + vns + "module" + vns + "path = " + sd + relativeModuleDir + sd + "\n" + 
+				"chipster" + vns + "java" + vns + "libs" + vns + "path = " + sd + javaLibsDir + sd + "\n" + 
 				"chipster" + vns + "threads" + vns + "max = " + sd + threadsMax + sd + "\n" +
 				"chipster" + vns + "memory" + vns + "max = " + sd + memoryMax + sd + "\n");
 
+		System.out.println(ad.getInitialiser());
 		return ad;		
 	}
 
