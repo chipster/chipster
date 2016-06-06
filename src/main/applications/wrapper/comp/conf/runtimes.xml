@@ -50,10 +50,6 @@
 				<name>toolPath</name>
 				<value>/R-2.15</value>
 			</parameter>
-			<parameter>
-				<name>externalToolPath</name>
-				<value>/opt/chipster/tools</value>
-			</parameter>
 		</handler>
 	</runtime>
 
@@ -72,10 +68,6 @@
 			<parameter>
 				<name>toolPath</name>
 				<value>/R</value>
-			</parameter>
-			<parameter>
-				<name>externalToolPath</name>
-				<value>/opt/chipster/tools</value>
 			</parameter>
 		</handler>
 	</runtime>
@@ -96,10 +88,6 @@
 				<name>toolPath</name>
 				<value>/R-3.1.2</value>
 			</parameter>
-			<parameter>
-				<name>externalToolPath</name>
-				<value>/opt/chipster/tools</value>
-			</parameter>
 		</handler>
 	</runtime>
 	
@@ -118,10 +106,6 @@
 			<parameter>
 				<name>toolPath</name>
 				<value>/R-3.2.0</value>
-			</parameter>
-			<parameter>
-				<name>externalToolPath</name>
-				<value>/opt/chipster/tools</value>
 			</parameter>
 		</handler>
 	</runtime>
@@ -154,10 +138,6 @@
 				<name>toolPath</name>
 				<value>/python</value>
 			</parameter>
-			<parameter>
-				<name>externalToolPath</name>
-				<value>/opt/chipster/tools</value>
-			</parameter>
 		</handler>
 	</runtime>
 	
@@ -176,10 +156,6 @@
 			<parameter>
 				<name>toolPath</name>
 				<value>/python3</value>
-			</parameter>
-			<parameter>
-				<name>externalToolPath</name>
-				<value>/opt/chipster/tools</value>
 			</parameter>
 		</handler>
 	</runtime>

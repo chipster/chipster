@@ -26,7 +26,6 @@ public abstract class InterpreterJobFactory implements JobFactory {
 
 	protected String interpreterCommand;
 	protected String toolPath;
-	protected String externalToolPath;
 	protected ProcessPool processPool;
 	protected boolean isDisabled = false;
 
@@ -46,11 +45,6 @@ public abstract class InterpreterJobFactory implements JobFactory {
 		this.interpreterCommand = command;
 		this.toolPath = parameters.get("toolPath");
 	
-		this.externalToolPath = parameters.get("externalToolPath");
-		if (externalToolPath == null) {
-			throw new RuntimeException("externalToolPath must be set in runtimes.xml");
-		}		
-		
 		// initialize process pool
 		int poolSizeMin = 5;
 		int poolSizeMax = 20;
@@ -123,27 +117,28 @@ public abstract class InterpreterJobFactory implements JobFactory {
 		File commonScriptDir = new File(toolsRootDir, "common" + toolPath);
 		File relativeModuleDir = new File(toolsRootDir, moduleDir.getName());
 		
-		File javaLibsDir;
+		File baseDir;
 		try {
-			javaLibsDir = new File(DirectoryLayout.getInstance().getBaseDir().getAbsolutePath(), "shared/lib");
+			baseDir = new File(DirectoryLayout.getInstance().getBaseDir().getAbsolutePath());
 		} catch (IOException e) {
 			logger.warn("failed to get base dir, using default");
-			javaLibsDir = new File("/opt/chipster/shared/lib");
+			baseDir = new File("/opt/chipster");
 		}
-		
+
+		File javaLibsDir = new File(baseDir, "shared/lib");
+		File externalToolsDir = new File(baseDir, "tools");
 		
 		String vns = getVariableNameSeparator();
 		String sd = getStringDelimeter();
 		
 		ad.setInitialiser(
-				"chipster" + vns + "tools" + vns + "path = " + sd + externalToolPath + sd + "\n" +
+				"chipster" + vns + "tools" + vns + "path = " + sd + externalToolsDir + sd + "\n" +
 				"chipster" + vns + "common" + vns + "path = " + sd + commonScriptDir + sd + "\n" + 
 				"chipster" + vns + "module" + vns + "path = " + sd + relativeModuleDir + sd + "\n" + 
 				"chipster" + vns + "java" + vns + "libs" + vns + "path = " + sd + javaLibsDir + sd + "\n" + 
 				"chipster" + vns + "threads" + vns + "max = " + sd + threadsMax + sd + "\n" +
 				"chipster" + vns + "memory" + vns + "max = " + sd + memoryMax + sd + "\n");
 
-		System.out.println(ad.getInitialiser());
 		return ad;		
 	}
 
