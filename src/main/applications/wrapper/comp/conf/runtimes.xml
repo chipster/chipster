@@ -71,7 +71,25 @@
 			</parameter>
 		</handler>
 	</runtime>
-	
+
+	<runtime>
+		<name>R-3.2.3</name>
+		<handler>
+			<class>fi.csc.microarray.comp.r.RJobFactory</class> 
+			<parameter>
+				<name>command</name>
+				<value>/opt/chipster/tools/R-3.2.3/bin/R</value>
+			</parameter>
+			<parameter>
+				<name>commandParameters</name>
+				<value>--vanilla --quiet</value>
+			</parameter>
+			<parameter>
+				<name>toolPath</name>
+				<value>/R</value>
+			</parameter>
+		</handler>
+	</runtime>
 	
 	<runtime>
         <name>java</name>
