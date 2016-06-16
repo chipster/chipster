@@ -35,25 +35,6 @@
 <runtimes>
 
 	<runtime>
-		<name>R-2.15_bioc-2.11</name>
-		<handler>
-			<class>fi.csc.microarray.comp.r.RJobFactory</class> 
-			<parameter>
-				<name>command</name>
-				<value>/opt/chipster/tools/R-2.15.1_bioc-2.11/bin/R</value>
-			</parameter>
-			<parameter>
-				<name>commandParameters</name>
-				<value>--vanilla --quiet</value>
-			</parameter>
-			<parameter>
-				<name>toolPath</name>
-				<value>/R-2.15</value>
-			</parameter>
-		</handler>
-	</runtime>
-
-	<runtime>
 		<name>R</name>
 		<handler>
 			<class>fi.csc.microarray.comp.r.RJobFactory</class> 
@@ -68,25 +49,6 @@
 			<parameter>
 				<name>toolPath</name>
 				<value>/R</value>
-			</parameter>
-		</handler>
-	</runtime>
-	
-	<runtime>
-		<name>R-3.1.2</name>
-		<handler>
-			<class>fi.csc.microarray.comp.r.RJobFactory</class> 
-			<parameter>
-				<name>command</name>
-				<value>/opt/chipster/tools/R-3.1.2/bin/R</value>
-			</parameter>
-			<parameter>
-				<name>commandParameters</name>
-				<value>--vanilla --quiet</value>
-			</parameter>
-			<parameter>
-				<name>toolPath</name>
-				<value>/R-3.1.2</value>
 			</parameter>
 		</handler>
 	</runtime>
