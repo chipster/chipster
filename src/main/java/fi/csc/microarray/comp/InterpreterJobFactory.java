@@ -25,7 +25,7 @@ public abstract class InterpreterJobFactory implements JobFactory {
 	static final Logger logger = Logger.getLogger(InterpreterJobFactory.class);
 
 	protected String interpreterCommand;
-	protected String toolPath;
+	protected String toolDir;
 	protected ProcessPool processPool;
 	protected boolean isDisabled = false;
 
@@ -43,7 +43,7 @@ public abstract class InterpreterJobFactory implements JobFactory {
 			command += " " + commandParameters;
 		}
 		this.interpreterCommand = command;
-		this.toolPath = parameters.get("toolPath");
+		this.toolDir = parameters.get("toolDir");
 	
 		// initialize process pool
 		int poolSizeMin = 5;
@@ -114,7 +114,7 @@ public abstract class InterpreterJobFactory implements JobFactory {
 
 		// toolbox tools dir relative to job data dir
 		File toolsRootDir = new File("../toolbox/tools");
-		File commonScriptDir = new File(toolsRootDir, "common" + toolPath);
+		File commonScriptDir = new File(toolsRootDir, "common" + toolDir);
 		File relativeModuleDir = new File(toolsRootDir, moduleDir.getName());
 		
 		File chipsterRootDir;
