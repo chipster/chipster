@@ -3,30 +3,20 @@
 <!-- 
 	This is the Chipster runtime configuration file. A runtime specifies
 	an environment, in which a tool (often a script file) is actually run.
-	Examples of runtimes include different versions of R or the beanshell
-	runtime for running BeanShell scripts. 
+	Examples of runtimes include different versions of R or python.
 
-	In practice, a runtime configuration consists of a name and handler
+	In practice, a runtime configuration consists of a name and a factory
 	configuration. Runtime name is used as a reference in the tools.xml and
-	the handler element specifies the class which takes care of actually 
-	running the tool. The handler parameters are specific to handler class.
+	the factory element specifies the class which takes care of actually 
+	running the tool. The factory parameters are specific to factory class.
 	
-	The toolPath parameter of th R-x.y.z runtimes specifies the directory
-	inside the chipster-x.y.z.jar or custom-scripts directory, where the 
-	script file specified in the tools.xml is located. 
-	
-	Each analysis tool is bound to a specific runtime in the tools.xml.
-
-	Each of the computing services connected to a same broker must know about
-	all the tools and runtimes enabled in any of the computing services. For 
-	this reason you shouldn't comment out a runtime, even if this computing 
-	service is unable to support it. Instead, if you don't want to run certain
+	If you don't want to run certain
 	tools on certain computing service, a tool can be disabled with the 
 	disabled="true" attribute on the tools.xml. The same disabled="true" can
 	also be used to disable a runtime, which causes all the tools relying on
 	this runtime to be disabled.
 	
-	In addition, if the initialization of the runtime failes, for example the
+	In addition, if the initialization of the runtime fails, for example the
 	R binary is not found, the runtime becomes disabled.
 
 -->
@@ -46,10 +36,6 @@
 				<name>commandParameters</name>
 				<value>--vanilla --quiet</value>
 			</parameter>
-			<parameter>
-				<name>toolPath</name>
-				<value>/R</value>
-			</parameter>
 		</handler>
 	</runtime>
 	
@@ -64,10 +50,6 @@
 			<parameter>
 				<name>commandParameters</name>
 				<value>--vanilla --quiet</value>
-			</parameter>
-			<parameter>
-				<name>toolPath</name>
-				<value>/R-3.2.0</value>
 			</parameter>
 		</handler>
 	</runtime>
@@ -84,10 +66,6 @@
 				<name>commandParameters</name>
 				<value>--vanilla --quiet</value>
 			</parameter>
-			<parameter>
-				<name>toolPath</name>
-				<value>/R</value>
-			</parameter>
 		</handler>
 	</runtime>
 	
@@ -95,10 +73,6 @@
         <name>java</name>
         <handler>
             <class>fi.csc.microarray.comp.java.JavaJobFactory</class> 
-			<parameter>
-				<name>externalToolPath</name>
-				<value>/opt/chipster/tools</value>
-			</parameter>
         </handler>
     </runtime>
 	
@@ -114,10 +88,6 @@
 				<name>commandParameters</name>
 				<value></value>
 			</parameter>
-			<parameter>
-				<name>toolPath</name>
-				<value>/python</value>
-			</parameter>
 		</handler>
 	</runtime>
 	
@@ -132,10 +102,6 @@
 			<parameter>
 				<name>commandParameters</name>
 				<value></value>
-			</parameter>
-			<parameter>
-				<name>toolPath</name>
-				<value>/python3</value>
 			</parameter>
 		</handler>
 	</runtime>

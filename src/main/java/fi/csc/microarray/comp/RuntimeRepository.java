@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import fi.csc.chipster.toolbox.RuntimeUtils;
 import fi.csc.microarray.util.XmlUtil;
 
 
@@ -74,6 +75,9 @@ public class RuntimeRepository {
 
 				// comp work dir
 				parameters.put("workDir", workDir.toString());
+				
+				// tool dir
+				parameters.put("toolDir", RuntimeUtils.getToolDirFromRuntimeName(runtimeName));
 
 				// parameters from config
 				for (Element parameterElement: XmlUtil.getChildElements(handlerElement, "parameter")) {
