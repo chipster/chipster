@@ -114,7 +114,7 @@ public abstract class InterpreterJobFactory implements JobFactory {
 
 		// toolbox tools dir relative to job data dir
 		File toolsRootDir = new File("../toolbox/tools");
-		File commonScriptDir = new File(toolsRootDir, "common" + toolDir);
+		File commonScriptDir = new File(toolsRootDir, "common/" + toolDir);
 		File relativeModuleDir = new File(toolsRootDir, moduleDir.getName());
 		
 		File chipsterRootDir;
