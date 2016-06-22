@@ -25,7 +25,7 @@
 <runtimes>
 
 	<runtime>
-		<name>R</name>
+		<name>R-3.0.2</name>
 		<handler>
 			<class>fi.csc.microarray.comp.r.RJobFactory</class> 
 			<parameter>
@@ -55,7 +55,7 @@
 	</runtime>
 
 	<runtime>
-		<name>R-3.2.3</name>
+		<name>R</name>
 		<handler>
 			<class>fi.csc.microarray.comp.r.RJobFactory</class> 
 			<parameter>
