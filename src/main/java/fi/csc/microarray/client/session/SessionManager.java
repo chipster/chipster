@@ -174,8 +174,7 @@ public class SessionManager {
 
 		@Override
 		public void continueJobs(List<OperationRecord> unfinishedJobs) {
-			logger.info("Continuation of jobs isn't implemented in "
-					+ this.getClass().getSimpleName());
+			// not implemented, only used in example session import
 		}
 	}
 
