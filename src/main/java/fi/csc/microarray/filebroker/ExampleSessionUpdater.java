@@ -79,6 +79,9 @@ public class ExampleSessionUpdater {
 					dbSessions.put(basename, session);
 				}
 			}
+			
+			logger.info("found " + dbSessions.size() + " example session on the server");
+			
 			//list zip file sessions
 			//map keys are zip file names without their file extension (called basename)
 			logger.debug("searching example sessions from " + exampleSessionDir);	
@@ -100,7 +103,9 @@ public class ExampleSessionUpdater {
 					fileServer.removeSession(dbSessions.get(dbSessionBasename).getDataId());
 					dbSessionIter.remove();
 				}
-			}				
+			}
+			
+			logger.info(dbSessions.size() + " example sessions on the server left");
 
 			//if a zip was added or updated, then import it						
 			for (String zipSessionBasename : zipSessions.keySet()) {
@@ -129,6 +134,8 @@ public class ExampleSessionUpdater {
 					logger.debug("example session '" + zipSessionBasename + "' is up-to-date");
 				}
 			}
+			
+			logger.info("example session import done");
 		}
 	}
 
