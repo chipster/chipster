@@ -81,7 +81,7 @@ public class ExampleSessionUpdater {
 			}
 			//list zip file sessions
 			//map keys are zip file names without their file extension (called basename)
-			logger.debug("searching example sessions from " + exampleSessionDir);	
+			logger.info("searching example sessions from " + exampleSessionDir);	
 			HashMap<String, File> zipSessions = new HashMap<>();
 			for (File file : exampleSessionDir.listFiles()) {
 				if (isZipSession(file)) {				
@@ -89,6 +89,7 @@ public class ExampleSessionUpdater {
 					zipSessions.put(basename, file);
 				}
 			}
+			logger.info("found " + zipSessions.size() + "example session zip files");
 
 			//if zip was removed, remove also the server session
 			Iterator<String> dbSessionIter = dbSessions.keySet().iterator();
