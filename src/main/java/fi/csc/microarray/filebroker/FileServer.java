@@ -175,6 +175,7 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
     		// load new zip example sessions and store as server sessions
     		if (exampleSessionPath != null && !exampleSessionPath.isEmpty()) {
     			File exampleSessionDir = new File(fileRepository, exampleSessionPath);
+    			logger.info("importing example sessions from " + exampleSessionPath.toString());
     			this.exampleSessionUpdater = new ExampleSessionUpdater(this, metadataServer, exampleSessionDir);
 
     			try {
@@ -185,6 +186,8 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
     				logger.error("example session import failed", e);
     				throw e;
     			}
+    		} else {
+    			logger.info("the example sessions path is not configured, nothing to import");
     		}
     		
     		// create keep-alive thread and register shutdown hook
