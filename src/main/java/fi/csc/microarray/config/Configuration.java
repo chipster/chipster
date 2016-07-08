@@ -79,7 +79,7 @@ public class Configuration {
 			}
 
 		} catch (SAXException e) {
-			throw new IOException(e.getMessage());
+			throw new IOException(e);
 
 		} catch (ParserConfigurationException e) {
 			throw new IOException(e.getMessage());

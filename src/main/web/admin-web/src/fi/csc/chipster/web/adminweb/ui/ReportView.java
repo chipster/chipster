@@ -156,4 +156,8 @@ public class ReportView extends AsynchronousView implements ClickListener {
 	public VerticalLayout getJobmanagerLayout() {
 		return jobmanagerLayout;
 	}
+	
+	public VerticalLayout getFilebrokerLayout() {
+		return filebrokerLayout;
+	}
 }

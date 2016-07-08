@@ -232,8 +232,4 @@ public class ServerAdminAPI {
 			throw new MicroarrayException(context + " failed: " + reply.getErrorMessage() + " " + reply.getDetails() + " " + reply.getExceptionString());
 		}
 	}
-
-	
-
-
 }

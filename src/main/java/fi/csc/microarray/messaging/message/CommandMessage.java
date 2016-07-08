@@ -56,6 +56,8 @@ public class CommandMessage extends ParameterMessage {
 	public static final String COMMAND_PURGE_OLD_JOBS = "purge-old-jobs";
 	
 	public static final String COMMAND_LOGIN = "login";
+
+	public static final String COMMAND_LOG_STATUS = "log-status";
 	
 	private String command;
 	

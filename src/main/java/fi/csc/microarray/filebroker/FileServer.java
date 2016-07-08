@@ -766,11 +766,29 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 					report += "SYSTEM\n\n";
 					report += sysStats + "\n";
 					report += admin.getDataBaseStatusReport() + "\n";
-					report += admin.getStorageStatusReport(false) + "\n";
 
 					reply.addNamedParameter(ParameterMessage.PARAMETER_STATUS_REPORT, report);
 					
 					jmsEndpoint.replyToMessage(requestMessage, reply);
+				}
+				
+				else if (msg instanceof CommandMessage && CommandMessage.COMMAND_LOG_STATUS.equals(((CommandMessage)msg).getCommand())) {
+					
+					logger.info("status report requested from the admin-web");
+					
+					FileServerAdminTools admin = getAdminTools();
+					
+					String sysStats = SystemMonitorUtil.getSystemStats(cacheRoot).systemStatsToString();
+					
+					String report = "";
+					report += "SYSTEM\n\n";
+					report += sysStats + "\n";
+					logger.info("calculating database status report");
+					report += admin.getDataBaseStatusReport() + "\n";
+					logger.info("calculating storage status report");
+					report += admin.getStorageStatusReport(false) + "\n";
+
+					logger.info("status report ready\n\n" + report);
 				}
 			} catch (Exception e) {
 				logger.error(e, e);
