@@ -34,7 +34,6 @@ import fi.csc.microarray.util.Strings;
  */
 public class StorageAdminAPI extends ServerAdminAPI {
 	
-	@SuppressWarnings("unused")
 	private static final Logger logger = Logger.getLogger(StorageAdminAPI.class);
 
 	public interface StorageEntryListener {
@@ -283,5 +282,14 @@ public class StorageAdminAPI extends ServerAdminAPI {
 			latch.countDown();
 		}
 
+	}
+
+	public void logFullStatus() {
+		try {
+			CommandMessage request = new CommandMessage(CommandMessage.COMMAND_LOG_STATUS); 
+			getTopic().sendMessage(request);
+		} catch (JMSException e) {
+			logger.error("request to write status to log file failed", e);
+		}
 	}
 }

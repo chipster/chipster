@@ -25,7 +25,6 @@ import fi.csc.microarray.messaging.AuthCancelledException;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.admin.CompAdminAPI;
 import fi.csc.microarray.messaging.admin.JobmanagerAdminAPI;
-import fi.csc.microarray.messaging.admin.ServerAdminAPI;
 import fi.csc.microarray.messaging.admin.ServerAdminAPI.StatusReportListener;
 import fi.csc.microarray.messaging.admin.StorageAdminAPI;
 import fi.csc.microarray.messaging.message.ServerStatusMessage;
@@ -71,9 +70,25 @@ public class ReportDataSource {
 				label.setValue(report);						
 			}
 		});
+		view.updateUI(new Runnable() {
+			@Override
+			public void run() {
+				VerticalLayout layout = view.getFilebrokerLayout();
+
+				layout.removeAllComponents();
+
+				Button reportButton = view.createReportButton("Write full report to log");
+
+				reportButton.addClickListener(new LogReportClickListener(view, ReportDataSource.this));
+
+				Label reportLabel = view.createReportLabel(report);
+				layout.addComponent(reportLabel);
+				layout.addComponent(reportButton);				
+			}
+		});
 	}
 
-	private ServerAdminAPI getStorageAdminAPI() throws IOException, IllegalConfigurationException, MicroarrayException, JMSException {
+	private StorageAdminAPI getStorageAdminAPI() throws IOException, IllegalConfigurationException, MicroarrayException, JMSException {
 		if (storageAdminAPI == null) {
 			storageAdminAPI = new StorageAdminAPI(endpoint);
 		}
@@ -237,6 +252,27 @@ public class ReportDataSource {
 		public void buttonClick(ClickEvent event) {
 			try {
 				reportDataSource.getJobmanagerAdminAPI().purge();
+			} catch (IOException | IllegalConfigurationException | MicroarrayException | JMSException e) {
+				e.printStackTrace();
+			}
+			view.update();
+		}
+	}
+	
+	public static class LogReportClickListener implements ClickListener {
+
+		private ReportView view;
+		private ReportDataSource reportDataSource;
+
+		public LogReportClickListener(ReportView view, ReportDataSource reportDataSource) {
+			this.view = view;
+			this.reportDataSource = reportDataSource;
+		}
+
+		@Override
+		public void buttonClick(ClickEvent event) {
+			try {
+				reportDataSource.getStorageAdminAPI().logFullStatus();
 			} catch (IOException | IllegalConfigurationException | MicroarrayException | JMSException e) {
 				e.printStackTrace();
 			}
