@@ -42,12 +42,14 @@ do
   echo "in endpoint $endpoint" 
   echo "This may take some time."
   echo ""
-  for re in $(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms -r compute -a list | awk -F "/compute/" '{print "/compute/"$2}' )
+  for re in $(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms -r compute -a list 2>/dev/null )
   do
     echo ""
     echo "-------------------------------------------------------------------------------------"
+    echo "checking: $re"
+    echo "chipster-vm-$user"
     echo ""
-    rline=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $re -a describe | awk '{if ( $3 == "chipster-vm-'$user'") print "'$re' "$0 }')
+    rline=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $re -a describe | awk '{if ( $3 == "chipster-vm_'$user'") print $0 }' | awk '{if ( $1 == "occi.core.title") print "'$re' "$0 }')
   if [[ $rline != "" ]]
   then
     vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $re | grep occi.networkinterface.address| awk '{print $3}'| head -1)
@@ -732,30 +734,31 @@ cat > /tmp/chipster_server_startup_$$.sh <<EOF
 
 echo "$(cat ${keyname}.pub)" >> /home/ubuntu/.ssh/authorized_keys
 
-date > /home/ubuntu/cvmfsstartup.log
-pwd >> /home/ubuntu/cvmfsstartup.log
-whoami >>  /home/ubuntu/cvmfsstartup.log
-sudo apt-get update  >>  /home/ubuntu/cvmfsstartup.log
-echo Y | sudo apt-get install gdebi 2>&1 >> /home/ubuntu/cvmfsstartup.log
-wget https://cvmrepo.web.cern.ch/cvmrepo/deb/cvmfs-config/cvmfs-config-default_latest_all.deb 2>&1 >> /home/ubuntu/cvmfsstartup.log
-wget https://cvmrepo.web.cern.ch/cvmrepo/deb/cvmfs-2.1.20/cvmfs_2.1.20_amd64.deb 2>&1 >> /home/ubuntu/cvmfsstartup.log
-echo y | sudo gdebi cvmfs-config-default_latest_all.deb   2>&1 >>  /home/ubuntu/cvmfsstartup.log
-echo y | sudo gdebi cvmfs_2.1.20_amd64.deb  2>&1 >>  /home/ubuntu/cvmfsstartup.log
-sudo cvmfs_config setup  2>&1 >>  /home/ubuntu/cvmfsstartup.log 
+date > /opt/chipster/webstart/web-root/building.html
+chmod go+rx /opt/chipster/webstart/web-root/building.html
+pwd >> /opt/chipster/webstart/web-root/building.html
+whoami >>  /opt/chipster/webstart/web-root/building.html
+sudo apt-get update  >>  /opt/chipster/webstart/web-root/building.html
+echo Y | sudo apt-get install gdebi 2>&1 >> /opt/chipster/webstart/web-root/building.html
+wget https://cvmrepo.web.cern.ch/cvmrepo/deb/cvmfs-config/cvmfs-config-default_latest_all.deb 2>&1 >> /opt/chipster/webstart/web-root/building.html
+wget https://cvmrepo.web.cern.ch/cvmrepo/deb/cvmfs-2.1.20/cvmfs_2.1.20_amd64.deb 2>&1 >> /opt/chipster/webstart/web-root/building.html
+echo y | sudo gdebi cvmfs-config-default_latest_all.deb   2>&1 >> /opt/chipster/webstart/web-root/building.html
+echo y | sudo gdebi cvmfs_2.1.20_amd64.deb  2>&1 >>  /opt/chipster/webstart/web-root/building.html
+sudo cvmfs_config setup  2>&1 >>  /opt/chipster/webstart/web-root/building.html
 cd /etc/cvmfs
 #cp default.local ~/default.local.cvmfs.tmp
 echo CVMFS_HTTP_PROXY=DIRECT > /home/ubuntu/default.local.cvmfs.tmp
 echo CVMFS_SERVER_URL='http://cvmfs-egi.gridpp.rl.ac.uk:8000/cvmfs/@fqrn@;http://cvmfsrepo.lcg.triumf.ca:8000/cvmfs/@fqrn@;http://cvmfsrep.grid.sinica.edu.tw:8000/cvmfs/@fqrn@' >>  /home/ubuntu/default.local.cvmfs.tmp
 sudo cp  /home/ubuntu/default.local.cvmfs.tmp ./default.local
-sudo service autofs stop  2>&1 >>  /home/ubuntu/cvmfsstartup.log 
-sudo service autofs status  2>&1 >>  /home/ubuntu/cvmfsstartup.log 
-sudo service autofs start  2>&1 >>  /home/ubuntu/cvmfsstartup.log 
-ls /cvmfs/chipster.egi.eu 2>&1 >>  /home/ubuntu/cvmfsstartup.log 
-echo "Content of tools:" 2>&1 >>  /home/ubuntu/cvmfsstartup.log 
-ls -l /cvmfs/chipster.egi.eu/tools 2>&1 >>  /home/ubuntu/cvmfsstartup.log  
-sudo rm -rf /mnt/tools  2>&1 >>  /home/ubuntu/cvmfsstartup.log 
-sudo ln -s /cvmfs/chipster.egi.eu/tools /mnt/tools  2>&1 >>  /home/ubuntu/cvmfsstartup.log 
-date  >>  /home/ubuntu/cvmfsstartup.log
+sudo service autofs stop  2>&1 >>  /opt/chipster/webstart/web-root/building.html
+sudo service autofs status  2>&1 >> /opt/chipster/webstart/web-root/building.html
+sudo service autofs start  2>&1 >> /opt/chipster/webstart/web-root/building.html
+ls /cvmfs/chipster.egi.eu 2>&1 >> /opt/chipster/webstart/web-root/building.html
+echo "Content of tools:" 2>&1 >>  /opt/chipster/webstart/web-root/building.html
+ls -l /cvmfs/chipster.egi.eu/tools 2>&1 >> /opt/chipster/webstart/web-root/building.html 
+sudo rm -rf /mnt/tools  2>&1 >> /opt/chipster/webstart/web-root/building.html
+sudo ln -s /cvmfs/chipster.egi.eu/tools /mnt/tools  2>&1 >>  /opt/chipster/webstart/web-root/building.html 
+date  >>  /opt/chipster/webstart/web-root/building.html
 EOF
 fi
 
@@ -796,8 +799,8 @@ EOF
 fi
 
 cat >> /tmp/chipster_server_startup_$$.sh <<EOF
-sudo service chipster restart   2>&1 >>  /home/ubuntu/startup.log 
-sudo service chipster-comp restart  2>&1 >>  /home/ubuntu/startup.log 
+sudo service chipster restart 2>&1 >> /opt/chipster/webstart/web-root/building.html 
+sudo service chipster-comp restart 2>&1 >> /opt/chipster/webstart/web-root/building.html
 n=1
 while [[ \$n -le 5 ]]
 do
@@ -806,18 +809,16 @@ do
   then
     sleep 30 
     sudo rm -rf /opt/chipster/fileserver/db-root/ChipsterFilebrokerMetadataDatabase
-    sudo service chipster restart   2>&1 >>  /home/ubuntu/startup.log  
-    sudo service chipster-comp restart  2>&1 >>  /home/ubuntu/startup.log 
+    sudo service chipster restart   2>&1 >> /opt/chipster/webstart/web-root/building.html  
+    sudo service chipster-comp restart  2>&1 >> /opt/chipster/webstart/web-root/building.html
     let "n++"
   else
     n=6
   fi
 done
-echo "Startup finished" >>  /home/ubuntu/startup.log 
-date >>  /home/ubuntu/startup.log 
-sudo service chipster status 2>&1 >>  /home/ubuntu/startup.log
-cat /home/ubuntu/cvmfsstartup.log > /opt/chipster/webstart/web-root/building.html
-cat  /home/ubuntu/startup.log  >>  /opt/chipster/webstart/web-root/building.html
+echo "Startup finished" >> /opt/chipster/webstart/web-root/building.html 
+date >>  /opt/chipster/webstart/web-root/building.html
+sudo service chipster status 2>&1 >>  /opt/chipster/webstart/web-root/building.html
 echo "CHIPSTER_READY" >>  /opt/chipster/webstart/web-root/building.html
 chmod go+rx /opt/chipster/webstart/web-root/building.html
 
@@ -829,7 +830,7 @@ sleep 5
 echo
 echo "Launching a new virtual machine with command:"
 echo "occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action create -r compute -M $chipster_img -M $flavor -t occi.core.title="chipster-vm_$user" --context user_data="$userdata" "
-#vmaddress=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action create -r compute -M $chipster_img -M $flavor -t occi.core.title="chipster-vm_$user" --context user_data="$userdata" --link $volume | awk -F "/compute/" '{print "/compute/"$2}' )
+#vmaddress=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action create -r compute -M $chipster_img -M $flavor -t occi.core.title="chipster-vm_$user" --context user_data="$userdata" --link $volume | awk -F "/compute/" '{print "/compute/"$2}' ) 
 vmaddress=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action create -r compute -M $chipster_img -M $flavor -t occi.core.title="chipster-vm_$user" --context user_data="$userdata" )
 
 
@@ -860,7 +861,19 @@ do
    sleep 10
 done
 
+echo "Linking volume: $volume"
+echo "to Virtual machine: $vmaddress"
+
 occi -e $endpoint --auth x509 --user-cred $usercred -s --voms -a link -r $vmaddress -j $volume
+volstate=""
+while [[ $volstate == "" ]]
+do
+   volstate=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe -r $vmaddress | grep occi.storagelink.deviceid | awk '{print $3}')
+   echo "Waitng for volume to be linked $volstate"
+   sleep 10
+done
+
+
 
 
 echo "-------------------------------------------------------------------------------------"
@@ -915,10 +928,12 @@ wait_start=$(date +%s)
 while  [[ $from_port8081 -ne 1 ]]
 do
  from_port8081=$(curl ${vmip}:8081/building.html 2> /dev/null | grep "CHIPSTER_READY" | wc -l )
+
  sleep 15
+ build_last_row=$(curl ${vmip}:8081/building.html 2> /dev/null | tail -1)
  wait_now=$(date +%s)
  (( wait_time =  wait_now - wait_start))
- printf "Time waited ${wait_time}s \r"
+ printf "Time waited ${wait_time}s. Status: $build_last_row \r"
  if [[ $wait_time -gt 1800 ]]
  then
    echo "After 30 min, the Chipster server is still not responding"
@@ -968,3 +983,4 @@ exit 0
 
 #Command to delete a VM
 #occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action delete --resource $vmaddress
+
