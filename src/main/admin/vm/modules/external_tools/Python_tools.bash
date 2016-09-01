@@ -1,7 +1,7 @@
 ##depends:none
 
 # Python
-curl -s https://www.python.org/ftp/python/2.7.12/Python-2.7.12.tgz
+wget_retry -nv https://www.python.org/ftp/python/2.7.12/Python-2.7.12.tgz
 tar xf Python-2.7.12.tgz
 cd Python-2.7.12
 mkdir ${TOOLS_PATH}/Python-2.7.12
@@ -10,7 +10,7 @@ make
 make install
 
 # install pip
-curl -s https://bootstrap.pypa.io/get-pip.py
+wget_retry -nv https://bootstrap.pypa.io/get-pip.py
 ${TOOLS_PATH}/Python-2.7.12/bin/python get-pip.py
 
 # Python tools
