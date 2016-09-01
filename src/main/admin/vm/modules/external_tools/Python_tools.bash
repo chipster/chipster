@@ -1,9 +1,7 @@
 ##depends:none
 
-source ../installation_files/functions.bash
-
 # Python
-wget retry -nv https://www.python.org/ftp/python/2.7.12/Python-2.7.12.tgz
+curl -s https://www.python.org/ftp/python/2.7.12/Python-2.7.12.tgz
 tar xf Python-2.7.12.tgz
 cd Python-2.7.12
 mkdir ${TOOLS_PATH}/Python-2.7.12
@@ -12,7 +10,7 @@ make
 make install
 
 # install pip
-wget retry -nv https://bootstrap.pypa.io/get-pip.py
+curl -s https://bootstrap.pypa.io/get-pip.py
 ${TOOLS_PATH}/Python-2.7.12/bin/python get-pip.py
 
 # Python tools
