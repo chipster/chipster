@@ -204,8 +204,12 @@ public class Authenticator extends NodeBase implements ShutdownCallback {
 				return;
 			} 
 			
+			// check that there is no extra white space in the username, because if authenticationProvider accepts it,
+			// it would create a new user in Chipster
+			boolean validUsername = authMsg.getUsername().trim().equals(authMsg.getUsername());
+			
 			// authenticate with username/password ok
-			if (authenticationProvider.authenticate(authMsg.getUsername(), authMsg.getPassword().toCharArray())) {
+			if (validUsername && authenticationProvider.authenticate(authMsg.getUsername(), authMsg.getPassword().toCharArray())) {
 				
 				pendingSessions.removeSession(session);
 				session.putParameter(KEY_USERNAME, authMsg.getUsername());
@@ -239,6 +243,9 @@ public class Authenticator extends NodeBase implements ShutdownCallback {
 			// authentication with username/password failed
 			else {
 				securityLogger.info("illegal username/password (user " + authMsg.getUsername()  + ", auth. message JMS id was " + authMsg.getJmsMessageID() + ")");
+				if (!validUsername) {
+					securityLogger.info("white space isn't allowed in username (user " + authMsg.getUsername() + ")");
+				}
 				ackLogin(authMsg, session.getID().toString(), false);
 				return;
 			}
