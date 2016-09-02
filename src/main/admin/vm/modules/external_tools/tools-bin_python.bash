@@ -26,7 +26,7 @@
   ln -s ${TOOLS_PATH}/Python-2.7.12/bin/macs2 ${TOOLS_PATH}/macs/macs2
 
 # RSeQC
-  {TOOLS_PATH}/Python-2.7.12/bin/pip install RSeQC==2.6.4
+  ${TOOLS_PATH}/Python-2.7.12/bin/pip install RSeQC==2.6.4
 
 # HTSeq
   ${TOOLS_PATH}/Python-2.7.12/bin/pip install matplotlib
