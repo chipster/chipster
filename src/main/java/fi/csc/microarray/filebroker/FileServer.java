@@ -2,6 +2,7 @@ package fi.csc.microarray.filebroker;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.SQLException;
@@ -777,24 +778,41 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 				
 				else if (msg instanceof CommandMessage && CommandMessage.COMMAND_LOG_STATUS.equals(((CommandMessage)msg).getCommand())) {
 					
-					logger.info("status report requested from the admin-web");
+					longRunningTaskExecutor.execute(new Runnable() {
 					
-					FileServerAdminTools admin = getAdminTools();
-					
-					String sysStats = SystemMonitorUtil.getSystemStats(cacheRoot).systemStatsToString();
-					
-					String report = "";
-					report += "SYSTEM\n\n";
-					report += sysStats + "\n";
-					logger.info("calculating database status report");
-					report += admin.getDataBaseStatusReport() + "\n";
-					logger.info("calculating storage status report");
-					report += admin.getStorageStatusReport(false) + "\n";
-
-					logger.info("status report ready\n\n" + report);
+						public void run() {
+							try {
+								logger.info("status report requested from the admin-web");
+								
+								FileServerAdminTools admin = getAdminTools();
+								
+								String sysStats = SystemMonitorUtil.getSystemStats(cacheRoot).systemStatsToString();
+								
+								String report = "";
+								report += "SYSTEM\n\n";
+								report += sysStats + "\n";
+								logger.info("calculating database status report");
+								report += admin.getDataBaseStatusReport() + "\n";
+								
+								logger.info("calculating storage status report");
+								String storageReport = admin.getStorageStatusReport(false);
+								
+								File reportFile = new File(DirectoryLayout.getInstance().getLogsDir(), "storage-status.txt");
+								logger.info("writing storage status report to " + reportFile.getAbsolutePath());
+								try (PrintWriter out = new PrintWriter(reportFile)) {
+									out.println(storageReport);
+								}
+			
+								logger.info("status report ready\n\n" + report);
+							} catch (Exception e) {
+								logger.error("failed to log status report", e);
+							}
+						}
+					});
 				}
+				
 			} catch (Exception e) {
-				logger.error(e, e);
+				logger.error("error in file-broker message handling", e);
 			}
 		}
 

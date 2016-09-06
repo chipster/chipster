@@ -407,8 +407,16 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 			filebrokerTopic.sendReplyableMessage(storeRequestMessage, replyListener);
 			ParameterMessage reply = replyListener.waitForReply(QUICK_POLL_OPERATION_TIMEOUT, TimeUnit.SECONDS);
 			
-			if (reply == null || !(reply instanceof CommandMessage) || !CommandMessage.COMMAND_FILE_OPERATION_SUCCESSFUL.equals((((CommandMessage)reply).getCommand()))) {
-				throw new JMSException("failed to save session metadata remotely");
+			if (reply == null) {
+				throw new JMSException("failed to save session metadata remotely: reply was null");
+			}
+			
+			if (!(reply instanceof CommandMessage)) {
+				throw new JMSException("failed to save session metadata remotely: reply should be CommandMessage, but is " + reply.getClass().getSimpleName());
+			}
+			
+			if (!CommandMessage.COMMAND_FILE_OPERATION_SUCCESSFUL.equals((((CommandMessage)reply).getCommand()))) {
+				throw new JMSException("failed to save session metadata remotely: reply is " + ((CommandMessage)reply).getCommand());
 			}
 
 			
