@@ -1,6 +1,7 @@
 ##depends:none
 
 # Python
+  cd ${TMPDIR_PATH}/
   wget_retry -nv https://www.python.org/ftp/python/2.7.12/Python-2.7.12.tgz
   tar xf Python-2.7.12.tgz
   cd Python-2.7.12
@@ -32,7 +33,9 @@
   ${TOOLS_PATH}/Python-2.7.12/bin/pip install matplotlib
   ${TOOLS_PATH}/Python-2.7.12/bin/pip install HTSeq==0.6.1
   # htseq-count_chr is not part of distribution
-  wget_retry -O ${TOOLS_PATH}/Python-2.7.12/bin/htseq-count_chr http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/htseq/htseq-count_chr 
+  #wget_retry -O ${TOOLS_PATH}/Python-2.7.12/bin/htseq-count_chr http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/htseq/htseq-count_chr 
+  cp ${TOOLS_PATH}/Python-2.7.12/bin/htseq-count ${TOOLS_PATH}/Python-2.7.12/bin/htseq-count_chr
+  sed -i 's/HTSeq.scripts.count/HTSeq.scripts.count_chr/' ${TOOLS_PATH}/Python-2.7.12/bin/htseq-count_chr
   chmod 755 ${TOOLS_PATH}/Python-2.7.12/bin/htseq-count_chr
   wget_retry -O ${TOOLS_PATH}/Python-2.7.12/lib/python2.7/site-packages/HTSeq/scripts/count_chr.py http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/htseq/count_chr_v2.py
   # make links
