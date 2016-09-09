@@ -150,7 +150,7 @@ public class KielipankkiModule implements Module {
 
 	@Override
 	public String getDisplayName() {
-		return "Chipster";
+		return "Mylly";
 	}
 
 	@Override
