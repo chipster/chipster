@@ -114,6 +114,8 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 	private String overridingFilebrokerIp;
 	
 	volatile private boolean stopGracefully;
+	private String moduleFilterName;
+	private String moduleFilterMode;
 	
 	/**
 	 * 
@@ -135,7 +137,9 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 		this.sweepWorkDir= configuration.getBoolean("comp", "sweep-work-dir");
 		this.maxJobs = configuration.getInt("comp", "max-jobs");
 		this.localFilebrokerPath = nullIfEmpty(configuration.getString("comp", "local-filebroker-user-data-path"));
-		this.overridingFilebrokerIp = nullIfEmpty(configuration.getString("comp", "overriding-filebroker-ip"));				
+		this.overridingFilebrokerIp = nullIfEmpty(configuration.getString("comp", "overriding-filebroker-ip"));
+		this.moduleFilterName = configuration.getString("comp", "module-filter-name");
+		this.moduleFilterMode = configuration.getString("comp", "module-filter-mode");
 		
 		logger = Logger.getLogger(CompServer.class);
 		loggerJobs = Logger.getLogger("jobs");
@@ -515,6 +519,12 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 		}
 		if (toolboxTool == null) {
 			logger.warn("tool " + toolId + " not found");
+			return;
+		}
+		
+		if (("exclude".equals(moduleFilterMode) && toolboxTool.getModule().equals(moduleFilterName)) || 
+				("include".equals(moduleFilterMode) && !toolboxTool.getModule().equals(moduleFilterName))) {
+			logger.warn("tool " + toolId + " in module " + toolboxTool.getModule() + " disabled by module filter");
 			return;
 		}
 		
