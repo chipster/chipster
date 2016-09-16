@@ -8,6 +8,7 @@ import javax.jms.JMSException;
 import javax.swing.Icon;
 import javax.swing.JMenu;
 import javax.swing.JPanel;
+import javax.swing.UIDefaults;
 
 import org.jdesktop.swingx.JXHyperlink;
 
@@ -235,5 +236,7 @@ public interface Module {
 	 * @return icon
 	 */
 	public Icon getIconFor(DataBean data);
+
+	public void updateUIDefaults(UIDefaults defaults);
 	
 }

@@ -1,5 +1,6 @@
 package fi.csc.microarray.module.chipster;
 
+import java.awt.Color;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
@@ -8,6 +9,7 @@ import javax.jms.JMSException;
 import javax.swing.Icon;
 import javax.swing.JMenu;
 import javax.swing.JPanel;
+import javax.swing.UIDefaults;
 
 import org.jdesktop.swingx.JXHyperlink;
 
@@ -177,5 +179,12 @@ public class KielipankkiModule implements Module {
 	@Override
 	public Icon getIconFor(DataBean data) {
 		return data.getContentType().getIcon();
+	}
+
+
+	@Override
+	public void updateUIDefaults(UIDefaults defaults) {
+		defaults.put("SimpleInternalFrame.activeTitleBackground", new Color(77, 90, 145));
+		defaults.put("ScrollBar.thumb", new Color(122, 144, 195));
 	}
 }

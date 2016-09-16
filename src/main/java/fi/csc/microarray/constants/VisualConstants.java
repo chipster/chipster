@@ -166,6 +166,9 @@ public class VisualConstants {
     	if(UIManager.getLookAndFeel() instanceof Plastic3DLookAndFeel 
     			&& Plastic3DLookAndFeel.getPlasticTheme() instanceof ExperienceBlue){
     		
+    		
+    		Session.getSession().getPrimaryModule().updateUIDefaults(defaults);
+    		
     		BorderUIResource emptyBorder = new BorderUIResource(BorderFactory.createEmptyBorder());
     		
     		// Removes borders from menubar
@@ -182,6 +185,7 @@ public class VisualConstants {
     		defaults.put("TaskPaneContainer.background", Color.white);
     		
     		defaults.put("SimpleInternalFrame.activeTitleForeground", Color.white);
+    		
     		
     		// Adds textarea background to white. This affects for example 
     		// help textarea on the top right corner and affymetrix wizard

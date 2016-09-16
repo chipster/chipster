@@ -12,6 +12,7 @@ import javax.swing.Icon;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.UIDefaults;
 
 import org.jdesktop.swingx.JXHyperlink;
 
@@ -222,4 +223,7 @@ public class SequenceModule implements Module {
 		return data.getContentType().getIcon();
 	}
 
+	@Override
+	public void updateUIDefaults(UIDefaults defaults) {
+	}
 }
