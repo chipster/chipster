@@ -699,9 +699,11 @@ public class SwingClientApplication extends ClientApplication {
 
 		// set the UI defaults
 		UIDefaults defaults = UIManager.getDefaults();
-
+		
 		// Done several times, but luckily map rejects duplicates
 		defaults.putAll(VisualConstants.getUIDefaults());
+		
+		Session.getSession().getPrimaryModule().updateUIDefaults(defaults);
 
 		SwingUtilities.updateComponentTreeUI(componentTreeRoot);
 	}

@@ -166,9 +166,6 @@ public class VisualConstants {
     	if(UIManager.getLookAndFeel() instanceof Plastic3DLookAndFeel 
     			&& Plastic3DLookAndFeel.getPlasticTheme() instanceof ExperienceBlue){
     		
-    		
-    		Session.getSession().getPrimaryModule().updateUIDefaults(defaults);
-    		
     		BorderUIResource emptyBorder = new BorderUIResource(BorderFactory.createEmptyBorder());
     		
     		// Removes borders from menubar
