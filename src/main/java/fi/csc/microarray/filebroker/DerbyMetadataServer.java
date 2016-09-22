@@ -85,6 +85,12 @@ public class DerbyMetadataServer {
 					"show_as_folder VARCHAR(200))"
 		}
 	};
+		
+		
+	private static final String[] SQL_CREATE_INDEXES = new String[] {	
+			"create index session on chipster.belongs_to (session_uuid)",
+			"create index file on chipster.belongs_to (file_uuid)"
+	};
 
 	
 	private static String SQL_INSERT_SESSION  = "INSERT INTO chipster.sessions (name, username, uuid) VALUES (?, ?, ?)";
@@ -122,11 +128,25 @@ public class DerbyMetadataServer {
 	private static String SQL_SESSIONS_COUNT = "SELECT COUNT(*) FROM chipster.sessions";
 	private static String SQL_MAPPINGS_COUNT = "SELECT COUNT(*) FROM chipster.belongs_to";
 	private static String SQL_SPECIAL_USERS_COUNT = "SELECT COUNT(*) FROM chipster.special_users";
-	// these result always 0 unless the database is corrupted 
-	private static String SQL_ORPHAN_FILES = "SELECT COUNT(*) FROM chipster.files WHERE uuid NOT IN (SELECT session_uuid FROM chipster.belongs_to) AND uuid NOT IN (SELECT file_uuid FROM chipster.belongs_to)";
-	private static String SQL_MISSING_FILES = "SELECT COUNT(*) FROM chipster.belongs_to WHERE file_UUID NOT IN (SELECT uuid FROM chipster.files)";
-	private static String SQL_ORPHAN_SESSIONS = "SELECT COUNT(*) FROM chipster.sessions WHERE uuid NOT IN (SELECT session_uuid FROM chipster.belongs_to)";
-	private static String SQL_MISSING_SESSIONS = "SELECT COUNT(*) FROM chipster.belongs_to WHERE session_UUID NOT IN (SELECT uuid FROM chipster.sessions)";
+	
+	// these result always 0 unless the database is corrupted
+	private static String SQL_ORPHAN_FILES = 
+		"SELECT count(*) FROM chipster.files a " + 
+        "LEFT JOIN chipster.belongs_to b ON a.uuid = b.session_uuid " + 
+        "LEFT JOIN chipster.belongs_to c ON a.uuid = c.file_uuid "  +
+        "where b.session_uuid IS NULL AND c.file_uuid IS NULL ";
+	private static String SQL_MISSING_FILES = 
+		"SELECT count(*) FROM chipster.belongs_to a " + 
+		"LEFT JOIN chipster.files b ON a.file_uuid = b.uuid " + 
+		"WHERE b.uuid IS NULL";
+	private static String SQL_ORPHAN_SESSIONS = 
+		"SELECT COUNT(*) FROM chipster.sessions a " +
+		"LEFT JOIN chipster.belongs_to b ON a.uuid = b.session_uuid " + 
+		"WHERE b.session_uuid IS NULL";
+	private static String SQL_MISSING_SESSIONS = 
+		"SELECT COUNT(*) FROM chipster.belongs_to a " + 
+		"LEFT JOIN chipster.sessions b ON a.session_uuid = b.uuid " + 
+		"WHERE b.uuid IS NULL";
 
 	private static String SQL_BACKUP = "CALL SYSCS_UTIL.SYSCS_BACKUP_DATABASE(?)";
 	
@@ -219,6 +239,11 @@ public class DerbyMetadataServer {
 					addSpecialUser(DEFAULT_EXAMPLE_SESSION_OWNER, DEFAULT_EXAMPLE_SESSION_FOLDER);
 				}
 			}			
+		}
+		
+		for (int i = 0; i < SQL_CREATE_INDEXES.length; i++) {
+			PreparedStatement ps = connection.prepareStatement(SQL_CREATE_INDEXES[i]);
+			ps.execute();
 		}
 		
 		// report what was done
@@ -704,7 +729,7 @@ public class DerbyMetadataServer {
 		List<String> resultNames = new ArrayList<String>();
 		List<String> resultvalues = new ArrayList<String>();
 		
-		for (int i = 0; i < queries.length && i < names.length; i++) {
+		for (int i = 0; i < queries.length; i++) {
 		
 			PreparedStatement ps = connection.prepareStatement(queries[i]);
 			ResultSet rs = ps.executeQuery();

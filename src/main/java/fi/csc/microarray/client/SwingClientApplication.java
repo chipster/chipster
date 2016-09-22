@@ -217,10 +217,11 @@ public class SwingClientApplication extends ClientApplication {
         // show splash screen
 		if (KielipankkiModule.class.getName().equals(module)) {
 			splashScreen = new SplashScreen(VisualConstants.getIcon(VisualConstants.SPLASH_SCREEN_KIELIPANKKI));
+			reportInitialisationThreadSafely("Initialising " + "Mylly " + ApplicationConstants.VERSION, true);
 		} else {
 			splashScreen = new SplashScreen(VisualConstants.getIcon(VisualConstants.SPLASH_SCREEN));
+			reportInitialisationThreadSafely("Initialising " + ApplicationConstants.TITLE, true);
 		}
-		reportInitialisationThreadSafely("Initialising " + ApplicationConstants.TITLE, true);
 
 		// try to initialise and handle exceptions gracefully
 		
@@ -698,9 +699,11 @@ public class SwingClientApplication extends ClientApplication {
 
 		// set the UI defaults
 		UIDefaults defaults = UIManager.getDefaults();
-
+		
 		// Done several times, but luckily map rejects duplicates
 		defaults.putAll(VisualConstants.getUIDefaults());
+		
+		Session.getSession().getPrimaryModule().updateUIDefaults(defaults);
 
 		SwingUtilities.updateComponentTreeUI(componentTreeRoot);
 	}

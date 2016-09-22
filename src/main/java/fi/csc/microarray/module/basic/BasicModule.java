@@ -9,6 +9,7 @@ import java.util.List;
 import javax.swing.Icon;
 import javax.swing.JMenu;
 import javax.swing.JPanel;
+import javax.swing.UIDefaults;
 
 import org.jdesktop.swingx.JXHyperlink;
 
@@ -241,5 +242,9 @@ public class BasicModule implements Module {
 		} catch (Exception me) {
 			Session.getSession().getApplication().reportException(me);
 		}
+	}
+
+	@Override
+	public void updateUIDefaults(UIDefaults defaults) {
 	}
 }

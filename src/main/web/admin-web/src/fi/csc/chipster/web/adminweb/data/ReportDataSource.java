@@ -78,12 +78,15 @@ public class ReportDataSource {
 				layout.removeAllComponents();
 
 				Button reportButton = view.createReportButton("Write full report to log");
+				Label infoLabel = view.createReportLabel(
+						"The report will be written to the file-broker's log. \n");
 
 				reportButton.addClickListener(new LogReportClickListener(view, ReportDataSource.this));
 
 				Label reportLabel = view.createReportLabel(report);
 				layout.addComponent(reportLabel);
 				layout.addComponent(reportButton);				
+				layout.addComponent(infoLabel);
 			}
 		});
 	}
