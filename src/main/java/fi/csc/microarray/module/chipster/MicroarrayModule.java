@@ -22,6 +22,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.UIDefaults;
 
 import org.jdesktop.swingx.JXHyperlink;
 
@@ -825,4 +826,8 @@ public class MicroarrayModule implements Module {
 		}
 	}
 
+
+	@Override
+	public void updateUIDefaults(UIDefaults defaults) {
+	}
 }

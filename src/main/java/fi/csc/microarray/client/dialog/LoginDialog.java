@@ -78,9 +78,10 @@ public class LoginDialog extends JDialog implements ActionListener, KeyListener 
 
 		 c.gridwidth = 2;
 		 
+		 String applicationName = Session.getSession().getPrimaryModule().getDisplayName();
 		 String announcement = Session.getSession().getApplication().getAnnouncementText();
 		 String msg = 
-				 "<html><p>Please enter your Chipster username and password,<br>"
+				 "<html><p>Please enter your " + applicationName + " username and password,<br>"
 				 + "or use the username 'guest' and password 'guest'<br/>to "
 				 + "have a look. Running tools is disabled for guests.</p>";
 		 if (announcement != null) {

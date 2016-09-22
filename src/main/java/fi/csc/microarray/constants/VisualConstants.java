@@ -183,6 +183,7 @@ public class VisualConstants {
     		
     		defaults.put("SimpleInternalFrame.activeTitleForeground", Color.white);
     		
+    		
     		// Adds textarea background to white. This affects for example 
     		// help textarea on the top right corner and affymetrix wizard
     		defaults.put("TextArea.background", Color.WHITE);    		

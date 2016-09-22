@@ -276,7 +276,15 @@
 		<entry entryKey="job-memory-max" type="int" description="max memory that single job should use, megabytes">
 			<value>8192</value>
 		</entry>
-
+		
+		<entry entryKey="module-filter-name" type="string" description="name of the module to enable or disable">
+			<value>kielipankki</value>
+		</entry>
+		
+		<entry entryKey="module-filter-mode" type="string" description="'exclude' disables the specified module and enables all other modules, 'include' enables the specified module and disables all other modules">
+			<value>exclude</value>
+		</entry>
+		
 	</configuration-module>
 	
 	<configuration-module moduleId="manager" description="manager service">
@@ -368,7 +376,7 @@
 
 	<configuration-module moduleId="jobmanager" description="jobmanager">
 	
-		<entry entryKey="job-max-wait-time" type="int" description="Max time a job can wait for a free comp to run it">
+		<entry entryKey="job-max-wait-time" type="int" description="Max time a job can wait for a free comp to run it, seconds">
 			<value>600</value>
 		</entry>
 		

@@ -1,18 +1,30 @@
 package fi.csc.microarray.module.chipster;
 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontFormatException;
+import java.awt.GraphicsEnvironment;
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map.Entry;
 
 import javax.jms.JMSException;
 import javax.swing.Icon;
 import javax.swing.JMenu;
 import javax.swing.JPanel;
+import javax.swing.UIDefaults;
+import javax.swing.UIManager;
+import javax.swing.plaf.FontUIResource;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXHyperlink;
 
 import fi.csc.microarray.client.QuickLinkPanel;
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.selection.IntegratedEntity;
@@ -35,6 +47,8 @@ import fi.csc.microarray.module.basic.BasicModule;
  *
  */
 public class KielipankkiModule implements Module {
+	
+	private static Logger logger = LogManager.getLogger(KielipankkiModule.class);
 	
 	public static class TypeTags {
 	}
@@ -150,7 +164,7 @@ public class KielipankkiModule implements Module {
 
 	@Override
 	public String getDisplayName() {
-		return "Chipster";
+		return "Mylly";
 	}
 
 	@Override
@@ -177,5 +191,50 @@ public class KielipankkiModule implements Module {
 	@Override
 	public Icon getIconFor(DataBean data) {
 		return data.getContentType().getIcon();
+	}
+
+
+	@Override
+	public void updateUIDefaults(UIDefaults defaults) {
+		defaults.put("SimpleInternalFrame.activeTitleBackground", new Color(77, 90, 145));
+		defaults.put("ScrollBar.thumb", new Color(122, 144, 195));
+		
+		// replace all l&f settings with the current background color with the Kielipankki background color
+		Color defaultBackground = UIManager.getColor("Panel.background");
+		Color background = new Color(202, 210, 230);
+		
+    	for (Enumeration<Object> e = UIManager.getDefaults().keys(); e.hasMoreElements(); ){
+    		Object obj = e.nextElement();
+    		if (obj instanceof String){
+    			String key = (String)obj;
+    			Color value = UIManager.getColor(key);
+    			if (defaultBackground.equals(value)) {
+    				defaults.put(key, background);
+    			}
+    		}
+    	}
+    	
+    	// change font (breaks text size changes)
+    	try {
+			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+			Font font = Font.createFont(Font.TRUETYPE_FONT, KielipankkiModule.class.getResourceAsStream("/fonts/Lato-Regular.ttf"));
+			font = font.deriveFont(((SwingClientApplication)Session.getSession().getApplication()).getFontSize() + 2);
+			ge.registerFont(font);
+			
+			for (Entry<Object, Object> entry : UIManager.getDefaults().entrySet()) {
+				Object key = entry.getKey();
+				Object value = javax.swing.UIManager.get(key);
+				if (value != null && value instanceof javax.swing.plaf.FontUIResource) {
+					// Lato font doesn't render OSX symbols correctly
+					if (!"MenuItem.acceleratorFont".equals(key.toString())) {
+						javax.swing.UIManager.put(key, new FontUIResource(font));
+					}	
+				}
+			}
+		} catch (IOException|FontFormatException e) {
+			// creating an error dialog would fail
+			logger.error("font loading error", e);
+			System.err.println("font loading error: " + e);
+		}
 	}
 }
