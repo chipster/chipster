@@ -377,7 +377,7 @@
 	<configuration-module moduleId="jobmanager" description="jobmanager">
 	
 		<entry entryKey="job-max-wait-time" type="int" description="Max time a job can wait for a free comp to run it, seconds">
-			<value>600</value>
+			<value>43200</value><!-- 12h  -->
 		</entry>
 		
 		<entry entryKey="hibernate-driver" type="string" description="Database driver for Hibernate">
