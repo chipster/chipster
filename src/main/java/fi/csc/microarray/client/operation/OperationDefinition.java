@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -168,7 +169,7 @@ public class OperationDefinition implements ExecutionItem {
 			return isOptional;
 		}
 
-		private void nextMulti() {
+		public void nextMulti() {
 			multiCounter++;
 		}
 
@@ -344,11 +345,24 @@ public class OperationDefinition implements ExecutionItem {
 	}
 	
 	public Suitability evaluateBindingSuitability(Iterable<DataBean> datas, List<DataBinding> bindings) {
+
+		/* If there are several multi inputs of same type, at least one of them
+		 * must have a bound databean. We can't require all of them to have, because the
+		 * automatic binding can't do it. 
+		 */
+		Set<InputType> boundMultiTypes = new HashSet<>();
+		for (InputDefinition input : inputs) {
+			if (input.isMulti) {
+				if (bindingsContainsInput(bindings, input)) {
+					boundMultiTypes.add(input.getType());
+				}
+			}
+		}
 		
 		// check that all mandatory inputs are set
 		for (InputDefinition input : inputs) {
 			if (!input.isOptional()) {
-				if (!bindingsContainsInput(bindings, input)) {
+				if (!bindingsContainsInput(bindings, input) && !boundMultiTypes.contains(input.getType())) {
 					logger.debug("  no binding found for " + input.getID());
 					return Suitability.EMPTY_REQUIRED_PARAMETERS;
 				}

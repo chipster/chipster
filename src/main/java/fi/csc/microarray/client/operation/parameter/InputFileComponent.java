@@ -5,13 +5,20 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.ListSelectionModel;
+import javax.swing.border.LineBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import org.apache.log4j.Logger;
 
@@ -28,28 +35,162 @@ import fi.csc.microarray.databeans.DataBean;
  *
  */
 @SuppressWarnings("serial")
-public class InputFileComponent extends JPanel {
+public abstract class InputFileComponent extends JPanel {
+	
+	
+	public static class SingleInput extends InputFileComponent{
+		
+		private SteppedComboBox choiceBox;
+
+		public SingleInput(InputDefinition input, Operation operation,
+				List<InputFileComponent> components) {
+			super(input, operation, components);
+			
+	        // Prepare the combo box
+	        choiceBox = new SteppedComboBox(dataBeans.toArray());
+	        choiceBox.setEnabled(enabled);
+			Dimension preferredSize = choiceBox.getPreferredSize();
+			choiceBox.setMinimumSize(ParameterInputComponent.PREFERRED_SIZE);	
+			choiceBox.setPreferredSize(ParameterInputComponent.PREFERRED_SIZE);
+			choiceBox.setPopupWidth(preferredSize.width);
+			choiceBox.setBackground(Color.white);
+	        
+	        // Set selected bean for this combo box, if null -> no selection
+	        if (!currentBeans.isEmpty()) {
+	        	choiceBox.setSelectedItem(currentBeans.get(0));
+	        } else {
+	        	choiceBox.setSelectedItem(null);
+	        }
+	        
+	        this.add(choiceBox, BorderLayout.CENTER);
+	        
+	        this.initListener(this);
+		}
+		
+	    private void initListener(InputFileComponent parent) {
+	        choiceBox.addItemListener(new ItemListener() {
+				@Override
+				public void itemStateChanged(ItemEvent e) {
+					if (e.getStateChange() == ItemEvent.DESELECTED) {
+		                /* deselection happens only when the data is selected in some 
+		                 * other comboBox and in this case that comboBox will set the
+		                 * new data bindings
+		                 */
+		            } else {
+		            	parent.bind((DataBean)e.getItem(), e.getSource());
+		            }
+				}
+			});
+		}
+
+		public JComponent getComponent() {
+	        return choiceBox;
+	    }
+	    
+		public List<DataBean> getSelectedItems() {
+	    	List<DataBean> items = new ArrayList<>();
+	    	for (Object dataBean : choiceBox.getSelectedObjects()) {
+	    		items.add((DataBean)dataBean);
+	    	}
+			return items;
+	    }
+	    
+
+		public void removeSelected(Object selected) {
+			if (selected.equals(choiceBox.getSelectedItem())) {
+				choiceBox.setSelectedItem(null);
+			}
+		}
+	}
+	
+	public static class MultiInput extends InputFileComponent {
+		
+		private JList<DataBean> list;
+
+		public MultiInput(InputDefinition input, Operation operation,
+				List<InputFileComponent> components) {
+			super(input, operation, components);
+			
+	        list = new JList<DataBean>(dataBeans.toArray(new DataBean[0]));
+	        list.setEnabled(enabled);
+			//Dimension preferredSize = list.getPreferredSize();
+	        list.setMinimumSize(new Dimension((int) ParameterInputComponent.PREFERRED_SIZE.getWidth(), list.getMinimumSize().height));
+	        list.setBorder(new LineBorder(Color.gray));
+			//choiceBox.setPopupWidth(preferredSize.width);
+	        //choiceBox.setBackground(Color.white);
+	        
+	        // Set selected bean for this combo box, if null -> no selection
+	        list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+	        	      
+	        for (int i = 0; i < dataBeans.size(); i++) {
+	        	if (currentBeans.contains(dataBeans.get(i))) {
+	        		list.addSelectionInterval(i, i);
+	        	}
+	        }
+	       
+	        this.add(list, BorderLayout.CENTER);
+	        
+    		this.initListener(this);
+		}
+		
+		private void initListener(InputFileComponent parent) {
+			list.addListSelectionListener(new ListSelectionListener() {
+				@Override
+				public void valueChanged(ListSelectionEvent e) {
+					for (int i = e.getFirstIndex(); i <= e.getLastIndex(); i++) {
+						// skip deselection events
+						if (list.isSelectedIndex(i)) {
+							parent.bind(dataBeans.get(i), e.getSource());
+						}
+					}
+				}
+			});
+		}
+		
+	    public JComponent getComponent() {
+	        return list;
+	    }
+	    
+	    public List<DataBean> getSelectedItems() {
+    		return list.getSelectedValuesList();	
+	    }
+	    
+
+		public void removeSelected(Object selected) {
+    		int index = dataBeans.indexOf(selected);
+			list.removeSelectionInterval(index, index);
+		}
+	}
+	
     
     private static final Logger logger = Logger
         .getLogger(SingleSelectionInputComponent.class);
     
     private InputDefinition input;
-    private SteppedComboBox choiceBox;
     private Operation operation;
+    
+	protected List<DataBean> dataBeans;
 
-    public InputFileComponent(InputDefinition input, Operation operation) {
+	private List<InputFileComponent> components;
+
+	protected ArrayList<DataBean> currentBeans;
+
+	protected boolean enabled;
+
+    public InputFileComponent(InputDefinition input, Operation operation, List<InputFileComponent> components) {
         super(new BorderLayout());
         
         // Set name and operation object
         this.input = input;
         this.operation = operation;
+        this.components = components;
         
         // Check current bindings and generate choices
         List<DataBinding> bindings = operation.getBindings();
         HashMap<String, String> bindingMap = new HashMap<String, String>();
         DataBean[] dataBeans = new DataBean[0];
-        DataBean currentBean = null;
-        Boolean enabled = false;
+        currentBeans = new ArrayList<DataBean>();
+        enabled = false;
         Integer index = 0;
         if (!bindings.isEmpty()) {
             
@@ -62,23 +203,12 @@ public class InputFileComponent extends JPanel {
                 
                 // Find the selected item
                 if (input.idMatches(binding.getName())) {
-                    currentBean = binding.getData();
+                    currentBeans.add(binding.getData());
                 }
             }
         }
         
-        // Prepare the combo box
-        choiceBox = new SteppedComboBox(dataBeans);
-        choiceBox.setEnabled(enabled);
-		Dimension preferredSize = choiceBox.getPreferredSize();
-        choiceBox.setPreferredSize(ParameterInputComponent.PREFERRED_SIZE);
-		choiceBox.setPopupWidth(preferredSize.width);
-        choiceBox.setBackground(Color.white);
-        
-        // Set selected bean for this combo box, if null -> no selection
-        choiceBox.setSelectedItem(currentBean);
-        
-        this.add(choiceBox, BorderLayout.CENTER);
+        this.dataBeans = Arrays.asList(dataBeans);
     }
     
     /**
@@ -91,17 +221,10 @@ public class InputFileComponent extends JPanel {
     /**
      * @return checkbox component.
      */
-    public JComboBox getChoiceBox() {
-        return choiceBox;
-    }
-    
-    /**
-     * Sets action listener for this component.
-     */
-    public void setListener(InputFileComponentListener listener) {
-        choiceBox.addItemListener(listener);
-    }
-    
+    abstract public JComponent getComponent();
+    abstract public List<DataBean> getSelectedItems();
+	abstract public void removeSelected(Object selected);
+        
     /**
      * @return parameter name for this component.
      */
@@ -109,62 +232,31 @@ public class InputFileComponent extends JPanel {
         return new JLabel(input.getDisplayName());
     }
     
-    /**
-     * Listener that is responsible for changes made to input
-     * file selection components.
-     */
-    public class InputFileComponentListener implements ItemListener {
-        
-        private Object selected;
-        private List<InputFileComponent> components;
-        
-        /**
-         * Set a list that contains InputFileComponent objects
-         * for this operation. Each InputFileComponent needs to
-         * manipulate the full list. Should include itself also.
-         */
-        public InputFileComponentListener(List<InputFileComponent> components) {
-            this.components = components;
-        }
+    private void bind(DataBean selected, Object sourceComponent) {
 
-        /**
-         * Basically does two things:
-         * <ol>
-         * <li> Makes sure that no other InputFileComponent has the same value.
-         * <li> Rebinds inputs in the Operation object.
-         * </ol>
-         */
-        public void itemStateChanged(ItemEvent e) {
-            if (e.getStateChange() == ItemEvent.DESELECTED) {
-                /* deselection happens only when the data is selected in some 
-                 * other comboBox and in this case that comboBox will set the
-                 * new data bindings
-                 */
-            } else {
-                selected = e.getItem();
+        logger.debug("Selected input dataset: " + selected );
 
-                logger.debug("Selected input dataset: " + selected );
-
-                operation.clearBindings();
-                LinkedList<DataBinding> newBindings = new LinkedList<DataBinding>();
-                for (InputFileComponent component : components) {
-                    // Make sure no other input control has the same value
-                    if (component.getChoiceBox().getSelectedItem() != null 
-                    		&& component.getChoiceBox().getSelectedItem().equals(selected) 
-                    		&& e.getSource() != component.getChoiceBox()) {
-                        component.getChoiceBox().setSelectedItem(null);
-                    }
-                    
-                    // Rebind input datasets                    
-                    DataBean selectedBean = (DataBean) component.getChoiceBox().getSelectedItem();
-                    if (selectedBean != null) {
-                    	newBindings.add(new DataBinding(selectedBean,
-                    			component.getInput().getID(),
-                    			component.getInput().getType()));
-                    }
-                }
-                operation.setBindings(newBindings);
+        operation.clearBindings();
+        LinkedList<DataBinding> newBindings = new LinkedList<DataBinding>();
+        for (InputFileComponent component : components) {
+            // Make sure no other input control has the same value
+            if (component.getSelectedItems().contains(selected) 
+            		&& sourceComponent != component.getComponent()) {
+                component.removeSelected(selected);;
+            }
+            
+            // Rebind input datasets                    
+            List<DataBean> selectedBeans = component.getSelectedItems();
+            
+            InputDefinition input = component.getInput();
+            
+            input.resetMulti();
+            
+            for (DataBean bean : selectedBeans) {
+            		newBindings.add(new DataBinding(bean, input.getID(), input.getType()));
+            		input.nextMulti();
             }
         }
+        operation.setBindings(newBindings);
     }
 }
