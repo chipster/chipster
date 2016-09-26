@@ -106,8 +106,12 @@ public class ToolParameterPanel extends ParameterPanel {
         if (operation.getDefinition().getInputs().size() > 1) {
             // Operation has some inputs
             for (InputDefinition input : operation.getDefinition().getInputs()) {
-                InputFileComponent inputComponent = new InputFileComponent(input, operation);
-                inputComponent.setListener(inputComponent.new InputFileComponentListener(inputComponents));
+            	InputFileComponent inputComponent;
+            	if (input.isMulti()) {
+            		inputComponent = new InputFileComponent.MultiInput(input, operation, inputComponents);
+            	} else {
+            		inputComponent = new InputFileComponent.SingleInput(input, operation, inputComponents);
+            	}
                 inputComponents.add(inputComponent);
                 
                 addParameter(paramPane, inputComponent, inputComponent.getLabel(), con);
