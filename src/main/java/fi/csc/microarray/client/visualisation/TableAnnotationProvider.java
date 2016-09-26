@@ -54,6 +54,9 @@ public class TableAnnotationProvider {
 
 			while (table.nextRow()) {
 				String identifier = table.getStringValue(" ");
+				if (identifier == null) {
+					identifier = table.getStringValue("identifier");
+				}
 
 				String symbol = table.getStringValue(columnSymbol);
 				String actualDescription = table.getStringValue(COLUMN_DESCRIPTION);
