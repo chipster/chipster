@@ -6,9 +6,6 @@ import java.awt.Dimension;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JComponent;
@@ -23,7 +20,6 @@ import javax.swing.event.ListSelectionListener;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.client.operation.Operation;
-import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.client.operation.OperationDefinition.InputDefinition;
 import fi.csc.microarray.databeans.DataBean;
 
@@ -43,12 +39,11 @@ public abstract class InputFileComponent extends JPanel {
 		private SteppedComboBox choiceBox;
 
 		public SingleInput(InputDefinition input, Operation operation,
-				List<InputFileComponent> components) {
-			super(input, operation, components);
+				InputParameters inputParameters, List<DataBean> options, DataBean selected) {
+			super(input);
 			
 	        // Prepare the combo box
-	        choiceBox = new SteppedComboBox(dataBeans.toArray());
-	        choiceBox.setEnabled(enabled);
+	        choiceBox = new SteppedComboBox(options.toArray());
 			Dimension preferredSize = choiceBox.getPreferredSize();
 			choiceBox.setMinimumSize(ParameterInputComponent.PREFERRED_SIZE);	
 			choiceBox.setPreferredSize(ParameterInputComponent.PREFERRED_SIZE);
@@ -56,18 +51,14 @@ public abstract class InputFileComponent extends JPanel {
 			choiceBox.setBackground(Color.white);
 	        
 	        // Set selected bean for this combo box, if null -> no selection
-	        if (!currentBeans.isEmpty()) {
-	        	choiceBox.setSelectedItem(currentBeans.get(0));
-	        } else {
-	        	choiceBox.setSelectedItem(null);
-	        }
+			choiceBox.setSelectedItem(selected);
 	        
 	        this.add(choiceBox, BorderLayout.CENTER);
 	        
-	        this.initListener(this);
+	        this.initListener(inputParameters);
 		}
 		
-	    private void initListener(InputFileComponent parent) {
+	    private void initListener(InputParameters inputParameters) {
 	        choiceBox.addItemListener(new ItemListener() {
 				@Override
 				public void itemStateChanged(ItemEvent e) {
@@ -77,7 +68,7 @@ public abstract class InputFileComponent extends JPanel {
 		                 * new data bindings
 		                 */
 		            } else {
-		            	parent.bind((DataBean)e.getItem(), e.getSource());
+		            	inputParameters.bind((DataBean)e.getItem(), e.getSource());
 		            }
 				}
 			});
@@ -106,13 +97,16 @@ public abstract class InputFileComponent extends JPanel {
 	public static class MultiInput extends InputFileComponent {
 		
 		private JList<DataBean> list;
+		private List<DataBean> options;
 
 		public MultiInput(InputDefinition input, Operation operation,
-				List<InputFileComponent> components) {
-			super(input, operation, components);
+				InputParameters inputParameters, List<DataBean> options, List<DataBean> selected) {
+					
+			super(input);
 			
-	        list = new JList<DataBean>(dataBeans.toArray(new DataBean[0]));
-	        list.setEnabled(enabled);
+			this.options = options;
+			
+	        list = new JList<DataBean>(options.toArray(new DataBean[0]));
 			//Dimension preferredSize = list.getPreferredSize();
 	        list.setMinimumSize(new Dimension((int) ParameterInputComponent.PREFERRED_SIZE.getWidth(), list.getMinimumSize().height));
 	        list.setBorder(new LineBorder(Color.gray));
@@ -122,26 +116,24 @@ public abstract class InputFileComponent extends JPanel {
 	        // Set selected bean for this combo box, if null -> no selection
 	        list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 	        	      
-	        for (int i = 0; i < dataBeans.size(); i++) {
-	        	if (currentBeans.contains(dataBeans.get(i))) {
+	        for (int i = 0; i < selected.size(); i++) {
+	        	if (selected.contains(options.get(i))) {
 	        		list.addSelectionInterval(i, i);
 	        	}
 	        }
 	       
 	        this.add(list, BorderLayout.CENTER);
 	        
-    		this.initListener(this);
+    		this.initListener(inputParameters);
 		}
 		
-		private void initListener(InputFileComponent parent) {
+		private void initListener(InputParameters inputParameters) {
 			list.addListSelectionListener(new ListSelectionListener() {
 				@Override
 				public void valueChanged(ListSelectionEvent e) {
-					for (int i = e.getFirstIndex(); i <= e.getLastIndex(); i++) {
-						// skip deselection events
-						if (list.isSelectedIndex(i)) {
-							parent.bind(dataBeans.get(i), e.getSource());
-						}
+					
+					for (DataBean data : list.getSelectedValuesList()) {
+						inputParameters.bind(data, e.getSource());
 					}
 				}
 			});
@@ -157,58 +149,21 @@ public abstract class InputFileComponent extends JPanel {
 	    
 
 		public void removeSelected(Object selected) {
-    		int index = dataBeans.indexOf(selected);
+    		int index = options.indexOf(selected);
 			list.removeSelectionInterval(index, index);
 		}
 	}
 	
     
-    private static final Logger logger = Logger
-        .getLogger(SingleSelectionInputComponent.class);
+    @SuppressWarnings("unused")
+	private static final Logger logger = Logger.getLogger(SingleSelectionInputComponent.class);
+	private InputDefinition input;
     
-    private InputDefinition input;
-    private Operation operation;
-    
-	protected List<DataBean> dataBeans;
-
-	private List<InputFileComponent> components;
-
-	protected ArrayList<DataBean> currentBeans;
-
-	protected boolean enabled;
-
-    public InputFileComponent(InputDefinition input, Operation operation, List<InputFileComponent> components) {
+    public InputFileComponent(InputDefinition input) {
         super(new BorderLayout());
         
         // Set name and operation object
         this.input = input;
-        this.operation = operation;
-        this.components = components;
-        
-        // Check current bindings and generate choices
-        List<DataBinding> bindings = operation.getBindings();
-        HashMap<String, String> bindingMap = new HashMap<String, String>();
-        DataBean[] dataBeans = new DataBean[0];
-        currentBeans = new ArrayList<DataBean>();
-        enabled = false;
-        Integer index = 0;
-        if (!bindings.isEmpty()) {
-            
-            // User has already selected the input files
-            enabled = true;
-            dataBeans = new DataBean[bindings.size()];
-            for (DataBinding binding : bindings) {
-                dataBeans[index++] = binding.getData();
-                bindingMap.put(binding.getName(), binding.getData().getName());
-                
-                // Find the selected item
-                if (input.idMatches(binding.getName())) {
-                    currentBeans.add(binding.getData());
-                }
-            }
-        }
-        
-        this.dataBeans = Arrays.asList(dataBeans);
     }
     
     /**
@@ -230,33 +185,5 @@ public abstract class InputFileComponent extends JPanel {
      */
     public JLabel getLabel() {
         return new JLabel(input.getDisplayName());
-    }
-    
-    private void bind(DataBean selected, Object sourceComponent) {
-
-        logger.debug("Selected input dataset: " + selected );
-
-        operation.clearBindings();
-        LinkedList<DataBinding> newBindings = new LinkedList<DataBinding>();
-        for (InputFileComponent component : components) {
-            // Make sure no other input control has the same value
-            if (component.getSelectedItems().contains(selected) 
-            		&& sourceComponent != component.getComponent()) {
-                component.removeSelected(selected);;
-            }
-            
-            // Rebind input datasets                    
-            List<DataBean> selectedBeans = component.getSelectedItems();
-            
-            InputDefinition input = component.getInput();
-            
-            input.resetMulti();
-            
-            for (DataBean bean : selectedBeans) {
-            		newBindings.add(new DataBinding(bean, input.getID(), input.getType()));
-            		input.nextMulti();
-            }
-        }
-        operation.setBindings(newBindings);
     }
 }

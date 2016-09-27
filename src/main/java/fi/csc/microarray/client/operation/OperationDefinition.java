@@ -578,7 +578,7 @@ public class OperationDefinition implements ExecutionItem {
 	}
 
 	// TODO update to new type tag system
-	private boolean doBackwardsCompatibleTypeCheck(InputType type, DataBean data) {
+	public static boolean doBackwardsCompatibleTypeCheck(InputType type, DataBean data) {
 		
 		if (type.equals(ChipsterInputTypes.AFFY)) {
 			return data.hasTypeTag(MicroarrayModule.TypeTags.RAW_AFFYMETRIX_EXPRESSION_VALUES);
