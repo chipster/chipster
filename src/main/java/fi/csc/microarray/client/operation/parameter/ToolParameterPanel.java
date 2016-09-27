@@ -5,8 +5,6 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.util.LinkedList;
-import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -22,7 +20,6 @@ import org.jdesktop.swingx.VerticalLayout;
 import org.jdesktop.swingx.painter.MattePainter;
 
 import fi.csc.microarray.client.operation.Operation;
-import fi.csc.microarray.client.operation.OperationDefinition.InputDefinition;
 import fi.csc.microarray.client.operation.ToolPanel;
 import fi.csc.microarray.exception.MicroarrayException;
 
@@ -98,22 +95,15 @@ public class ToolParameterPanel extends ParameterPanel {
         // Grid layout for component/label pairs
         paramPane = new JPanel(new GridBagLayout());
 
-        con = prepareBagConstraints();
-        
-        List<InputFileComponent> inputComponents = new LinkedList<InputFileComponent>();
+        con = prepareBagConstraints();        
         
         // Only show input mappings in parameter panel when necessary
         if (operation.getDefinition().getInputs().size() > 1) {
             // Operation has some inputs
-            for (InputDefinition input : operation.getDefinition().getInputs()) {
-            	InputFileComponent inputComponent;
-            	if (input.isMulti()) {
-            		inputComponent = new InputFileComponent.MultiInput(input, operation, inputComponents);
-            	} else {
-            		inputComponent = new InputFileComponent.SingleInput(input, operation, inputComponents);
-            	}
-                inputComponents.add(inputComponent);
-                
+        	
+        	InputParameters inputs = new InputParameters(operation);
+        	
+            for (InputFileComponent inputComponent : inputs.getComponents()) {
                 addParameter(paramPane, inputComponent, inputComponent.getLabel(), con);
             }
                   
