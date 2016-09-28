@@ -40,7 +40,9 @@ public class InputParameters {
 			if (input.isMulti()) {
 				inputComponent = new InputFileComponent.MultiInput(input, operation, this, options, selected);
 			} else {
-				inputComponent = new InputFileComponent.SingleInput(input, operation, this, options, selected.get(0));
+				// optional parameters may not have binding
+				DataBean singleSelected = selected.isEmpty() ? null : selected.get(0);
+				inputComponent = new InputFileComponent.SingleInput(input, operation, this, options, singleSelected);
 			}
 			inputComponents.add(inputComponent);
 		}
