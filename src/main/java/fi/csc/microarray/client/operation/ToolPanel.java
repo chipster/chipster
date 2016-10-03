@@ -502,9 +502,12 @@ public class ToolPanel extends JPanel
 		Runnability runnability = evaluateRunnability();
 		if (!runnability.isRunnable()) {
 			if (!failSilently) {
-			    application.showDialog("Check parameters", runnability.toString(), "",
+			    application.showDialog("Check parameters and input datasets ", 
+			    		"- All non-optional parameters must have valid value\n" + 
+			    		"- All selected datasets must be assigned\n", 
+			    		runnability.toString(),
                         Severity.INFO, true,
-                        DetailsVisibility.DETAILS_ALWAYS_HIDDEN, null);
+                        DetailsVisibility.DETAILS_HIDDEN, null);
 			}
 		    return;
 		}
