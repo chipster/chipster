@@ -23,7 +23,7 @@ do
  # for re in $(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms -r compute -a list | awk -F "/compute/" '{print "/compute/"$2}' )
  for re in $(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms -r compute -a list 2>/dev/null ) 
  do
-  rline=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $re -a describe | awk '{if ( $3 == "chipster-vm_'$user'") print $0 }'| awk '{if ( $1 == "occi.core.title") print "'$re' "$0 }')
+  rline=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $re -a describe | awk '{if ( $3 == "chipster-vm-'$user'") print $0 }'| awk '{if ( $1 == "occi.core.title") print "'$re' "$0 }')
   if [[ $rline != "" ]]
   then
      vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $re | grep occi.networkinterface.address | awk '{print $3}'| head -1)
@@ -681,14 +681,17 @@ volume_name=("xxx")
 while [[ $volume_name != "chipster-data_$user" ]]
 do
  sleep 5
- echo "occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe -r $volume "
  volume_name=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe -r $volume | grep occi.core.title | awk '{print $3}')
- occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe -r $volume
  echo "Volume name: $volume_name"
  (( rounds = rounds + 1 ))
  if  [[ $rounds > 4 ]]
  then
+   occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe -r $volume
    echo "Could not get a volume name"
+   
+   echo "Command: occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe -r $volume "
+   echo "returns:" 
+   occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe -r $volume
    exit 1
  fi
 done
@@ -734,16 +737,18 @@ cat > /tmp/chipster_server_startup_$$.sh <<EOF
 
 echo "$(cat ${keyname}.pub)" >> /home/ubuntu/.ssh/authorized_keys
 
-date > /opt/chipster/webstart/web-root/building.html
+echo '<pre>'  > /opt/chipster/webstart/web-root/building.html
+date >> /opt/chipster/webstart/web-root/building.html
 chmod go+rx /opt/chipster/webstart/web-root/building.html
 pwd >> /opt/chipster/webstart/web-root/building.html
 whoami >>  /opt/chipster/webstart/web-root/building.html
 sudo apt-get update  >>  /opt/chipster/webstart/web-root/building.html
-echo Y | sudo apt-get install gdebi 2>&1 >> /opt/chipster/webstart/web-root/building.html
-wget https://cvmrepo.web.cern.ch/cvmrepo/deb/cvmfs-config/cvmfs-config-default_latest_all.deb 2>&1 >> /opt/chipster/webstart/web-root/building.html
-wget https://cvmrepo.web.cern.ch/cvmrepo/deb/cvmfs-2.1.20/cvmfs_2.1.20_amd64.deb 2>&1 >> /opt/chipster/webstart/web-root/building.html
-echo y | sudo gdebi cvmfs-config-default_latest_all.deb   2>&1 >> /opt/chipster/webstart/web-root/building.html
-echo y | sudo gdebi cvmfs_2.1.20_amd64.deb  2>&1 >>  /opt/chipster/webstart/web-root/building.html
+#CVMFS is now included in Chipster image
+#echo Y | sudo apt-get install gdebi 2>&1 >> /opt/chipster/webstart/web-root/building.html
+#wget https://cvmrepo.web.cern.ch/cvmrepo/deb/cvmfs-config/cvmfs-config-default_latest_all.deb 2>&1 >> /opt/chipster/webstart/web-root/building.html
+#wget https://cvmrepo.web.cern.ch/cvmrepo/deb/cvmfs-2.1.20/cvmfs_2.1.20_amd64.deb 2>&1 >> /opt/chipster/webstart/web-root/building.html
+#echo y | sudo gdebi cvmfs-config-default_latest_all.deb   2>&1 >> /opt/chipster/webstart/web-root/building.html
+#echo y | sudo gdebi cvmfs_2.1.20_amd64.deb  2>&1 >>  /opt/chipster/webstart/web-root/building.html
 sudo cvmfs_config setup  2>&1 >>  /opt/chipster/webstart/web-root/building.html
 cd /etc/cvmfs
 #cp default.local ~/default.local.cvmfs.tmp
@@ -829,10 +834,10 @@ userdata="file:///tmp/chipster_server_startup_$$.sh"
 sleep 5
 echo
 echo "Launching a new virtual machine with command:"
-echo "occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action create -r compute -M $chipster_img -M $flavor -t occi.core.title="chipster-vm_$user" --context user_data="$userdata" "
+echo "occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action create -r compute -M $chipster_img -M $flavor -t occi.core.title="chipster-vm-$user" --context user_data="$userdata" "
 #vmaddress=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action create -r compute -M $chipster_img -M $flavor -t occi.core.title="chipster-vm_$user" --context user_data="$userdata" --link $volume | awk -F "/compute/" '{print "/compute/"$2}' ) 
-vmaddress=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action create -r compute -M $chipster_img -M $flavor -t occi.core.title="chipster-vm_$user" --context user_data="$userdata" )
-
+vmaddress=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action create -r compute -M $chipster_img -M $flavor -t occi.core.title="chipster-vm-$user" --context user_data="$userdata" )
+echo ""
 
 
 if [[ $vmaddress == "" ]]
@@ -842,7 +847,7 @@ then
   sleep 15 
   occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe -r $volume
   vmaddress=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action create \
--r compute -M $chipster_img -M $flavor -t occi.core.title="chipster-vm_$user" --context user_data="$userdata" )
+-r compute -M $chipster_img -M $flavor -t occi.core.title="chipster-vm-$user" --context user_data="$userdata" )
   if [[ $vmaddress == "" ]]
   then
       echo "Second attempt faided too. Exiting"
@@ -857,19 +862,30 @@ vmstate=XX
 while [[ $vmstate != "active" ]]
 do
    vmstate=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe -r $vmaddress | grep occi.networkinterface.state | awk '{print $3}')
-   echo $vmstate
+   echo  "Virtual machine in state $vmstate"
    sleep 10
 done
 
+volstate=XX
+while [[ $volstate != "online" ]]
+do 
+  volstate=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe -r $volume |  grep occi.storage.state | awk '{print $3}')
+  echo "Volume in state $volstate"
+  sleep 5
+done
+
+echo " "
 echo "Linking volume: $volume"
 echo "to Virtual machine: $vmaddress"
+
 
 occi -e $endpoint --auth x509 --user-cred $usercred -s --voms -a link -r $vmaddress -j $volume
 volstate=""
 while [[ $volstate == "" ]]
 do
+   
    volstate=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe -r $vmaddress | grep occi.storagelink.deviceid | awk '{print $3}')
-   echo "Waitng for volume to be linked $volstate"
+   echo "Waiting for volume to be linked $volstate"
    sleep 10
 done
 
@@ -933,6 +949,7 @@ do
  build_last_row=$(curl ${vmip}:8081/building.html 2> /dev/null | tail -1)
  wait_now=$(date +%s)
  (( wait_time =  wait_now - wait_start))
+ printf "                                                                                                             \r"
  printf "Time waited ${wait_time}s. Status: $build_last_row \r"
  if [[ $wait_time -gt 1800 ]]
  then
@@ -981,6 +998,4 @@ echo "  http://${vmip}:8081"
 echo ""
 exit 0
 
-#Command to delete a VM
-#occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action delete --resource $vmaddress
 
