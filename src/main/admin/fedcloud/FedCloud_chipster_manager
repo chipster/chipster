@@ -331,7 +331,7 @@ then
   #echo "  https://stack-server-01.ct.infn.it:8787"
   #echo "  https://cloud.ifca.es:8787/occi"
 
-  clusters=( "https://controller.ceta-ciemat.es:8787" "https://stack-server-01.ct.infn.it:8787" "https://cloud.ifca.es:8787/occi" )
+  clusters=( "https://controller.ceta-ciemat.es:8787" "http://server4-epsh.unizar.es:8787" )
   echo ""
   if [[ $endpoint == "0" ]]
    then
