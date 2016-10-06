@@ -326,10 +326,10 @@ fi
 if [[ $vo_name == "training.egi.eu" ]]
 then
   echo "Available endpoints:"
-  #echo "  http://server4-epsh.unizar.es:8787"
+  echo "  http://server4-epsh.unizar.es:8787"
   echo "  https://controller.ceta-ciemat.es:8787"
-  echo "  https://stack-server-01.ct.infn.it:8787"
-  echo "  https://cloud.ifca.es:8787/occi"
+  #echo "  https://stack-server-01.ct.infn.it:8787"
+  #echo "  https://cloud.ifca.es:8787/occi"
 
   clusters=( "https://controller.ceta-ciemat.es:8787" "https://stack-server-01.ct.infn.it:8787" "https://cloud.ifca.es:8787/occi" )
   echo ""
@@ -378,7 +378,7 @@ if [[ $endpoint == "http://server4-epsh.unizar.es:8787" ]]
 then
    if [[ $chipster_img == "0"  ]]
    then
-       chipster_img=("os_tpl#d503022a-9747-40df-b2d4-04150af88f6e")
+       chipster_img=("os_tpl#afe5f4d9-6773-438f-8cad-4beb07c24a2a")
    fi
 
    if [[  $flavor == "0" ]]
