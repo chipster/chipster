@@ -326,12 +326,13 @@ fi
 if [[ $vo_name == "training.egi.eu" ]]
 then
   echo "Available endpoints:"
-  echo "  http://server4-epsh.unizar.es:8787"
+  echo "  http://server4-eupt.unizar.es:8787"
   echo "  https://controller.ceta-ciemat.es:8787"
   #echo "  https://stack-server-01.ct.infn.it:8787"
   #echo "  https://cloud.ifca.es:8787/occi"
-
-  clusters=( "https://controller.ceta-ciemat.es:8787" "http://server4-epsh.unizar.es:8787" )
+  
+  clusters=( "https://controller.ceta-ciemat.es:8787" "http://server4-eupt.unizar.es:8787" )
+  #clusters=( "https://controller.ceta-ciemat.es:8787" "http://server4-epsh.unizar.es:8787" )
   echo ""
   if [[ $endpoint == "0" ]]
    then
@@ -374,7 +375,7 @@ fi
 
 
 #BIFI
-if [[ $endpoint == "http://server4-epsh.unizar.es:8787" ]]
+if [[ $endpoint == "http://server4-eupt.unizar.es:8787" ]]
 then
    if [[ $chipster_img == "0"  ]]
    then
@@ -862,8 +863,16 @@ vmstate=XX
 while [[ $vmstate != "active" ]]
 do
    vmstate=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe -r $vmaddress | grep occi.networkinterface.state | awk '{print $3}')
+   echo  "Virtual machine networkinteface in state $vmstate"
+   sleep 5
+done
+
+vmstate=XX
+while [[ $vmstate != "active" ]]
+do
+   vmstate=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe -r $vmaddress | grep occi.compute.state | awk '{print $3}')
    echo  "Virtual machine in state $vmstate"
-   sleep 10
+   sleep 5
 done
 
 volstate=XX
