@@ -49,7 +49,7 @@ do
     echo "checking: $re"
     echo "chipster-vm-$user"
     echo ""
-    rline=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $re -a describe | awk '{if ( $3 == "chipster-vm_'$user'") print $0 }' | awk '{if ( $1 == "occi.core.title") print "'$re' "$0 }')
+    rline=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $re -a describe | awk '{if ( $3 == "chipster-vm-'$user'") print $0 }' | awk '{if ( $1 == "occi.core.title") print "'$re' "$0 }')
   if [[ $rline != "" ]]
   then
     vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $re | grep occi.networkinterface.address| awk '{print $3}'| head -1)
