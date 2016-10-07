@@ -336,7 +336,7 @@ then
   echo ""
   if [[ $endpoint == "0" ]]
    then
-      endpoint=("https://controller.ceta-ciemat.es:8787")
+      endpoint=("http://server4-eupt.unizar.es:8787")
       echo "Using endpoint: $endpoint"
   fi
 fi 
@@ -448,7 +448,7 @@ link_ip=(0)
 endpoint=(0)
 
 
-user=$(voms-proxy-info --identity | awk '{print $NF}' | sed s/'@'/"-at-"/g | tr "[:upper:]" "[:lower:]" )
+user=$(voms-proxy-info --identity | awk '{print $NF}' | sed s/'@'/"-at-"/g | tr "[:upper:]" "[:lower:]" | td "=;/, " "-" )
 
 usercred=$(ls /tmp/x509up_u${UID})
 volumesize=20
@@ -863,7 +863,7 @@ vmstate=XX
 while [[ $vmstate != "active" ]]
 do
    vmstate=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe -r $vmaddress | grep occi.networkinterface.state | awk '{print $3}')
-   echo  "Virtual machine networkinteface in state $vmstate"
+   echo  "Virtual machine network interface in state $vmstate"
    sleep 5
 done
 
