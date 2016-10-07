@@ -448,7 +448,7 @@ link_ip=(0)
 endpoint=(0)
 
 
-user=$(voms-proxy-info --identity | awk '{print $NF}' | sed s/'@'/"-at-"/g | tr "[:upper:]" "[:lower:]" | td "=;/, " "-" )
+user=$(voms-proxy-info --identity | awk '{print $NF}' | sed s/'@'/"-at-"/g | tr "[:upper:]" "[:lower:]" | tr "=;/, " "-" )
 
 usercred=$(ls /tmp/x509up_u${UID})
 volumesize=20
