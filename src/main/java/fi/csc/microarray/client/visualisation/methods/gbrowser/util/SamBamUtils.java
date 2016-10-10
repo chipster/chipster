@@ -14,24 +14,26 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import net.sf.picard.io.IoUtil;
-import net.sf.picard.sam.BuildBamIndex;
-import net.sf.samtools.SAMFileHeader;
-import net.sf.samtools.SAMFileReader;
-import net.sf.samtools.SAMFileReader.ValidationStringency;
-import net.sf.samtools.SAMFileWriter;
-import net.sf.samtools.SAMFileWriterFactory;
-import net.sf.samtools.SAMRecord;
-import net.sf.samtools.SAMSequenceDictionary;
-import net.sf.samtools.SAMSequenceRecord;
-import net.sf.samtools.seekablestream.SeekableBufferedStream;
-import net.sf.samtools.seekablestream.SeekableFileStream;
-import net.sf.samtools.seekablestream.SeekableHTTPStream;
-import net.sf.samtools.seekablestream.SeekableStream;
-
-import org.broad.tribble.readers.TabixReader;
-
 import fi.csc.microarray.util.IOUtils;
+import htsjdk.samtools.BAMIndexer;
+import htsjdk.samtools.SAMException;
+import htsjdk.samtools.SAMFileHeader;
+import htsjdk.samtools.SAMFileReader;
+import htsjdk.samtools.SAMFileWriter;
+import htsjdk.samtools.SAMFileWriterFactory;
+import htsjdk.samtools.SAMRecord;
+import htsjdk.samtools.SAMSequenceDictionary;
+import htsjdk.samtools.SAMSequenceRecord;
+import htsjdk.samtools.SamReader;
+import htsjdk.samtools.SamReaderFactory;
+import htsjdk.samtools.ValidationStringency;
+import htsjdk.samtools.seekablestream.SeekableBufferedStream;
+import htsjdk.samtools.seekablestream.SeekableFileStream;
+import htsjdk.samtools.seekablestream.SeekableHTTPStream;
+import htsjdk.samtools.seekablestream.SeekableStream;
+import htsjdk.samtools.util.CloserUtil;
+import htsjdk.samtools.util.IOUtil;
+import htsjdk.tribble.readers.TabixReader;
 
 public class SamBamUtils {
 		
@@ -121,7 +123,7 @@ public class SamBamUtils {
 	public static void sortSamBam(File samBamFile, File sortedBamFile) {
 		
 		SAMFileReader.setDefaultValidationStringency(ValidationStringency.SILENT);
-		SAMFileReader reader = new SAMFileReader(IoUtil.openFileForReading(samBamFile));
+		SAMFileReader reader = new SAMFileReader(IOUtil.openFileForReading(samBamFile));
 		SAMFileWriter writer = null;
 		try {
 			
@@ -143,7 +145,7 @@ public class SamBamUtils {
 
 		// Read in a BAM file and its header
 		SAMFileReader.setDefaultValidationStringency(ValidationStringency.SILENT);
-		SAMFileReader reader = new SAMFileReader(IoUtil.openFileForReading(bamFile));
+		SAMFileReader reader = new SAMFileReader(IOUtil.openFileForReading(bamFile));
 		SAMFileWriter writer = null;
 		try {
 			SAMFileHeader normalisedHeader = reader.getFileHeader();
@@ -173,7 +175,25 @@ public class SamBamUtils {
 
 	public void indexBam(File bamFile, File baiFile) {
 		SAMFileReader.setDefaultValidationStringency(ValidationStringency.SILENT);
-		BuildBamIndex.createIndex(new SAMFileReader(IoUtil.openFileForReading(bamFile)), baiFile); 
+        final SamReader bam;
+
+            // input from a normal file
+            IOUtil.assertFileIsReadable(bamFile);
+            bam = SamReaderFactory.makeDefault().referenceSequence(null)
+                    .enable(SamReaderFactory.Option.INCLUDE_SOURCE_IN_RECORDS)
+                    .open(bamFile);
+
+        if (bam.type() != SamReader.Type.BAM_TYPE) {
+            throw new SAMException("Input file must be bam file, not sam file.");
+        }
+
+        if (!bam.getFileHeader().getSortOrder().equals(SAMFileHeader.SortOrder.coordinate)) {
+            throw new SAMException("Input bam file must be sorted by coordinate");
+        }
+
+        BAMIndexer.createIndex(bam, baiFile);
+
+        CloserUtil.close(bam);
 	}
 
 	public void preprocessEland(File elandFile, File preprocessedBamFile, File baiFile) throws IOException {

@@ -12,8 +12,6 @@ import java.util.TreeSet;
 
 import javax.swing.SwingUtilities;
 
-import org.broad.tribble.readers.TabixReader;
-
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
@@ -37,6 +35,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.Inde
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.RandomAccessLineDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.UnsortedDataException;
+import htsjdk.tribble.readers.TabixReader;
 
 public class GtfToFeatureConversion extends DataThread {
 	

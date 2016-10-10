@@ -6,13 +6,12 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Set;
 
-import org.broad.tribble.readers.TabixReader;
-import org.broad.tribble.readers.TabixReader.Iterator;
-
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils;
+import htsjdk.tribble.readers.TabixReader;
+import htsjdk.tribble.readers.TabixReader.Iterator;
 
 /**
  * 
@@ -21,7 +20,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils;
  */
 public class TabixDataSource extends DataSource {
 
-	private ChipsterTabixReader reader;
+	private TabixReader reader;
 
     public TabixDataSource(DataUrl repeat, DataUrl repeatIndex) throws URISyntaxException, IOException {
     	//TODO use the provided index instead of guessing
@@ -37,20 +36,9 @@ public class TabixDataSource extends DataSource {
         	fileString = (new File(repeatUrl.toURI()).getPath()); //Translate '%20' to space character, required in Windows
         }
         
-        this.reader = new ChipsterTabixReader(fileString);       
+        this.reader = new TabixReader(fileString);       
 
         // TODO initialize chromosome name unnormaliser (see for example BamDataSource), 
-    }
-    
-    public static class ChipsterTabixReader extends TabixReader {
-
-		public ChipsterTabixReader(String fn) throws IOException {
-			super(fn);
-		}
-    	
-		public Set<String> getChromosomes() {
-			return mChr2tid.keySet();
-		}
     }
     
 	public void clean() {

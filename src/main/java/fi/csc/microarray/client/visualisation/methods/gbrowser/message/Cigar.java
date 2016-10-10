@@ -7,8 +7,8 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import net.sf.samtools.CigarElement;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.CigarItem.CigarItemType;
+import htsjdk.samtools.CigarElement;
 
 /**
  * Represents the CIGAR string, as supported by the SAM standard. CIGAR string is used to
@@ -22,14 +22,14 @@ public class Cigar {
 	private LinkedList<ReadPart> visibleElements = null;
 	private LinkedList<ReadPart> processedElements = null;
 	private Feature read;
-	private net.sf.samtools.Cigar samCigar;
+	private htsjdk.samtools.Cigar samCigar;
 
 	public Cigar(Feature read, List<CigarItem> cigarItems) {
 		this.read = read;
 		this.cigarItems = cigarItems;
 	}
 
-	public Cigar(Feature read, net.sf.samtools.Cigar samCigar) {
+	public Cigar(Feature read, htsjdk.samtools.Cigar samCigar) {
 		this.read = read;
 		this.samCigar = samCigar;
 

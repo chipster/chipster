@@ -4,8 +4,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import net.sf.samtools.SAMRecord;
-import net.sf.samtools.util.CloseableIterator;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserSettings.CoverageType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
@@ -18,6 +16,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
 import fi.csc.microarray.util.BamUtils;
+import htsjdk.samtools.SAMRecord;
+import htsjdk.samtools.util.CloseableIterator;
 
 /**
  * This conversion reads bam files with Picard and creates a RegionContent object for each read.

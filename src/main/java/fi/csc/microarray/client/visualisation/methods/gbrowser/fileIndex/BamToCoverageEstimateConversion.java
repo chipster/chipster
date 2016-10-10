@@ -5,8 +5,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.SortedMap;
 
-import net.sf.samtools.SAMRecord;
-import net.sf.samtools.util.CloseableIterator;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.ConcisedValueCache.Counts;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserSettings.CoverageType;
@@ -22,6 +20,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.Data
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.CoverageEstimateTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 import fi.csc.microarray.util.BamUtils;
+import htsjdk.samtools.SAMRecord;
+import htsjdk.samtools.util.CloseableIterator;
 
 /**
  * This conversion class uses Picard to read Bam files and creates a coverage estimate by sampling.
