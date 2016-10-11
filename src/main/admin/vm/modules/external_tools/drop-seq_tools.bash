@@ -8,4 +8,4 @@ source ../installation_files/functions.bash
   unzip Drop-seq_tools-1.12.zip
   mv Drop-seq_tools-1.12 ${TOOLS_PATH}
   cd ${TOOLS_PATH}
-  ln -s drop-seq_tools-1.12 drop-seq_tools 
+  ln -s Drop-seq_tools-1.12 drop-seq_tools 
