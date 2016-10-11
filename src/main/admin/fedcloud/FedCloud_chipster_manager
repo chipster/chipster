@@ -858,31 +858,40 @@ then
 fi
 
 #Link the 
-
-vmstate=XX
-while [[ $vmstate != "active" ]]
-do
+## Checking status if possible
+vmstate=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe -r $vmaddress | grep -c occi.networkinterface.state) 
+if [[ $vmstate -eq 1  ]]
+then
+ while [[ $vmstate != "active" ]]
+ do
    vmstate=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe -r $vmaddress | grep occi.networkinterface.state | awk '{print $3}')
    echo  "Virtual machine network interface in state $vmstate"
+   echo  "Waiting"
    sleep 5
-done
+ done
+fi
 
-vmstate=XX
-while [[ $vmstate != "active" ]]
-do
-   vmstate=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe -r $vmaddress | grep occi.compute.state | awk '{print $3}')
-   echo  "Virtual machine in state $vmstate"
-   sleep 5
-done
+vmstate=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe -r $vmaddress | grep -c occi.compute.state)
+if [[ $vmstate -eq 1  ]]
+then
+  while [[ $vmstate != "active" ]]
+  do
+     vmstate=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe -r $vmaddress | grep occi.compute.state | awk '{print $3}')
+     echo  "Virtual machine in state $vmstate"
+     sleep 5
+  done
+fi  
 
-volstate=XX
-while [[ $volstate != "online" ]]
-do 
-  volstate=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe -r $volume |  grep occi.storage.state | awk '{print $3}')
-  echo "Volume in state $volstate"
-  sleep 5
-done
-
+volstate=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe -r $volume |  grep -c occi.storage.state)
+if [[ $volstate -eq 1  ]]
+then
+  while [[ $volstate != "online" ]]
+  do 
+    volstate=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe -r $volume |  grep occi.storage.state | awk '{print $3}')
+    echo "Volume in state $volstate"
+    sleep 5
+  done
+fi
 echo " "
 echo "Linking volume: $volume"
 echo "to Virtual machine: $vmaddress"
