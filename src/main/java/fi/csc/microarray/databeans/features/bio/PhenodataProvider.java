@@ -54,7 +54,7 @@ public class PhenodataProvider extends FeatureProviderBase {
 			}
 			
 			// check that data has everything we need
-			if (columns != null && columns.hasColumn("sample") && columns.hasColumn("chiptype")) {
+			if (columns != null && columns.hasColumn("sample")) {
 
 				isPhenodata = true;
 
