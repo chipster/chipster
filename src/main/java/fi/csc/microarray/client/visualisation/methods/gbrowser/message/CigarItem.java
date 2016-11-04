@@ -1,7 +1,7 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
-import net.sf.samtools.CigarElement;
-import net.sf.samtools.CigarOperator;
+import htsjdk.samtools.CigarElement;
+import htsjdk.samtools.CigarOperator;
 
 /**
  * Single item (continuous block of same type bases) of CIGAR string.

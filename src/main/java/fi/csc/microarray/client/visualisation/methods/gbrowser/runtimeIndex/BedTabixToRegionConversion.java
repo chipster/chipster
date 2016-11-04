@@ -5,8 +5,6 @@ import java.net.URISyntaxException;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.broad.tribble.readers.TabixReader;
-
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.TabixDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
@@ -14,6 +12,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataReque
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
+import htsjdk.tribble.readers.TabixReader;
 
 public class BedTabixToRegionConversion extends DataThread {
 
