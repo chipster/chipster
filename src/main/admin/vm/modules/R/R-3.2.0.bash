@@ -1,6 +1,6 @@
 ##depends:none
 
-R_VER=3.2.0  
+#R_VER=3.2.0  
 #cd ${TMPDIR_PATH}/
 #curl -s http://ftp.sunet.se/pub/lang/CRAN/src/base/R-3/R-${R_VER}.tar.gz | tar -xz
 #cd R-${R_VER}/
@@ -29,8 +29,8 @@ R_VER=3.2.0
 #${TOOLS_PATH}/R-${R_VER}/bin/Rscript --vanilla install-libs.R
 
 
-curl -L http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.2.0-vmbin/R-3.2.0-08-07-2015.tar.gz | tar -xz -C ${TOOLS_PATH}/
+#curl -L http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.2.0-vmbin/R-3.2.0-08-07-2015.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
-wget https://raw.githubusercontent.com/chipster/chipster-tools/master/tools/admin/R-3.2.0/install-libs.R
-wget https://raw.githubusercontent.com/chipster/chipster-tools/master/tools/admin/R/smip.R
-${TOOLS_PATH}/R-${R_VER}/bin/Rscript --vanilla install-libs.R
+#wget https://raw.githubusercontent.com/chipster/chipster-tools/master/tools/admin/R-3.2.0/install-libs.R
+#wget https://raw.githubusercontent.com/chipster/chipster-tools/master/tools/admin/R/smip.R
+#${TOOLS_PATH}/R-${R_VER}/bin/Rscript --vanilla install-libs.R
