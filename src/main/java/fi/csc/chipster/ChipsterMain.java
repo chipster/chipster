@@ -1,4 +1,4 @@
-package fi.csc.microarray;
+package fi.csc.chipster;
 
 
 import java.io.FileInputStream;
@@ -32,7 +32,7 @@ import fi.csc.microarray.webstart.WebstartJettyServer;
  * 
  * @author Aleksi Kallio, Taavi Hupponen
  */
-public class MicroarrayMain {
+public class ChipsterMain {
 
 	public static void main(String[] args) {
 
