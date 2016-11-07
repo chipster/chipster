@@ -11,6 +11,7 @@ import fi.csc.chipster.ChipsterMain;
 public class MicroarrayMain {
 
 	public static void main(String[] args) {
+		System.out.println("This class is obsolete, please use fi.csc.chipster.ChipsterMain instead.");
 		ChipsterMain.main(args);
 	}
 }
