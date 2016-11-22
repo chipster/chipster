@@ -69,6 +69,7 @@ cpanm Bio::Phylo
 #cpanm BioPerl --force
 cpanm Bio::Perl --force
 cpanm Bio::Graphics --force
+cpanm Bio::Coordinate::Pair --force
 
 #install Virus_Detect                                                                                                                                                                                       
 cd /opt/chipster/tools
