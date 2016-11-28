@@ -25,12 +25,12 @@
 <runtimes>
 
 	<runtime>
-		<name>R-3.0.2</name>
+		<name>R-3.3.2</name>
 		<handler>
 			<class>fi.csc.microarray.comp.r.RJobFactory</class> 
 			<parameter>
 				<name>command</name>
-				<value>/opt/chipster/tools/R-3.0.2/bin/R</value>
+				<value>/opt/chipster/tools/R-3.3.2/bin/R</value>
 			</parameter>
 			<parameter>
 				<name>commandParameters</name>
@@ -39,20 +39,6 @@
 		</handler>
 	</runtime>
 	
-	<runtime>
-		<name>R-3.2.0</name>
-		<handler>
-			<class>fi.csc.microarray.comp.r.RJobFactory</class> 
-			<parameter>
-				<name>command</name>
-				<value>/opt/chipster/tools/R-3.2.0/bin/R</value>
-			</parameter>
-			<parameter>
-				<name>commandParameters</name>
-				<value>--vanilla --quiet</value>
-			</parameter>
-		</handler>
-	</runtime>
 
 	<runtime>
 		<name>R</name>
