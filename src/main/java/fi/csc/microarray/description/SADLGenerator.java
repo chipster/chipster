@@ -82,6 +82,9 @@ public class SADLGenerator {
 			}			
 		}		
 		
+		if (sadl.getRuntime() != null && !sadl.getRuntime().isEmpty()) {
+			string += "RUNTIME " + sadl.getRuntime();
+		}
 		return string;
 	}
 

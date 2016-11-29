@@ -135,6 +135,13 @@ public class SADLParser {
 			description.addParameter(parameter);
 		}
 
+		//	read possible parameters
+		while (nextTokenIs(tokens, SADLSyntax.KEYWORD_RUNTIME)) {
+			skip(tokens, SADLSyntax.KEYWORD_RUNTIME);
+			String runtime = parseRuntime(tokens);
+			description.setRuntime(runtime);
+		}
+		
 		// check that no trailing content was left behind
 		if (tokens.hasNext() && !nextTokenIs(tokens, SADLSyntax.KEYWORD_TOOL)) {
 			// content other then new description was left 
@@ -180,6 +187,10 @@ public class SADLParser {
 		return name;
 	}
 
+	private String parseRuntime(SADLTokeniser tokens) throws ParseException {
+		return tokens.next();
+	}
+	
 	private Output parseOutput(SADLTokeniser tokens) throws ParseException {
 		
 		Output output = new Output();

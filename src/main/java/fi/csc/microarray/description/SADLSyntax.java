@@ -77,6 +77,7 @@ public class SADLSyntax {
 	public static final String KEYWORD_OUTPUT = "OUTPUT";
 	public static final String KEYWORD_INPUT = "INPUT";
 	public static final String KEYWORD_TOOL = "TOOL";
+	public static final String KEYWORD_RUNTIME = "RUNTIME";
 
 	public static final String NAME_SET_DESIGNATOR = "{...}";
 	public static final String NAME_SEPARATOR = ":";

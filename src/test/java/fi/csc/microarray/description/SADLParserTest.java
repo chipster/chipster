@@ -17,31 +17,6 @@ import fi.csc.microarray.module.chipster.ChipsterSADLParser;
 
 public class SADLParserTest {
 
-	@Test
-	public void testVVSADLCompatibility() throws MicroarrayException, IOException {
-		String vvsadl = "ANALYSIS \"Test utilities\"/\"Test tool\" (Just a test analysis for development. These descriptions are sometimes very\n" + 
-				"long and might get hard to read.)\n" + 
-				"INPUT CDNA microarray[...].txt OUTPUT results.txt, messages.txt\n" + 
-				"PARAMETER value1 INTEGER FROM 0 TO 200 DEFAULT 10 (the first value of the result set)\n" + 
-				"PARAMETER value2 DECIMAL FROM 0 TO 200 DEFAULT 20 (the second value of the result set)\n" + 
-				"PARAMETER value3 DECIMAL FROM 0 TO 200 DEFAULT 30.2 (the third value of the result set)\n" + 
-				"PARAMETER method PERCENT DEFAULT 34 (how much we need)\n" + 
-				"PARAMETER method [linear, logarithmic, exponential] DEFAULT logarithmic (which scale to use)\n" + 
-				"PARAMETER genename STRING DEFAULT at_something (which gene we are interested in)\n" + 
-				"PARAMETER key COLUMN_SEL (which column we use as a key)"; 
-
-		SADLDescription parsedDescription = new ChipsterSADLParser().parse(vvsadl);
-		Assert.assertNotNull(parsedDescription);
-		Assert.assertEquals(parsedDescription.getName().getID(), "Test tool");
-		Assert.assertEquals(parsedDescription.getName().getDisplayName(), "Test tool");
-		Assert.assertTrue(parsedDescription.getDescription().startsWith("Just a test analysis"));
-		Assert.assertEquals(parsedDescription.getInputs().size(), 1);
-		Assert.assertTrue(parsedDescription.getInputs().get(0).getName().isNameSet());
-		Assert.assertEquals(parsedDescription.getOutputs().size(), 2);
-		Assert.assertEquals(parsedDescription.getParameters().size(), 7);
-		Assert.assertEquals(parsedDescription.getParameters().get(4).getSelectionOptions().length, 3);
-		
-	}
 
 	@Test
 	public void testParsing() throws MicroarrayException, IOException {
@@ -57,7 +32,8 @@ public class SADLParserTest {
 				"PARAMETER value4: \"The fourth value\" TYPE PERCENT DEFAULT 34 (how much we need)\n" + 
 				"PARAMETER method: \"The enumeration\" TYPE [option1: \"First option\", option2: \"Second option\", option3: \"Third option\"] FROM 1 TO 2 DEFAULT option1, option2 (which options are selected)\n" + 
 				"PARAMETER genename: \"Gene name\" TYPE STRING DEFAULT at_something (which gene we are interested in)\n" + 
-				"PARAMETER key: \"Key column\" TYPE COLUMN_SEL (which column we use as a key)"; 
+				"PARAMETER key: \"Key column\" TYPE COLUMN_SEL (which column we use as a key)\n" +
+				"RUNTIME"; 
 		
 		// do a comprehensive test of the parsed description
 		SADLDescription parsedDescription = new ChipsterSADLParser().parse(sadl);
@@ -143,6 +119,9 @@ public class SADLParserTest {
 		Assert.assertEquals(parsedDescription.getParameters().get(6).getType(), ParameterType.COLUMN_SEL);
 		Assert.assertEquals(parsedDescription.getParameters().get(6).getDescription(), "which column we use as a key");
 		Assert.assertFalse(parsedDescription.getParameters().get(6).isOptional());
+	
+		// runtime
+		Assert.assertEquals(parsedDescription.getRuntime(), "R-3.3.2");
 	}
 
 	@Test
@@ -217,7 +196,6 @@ public class SADLParserTest {
 		new SADLParserTest().testParsing();
 		new SADLParserTest().testRoundtrip();
 		new SADLParserTest().testEscapes();
-		new SADLParserTest().testVVSADLCompatibility();
 		System.out.println("SADLParserTest OK");
 	}
 }
