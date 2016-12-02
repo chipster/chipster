@@ -336,7 +336,7 @@ then
   echo ""
   if [[ $endpoint == "0" ]]
    then
-      endpoint=("http://server4-eupt.unizar.es:8787")
+      endpoint=("https://controller.ceta-ciemat.es:8787")
       echo "Using endpoint: $endpoint"
   fi
 fi 
