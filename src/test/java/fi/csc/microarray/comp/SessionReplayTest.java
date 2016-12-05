@@ -76,7 +76,8 @@ public class SessionReplayTest extends MessagingTestBase {
 	private static final TimeUnit TOOL_TEST_TIMEOUT_UNIT = TimeUnit.HOURS;
 	
 	private static final boolean FAIL_ON_OUTPUT_SIZE_MISMATCH = false;
-	private static final boolean CHECK_CONTENTS = true;
+	private static final boolean FAIL_ON_OUTPUT_CONTENT_TYPE_MISMATCH = false;
+	private static final boolean CHECK_CONTENTS = false;
 	
 	private File sessionsDir;
 	static private File webDir; // needed in early fail
@@ -398,11 +399,11 @@ public class SessionReplayTest extends MessagingTestBase {
 							DataBean targetBean = targetIterator.next();
 
 							// check content types
-							if (!sourceBean.getContentType().getType().equals(targetBean.getContentType().getType())) {
-								summary.getToolTestResults().add(new ToolTestResult(TestResult.FAIL, session, task, "Mismatch in result content types, "
-										+ sourceBean.getName() + ": " + sourceBean.getContentType().getType() + ", " + targetBean.getName() + ": " + targetBean.getContentType().getType()));
-								return;
-							}
+//							if (!sourceBean.getContentType().getType().equals(targetBean.getContentType().getType())) {
+//								summary.getToolTestResults().add(new ToolTestResult(TestResult.FAIL, session, task, "Mismatch in result content types, "
+//										+ sourceBean.getName() + ": " + sourceBean.getContentType().getType() + ", " + targetBean.getName() + ": " + targetBean.getContentType().getType()));
+//								return;
+//							}
 
 							//						// check names
 							//						if (!sourceBean.getName().equals(targetBean.getName())) {
@@ -412,15 +413,15 @@ public class SessionReplayTest extends MessagingTestBase {
 							//						}
 						} 
 						// Not enough results
-						else {
-							summary.getToolTestResults().add(new ToolTestResult(TestResult.FAIL, session, task, "not enough result datasets"));
-							return;
-						}
+//						else {
+//							summary.getToolTestResults().add(new ToolTestResult(TestResult.FAIL, session, task, "not enough result datasets"));
+//							return;
+//						}
 					}
-					if (targetIterator.hasNext()) {
-						summary.getToolTestResults().add(new ToolTestResult(TestResult.FAIL, session, task, "too many result datasets"));
-						return;
-					}
+//					if (targetIterator.hasNext()) {
+//						summary.getToolTestResults().add(new ToolTestResult(TestResult.FAIL, session, task, "too many result datasets"));
+//						return;
+//					}
 
 					// Find and replace metadata 
 					targetIterator = task.getOutputs().iterator();
@@ -531,7 +532,9 @@ public class SessionReplayTest extends MessagingTestBase {
 //		Assert.assertEquals(bean1.getName(), bean2.getName());
 
 		// check content types
-		Assert.assertEquals(bean1.getContentType().getType(), bean2.getContentType().getType());
+		if (FAIL_ON_OUTPUT_CONTENT_TYPE_MISMATCH) {
+			Assert.assertEquals(bean1.getContentType().getType(), bean2.getContentType().getType());
+		}
 		
 		// exact size
 		if (FAIL_ON_OUTPUT_SIZE_MISMATCH) {

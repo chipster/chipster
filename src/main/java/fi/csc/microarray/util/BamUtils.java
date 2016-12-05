@@ -1,8 +1,8 @@
 package fi.csc.microarray.util;
 
-import net.sf.samtools.SAMRecord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserSettings.CoverageType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
+import htsjdk.samtools.SAMRecord;
 
 public class BamUtils {
 

@@ -4,15 +4,15 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import net.sf.picard.PicardException;
-import net.sf.picard.reference.ChipsterIndexedFastaSequenceFile;
-import net.sf.picard.reference.ReferenceSequence;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.ByteDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.LineDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.ChromosomeNameUnnormaliser;
+import htsjdk.samtools.SAMException;
+import htsjdk.samtools.reference.ChipsterIndexedFastaSequenceFile;
+import htsjdk.samtools.reference.ReferenceSequence;
 
 /**
  * 
@@ -59,7 +59,7 @@ public class IndexedFastaDataSource extends DataSource {
 			ReferenceSequence picardSequence = picard.getSubsequenceAt(chrString, start, end);
 			return new String(picardSequence.getBases());
 
-		} catch (PicardException e) {				
+		} catch (SAMException e) {				
 			e.printStackTrace(); //Catch "Query asks for data past end of contig" to prevent this thread from ending
 			return null;
 		}		

@@ -39,7 +39,7 @@
     <typedef name="fatjar.filesource" classname="net.sf.fjep.anttask.FJFileSourceType" classpath="${fjepPath}" loaderref="lib.path.loader"/>
 
 	<!-- version numbering -->
-	<property name="release-version" value="3.9.2" />
+	<property name="release-version" value="3.10.0" />
 	<property name="release-jar" value="${dist}/chipster-${release-version}.jar" />
 	<property name="release-tar" value="${dist}/chipster-${release-version}.tar.gz" />
 	<property name="release-zip" value="${dist}/chipster-${release-version}.zip" />
@@ -96,9 +96,7 @@
            	<fatjar.jarsource file="${lib}/eclipse-icons.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/activemq-all-5.10.0.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/commons-logging-1.1.jar" relpath=""/>
-			<fatjar.jarsource file="${lib}/sam-1.103.jar" relpath=""/>
-			<fatjar.jarsource file="${lib}/picard-1.103.jar" relpath=""/>
-			<fatjar.jarsource file="${lib}/tribble-1.103.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/htsjdk-2.6.1.jar" relpath=""/>
 	    	<fatjar.jarsource file="${lib}/saaj-api.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/saaj-impl.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/activation.jar" relpath=""/>

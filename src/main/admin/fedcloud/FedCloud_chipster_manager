@@ -336,7 +336,7 @@ then
   echo ""
   if [[ $endpoint == "0" ]]
    then
-      endpoint=("http://server4-eupt.unizar.es:8787")
+      endpoint=("https://controller.ceta-ciemat.es:8787")
       echo "Using endpoint: $endpoint"
   fi
 fi 
@@ -379,7 +379,7 @@ if [[ $endpoint == "http://server4-eupt.unizar.es:8787" ]]
 then
    if [[ $chipster_img == "0"  ]]
    then
-       chipster_img=("os_tpl#afe5f4d9-6773-438f-8cad-4beb07c24a2a")
+       chipster_img=("os_tpl#732bbcb6-8612-4707-91b3-3a80e52bbdb4")
    fi
 
    if [[  $flavor == "0" ]]
@@ -399,7 +399,7 @@ then
 
    if [[  $flavor == "0" ]]
    then
-      flavor=('resource_tpl#m1-large')
+      flavor=('resource_tpl#m1-medium')
    fi
    link_ip=(1)
 fi
@@ -448,7 +448,7 @@ link_ip=(0)
 endpoint=(0)
 
 
-user=$(voms-proxy-info --identity | awk '{print $NF}' | sed s/'@'/"-at-"/g | tr "[:upper:]" "[:lower:]" | tr "=;/, " "-" )
+user=$(voms-proxy-info --identity | awk '{print $NF}' | sed s/'@'/"-at-"/g | tr "[:upper:]" "[:lower:]" | tr ":=;/, " "-" )
 
 usercred=$(ls /tmp/x509up_u${UID})
 volumesize=20

@@ -1,7 +1,7 @@
 ##depends:none
 
 #R 3.0.2
-R_VER=3.0.2  
+#R_VER=3.0.2  
 #cd ${TMPDIR_PATH}/
 #curl -s http://ftp.sunet.se/pub/lang/CRAN/src/base/R-3/R-${R_VER}.tar.gz | tar -xz
 #cd R-${R_VER}/
@@ -16,4 +16,4 @@ R_VER=3.0.2
 #cd ../
 #rm -rf R-${R_VER}/
 
-curl -L http://bio.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.0.2-vmbin/R-3.0.2-2014-03-03.tar.gz | tar -xz -C ${TOOLS_PATH}/
+#curl -L http://bio.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.0.2-vmbin/R-3.0.2-2014-03-03.tar.gz | tar -xz -C ${TOOLS_PATH}/

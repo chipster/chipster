@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
-import net.sf.picard.reference.ChipsterIndexedFastaSequenceFile;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.BamDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.BamToCoverageConversion;
@@ -37,6 +36,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.VcfL
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.UnsortedDataException;
+import htsjdk.samtools.reference.ChipsterIndexedFastaSequenceFile;
 
 
 public class Interpretation {
