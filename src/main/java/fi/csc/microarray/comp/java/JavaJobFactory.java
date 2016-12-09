@@ -52,8 +52,10 @@ public class JavaJobFactory implements JobFactory {
 		
 		// get the job class
 		Class<? extends Object> jobClass = null;
+		String className = tool.getId().substring(0, tool.getId().lastIndexOf(".java"));
+		
 		try { 
-			 jobClass = Class.forName(tool.getId());
+			 jobClass = Class.forName(className);
 		} catch (ClassNotFoundException e) {
 			logger.error("could not load job class: " + tool.getId());
 			throw new CompException("could not load job class: " + tool.getId());
