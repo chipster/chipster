@@ -47,7 +47,7 @@ import fi.csc.microarray.module.Module;
 
 public class BasicModule implements Module {
 
-	public static final String DOWNLOAD_FILE_ID = "DownloadFile.java";
+	public static final String DOWNLOAD_FILE_ID = "fi.csc.chipster.tools.common.DownloadFile.java";
 	
 	public static class TypeTags {
 		public static final TypeTag TABLE_WITHOUT_COLUMN_NAMES = new TypeTag("table-without-column-names", "first row is the first data row");

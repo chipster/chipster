@@ -10,21 +10,19 @@ public class ToolboxTool {
 	private String source;
 	private String code;
 
-	private String resourceName;
 	private String module;
 	private String runtime;
 
 	public ToolboxTool() {
 	}
 	
-	public ToolboxTool(String toolId, SADLDescription sadlDescription, String sadlString, String code, String source, String resourceName, String module, String runtime) {
+	public ToolboxTool(String toolId, SADLDescription sadlDescription, String sadlString, String code, String source, String module, String runtime) {
 		this.toolId = toolId;
 		this.sadlDescription = sadlDescription;
 		this.sadlString = sadlString;
 		this.source = source;
 		this.code = code;
 		this.runtime = runtime;
-		this.resourceName = resourceName;
 		this.module = module;
 	}
 
@@ -38,10 +36,6 @@ public class ToolboxTool {
 	
 	public String getRuntime() {
 		return runtime;
-	}
-
-	public String getResourceName() {
-		return resourceName;
 	}
 
 	public String getSadlString() {

@@ -12,7 +12,7 @@ public class SortBed extends JavaCompJobBase {
 	
 	@Override
 	public String getSADL() {
-		return 	"TOOL SortBed.java: \"Sort BED\" (Sort a BED file by chromosome and start position.)" + "\n" +
+		return 	"TOOL fi.csc.chipster.tools.ngs.SortBed.java: \"Sort BED\" (Sort a BED file by chromosome and start position.)" + "\n" +
 				"INPUT regions.bed: \"BED file\" TYPE GENERIC" + "\n" +
 				"OUTPUT sorted.bed: \"Sorted BED file\"" + "\n"; 
 

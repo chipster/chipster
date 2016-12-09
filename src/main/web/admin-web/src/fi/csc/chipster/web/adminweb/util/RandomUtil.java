@@ -66,7 +66,7 @@ public class RandomUtil {
 		"stat-two-groups.R", 
 		"ngs-find-nearest-genes.R", 
 		"bwasw.R", 
-		"FindOverlappingTool.java", 
+		"fi.csc.chipster.tools.ngs.regions.FindOverlappingTool.java", 
 		"stat-ROTS.R", 
 		"qc-illumina.R", 
 		"acgh-expression-test.R", 
@@ -144,8 +144,8 @@ public class RandomUtil {
 		"ngs-find-motifs-jaspar.R", 
 		"extract-genes-from-go.R", 
 		"norm-chip-average.R", 
-		"CombineRegionsTool.java", 
-	"ngs-dea-edger.R" };
+		"fi.csc.chipster.tools.ngs.regions.CombineRegionsTool.java", 
+		"ngs-dea-edger.R" };
 
 	public static String getRandomOperation(Random rnd) {
 

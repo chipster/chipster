@@ -10,7 +10,7 @@ public class RemoveOverlappingTool extends RegionTool {
 
 	@Override
 	public String getSADL() {
-		return 	"TOOL RemoveOverlappingTool.java: \"Remove overlapping regions\" (Returns regions from file A which do not overlap with any of the regions in file B. Also known as subtraction.)" + "\n" +
+		return 	"TOOL fi.csc.chipster.tools.ngs.regions.RemoveOverlappingTool.java: \"Remove overlapping regions\" (Returns regions from file A which do not overlap with any of the regions in file B. Also known as subtraction.)" + "\n" +
 				"INPUT data1.bed: \"Region file A\" TYPE GENERIC" + "\n" +
 				"INPUT data2.bed: \"Region file B\" TYPE GENERIC" + "\n" +
 				"OUTPUT nonoverlapping.bed: \"Regions of first input that do not overlap\"" + "\n" + 

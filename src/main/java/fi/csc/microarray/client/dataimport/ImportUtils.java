@@ -37,11 +37,11 @@ import fi.csc.microarray.util.IOUtils;
  * clipboard paste). Contains methods to help implementation of folder selection
  * and launching actionChooser or direct import.
  * 
- * @author Petri Klemel�
+ * @author Petri Klemelä
  */
 public class ImportUtils {
 
-	private static final String PREPROCESS_TOOL_ID = "LocalNGSPreprocess.java";
+	private static final String PREPROCESS_TOOL_ID = "fi.csc.chipster.tools.ngs.LocalNGSPreprocess.java";
 	private static final Logger logger = Logger.getLogger(ImportUtils.class);
 	private static final String DEFAULT_FOLDER_NAME = "";
 	private static ClientApplication application = Session.getSession().getApplication();

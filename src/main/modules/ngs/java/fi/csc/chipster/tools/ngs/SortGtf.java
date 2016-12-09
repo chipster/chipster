@@ -12,7 +12,7 @@ public class SortGtf extends JavaCompJobBase {
 	
 	@Override
 	public String getSADL() {
-		return 	"TOOL SortGtf.java: \"Sort GTF\" (Sort a GTF file by chromosome and start position.)" + "\n" +
+		return 	"TOOL fi.csc.chipster.tools.ngs.SortGtf.java: \"Sort GTF\" (Sort a GTF file by chromosome and start position.)" + "\n" +
 				"INPUT unsorted.gtf: \"GTF file\" TYPE GENERIC" + "\n" +
 				"OUTPUT sorted.gtf: \"Sorted GTF file\"" + "\n"; 
 	}

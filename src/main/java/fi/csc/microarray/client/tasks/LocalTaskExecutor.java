@@ -24,7 +24,7 @@ public class LocalTaskExecutor extends TaskExecutor {
 	
 	@Override
 	public void startExecuting(final Task task) throws TaskException {
-		if (!task.getOperationID().equals("LocalNGSPreprocess.java")) {
+		if (!task.getOperationID().equals("fi.csc.chipster.tools.ngs.LocalNGSPreprocess.java")) {
 			// stupid exception
 			throw new UnsupportedOperationException();
 		}
