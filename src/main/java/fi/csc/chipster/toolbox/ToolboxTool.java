@@ -4,7 +4,7 @@ import fi.csc.microarray.description.SADLDescription;
 
 public class ToolboxTool {
 
-	private String toolId;
+	private String id;
 	private SADLDescription sadlDescription;
 	private String sadlString;
 	private String source;
@@ -16,8 +16,8 @@ public class ToolboxTool {
 	public ToolboxTool() {
 	}
 	
-	public ToolboxTool(String toolId, SADLDescription sadlDescription, String sadlString, String code, String source, String module, String runtime) {
-		this.toolId = toolId;
+	public ToolboxTool(String id, SADLDescription sadlDescription, String sadlString, String code, String source, String module, String runtime) {
+		this.id = id;
 		this.sadlDescription = sadlDescription;
 		this.sadlString = sadlString;
 		this.source = source;
@@ -27,7 +27,7 @@ public class ToolboxTool {
 	}
 
 	public String getId() {
-		return toolId;
+		return id;
 	}
 	
 	public SADLDescription getSadlDescription() {
