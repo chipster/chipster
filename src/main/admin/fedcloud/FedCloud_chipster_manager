@@ -328,7 +328,7 @@ then
   echo "Available endpoints:"
   echo "  http://server4-eupt.unizar.es:8787"
   echo "  https://controller.ceta-ciemat.es:8787"
-  echo "  https://server4-ciencias.bifi.unizar.es:8787/occi1.1/"
+  echo "  https://server4-ciencias.bifi.unizar.es:8787/occi1.1"
   #echo "  https://stack-server-01.ct.infn.it:8787"
   #echo "  https://cloud.ifca.es:8787/occi"
   
@@ -337,7 +337,7 @@ then
   echo ""
   if [[ $endpoint == "0" ]]
    then
-      endpoint=("https://controller.ceta-ciemat.es:8787")
+      endpoint=("https://server4-ciencias.bifi.unizar.es:8787/occi1.1")
       echo "Using endpoint: $endpoint"
   fi
 fi 
@@ -442,7 +442,7 @@ then
 
    if [[  $flavor == "0" ]]
    then
-      flavor=('resource_tpl#m1.large')
+      flavor=('resource_tpl#9acf22d7-5591-45b6-b7e7-767041294065')
    fi
    link_ip=(1)
 fi
