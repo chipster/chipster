@@ -452,7 +452,7 @@ then
    if [[  $flavor == "0" ]]
    then
       flavor=('resource_tpl#20eb9793-00f9-4257-9f59-f56291639733')
-      #medium:flavor=('resource_tpl#58bfda8e-a6bd-452b-b929-ef69b14e9d23')
+      # medium:flavor=('resource_tpl#58bfda8e-a6bd-452b-b929-ef69b14e9d23')
       #flavor=('resource_tpl#308bc2b2-1e1e-4af9-a98f-cac76b6ce084')
       #flavor=('resource_tpl#9acf22d7-5591-45b6-b7e7-767041294065')
    fi
