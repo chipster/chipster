@@ -348,4 +348,11 @@ public abstract class CompJob implements Runnable {
 	public ToolDescription getToolDescription() {
 		return toolDescription;
 	}
+	
+	/**
+	 * @return Process object of the external process or null, if this Job doesn't have any
+	 */
+	public Process getProcess() {
+		return null;
+	}
 }

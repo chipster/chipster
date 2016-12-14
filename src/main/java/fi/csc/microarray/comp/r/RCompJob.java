@@ -437,4 +437,9 @@ public class RCompJob extends OnDiskCompJobBase {
 	public void setProcessPool(ProcessPool processPool) {
 		this.processPool = processPool;
 	}
+
+	@Override
+	public Process getProcess() {
+		return process;
+	}
 }
