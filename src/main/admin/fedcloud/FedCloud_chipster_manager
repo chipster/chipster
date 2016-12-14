@@ -114,6 +114,15 @@ then
     then
       vmip=$(head -1 /tmp/vmip_$$_tmp)
       vmip_local=$(tail -1 /tmp/vmip_$$_tmp)
+      #check that correct ip selected as  public IP"
+      ip_check=$(ping -c 3 $vmip | grep "100% packet loss" -c)
+      if [[ $ip_check -eq 1 ]]
+      then
+           vmip=$(tail -1 /tmp/vmip_$$_tmp)
+           vmip_local=$(head -1 /tmp/vmip_$$_tmp)
+      fi
+          
+      
       echo "$rline IP: $vmip_local $vmip"
       ssh -i $keyname ubuntu@$vmip "sudo rm -rf /opt/chipster/fileserver/db-root/ChipsterFilebrokerMetadataDatabase;cd /opt/chipster; sudo ./configure.sh simple-configure $vmip $vmip_local; sudo service chipster restart; sudo service chipster status"
     fi
@@ -332,7 +341,7 @@ then
   #echo "  https://stack-server-01.ct.infn.it:8787"
   #echo "  https://cloud.ifca.es:8787/occi"
   
-  clusters=( "https://controller.ceta-ciemat.es:8787" "http://server4-eupt.unizar.es:8787" )
+  clusters=( "https://controller.ceta-ciemat.es:8787" "http://server4-eupt.unizar.es:8787" "https://server4-ciencias.bifi.unizar.es:8787/occi1.1")
   #clusters=( "https://controller.ceta-ciemat.es:8787" "http://server4-epsh.unizar.es:8787" )
   echo ""
   if [[ $endpoint == "0" ]]
@@ -442,7 +451,8 @@ then
 
    if [[  $flavor == "0" ]]
    then
-      flavor=('resource_tpl#9acf22d7-5591-45b6-b7e7-767041294065')
+      flavor=('resource_tpl#308bc2b2-1e1e-4af9-a98f-cac76b6ce084')
+      #flavor=('resource_tpl#9acf22d7-5591-45b6-b7e7-767041294065')
    fi
    link_ip=(1)
 fi
@@ -958,7 +968,12 @@ done
 if  [[ $link_ip == "1" ]]
 then
    echo "Linking a publick IP-address"
-   occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action link --resource $vmaddress --link /network/public
+   if [[ $endpoint == "https://server4-ciencias.bifi.unizar.es:8787/occi1.1" ]]
+   then
+      occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action link --resource $vmaddress --link /occi1.1/network/PUBLIC -M http://schemas.openstack.org/network/floatingippool#provider
+   else
+      occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action link --resource $vmaddress --link /network/public
+   fi
    re="$vmaddress"
    vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $vmaddress | grep occi.networkinterface.address| awk '{print $3}' | head -1 )
 fi
