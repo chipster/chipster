@@ -28,7 +28,7 @@
 
 # RSeQC
   ${TOOLS_PATH}/Python-2.7.12/bin/pip install RSeQC==2.6.4
-  ln -s ${TOOLS_PATH}/Python-2.7.12/bin ${TOOLS_PATH}/rseqc
+  ln -s Python-2.7.12/bin ${TOOLS_PATH}/rseqc
 
 # HTSeq
   ${TOOLS_PATH}/Python-2.7.12/bin/pip install matplotlib

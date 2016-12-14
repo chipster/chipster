@@ -12,7 +12,7 @@ public class SortVcf extends JavaCompJobBase {
 	
 	@Override
 	public String getSADL() {
-		return 	"TOOL SortVcf.java: \"Sort VCF\" (Sort a VCF file by chromosome and position.)" + "\n" +
+		return 	"TOOL fi.csc.chipster.tools.ngs.SortVcf.java: \"Sort VCF\" (Sort a VCF file by chromosome and position.)" + "\n" +
 				"INPUT unsorted.vcf: \"VCF file\" TYPE GENERIC" + "\n" +
 				"OUTPUT sorted.vcf: \"Sorted VCF file\"" + "\n"; 
 

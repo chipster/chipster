@@ -10,7 +10,7 @@ public class FindOverlappingTool extends RegionTool {
 
 	@Override
 	public String getSADL() {
-		return 	"TOOL FindOverlappingTool.java: \"Find overlapping regions\" (Returns regions that have overlap with some region in the other input file. Also known as intersection.)" + "\n" +
+		return 	"TOOL fi.csc.chipster.tools.ngs.regions.FindOverlappingTool.java: \"Find overlapping regions\" (Returns regions that have overlap with some region in the other input file. Also known as intersection.)" + "\n" +
 				"INPUT data1.bed: \"Region file A\" TYPE GENERIC" + "\n" +
 				"INPUT data2.bed: \"Region file B\" TYPE GENERIC" + "\n" +
 				"OUTPUT overlapping.bed: \"Overlapping regions\"" + "\n" + 

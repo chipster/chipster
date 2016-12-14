@@ -45,7 +45,7 @@ public class LocalNGSPreprocess implements Runnable {
 				"<p>-BED, GTF and VCF files: yes, unless your file is already sorted</p>";
 		
 		
-		return 	"TOOL LocalNGSPreprocess.java: \"NGS Preprocess\" (" + description + ")" + "\n" +
+		return 	"TOOL fi.csc.chipster.tools.ngs.LocalNGSPreprocess.java: \"NGS Preprocess\" (" + description + ")" + "\n" +
 				"INPUT input{...}.txt: \"Input NGS data\" TYPE GENERIC" + "\n" +
 				"OUTPUT ngs-preprocess.txt: \"Preprocessed NGS data\"" + "\n" +
 				"OUTPUT phenodata.tsv: \"Phenodata\"";

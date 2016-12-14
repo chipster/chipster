@@ -8,4 +8,6 @@ cd ${TMPDIR_PATH}/
 wget http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/edirect.zip
 unzip -u -q edirect.zip
 mv edirect ${TOOLS_PATH}/
-rm edirect.zip
+export PATH=$PATH:$(pwd)/edirect
+cd ${TOOLS_PATH}/edirect
+./setup.sh

@@ -24,6 +24,7 @@ public class SADLDescription {
 
 	private Name name;
 	private String description;
+	private String runtime;
 	
 	private LinkedList<Input> inputs = new LinkedList<Input>();
 	private LinkedList<Output> outputs = new LinkedList<Output>();
@@ -401,6 +402,14 @@ public class SADLDescription {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public String getRuntime() {
+		return runtime;
+	}
+
+	public void setRuntime(String runtime) {
+		this.runtime = runtime;
 	}
 
 	public List<Input> getInputs() {
