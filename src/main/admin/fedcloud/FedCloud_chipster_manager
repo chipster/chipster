@@ -902,7 +902,7 @@ then
   while [[ $vmstate != "active" ]]
   do
      vmstate=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe -r $vmaddress | grep occi.compute.state | awk '{print $3}')
-     echo  "Virtual machine in state $vmstate"
+     echo "Virtual machine in state $vmstate"
      sleep 5
   done
 fi  
