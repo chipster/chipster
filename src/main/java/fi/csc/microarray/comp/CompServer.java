@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -18,6 +19,7 @@ import org.apache.log4j.Logger;
 
 import fi.csc.chipster.toolbox.ToolboxClientComp;
 import fi.csc.chipster.toolbox.ToolboxTool;
+import fi.csc.microarray.comp.ResourceMonitor.ProcessProvider;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.ApplicationConstants;
@@ -51,7 +53,7 @@ import fi.csc.microarray.util.SystemMonitorUtil;
  * 
  * @author Taavi Hupponen, Aleksi Kallio
  */
-public class CompServer extends MonitoredNodeBase implements MessagingListener, ResultCallback, ShutdownCallback {
+public class CompServer extends MonitoredNodeBase implements MessagingListener, ResultCallback, ShutdownCallback, ProcessProvider {
 
 	public static final String DESCRIPTION_OUTPUT_NAME = "description";
 	public static final String SOURCECODE_OUTPUT_NAME = "sourcecode";
@@ -117,6 +119,8 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 	private String moduleFilterName;
 	private String moduleFilterMode;
 	
+	private ResourceMonitor resourceMonitor;
+	
 	/**
 	 * 
 	 * @throws Exception 
@@ -174,7 +178,7 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 		compAvailableTimer = new Timer(true);
 		compAvailableTimer.schedule(new CompAvailableTask(), compAvailableInterval, compAvailableInterval);
 		
-		
+		resourceMonitor = new ResourceMonitor(this);
 		
 		// initialize communications
 		this.endpoint = new JMSMessagingEndpoint(this);
@@ -347,9 +351,15 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 		
 		char delimiter = ';';
 		try {
-			loggerJobs.info(job.getId() + delimiter + job.getInputMessage().getToolId().replaceAll("\"", "") + delimiter
-					+ job.getState() + delimiter + job.getInputMessage().getUsername() + delimiter + job.getExecutionStartTime().toString()
-					+ delimiter + job.getExecutionEndTime().toString() + delimiter + hostname);
+			loggerJobs.info(
+					job.getId() + delimiter + 
+					job.getInputMessage().getToolId().replaceAll("\"", "") + delimiter + 
+					job.getState() + delimiter + 
+					job.getInputMessage().getUsername() + delimiter + 
+					job.getExecutionStartTime().toString()	+ delimiter + 
+					job.getExecutionEndTime().toString() + delimiter + 
+					hostname + delimiter + 
+					resourceMonitor.getMaxMemHumanFriendly(job.getProcess()));
 		} catch (Exception e) {
 			logger.warn("got exception when logging a job to be removed", e);
 		}
@@ -706,10 +716,7 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 				}
 			}
 		}	
-	}
-
-	
-	
+	}	
 
 	/* 
 	 * Service wrapper's "stop" command
@@ -822,5 +829,20 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 				logger.error(e, e);
 			}
 		}	
+	}
+
+	@Override
+	public HashSet<Process> getRunningJobProcesses() {
+		synchronized (jobsLock) {
+			HashSet<Process> jobProcesses = new HashSet<>();
+			
+			for (CompJob compJob : runningJobs.values()) {
+				if (compJob.getProcess() != null) {
+					jobProcesses.add(compJob.getProcess());
+				}
+			}
+			
+			return jobProcesses;
+		}
 	}
 }
