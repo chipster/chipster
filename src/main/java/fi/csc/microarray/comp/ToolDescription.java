@@ -115,6 +115,8 @@ public class ToolDescription {
 	private String helpURL = null;
 
 	private String initialiser;
+
+	private Integer slotCount;
 	
 	public String getCommand() {
 		return command;
@@ -207,6 +209,18 @@ public class ToolDescription {
 	
 	public void setID(String id) {
 		this.id = id;
+	}
+
+	public Integer getSlotCount() {
+		if (this.slotCount == null) {
+			return 1;
+		} else {
+			return this.slotCount;
+		}
+	}
+
+	public void setSlotCount(Integer slotCount) {
+		this.slotCount = slotCount;
 	}
 }
  

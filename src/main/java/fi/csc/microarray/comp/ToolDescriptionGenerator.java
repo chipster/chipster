@@ -24,6 +24,7 @@ public class ToolDescriptionGenerator {
 		description.setID(source.getName().getID());
 		description.setDisplayName(source.getName().getDisplayName());
 		description.setComment(source.getDescription());
+		description.setSlotCount(source.getSlotCount());
 
 		// not interested in inputs, they were figured out when job was submitted
 		// I'm interested in inputs in java jobs

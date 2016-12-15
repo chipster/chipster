@@ -52,6 +52,5 @@ public class ToolboxTool {
 
 	public String getModule() {
 		return module;
-	}
-	
+	}	
 }

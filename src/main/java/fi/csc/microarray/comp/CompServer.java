@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -359,7 +360,7 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 					job.getExecutionStartTime().toString()	+ delimiter + 
 					job.getExecutionEndTime().toString() + delimiter + 
 					hostname + delimiter + 
-					resourceMonitor.getMaxMemHumanFriendly(job.getProcess()));
+					ProcessUtils.humanFriendly(resourceMonitor.getMaxMem(job.getProcess())));
 		} catch (Exception e) {
 			logger.warn("got exception when logging a job to be removed", e);
 		}
@@ -570,19 +571,31 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 		synchronized(jobsLock) {
 			job.setReceiveTime(new Date());
 			
-			// could run it now
-			if (runningJobs.size() + scheduledJobs.size() < maxJobs) {
-				scheduleJob(job);
-			}
+			int runningSlots = getSlotSum(runningJobs.values());
+			int schedSlots = getSlotSum(scheduledJobs.values());
+			int requestedSlots = job.getToolDescription().getSlotCount();
 			
-			// no slot to run it now, ignore it
-			else {
+			logger.debug("running slots " + runningSlots + " sceduled slots " + schedSlots + " requested slots " + requestedSlots);
+			if (runningSlots + schedSlots + requestedSlots <= maxJobs) {
+				// could run it now
+				scheduleJob(job);
+				
+			} else {
+				// no slot to run it now, ignore it
 				ResultMessage resultMessage = new ResultMessage(jobMessage.getJobId(), JobState.COMP_BUSY, "", "", "", ((JobMessage)jobMessage).getReplyTo());
 				sendReplyMessage((ChipsterMessage)jobMessage, resultMessage);
 				return;
 			}
 		}
 		updateStatus();
+	}
+	
+	private int getSlotSum(Collection<CompJob> jobs) {
+		int slots = 0;
+		for (CompJob job : jobs) {
+			slots += job.getToolDescription().getSlotCount();
+		}
+		return slots;
 	}
 
 	private void scheduleJob(final CompJob job) {

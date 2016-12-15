@@ -29,6 +29,7 @@ public class SADLDescription {
 	private LinkedList<Input> inputs = new LinkedList<Input>();
 	private LinkedList<Output> outputs = new LinkedList<Output>();
 	private LinkedList<Parameter> parameters = new LinkedList<Parameter>();
+	private Integer slotCount;
 
 	public SADLDescription() {
 		// for Jackson
@@ -449,5 +450,12 @@ public class SADLDescription {
 	public void setID(String id) {
 		this.name.setID(id);
 	}
+
+	public void setSlotCount(Integer slotCount) {
+		this.slotCount = slotCount;
+	}
 	
+	public Integer getSlotCount() {
+		return this.slotCount;
+	}
 }

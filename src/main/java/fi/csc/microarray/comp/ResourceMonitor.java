@@ -88,10 +88,6 @@ public class ResourceMonitor {
 			}
 		}	
 	}
-
-	public String getMaxMemHumanFriendly(Process process) {
-		return ProcessUtils.humanFriendly(getMaxMem(process));
-	}
 	
 	public Long getMaxMem(Process process) {
 		ProcessResourceMonitor monitor = monitors.get(process);

@@ -135,11 +135,18 @@ public class SADLParser {
 			description.addParameter(parameter);
 		}
 
-		//	read possible parameters
+		//	read possible runtime
 		while (nextTokenIs(tokens, SADLSyntax.KEYWORD_RUNTIME)) {
 			skip(tokens, SADLSyntax.KEYWORD_RUNTIME);
 			String runtime = parseRuntime(tokens);
 			description.setRuntime(runtime);
+		}
+		
+		//	read possible slots
+		while (nextTokenIs(tokens, SADLSyntax.KEYWORD_SLOTS)) {
+			skip(tokens, SADLSyntax.KEYWORD_SLOTS);
+			int slotCount = parseInt(tokens);
+			description.setSlotCount(slotCount);
 		}
 		
 		// check that no trailing content was left behind
@@ -189,6 +196,15 @@ public class SADLParser {
 
 	private String parseRuntime(SADLTokeniser tokens) throws ParseException {
 		return tokens.next();
+	}
+	
+	private int parseInt(SADLTokeniser tokens) throws ParseException {
+		String nextToken = tokens.next();
+		try {
+			return Integer.parseInt(nextToken);
+		} catch (NumberFormatException e) {
+			throw new ParseException("slot count is not integer: " + nextToken);
+		}
 	}
 	
 	private Output parseOutput(SADLTokeniser tokens) throws ParseException {

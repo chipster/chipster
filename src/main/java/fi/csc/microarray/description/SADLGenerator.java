@@ -83,8 +83,13 @@ public class SADLGenerator {
 		}		
 		
 		if (sadl.getRuntime() != null && !sadl.getRuntime().isEmpty()) {
-			string += "RUNTIME " + sadl.getRuntime();
+			string += SADLSyntax.KEYWORD_RUNTIME + " " + sadl.getRuntime() + "\n";
 		}
+		
+		if (sadl.getSlotCount() != null) {
+			string += SADLSyntax.KEYWORD_SLOTS + " " + sadl.getRuntime() + "\n";
+		}
+		
 		return string;
 	}
 

@@ -126,7 +126,7 @@ public class ProcessUtils {
 		if (l == null) {
 			return null;
 		}
-		return "" + l/1024 + "MB";
+		return "" + l/1024/1024 + "MB";
 	}
 	
 	private static Long getParent(long pid) throws IOException {
