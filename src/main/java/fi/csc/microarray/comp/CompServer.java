@@ -120,6 +120,7 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 	private String moduleFilterMode;
 	
 	private ResourceMonitor resourceMonitor;
+	private int monitoringInterval;
 	
 	/**
 	 * 
@@ -144,6 +145,7 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 		this.overridingFilebrokerIp = nullIfEmpty(configuration.getString("comp", "overriding-filebroker-ip"));
 		this.moduleFilterName = configuration.getString("comp", "module-filter-name");
 		this.moduleFilterMode = configuration.getString("comp", "module-filter-mode");
+		this.monitoringInterval = configuration.getInt("comp", "resource-monitoring-interval");
 		
 		logger = Logger.getLogger(CompServer.class);
 		loggerJobs = Logger.getLogger("jobs");
@@ -178,7 +180,7 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 		compAvailableTimer = new Timer(true);
 		compAvailableTimer.schedule(new CompAvailableTask(), compAvailableInterval, compAvailableInterval);
 		
-		resourceMonitor = new ResourceMonitor(this);
+		resourceMonitor = new ResourceMonitor(this, monitoringInterval);
 		
 		// initialize communications
 		this.endpoint = new JMSMessagingEndpoint(this);

@@ -33,8 +33,6 @@ import fi.csc.microarray.comp.ProcessUtils.ProcessResourceMonitor;
  */
 public class ResourceMonitor {
 	
-	private static final int MONITORING_INTERVAL = 1_000; //ms
-
 	public static interface ProcessProvider {
 		public Collection<Process> getRunningJobProcesses();
 	}
@@ -46,11 +44,13 @@ public class ResourceMonitor {
 	
 	private ProcessProvider processProvider;
 
-	public ResourceMonitor(ProcessProvider processProvider) {
-		this.processProvider = processProvider;
-		
-		resourceMonitorTimer = new Timer(true);
-		resourceMonitorTimer.schedule(new ResourceMonitorTask(), MONITORING_INTERVAL, MONITORING_INTERVAL);
+	public ResourceMonitor(ProcessProvider processProvider, int monitoringInterval) {
+		if (monitoringInterval >= 0) {
+			this.processProvider = processProvider;
+			
+			resourceMonitorTimer = new Timer(true);
+			resourceMonitorTimer.schedule(new ResourceMonitorTask(), monitoringInterval, monitoringInterval);
+		}
 	}
 	
 	public class ResourceMonitorTask extends TimerTask {
@@ -94,6 +94,7 @@ public class ResourceMonitor {
 	}
 	
 	public Long getMaxMem(Process process) {
+		// return null if monitoring is disabled (this.monitors is still initialized) 
 		ProcessResourceMonitor monitor = monitors.get(process);
 		if (monitor == null) {
 			return null;

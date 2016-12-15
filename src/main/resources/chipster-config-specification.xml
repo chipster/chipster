@@ -285,6 +285,10 @@
 			<value>exclude</value>
 		</entry>
 		
+		<entry entryKey="resource-monitoring-interval" type="int" description="how often to monitor job resource usage or -1 to disable it, milliseconds">
+			<value>-1</value>
+		</entry>
+		
 	</configuration-module>
 	
 	<configuration-module moduleId="manager" description="manager service">
