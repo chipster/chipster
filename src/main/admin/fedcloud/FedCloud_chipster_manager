@@ -118,8 +118,8 @@ then
       ip_check=$(ping -c 3 $vmip | grep "100% packet loss" -c)
       if [[ $ip_check -eq 1 ]]
       then
-           vmip=$(tail -1 /tmp/vmip_$$_tmp)
-           vmip_local=$(head -1 /tmp/vmip_$$_tmp)
+          vmip=$(tail -1 /tmp/vmip_$$_tmp)
+          vmip_local=$(head -1 /tmp/vmip_$$_tmp)
       fi
           
       
@@ -451,7 +451,10 @@ then
 
    if [[  $flavor == "0" ]]
    then
-      flavor=('resource_tpl#308bc2b2-1e1e-4af9-a98f-cac76b6ce084')
+      #largeflavor=('resource_tpl#20eb9793-00f9-4257-9f59-f56291639733')
+      # medium:
+      flavor=('resource_tpl#58bfda8e-a6bd-452b-b929-ef69b14e9d23')
+      #flavor=('resource_tpl#308bc2b2-1e1e-4af9-a98f-cac76b6ce084')
       #flavor=('resource_tpl#9acf22d7-5591-45b6-b7e7-767041294065')
    fi
    link_ip=(1)
@@ -901,7 +904,7 @@ then
   while [[ $vmstate != "active" ]]
   do
      vmstate=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe -r $vmaddress | grep occi.compute.state | awk '{print $3}')
-     echo  "Virtual machine in state $vmstate"
+     echo "Virtual machine in state $vmstate"
      sleep 5
   done
 fi  
@@ -976,7 +979,21 @@ then
    fi
    re="$vmaddress"
    vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $vmaddress | grep occi.networkinterface.address| awk '{print $3}' | head -1 )
+   ip_check=$(ping -c 3 $vmip | grep "100% packet loss" -c)
+   if [[ $ip_check -eq 1 ]]
+   then
+      vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $vmaddress | grep occi.networkinterface.address| awk '{print $3}' | tail -1 ) 
+   fi
 fi
+
+ip_check=$(ping -c 3 $vmip | grep "100% packet loss" -c)
+if [[ $ip_check -eq 1 ]]
+then
+     echo "IP address, assigned to your Chipster server, $vmip, is not responding"
+     echo "For more information run command"
+     echo "occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $vmaddress "
+     exit 1
+fi          
 
 
 ########
@@ -1023,7 +1040,7 @@ else
    echo "No restart needed"
 fi
 
-vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $vmaddress | grep occi.networkinterface.address| awk '{print $3}' | head -1 )
+#vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $vmaddress | grep occi.networkinterface.address| awk '{print $3}' | head -1 )
 echo ""
 echo "---------------------------------------------------------------------"
 echo "Your new Chipster server is now running in a virtual machine with ID:" 
