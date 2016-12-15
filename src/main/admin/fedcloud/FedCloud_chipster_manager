@@ -781,6 +781,7 @@ sudo cvmfs_config setup  2>&1 >>  /opt/chipster/webstart/web-root/building.html
 cd /etc/cvmfs
 #cp default.local ~/default.local.cvmfs.tmp
 echo CVMFS_HTTP_PROXY=DIRECT > /home/ubuntu/default.local.cvmfs.tmp
+echo CVMFS_QUOTA_LIMIT=8000 >> /home/ubuntu/default.local.cvmfs.tmp
 echo CVMFS_SERVER_URL='http://cvmfs-egi.gridpp.rl.ac.uk:8000/cvmfs/@fqrn@;http://cvmfsrepo.lcg.triumf.ca:8000/cvmfs/@fqrn@;http://cvmfsrep.grid.sinica.edu.tw:8000/cvmfs/@fqrn@' >>  /home/ubuntu/default.local.cvmfs.tmp
 sudo cp  /home/ubuntu/default.local.cvmfs.tmp ./default.local
 sudo service autofs stop  2>&1 >>  /opt/chipster/webstart/web-root/building.html
