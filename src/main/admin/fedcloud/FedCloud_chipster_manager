@@ -807,8 +807,8 @@ do
     sleep 5
 done
 sudo mkfs.xfs -f /dev/vdb   2>&1 > /home/ubuntu/startup.log 
-sudo mount /mnt/data   2>&1 >>  /home/ubuntu/startup.log 
-sudo mv /mnt/data_old/* /mnt/data/  
+sudo mount /dev/vdb /mnt/data   2>&1 >>  /home/ubuntu/startup.log 
+sudo mv /mnt/data_old/* /mnt/data/ 2>&1 >>  /home/ubuntu/startup.log  
 sudo rm -rf /mnt/data_old
 
 sleep 5
