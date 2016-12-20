@@ -13,7 +13,7 @@ echo ""
 
 # Update file web location and name
 UPDATE_URL_PREFIX=http://bio.nic.funet.fi/pub/sci/molbio/chipster/dist/virtual_machines/updates
-MAIN_UPDATE_FILE=update-exec-3.6.2.sh
+MAIN_UPDATE_FILE=update-exec-3.11.1.sh
 
 MAIN_UPDATE_FILE_URL=$UPDATE_URL_PREFIX/$MAIN_UPDATE_FILE
 
