@@ -336,6 +336,10 @@ public class SADLDescription {
 			return selectionOptions;
 		}
 		
+		public void setSelectionOptions(Name[] selectionOptions) {
+			this.selectionOptions = selectionOptions;
+		}
+		
 		public String getFrom() {
 			return from;
 		}
@@ -355,7 +359,11 @@ public class SADLDescription {
 
 		public String[] getDefaultValues() {
 			return defaultValues;
-		}		
+		}
+		
+		public void setDefaultValues(String[] defaultValues) {
+			this.defaultValues = defaultValues;
+		}
 	}
 
 	/**

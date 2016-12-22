@@ -188,7 +188,9 @@
 
 
 	<configuration-module moduleId="toolbox" description="toolbox service">
-	
+		<entry entryKey="tools-bin-path" type="string" description="path to tools-bin">
+			<value>../tools</value>
+		</entry>
 	</configuration-module>
 
 
