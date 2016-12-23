@@ -7,7 +7,7 @@
 
 # Latest version, matching tar-packages must be available 
 ##
-LATEST_VERSION=3.11.1
+LATEST_VERSION=3.11.0
 
 # Exit immediately if some command fails
 set -e
