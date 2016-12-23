@@ -7,7 +7,7 @@
 
 # Latest version, matching tar-packages must be available 
 ##
-LATEST_VERSION=3.8.1
+LATEST_VERSION=3.11.0
 R_VERSION=3.0.2
 
 # Exit immediately if some command fails
@@ -87,7 +87,7 @@ CURRENT_VERSION=`ls -1 shared/lib | grep ^chipster-[0-9\\.]*.jar | gawk 'match($
 echo Detected version $CURRENT_VERSION
 
 
-compare_to_current "3.7.0"
+compare_to_current "3.8.1"
 
 # current is older than 3.7.0                                                                                                                                                                               
 if [ $CURRENT_COMPARED -lt 0 ]
