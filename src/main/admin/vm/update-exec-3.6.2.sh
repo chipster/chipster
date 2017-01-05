@@ -87,11 +87,17 @@ CURRENT_VERSION=`ls -1 shared/lib | grep ^chipster-[0-9\\.]*.jar | gawk 'match($
 echo Detected version $CURRENT_VERSION
 
 
-compare_to_current "3.8.1"
+compare_to_current "3.11.0"
 
-# current is older than 3.7.0                                                                                                                                                                               
+# current is older than 3.8.1                                                                                                                                                                               
 if [ $CURRENT_COMPARED -lt 0 ]
 then
+    echo "It is no longer possible to update this Chipster version to the latest."
+    echo "Please download the latest Chipster virtual machine from http://chipster.github.io/chipster/" 
+	exit 1
+fi
+
+if [ $CURRENT_COMPARED -eq 0 ] ; then 
     echo "It is no longer possible to update this Chipster version to the latest."
     echo "Please download the latest Chipster virtual machine from http://chipster.github.io/chipster/" 
 	exit 1
@@ -102,10 +108,6 @@ compare_to_current "$LATEST_VERSION"
 if [ $CURRENT_COMPARED -gt 0 ] ; then 
   echo "Update error: current version $CURRENT_VERSION is newer than latest $LATEST_VERSION"
   exit 1
-fi
-if [ $CURRENT_COMPARED -eq 0 ] ; then 
-  echo "Already at the latest version, nothing needs to be updated"
-  exit
 fi
 echo "Will update to version $LATEST_VERSION"
 echo ""
