@@ -230,7 +230,7 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 				if (handleReadOnlyMessages(cmdMsg, endpoint)) {
 					// it was a read only message
 					
-				} else if (cmdMsg.getUsername().equals(DirectoryLayout.getInstance().getConfiguration().getString("security", "guest-username"))) {
+				} else if (cmdMsg.getUsername() != null && cmdMsg.getUsername().equals(DirectoryLayout.getInstance().getConfiguration().getString("security", "guest-username"))) {
 					logger.error("only read-only messages are allowed for guest users: " + cmdMsg.getCommand());
 					// can't inform the client, because each command is expecting different response type
 						
