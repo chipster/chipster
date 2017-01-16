@@ -29,8 +29,8 @@ public class DataModel {
 		
 		//custom order: intense colors first
 		new Color(31, 120, 180), 
+		new Color(227, 26, 28), // 2nd and 3rd swapped so that it's easier to distinguish two groups
 		new Color(51, 160, 44),
-		new Color(227, 26, 28),
 		new Color(255, 127, 0),
 		new Color(106, 61, 154),
 		new Color(166, 206, 227), 
