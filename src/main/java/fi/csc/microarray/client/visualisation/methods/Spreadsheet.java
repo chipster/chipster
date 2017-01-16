@@ -31,7 +31,7 @@ import fi.csc.microarray.client.visualisation.VisualisationUtilities;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.features.QueryResult;
-import fi.csc.microarray.databeans.features.RestrictModifier;
+import fi.csc.microarray.databeans.features.RestrictModifier.RestrictedTable;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.Module;
@@ -148,7 +148,8 @@ public class Spreadsheet extends Visualisation {
 				}
 
 				// Create actual tabular data
-				rowData = new Object[RestrictModifier.RESTRICT_TO_ROWS < rowCount ? RestrictModifier.RESTRICT_TO_ROWS : rowCount][columns.getColumnCount()];
+				Integer restrictdRows = ((RestrictedTable)columns).getRestrictedRows();
+				rowData = new Object[Math.min(restrictdRows, rowCount)][columnCount];
 				int row = 0;
 				while (columns.nextRow()) {
 					int column = 0;
