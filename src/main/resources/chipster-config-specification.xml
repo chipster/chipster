@@ -288,7 +288,7 @@
 		</entry>
 		
 		<entry entryKey="resource-monitoring-interval" type="int" description="how often to monitor job resource usage or -1 to disable it, milliseconds">
-			<value>-1</value>
+			<value>10000</value>
 		</entry>
 		
 	</configuration-module>
