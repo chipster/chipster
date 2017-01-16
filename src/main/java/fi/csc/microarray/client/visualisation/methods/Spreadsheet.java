@@ -139,16 +139,27 @@ public class Spreadsheet extends Visualisation {
 				// Check which columns need hyperlinking
 				linkableFlags = primaryModule.flagLinkableColumns(columns, data);
 
+				Integer restrictdRows = ((RestrictedTable)columns).getRestrictedRows();
+				
+				long t = System.currentTimeMillis();	
+				
 				// Count data rows
 				try (Table rowCounter = data.queryFeatures("/column/*").asTable()) {
 					rowCount = 0;
 					while (rowCounter.nextRow()) {
 						rowCount++;
+						if (rowCount > restrictdRows * 10) {
+							// don't read through huge files
+							rowCount = Integer.MAX_VALUE;
+							break;
+						}
 					}
 				}
+				
+				System.out.println((System.currentTimeMillis() - t) + "ms count rows");
+				t = System.currentTimeMillis();
 
 				// Create actual tabular data
-				Integer restrictdRows = ((RestrictedTable)columns).getRestrictedRows();
 				rowData = new Object[Math.min(restrictdRows, rowCount)][columnCount];
 				int row = 0;
 				while (columns.nextRow()) {
@@ -175,6 +186,9 @@ public class Spreadsheet extends Visualisation {
 					}
 					row++;
 				}
+				
+				System.out.println((System.currentTimeMillis() - t) + "ms parse rows");
+				t = System.currentTimeMillis();
 			}
 		}
 
@@ -228,7 +242,11 @@ public class Spreadsheet extends Visualisation {
 		});
 
 		// Make visible and activate
-		panel.add(new JLabel("Showing " + rowData.length + " rows of " + rowCount), BorderLayout.NORTH);
+		if (rowCount == Integer.MAX_VALUE) {
+			panel.add(new JLabel("Showing only the first " + rowData.length + " rows of table"), BorderLayout.NORTH);
+		} else {
+			panel.add(new JLabel("Showing " + rowData.length + " rows of " + rowCount), BorderLayout.NORTH);
+		}
 		panel.add(tableScroller, BorderLayout.CENTER);
 		table.updateSelectionsFromApplication();
 		table.sendEvents(true);
