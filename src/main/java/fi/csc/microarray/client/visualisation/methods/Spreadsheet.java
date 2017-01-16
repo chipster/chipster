@@ -141,8 +141,6 @@ public class Spreadsheet extends Visualisation {
 
 				Integer restrictdRows = ((RestrictedTable)columns).getRestrictedRows();
 				
-				long t = System.currentTimeMillis();	
-				
 				// Count data rows
 				try (Table rowCounter = data.queryFeatures("/column/*").asTable()) {
 					rowCount = 0;
@@ -156,9 +154,6 @@ public class Spreadsheet extends Visualisation {
 					}
 				}
 				
-				System.out.println((System.currentTimeMillis() - t) + "ms count rows");
-				t = System.currentTimeMillis();
-
 				// Create actual tabular data
 				rowData = new Object[Math.min(restrictdRows, rowCount)][columnCount];
 				int row = 0;
@@ -186,9 +181,6 @@ public class Spreadsheet extends Visualisation {
 					}
 					row++;
 				}
-				
-				System.out.println((System.currentTimeMillis() - t) + "ms parse rows");
-				t = System.currentTimeMillis();
 			}
 		}
 
