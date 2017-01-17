@@ -219,47 +219,94 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 	}
 		
 	
-	@SuppressWarnings("deprecation")
 	public void onChipsterMessage(ChipsterMessage msg, MessagingEndpoint endpoint) {
 				
-		try {
-
-			if (msg instanceof CommandMessage && CommandMessage.COMMAND_NEW_URL_REQUEST.equals(((CommandMessage)msg).getCommand())) {				
-				handleNewURLRequest(endpoint, msg);
+		try {			
+			if ((msg instanceof CommandMessage)) {				
+				CommandMessage cmdMsg = (CommandMessage) msg;
 				
-			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_GET_URL.equals(((CommandMessage)msg).getCommand())) {				
-				handleGetURL(endpoint, msg);
-			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_IS_AVAILABLE.equals(((CommandMessage)msg).getCommand())) {				
-				handleIsAvailable(endpoint, msg);
-			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_PUBLIC_URL_REQUEST.equals(((CommandMessage)msg).getCommand())) {
-				handlePublicUrlRequest(endpoint, msg);
-				
-			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_PUBLIC_FILES_REQUEST.equals(((CommandMessage)msg).getCommand())) {
-				handlePublicFilesRequest(endpoint, msg);
-
-			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_DISK_SPACE_REQUEST.equals(((CommandMessage)msg).getCommand())) {
-				handleSpaceRequest(endpoint, (CommandMessage)msg);
-
-			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_MOVE_FROM_CACHE_TO_STORAGE.equals(((CommandMessage)msg).getCommand())) {
-				handleMoveFromCacheToStorageRequest(endpoint, (CommandMessage)msg);
-
-			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_STORE_SESSION.equals(((CommandMessage)msg).getCommand())) {
-				handleStoreSessionRequest(endpoint, (CommandMessage)msg);
-
-			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_REMOVE_SESSION.equals(((CommandMessage)msg).getCommand())) {
-				handleRemoveSessionRequest(endpoint, (CommandMessage)msg);
-
-			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_LIST_SESSIONS.equals(((CommandMessage)msg).getCommand())) {
-				handleListSessionsRequest(endpoint, (CommandMessage)msg);
-				
-			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_LIST_STORAGE_USAGE_OF_SESSIONS.equals(((CommandMessage)msg).getCommand())) {
-				handleListStorageUsageOfSessionsRequest(endpoint, (CommandMessage)msg, msg.getUsername());
+				logger.debug("received messaged " + cmdMsg.getCommand() + " from " + cmdMsg.getUsername() + ", checking that it's not " + DirectoryLayout.getInstance().getConfiguration().getString("security", "guest-username"));
+	
+				if (handleReadOnlyMessages(cmdMsg, endpoint)) {
+					// it was a read only message
+					
+				} else if (cmdMsg.getUsername() != null && cmdMsg.getUsername().equals(DirectoryLayout.getInstance().getConfiguration().getString("security", "guest-username"))) {
+					logger.error("only read-only messages are allowed for guest users: " + cmdMsg.getCommand());
+					// can't inform the client, because each command is expecting different response type
+						
+				} else if (handleReadWriteMessages(cmdMsg, endpoint)) {
+					// it was a read-write message
+	
+				} else {
+					logger.error("message " + msg.getMessageID() + " not understood");
+				}
 			} else {
-				logger.error("message " + msg.getMessageID() + " not understood");
+				logger.error("message " + msg.getMessageID() + " is not a command message, but " + msg.getClass().getSimpleName());
 			}
 			
 		} catch (Exception e) {
 			logger.error(e, e);
+		}
+	}
+
+	private boolean handleReadWriteMessages(CommandMessage msg, MessagingEndpoint endpoint) throws Exception {
+		
+		switch (msg.getCommand()) {
+		case CommandMessage.COMMAND_STORE_SESSION:
+			handleStoreSessionRequest(endpoint, (CommandMessage)msg);
+			return true;
+		
+		case CommandMessage.COMMAND_REMOVE_SESSION:
+			handleRemoveSessionRequest(endpoint, (CommandMessage)msg);
+			return true;
+				
+		case CommandMessage.COMMAND_MOVE_FROM_CACHE_TO_STORAGE:			
+			handleMoveFromCacheToStorageRequest(endpoint, (CommandMessage)msg);
+			return true;
+			
+		case CommandMessage.COMMAND_DISK_SPACE_REQUEST:
+			handleSpaceRequest(endpoint, (CommandMessage)msg);
+			return true;
+			
+		default:
+			return false;
+		}
+	}
+
+	@SuppressWarnings("deprecation")
+	private boolean handleReadOnlyMessages(CommandMessage msg, MessagingEndpoint endpoint) throws Exception {
+
+		switch (msg.getCommand()) {
+		case CommandMessage.COMMAND_NEW_URL_REQUEST:				
+			handleNewURLRequest(endpoint, msg);
+			return true;
+			
+		case CommandMessage.COMMAND_GET_URL:				
+			handleGetURL(endpoint, msg);
+			return true;
+			
+		case CommandMessage.COMMAND_IS_AVAILABLE:				
+			handleIsAvailable(endpoint, msg);
+			return true;
+			
+		case CommandMessage.COMMAND_PUBLIC_URL_REQUEST:
+			handlePublicUrlRequest(endpoint, msg);
+			return true;
+			
+		case CommandMessage.COMMAND_PUBLIC_FILES_REQUEST:
+			handlePublicFilesRequest(endpoint, msg);
+			return true;			
+			
+		case CommandMessage.COMMAND_LIST_SESSIONS:
+			handleListSessionsRequest(endpoint, (CommandMessage)msg);
+			return true;
+		
+		case CommandMessage.COMMAND_LIST_STORAGE_USAGE_OF_SESSIONS:
+			handleListStorageUsageOfSessionsRequest(endpoint, (CommandMessage)msg, msg.getUsername());
+			return true;
+		
+		default:
+			return false;
 		}
 	}
 

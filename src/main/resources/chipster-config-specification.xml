@@ -188,7 +188,9 @@
 
 
 	<configuration-module moduleId="toolbox" description="toolbox service">
-	
+		<entry entryKey="tools-bin-path" type="string" description="path to tools-bin">
+			<value>../tools</value>
+		</entry>
 	</configuration-module>
 
 
@@ -283,6 +285,10 @@
 		
 		<entry entryKey="module-filter-mode" type="string" description="'exclude' disables the specified module and enables all other modules, 'include' enables the specified module and disables all other modules">
 			<value>exclude</value>
+		</entry>
+		
+		<entry entryKey="resource-monitoring-interval" type="int" description="how often to monitor job resource usage or -1 to disable it, milliseconds">
+			<value>10000</value>
 		</entry>
 		
 	</configuration-module>

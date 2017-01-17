@@ -31,7 +31,7 @@ import fi.csc.microarray.client.visualisation.VisualisationUtilities;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.features.QueryResult;
-import fi.csc.microarray.databeans.features.RestrictModifier;
+import fi.csc.microarray.databeans.features.RestrictModifier.RestrictedTable;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.Module;
@@ -139,16 +139,23 @@ public class Spreadsheet extends Visualisation {
 				// Check which columns need hyperlinking
 				linkableFlags = primaryModule.flagLinkableColumns(columns, data);
 
+				Integer restrictdRows = ((RestrictedTable)columns).getRestrictedRows();
+				
 				// Count data rows
 				try (Table rowCounter = data.queryFeatures("/column/*").asTable()) {
 					rowCount = 0;
 					while (rowCounter.nextRow()) {
 						rowCount++;
+						if (rowCount > restrictdRows * 10) {
+							// don't read through huge files
+							rowCount = Integer.MAX_VALUE;
+							break;
+						}
 					}
 				}
-
+				
 				// Create actual tabular data
-				rowData = new Object[RestrictModifier.RESTRICT_TO_ROWS < rowCount ? RestrictModifier.RESTRICT_TO_ROWS : rowCount][columns.getColumnCount()];
+				rowData = new Object[Math.min(restrictdRows, rowCount)][columnCount];
 				int row = 0;
 				while (columns.nextRow()) {
 					int column = 0;
@@ -227,7 +234,11 @@ public class Spreadsheet extends Visualisation {
 		});
 
 		// Make visible and activate
-		panel.add(new JLabel("Showing " + rowData.length + " rows of " + rowCount), BorderLayout.NORTH);
+		if (rowCount == Integer.MAX_VALUE) {
+			panel.add(new JLabel("Showing only the first " + rowData.length + " rows of table"), BorderLayout.NORTH);
+		} else {
+			panel.add(new JLabel("Showing " + rowData.length + " rows of " + rowCount), BorderLayout.NORTH);
+		}
 		panel.add(tableScroller, BorderLayout.CENTER);
 		table.updateSelectionsFromApplication();
 		table.sendEvents(true);

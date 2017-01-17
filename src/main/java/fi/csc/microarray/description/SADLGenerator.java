@@ -159,12 +159,13 @@ public class SADLGenerator {
 	}
 	
 	private static String escapeIfNeeded(String string) {
-		for (String operator : SADLTokeniser.blockEndingOperators()) {
-			string = string.replace(operator, SADLSyntax.ESCAPE + operator);
+		if (string != null) {
+			for (String operator : SADLTokeniser.blockEndingOperators()) {
+				string = string.replace(operator, SADLSyntax.ESCAPE + operator);
+			}
+			
+			return string;
 		}
-		
-		return string;
+		return null;
 	}
-
-
 }

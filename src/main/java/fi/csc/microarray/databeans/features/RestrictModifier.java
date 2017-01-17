@@ -9,19 +9,22 @@ import fi.csc.microarray.exception.MicroarrayException;
  */
 public class RestrictModifier implements Modifier {
 
-	public static final int RESTRICT_TO_ROWS = 10000;
+	public static final int RESTRICT_TO_CELLS = 1_000_000;
 	
 	/**
 	 * Delegates to original table, but restricts row iteration.
 	 *
 	 */
-	private static class RestrictedTable implements Table {
+	public static class RestrictedTable implements Table {
 
 		private Table table;
 		private int row = 0;
+		private Integer restrictToRows = null;
 		
 		public RestrictedTable(Table table) {
 			this.table = table;
+			// take the ceiling to show at least one row
+			this.restrictToRows = (int) Math.ceil(RESTRICT_TO_CELLS / (float) getColumnCount());
 		}
 		
 		public String[] getColumnNames() {
@@ -54,13 +57,16 @@ public class RestrictModifier implements Modifier {
 
 		public boolean nextRow() {
 			this.row++;
-			return row < RESTRICT_TO_ROWS && table.nextRow();
+			return row < restrictToRows && table.nextRow();
 		}
 
 		public void close() {
 			table.close();			
 		}
 		
+		public Integer getRestrictedRows() {
+			return this.restrictToRows;
+		}		
 	}
 	private static class RestrictModifierFeature extends ModifiedFeature {
 

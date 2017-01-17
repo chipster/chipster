@@ -16,6 +16,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
+import javax.ws.rs.core.Configurable;
 
 import org.apache.log4j.Logger;
 
@@ -893,8 +894,13 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 					application.saveSession(SessionSavingMethod.UPLOAD_DATA_TO_SERVER);
 				}
 			});
+			saveSessionMenuItem.setEnabled(!isGuestUser());
 		}
 		return saveSessionMenuItem;
+	}
+	
+	private boolean isGuestUser() {
+		return Session.getSession().getUsername().equals(DirectoryLayout.getInstance().getConfiguration().getString("security", "guest-username"));
 	}
 
 	private JMenuItem getManageSessionsMenuItem() {
@@ -906,6 +912,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 					application.manageRemoteSessions();
 				}
 			});
+			manageSessionsMenuItem.setEnabled(!isGuestUser());
 		}
 		return manageSessionsMenuItem;
 	}
