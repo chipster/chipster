@@ -16,7 +16,6 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
-import javax.ws.rs.core.Configurable;
 
 import org.apache.log4j.Logger;
 
@@ -37,6 +36,7 @@ import fi.csc.microarray.filebroker.FileBrokerException;
 import fi.csc.microarray.messaging.AuthCancelledException;
 import fi.csc.microarray.module.Module;
 import fi.csc.microarray.module.basic.BasicModule;
+import fi.csc.microarray.module.chipster.KielipankkiModule;
 import fi.csc.microarray.util.Files;
 
 @SuppressWarnings("serial")
@@ -700,7 +700,9 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			helpInfoMenu = new JMenu();
 			helpInfoMenu.setText("Help");
 			helpInfoMenu.setMnemonic('H');
-			helpInfoMenu.add(getStartedMenuItem());
+			if (!(Session.getSession().getPrimaryModule() instanceof KielipankkiModule)) {
+				helpInfoMenu.add(getStartedMenuItem());
+			}
 			helpInfoMenu.add(getContentMenuItem());
 			if (DirectoryLayout.getInstance().getConfiguration().getBoolean("client", "enable-contact-support")) {
 				helpInfoMenu.add(getSendFeedbackMenuItem());
