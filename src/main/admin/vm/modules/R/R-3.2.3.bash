@@ -1,6 +1,6 @@
 ##depends:none
 
-R_VER=3.2.3  
+R_VER=3.2.3
 cd ${TMPDIR_PATH}/
 
 #curl -s http://gemmei.acc.umu.se/mirror/CRAN/src/base/R-3/R-${R_VER}.tar.gz | tar -xz
@@ -28,7 +28,7 @@ cd ${TMPDIR_PATH}/
 
 
 #curl -L http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.2.3-vmbin/R-3.2.3-2016-03-10.tar.gz | tar -xz -C ${TOOLS_PATH}/
-curl -L http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.2.3-vmbin/R-3.2.3_ubuntu-16.04_2016-11-25.tar.gz | tar -xz -C ${TOOLS_PATH}/
+curl -L http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.2.3_ubuntu-16.04_2017-02-27.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
 #wget https://raw.githubusercontent.com/chipster/chipster-tools/master/tools/admin/R-3.2.3/install-libs.R
 #wget https://raw.githubusercontent.com/chipster/chipster-tools/master/tools/admin/R/smip.R
