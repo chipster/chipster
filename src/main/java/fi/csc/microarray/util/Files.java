@@ -21,8 +21,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.filefilter.AgeFileFilter;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
@@ -410,15 +410,24 @@ public class Files {
 		}
 	}
 	
-	public static List<File> listFilesRecursivelySortByDateOldestFirst(File dir) {
-		List<File> files = listFilesRecursively(dir);
-		// we cannot sort live File objects because they can change modification date
-		TreeMap<Long, File> fileMap = new TreeMap<Long, File>();
-		for (File file : files) {
-			fileMap.put(file.lastModified(), file);
+	public static class DateFile {
+		DateFile(Long date, File file) {
+			this.date = date;
+			this.file = file;
 		}
-		List<File> sortedFiles = new LinkedList<File>();
-		sortedFiles.addAll(fileMap.values()); // values are returned in ascending order of key => smallest longs / oldest files first
+		public Long date;
+		public File file;
+	}
+	
+	public static List<File> listFilesRecursivelySortByDateOldestFirst(File dir) {		
+		// we cannot sort live File objects because they can change modification date
+		List<File> sortedFiles = listFilesRecursively(dir).stream()
+				.map(file -> new DateFile(file.lastModified(), file))
+				.sorted((d1, d2) -> Long.compare(d1.date, d2.date))
+				.map(dateFile -> dateFile.file)
+				.collect(Collectors.toList());
+		
+		// values are returned in ascending order of key => smallest longs / oldest files first
 		return sortedFiles;
 	}
 
@@ -559,6 +568,4 @@ public class Files {
 
 		return perms;
 	}
-
-	
 }
