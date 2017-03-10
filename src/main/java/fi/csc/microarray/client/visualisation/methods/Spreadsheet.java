@@ -313,7 +313,8 @@ public class Spreadsheet extends Visualisation {
 
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
-		return bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES) || bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITHOUT_COLUMN_NAMES);
+		return bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES) || bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITHOUT_COLUMN_NAMES) ||
+				bean.isContentTypeCompatitible("text/mothur-count");
 	}
 
 	@Override

@@ -106,6 +106,7 @@ public class MicroarrayModule implements Module {
 		public static final TypeTag MOTHUR_NAMES = new TypeTag("Mothur names data", "Mothur names data");
 		public static final TypeTag MOTHUR_GROUPS = new TypeTag("Mothur groups data", "Mothur groups data");
 		public static final TypeTag MOTHUR_STABILITY = new TypeTag("Mothur stability data", "Mothur stability data");
+		public static final TypeTag MOTHUR_COUNT = new TypeTag("Mothur count table", "Mothur count table");
 	}
 	
 	public static class VisualisationMethods {
@@ -141,6 +142,7 @@ public class MicroarrayModule implements Module {
 		manager.plugContentType("text/mothur-names", true, false, "Mothur names file", VisualConstants.ICON_TYPE_TEXT, "names");
 		manager.plugContentType("text/mothur-groups", true, false, "Mothur groups file", VisualConstants.ICON_TYPE_TEXT, "groups");
 		manager.plugContentType("text/mothur-stability", true, false, "Mothur stability file", VisualConstants.ICON_TYPE_TEXT, "files");
+		manager.plugContentType("text/mothur-count", true, false, "Mothur count table file", VisualConstants.ICON_TYPE_TABLE, "count_table");
 		manager.plugContentType("text/sff", true, false, "sff file", VisualConstants.ICON_TYPE_TEXT, "sff");
 	}
 	
