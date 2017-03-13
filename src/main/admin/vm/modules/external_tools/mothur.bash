@@ -17,3 +17,6 @@ source ../installation_files/functions.bash
   
   curl -s http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/mothur/mothur-data.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
+  mkdir -p ${TOOLS_PATH}/mothur-silva-reference/
+  curl -s http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/mothur/silva.bacteria.tar.gz  | tar -xz -C ${TOOLS_PATH}/mothur-silva-reference/
+  curl -s http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/mothur/mothur-silva-reference-whole.tar.gz  | tar -xz -C ${TOOLS_PATH}/mothur-silva-reference/
