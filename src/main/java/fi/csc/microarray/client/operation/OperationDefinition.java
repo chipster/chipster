@@ -618,6 +618,9 @@ public class OperationDefinition implements ExecutionItem {
 
 		} else if (type.equals(ChipsterInputTypes.MOTHUR_STABILITY)) {
 			return data.hasTypeTag(MicroarrayModule.TypeTags.MOTHUR_STABILITY);
+			
+		} else if (type.equals(ChipsterInputTypes.MOTHUR_COUNT)) {
+			return data.hasTypeTag(MicroarrayModule.TypeTags.MOTHUR_COUNT);
 				
 		} else {
 			throw new IllegalArgumentException();

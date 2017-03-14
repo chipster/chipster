@@ -717,6 +717,9 @@ public class MicroarrayModule implements Module {
         if (data.isContentTypeCompatitible("text/mothur-stability")) {
             data.addTypeTag(MicroarrayModule.TypeTags.MOTHUR_STABILITY);
         }
+        if (data.isContentTypeCompatitible("text/mothur-count")) {
+            data.addTypeTag(MicroarrayModule.TypeTags.MOTHUR_COUNT);
+        }
 
         
 		// Rest of the tags are set only when this module is primary
