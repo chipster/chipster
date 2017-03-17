@@ -10,11 +10,17 @@ source ../installation_files/functions.bash
   #mv mothur ${TOOLS_PATH}/mothur-1.28
   #ln -s mothur-1.28 ${TOOLS_PATH}/mothur
   
-  wget_retry -nv https://github.com/mothur/mothur/releases/download/v1.36.1/Mothur.linux_64.noReadline.zip
-  unzip -q Mothur.linux_64.noReadline.zip
-  mv mothur ${TOOLS_PATH}/mothur-1.36.1
-  ln -s mothur-1.36.1 ${TOOLS_PATH}/mothur
+  #wget_retry -nv https://github.com/mothur/mothur/releases/download/v1.36.1/Mothur.linux_64.noReadline.zip
+  #unzip -q Mothur.linux_64.noReadline.zip
+  #mv mothur ${TOOLS_PATH}/mothur-1.36.1
+  #ln -s mothur-1.36.1 ${TOOLS_PATH}/mothur
   
+  # Mothur
+  wget_retry -nv  https://github.com/mothur/mothur/releases/download/v1.39.4/Mothur.linux_64.noReadLine.zip
+  unzip -q Mothur.linux_64.noReadline.zip
+  mv mothur ${TOOLS_PATH}/mothur-1.39.4
+  ln -s mothur-1.39.4 ${TOOLS_PATH}/mothur
+    
   curl -s http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/mothur/mothur-data.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
   mkdir -p ${TOOLS_PATH}/mothur-silva-reference/
