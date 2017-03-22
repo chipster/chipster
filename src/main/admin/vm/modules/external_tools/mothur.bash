@@ -16,10 +16,10 @@ source ../installation_files/functions.bash
   #ln -s mothur-1.36.1 ${TOOLS_PATH}/mothur
   
   # Mothur
-  wget_retry -nv  https://github.com/mothur/mothur/releases/download/v1.39.2/Mothur.linux_64.noReadLine.zip
+  wget_retry -nv  https://github.com/mothur/mothur/releases/download/v1.39.5/Mothur.linux_64.noReadLine.zip
   unzip -q Mothur.linux_64.noReadline.zip
-  mv mothur ${TOOLS_PATH}/mothur-1.39.2
-  ln -s mothur-1.39.2 ${TOOLS_PATH}/mothur
+  mv mothur ${TOOLS_PATH}/mothur-1.39.5
+  ln -s mothur-1.39.5 ${TOOLS_PATH}/mothur
     
   curl -s http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/mothur/mothur-data.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
