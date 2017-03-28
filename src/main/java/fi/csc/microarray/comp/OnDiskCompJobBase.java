@@ -17,7 +17,6 @@ import fi.csc.microarray.filebroker.FileBrokerException;
 import fi.csc.microarray.filebroker.NotEnoughDiskSpaceException;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.message.GenericJobMessage;
-import fi.csc.microarray.security.CryptoKey;
 import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.ToolUtils;
@@ -126,7 +125,7 @@ public abstract class OnDiskCompJobBase extends CompJob {
 			    describedFiles = new File[] {new File(jobDataDir, outputName)};
 			}
 			
-			// parse a file containing 
+			// parse a file containing file names for the client
 			String outputsFilename = "chipster-outputs.tsv";
 			LinkedHashMap<String, String> nameMap = new LinkedHashMap<>();
 			try {
@@ -141,11 +140,10 @@ public abstract class OnDiskCompJobBase extends CompJob {
 			// add all described files to the result message
 			for (File outputFile : describedFiles) {
 	            // copy file to file broker
-	            String dataId = CryptoKey.generateRandom();
 	            try {	            	
 	            	String nameInClient = nameMap.get(outputFile.getName());
 	            	String nameInSessionDb = nameInClient != null? nameInClient : outputFile.getName();
-	                resultHandler.getFileBrokerClient().addFile(UUID.fromString(inputMessage.getJobId()), inputMessage.getSessionId(), dataId, FileBrokerArea.CACHE, outputFile, null, nameInSessionDb);
+	                String dataId = resultHandler.getFileBrokerClient().addFile(UUID.fromString(inputMessage.getJobId()), inputMessage.getSessionId(), FileBrokerArea.CACHE, outputFile, null, nameInSessionDb);
 	                // put dataId to result message
 	                outputMessage.addDataset(outputFile.getName(), dataId, nameInClient);
 	                logger.debug("transferred output file: " + fileDescription.getFileName());

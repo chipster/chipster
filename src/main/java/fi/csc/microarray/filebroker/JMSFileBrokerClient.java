@@ -38,6 +38,7 @@ import fi.csc.microarray.messaging.admin.StorageAdminAPI.StorageEntryMessageList
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
 import fi.csc.microarray.messaging.message.SuccessMessage;
+import fi.csc.microarray.security.CryptoKey;
 import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.IOUtils.CopyProgressListener;
@@ -101,7 +102,9 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	 * @see fi.csc.microarray.filebroker.FileBrokerClient#addFile(File, CopyProgressListener)
 	 */
 	@Override
-	public void addFile(UUID jobId, UUID sessionId, String dataId, FileBrokerArea area, File file, CopyProgressListener progressListener, String datsetName) throws FileBrokerException, IOException {
+	public String addFile(UUID jobId, UUID sessionId, FileBrokerArea area, File file, CopyProgressListener progressListener, String datsetName) throws FileBrokerException, IOException {
+		
+		String dataId = CryptoKey.generateRandom();
 		
 		if (area != FileBrokerArea.CACHE) {
 			throw new UnsupportedOperationException();
@@ -138,6 +141,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 				IOUtils.closeIfPossible(stream);
 			}
 		}
+		return dataId;
 	}
 	
 	/**
