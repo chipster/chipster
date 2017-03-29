@@ -114,15 +114,6 @@ then
     then
       vmip=$(head -1 /tmp/vmip_$$_tmp)
       vmip_local=$(tail -1 /tmp/vmip_$$_tmp)
-      #check that correct ip selected as  public IP"
-      ip_check=$(ping -c 3 $vmip | grep "100% packet loss" -c)
-      if [[ $ip_check -eq 1 ]]
-      then
-          vmip=$(tail -1 /tmp/vmip_$$_tmp)
-          vmip_local=$(head -1 /tmp/vmip_$$_tmp)
-      fi
-          
-      
       echo "$rline IP: $vmip_local $vmip"
       ssh -i $keyname ubuntu@$vmip "sudo rm -rf /opt/chipster/fileserver/db-root/ChipsterFilebrokerMetadataDatabase;cd /opt/chipster; sudo ./configure.sh simple-configure $vmip $vmip_local; sudo systemctl restart chipster ; sudo systemctl status chispter"
     fi
@@ -1012,6 +1003,13 @@ then
    occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action link --resource $vmaddress --link /network/public
    re="$vmaddress"
    vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $vmaddress | grep occi.networkinterface.address| awk '{print $3}' | head -1 )
+   #check that correct ip selected as  public IP"
+   ip_check=$(ping -c 3 $vmip | grep "100% packet loss" -c)
+   if [[ $ip_check -eq 1 ]]
+   then
+          vmip=$(tail -1 /tmp/vmip_$$_tmp)
+          vmip_local=$(head -1 /tmp/vmip_$$_tmp)
+   fi          
 fi
 
 
