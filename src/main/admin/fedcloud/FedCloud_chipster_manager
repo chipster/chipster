@@ -23,7 +23,7 @@ do
  # for re in $(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms -r compute -a list | awk -F "/compute/" '{print "/compute/"$2}' )
  for re in $(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms -r compute -a list 2>/dev/null ) 
  do
-  rline=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $re -a describe | awk '{if ( $3 == "chipster-vm-'$user'") print $0 }'| awk '{if ( $1 == "occi.compute.hostname") print "'$re' "$0 }')
+  rline=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $re -a describe 2>/dev/null  | awk '{if ( $3 == "chipster-vm-'$user'") print $0 }'| awk '{if ( $1 == "occi.compute.hostname") print "'$re' "$0 }')
   if [[ $rline != "" ]]
   then
      vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $re | grep occi.networkinterface.address | awk '{print $3}'| head -1)
@@ -49,12 +49,12 @@ do
     echo "checking: $re"
     echo "chipster-vm-$user"
     echo ""
-    rline=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $re -a describe | awk '{if ( $3 == "chipster-vm-'$user'") print $0 }' | awk '{if ( $1 == "occi.compute.hostname") print "'$re' "$0 }')
+    rline=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $re -a describe 2>/dev/null | awk '{if ( $3 == "chipster-vm-'$user'") print $0 }' | awk '{if ( $1 == "occi.compute.hostname") print "'$re' "$0 }')
   if [[ $rline != "" ]]
   then
     vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $re | grep occi.networkinterface.address| awk '{print $3}'| head -1)
     echo "$rline IP: $vmip"
-    ssh -i $keyname ubuntu@$vmip "sudo service chipster status; echo Checking IP in chipster configuration; grep https /opt/chipster/fileserver/conf/chipster-config.xml; echo If the value above is not $vmip, then use FedCloud_chipster_manager to restart the Chipster server."
+    ssh -i $keyname ubuntu@$vmip "sudo systemctl status chipster; echo Checking IP in chipster configuration; grep https /opt/chipster/fileserver/conf/chipster-config.xml; echo If the value above is not $vmip, then use FedCloud_chipster_manager to restart the Chipster server."
     echo ""
     echo "Cheking ports 8080, 8081 and 61616:"
     #check ports 8080 and 61616
@@ -95,7 +95,7 @@ echo "This may take some time."
 echo ""
 echo "-------------------------------------------------------------------------------------"
 echo ""
-rline=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $re -a describe | awk '{if ( $3 == "chipster-vm-'$user'") print "'$re' "$0 }')
+rline=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $re -a describe 2>/dev/null | awk '{if ( $3 == "chipster-vm-'$user'") print "'$re' "$0 }')
 
 if [[ $rline != "" ]]
 then
@@ -106,7 +106,7 @@ then
       vmip=$(head -1 /tmp/vmip_$$_tmp)
       echo "$rline IP: $vmip"
       
-      ssh -i $keyname ubuntu@$vmip "sudo rm -rf /opt/chipster/fileserver/db-root/ChipsterFilebrokerMetadataDatabase; sudo service chipster restart; sudo service chipster status"
+      ssh -i $keyname ubuntu@$vmip "sudo rm -rf /opt/chipster/fileserver/db-root/ChipsterFilebrokerMetadataDatabase; sudo systemctl restart chipster; sudo systemctl status chipster"
    fi
 
    # in case the virtual machine has both  public and internal IP address
@@ -124,7 +124,7 @@ then
           
       
       echo "$rline IP: $vmip_local $vmip"
-      ssh -i $keyname ubuntu@$vmip "sudo rm -rf /opt/chipster/fileserver/db-root/ChipsterFilebrokerMetadataDatabase;cd /opt/chipster; sudo ./configure.sh simple-configure $vmip $vmip_local; sudo service chipster restart; sudo service chipster status"
+      ssh -i $keyname ubuntu@$vmip "sudo rm -rf /opt/chipster/fileserver/db-root/ChipsterFilebrokerMetadataDatabase;cd /opt/chipster; sudo ./configure.sh simple-configure $vmip $vmip_local; sudo systemctl restart chipster ; sudo systemctl status chispter"
     fi
    rm -f  /tmp/vmip_$$_tmp
 fi
@@ -136,16 +136,19 @@ delete_chipster_instance() {
 echo "Delieting  Virtual Machine: $1"
 echo "in endpoint $endpoint" 
 
+
+volume=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $1 -a describe | grep occi.core.target | grep storage | awk '{print $3}')
+
 occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $1 -a delete
-if [[ -e ~/.chipster_fedcloud_vms ]]
+
+echo "Do you want to remove the Volume $volume that was linked to the deleted virtual machine? "'[n/y]'
+
+read yon
+
+if [[ $yon == "y" ]]
 then
-  volcount=$(grep -c $1 ~/.chipster_fedcloud_vms)
-  if [[ $volcount -eq 1 ]]
-  then
-    volume=$(grep $1 ~/.chipster_fedcloud_vms | awk '{print $2}')
-    echo "Deleting volume $volume"
-    occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $volume -a delete
-  fi
+  echo "Deleting volume $volume"
+  occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $volume -a delete
 fi  
 
 }
@@ -323,7 +326,8 @@ then
 echo "Available endpoints:"
 #https://prisma-cloud.ba.infn.it:8787
 echo "  http://cloud.recas.ba.infn.it:8787/occi"
-clusters=( "http://cloud.recas.ba.infn.it:8787/occi" )
+echo "  https://carach5.ics.muni.cz:11443"
+clusters=( "http://cloud.recas.ba.infn.it:8787/occi" "https://carach5.ics.muni.cz:11443")
 echo ""
    if [[ $endpoint == "0" ]]
    then
@@ -335,14 +339,15 @@ fi
 if [[ $vo_name == "training.egi.eu" ]]
 then
   echo "Available endpoints:"
+  #echo "https://server4-ciencias.bifi.unizar.es:8787/occi1.1"
+  echo "  http://stack-server.ct.infn.it:8787/occi1.1"
   echo "  http://server4-eupt.unizar.es:8787"
   echo "  https://controller.ceta-ciemat.es:8787"
-  echo "  https://server4-ciencias.bifi.unizar.es:8787/occi1.1"
   #echo "  https://stack-server-01.ct.infn.it:8787"
   #echo "  https://cloud.ifca.es:8787/occi"
   
-  clusters=( "https://controller.ceta-ciemat.es:8787" "http://server4-eupt.unizar.es:8787" "https://server4-ciencias.bifi.unizar.es:8787/occi1.1")
-  #clusters=( "https://controller.ceta-ciemat.es:8787" "http://server4-epsh.unizar.es:8787" )
+  #clusters=( "https://server4-ciencias.bifi.unizar.es:8787/occi1.1" )
+  clusters=( "https://controller.ceta-ciemat.es:8787" "http://server4-epsh.unizar.es:8787" "http://stack-server.ct.infn.it:8787/occi1.1")
   echo ""
   if [[ $endpoint == "0" ]]
    then
@@ -358,7 +363,9 @@ then
    if [[ $chipster_img == "0"  ]]
    then
       #3.4.0 chipster_img=("os_tpl#87b6a944-007f-4f6d-b9ad-bba9dd4ff02f")
-      chipster_img=("os_tpl#f9bc3e51-9099-4e0b-9ad9-b70a830bd77e")
+      #chipster_img=("os_tpl#f9bc3e51-9099-4e0b-9ad9-b70a830bd77e")
+      #chipster_img=("os_tpl#5daba4f7-9c18-4d22-887c-e928e13b2f9e")
+      chipster_img=("os_tpl#9b09ad49-4b83-4607-b5dd-442aa724f4de")
    fi
 
    if [[  $flavor == "0" ]]
@@ -372,13 +379,13 @@ if [[ $endpoint == "https://carach5.ics.muni.cz:11443" ]]
 then
    if [[ $chipster_img == "0"  ]]
    then
-      #3.4.0 chipster_img=("os_tpl#87b6a944-007f-4f6d-b9ad-bba9dd4ff02f")
+      #3.4.0 chipster_img=("os_tpl#87b6a944-007f-4f6d-b9ad-bba9dd4ff02f"
       chipster_img=("os_tpl#uuid_chipster_ubuntu_server_12_04_lts_vo_fedcloud_warg_116")
    fi
 
    if [[  $flavor == "0" ]]
    then
-      flavor=('1.0#mem_large')
+      flavor=(' http://fedcloud.egi.eu/occi/compute/flavour/1.0#large')
    fi
    link_ip=(0)
 fi
@@ -389,12 +396,12 @@ if [[ $endpoint == "http://server4-eupt.unizar.es:8787" ]]
 then
    if [[ $chipster_img == "0"  ]]
    then
-       chipster_img=("os_tpl#732bbcb6-8612-4707-91b3-3a80e52bbdb4")
+       chipster_img=("os_tpl#8eeb7668-683c-4c54-9bbb-0b8a94f6657b")
    fi
 
    if [[  $flavor == "0" ]]
    then
-      flavor=('resource_tpl#m1-medium')
+      flavor=('resource_tpl#m1-large')
    fi
    link_ip=(1)
 fi
@@ -404,26 +411,26 @@ if [[ $endpoint == "https://controller.ceta-ciemat.es:8787" ]]
 then
    if [[ $chipster_img == "0"  ]]
    then
-       chipster_img=("os_tpl#95476989-91a6-40b7-9ba2-4a0cef8f3454")
+       chipster_img=("os_tpl#ed776b67-6fc3-4485-a6a9-a428ce2ab518")
    fi
 
    if [[  $flavor == "0" ]]
    then
-      flavor=('resource_tpl#m1-medium')
+      flavor=('resource_tpl#m1-tiny')
    fi
    link_ip=(1)
 fi
 
-if [[ $endpoint == "https://stack-server-01.ct.infn.it:8787" ]]
+if [[ $endpoint == "https://stack-server-01.ct.infn.it:8787/occi1.1" ]]
 then
    if [[ $chipster_img == "0"  ]]
    then
-       chipster_img=("os_tpl#07ab8317-e7eb-4c7b-8fc7-94414c0f336d")
+       chipster_img=("os_tpl#124bbaac-cbcb-487d-8931-8bc5ce434951")
    fi
 
    if [[  $flavor == "0" ]]
    then
-      flavor=('resource_tpl#m1.large')
+      flavor=('resource_tpl#4')
    fi
    link_ip=(1)
 fi
@@ -442,23 +449,41 @@ then
    link_ip=(1)
 fi
 
-if [[ $endpoint == "https://server4-ciencias.bifi.unizar.es:8787/occi1.1" ]]
+if [[ $endpoint == "http://stack-server.ct.infn.it:8787/occi1.1" ]]
 then
    if [[ $chipster_img == "0"  ]]
    then
-       chipster_img=("os_tpl#10fc915c-e4e8-4c73-96cf-7ec5c84c4b10")
+       chipster_img=("os_tpl#124bbaac-cbcb-487d-8931-8bc5ce434951")
    fi
 
    if [[  $flavor == "0" ]]
    then
-      #largeflavor=('resource_tpl#20eb9793-00f9-4257-9f59-f56291639733')
-      # medium:
-      flavor=('resource_tpl#58bfda8e-a6bd-452b-b929-ef69b14e9d23')
-      #flavor=('resource_tpl#308bc2b2-1e1e-4af9-a98f-cac76b6ce084')
-      #flavor=('resource_tpl#9acf22d7-5591-45b6-b7e7-767041294065')
+      flavor=('resource_tpl#4')
    fi
    link_ip=(1)
 fi
+
+
+#BIFI
+if [[ $endpoint == "https://server4-ciencias.bifi.unizar.es:8787/occi1.1" ]]
+then
+   if [[ $chipster_img == "0"  ]]
+   then
+       chipster_img=('http://schemas.openstack.org/template/os#985b0bf1-afe5-41fe-b595-1daaf05d034e')
+   fi
+
+   if [[  $flavor == "0" ]]
+   then
+      flavor=('http://schemas.openstack.org/template/resource#20eb9793-00f9-4257-9f59-f56291639733')
+   fi
+   link_ip=(1)
+fi
+
+
+
+
+
+
 
 }
 
@@ -475,10 +500,11 @@ link_ip=(0)
 endpoint=(0)
 
 
-user=$(voms-proxy-info --identity | awk '{print $NF}' | sed s/'@'/"-at-"/g | tr "[:upper:]" "[:lower:]" | tr ":=;/, " "-" )
+user=$(voms-proxy-info --identity | awk '{print $NF}' | sed s/'@'/"-at-"/g | tr "[:upper:]" "[:lower:]" | tr "=;/, " "-" )
 
 usercred=$(ls /tmp/x509up_u${UID})
 volumesize=20
+volume=("x")
 keyflag=(0)
 listflag=(0)
 launchflag=(0)
@@ -567,12 +593,18 @@ do
                   shift
                   shift
               ;;
-              '-volume_size'|'-v')
+              '-volume_size'|'-s')
                   volumesize=($2)
 
                   shift
                   shift
               ;;
+              '-volume'|'-v')
+                  volume=($2)
+                  shift
+                  shift
+              ;;
+
               '-flavor'|'-f')
                   flavor=($2)
                   shift
@@ -687,22 +719,28 @@ then
 fi
 
 
-#############################
-# make data volume
-#############################
-volume=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action create --resource storage -t 'occi.storage.size=num('$volumesize')' -t occi.core.title="chipster-data_$user")
-echo "Creating a data volume with command:"
-echo "occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action create --resource storage -t 'occi.storage.size=num('$volumesize')' -t occi.core.title="chipster-data_$user""
+if [[ $volume == "x" ]]
+then
+  #############################
+  # make data volume
+  #############################
+  volume=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action create --resource storage -t 'occi.storage.size=num('$volumesize')' -t occi.core.title="chipster-data_$user")
+  echo "Creating a data volume with command:"
+  echo "occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action create --resource storage -t 'occi.storage.size=num('$volumesize')' -t occi.core.title="chipster-data_$user""
 
-
-if [[ $volume == "" ]]
-then 
-  echo "Could not create volume for chipster"
-  exit 1
-else
-  #volume=$(echo $volume | awk -F "/storage/" '{print "/storage/"$2}')
-  echo "Created data volume: $volume ${volumesize}GB"
+ 
+  if [[ $volume == "" ]]
+  then 
+    echo "Could not create volume for chipster"
+    exit 1
+  else
+    #volume=$(echo $volume | awk -F "/storage/" '{print "/storage/"$2}')
+    echo "Created a new data volume: $volume ${volumesize}GB"
+  fi
+else 
+   echo "Using existing volume: $volume"
 fi
+
 
 rounds=0
 volume_name=("xxx")
@@ -781,17 +819,16 @@ sudo cvmfs_config setup  2>&1 >>  /opt/chipster/webstart/web-root/building.html
 cd /etc/cvmfs
 #cp default.local ~/default.local.cvmfs.tmp
 echo CVMFS_HTTP_PROXY=DIRECT > /home/ubuntu/default.local.cvmfs.tmp
-echo CVMFS_QUOTA_LIMIT=8000 >> /home/ubuntu/default.local.cvmfs.tmp
 echo CVMFS_SERVER_URL='http://cvmfs-egi.gridpp.rl.ac.uk:8000/cvmfs/@fqrn@;http://cvmfsrepo.lcg.triumf.ca:8000/cvmfs/@fqrn@;http://cvmfsrep.grid.sinica.edu.tw:8000/cvmfs/@fqrn@' >>  /home/ubuntu/default.local.cvmfs.tmp
 sudo cp  /home/ubuntu/default.local.cvmfs.tmp ./default.local
-sudo service autofs stop  2>&1 >>  /opt/chipster/webstart/web-root/building.html
-sudo service autofs status  2>&1 >> /opt/chipster/webstart/web-root/building.html
-sudo service autofs start  2>&1 >> /opt/chipster/webstart/web-root/building.html
+sudo systemctl stop autofs 2>&1 >>  /opt/chipster/webstart/web-root/building.html
+sudo systemctl status autofs 2>&1 >> /opt/chipster/webstart/web-root/building.html
+sudo systemctl start autofs 2>&1 >> /opt/chipster/webstart/web-root/building.html
 ls /cvmfs/chipster.egi.eu 2>&1 >> /opt/chipster/webstart/web-root/building.html
 echo "Content of tools:" 2>&1 >>  /opt/chipster/webstart/web-root/building.html
 ls -l /cvmfs/chipster.egi.eu/tools 2>&1 >> /opt/chipster/webstart/web-root/building.html 
 sudo rm -rf /mnt/tools  2>&1 >> /opt/chipster/webstart/web-root/building.html
-sudo ln -s /cvmfs/chipster.egi.eu/tools /mnt/tools  2>&1 >>  /opt/chipster/webstart/web-root/building.html 
+sudo ln -s /cvmfs/chipster.egi.eu/tools_3.11.2 /mnt/tools  2>&1 >>  /opt/chipster/webstart/web-root/building.html 
 date  >>  /opt/chipster/webstart/web-root/building.html
 EOF
 fi
@@ -807,8 +844,8 @@ do
     sleep 5
 done
 sudo mkfs.xfs -f /dev/vdb   2>&1 > /home/ubuntu/startup.log 
-sudo mount /dev/vdb /mnt/data   2>&1 >>  /home/ubuntu/startup.log 
-sudo mv /mnt/data_old/* /mnt/data/ 2>&1 >>  /home/ubuntu/startup.log  
+sudo mount /mnt/data   2>&1 >>  /home/ubuntu/startup.log 
+sudo mv /mnt/data_old/* /mnt/data/  
 sudo rm -rf /mnt/data_old
 
 sleep 5
@@ -833,18 +870,18 @@ EOF
 fi
 
 cat >> /tmp/chipster_server_startup_$$.sh <<EOF
-sudo service chipster restart 2>&1 >> /opt/chipster/webstart/web-root/building.html 
-sudo service chipster-comp restart 2>&1 >> /opt/chipster/webstart/web-root/building.html
+sudo systemctl restart chipster 2>&1 >> /opt/chipster/webstart/web-root/building.html 
+sudo systemctl restart chipster-comp 2>&1 >> /opt/chipster/webstart/web-root/building.html
 n=1
 while [[ \$n -le 5 ]]
 do
-  check=$\( sudo service chipster status | grep "not running" -i -c \)
+  check=$\( sudo systemctl status chipster | grep "Active: inactive" -i -c \)
   if [[ \$check -ne 0 ]]
   then
     sleep 30 
     sudo rm -rf /opt/chipster/fileserver/db-root/ChipsterFilebrokerMetadataDatabase
-    sudo service chipster restart   2>&1 >> /opt/chipster/webstart/web-root/building.html  
-    sudo service chipster-comp restart  2>&1 >> /opt/chipster/webstart/web-root/building.html
+    sudo systemctl restart chipster 2>&1 >> /opt/chipster/webstart/web-root/building.html  
+    sudo systemctl restart chipster-comp  2>&1 >> /opt/chipster/webstart/web-root/building.html
     let "n++"
   else
     n=6
@@ -852,7 +889,7 @@ do
 done
 echo "Startup finished" >> /opt/chipster/webstart/web-root/building.html 
 date >>  /opt/chipster/webstart/web-root/building.html
-sudo service chipster status 2>&1 >>  /opt/chipster/webstart/web-root/building.html
+sudo systemctl status chipster 2>&1 >>  /opt/chipster/webstart/web-root/building.html
 echo "CHIPSTER_READY" >>  /opt/chipster/webstart/web-root/building.html
 chmod go+rx /opt/chipster/webstart/web-root/building.html
 
@@ -905,7 +942,7 @@ then
   while [[ $vmstate != "active" ]]
   do
      vmstate=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe -r $vmaddress | grep occi.compute.state | awk '{print $3}')
-     echo "Virtual machine in state $vmstate"
+     echo  "Virtual machine in state $vmstate"
      sleep 5
   done
 fi  
@@ -972,29 +1009,10 @@ done
 if  [[ $link_ip == "1" ]]
 then
    echo "Linking a publick IP-address"
-   if [[ $endpoint == "https://server4-ciencias.bifi.unizar.es:8787/occi1.1" ]]
-   then
-      occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action link --resource $vmaddress --link /occi1.1/network/PUBLIC -M http://schemas.openstack.org/network/floatingippool#provider
-   else
-      occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action link --resource $vmaddress --link /network/public
-   fi
+   occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action link --resource $vmaddress --link /network/public
    re="$vmaddress"
    vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $vmaddress | grep occi.networkinterface.address| awk '{print $3}' | head -1 )
-   ip_check=$(ping -c 3 $vmip | grep "100% packet loss" -c)
-   if [[ $ip_check -eq 1 ]]
-   then
-      vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $vmaddress | grep occi.networkinterface.address| awk '{print $3}' | tail -1 ) 
-   fi
 fi
-
-ip_check=$(ping -c 3 $vmip | grep "100% packet loss" -c)
-if [[ $ip_check -eq 1 ]]
-then
-     echo "IP address, assigned to your Chipster server, $vmip, is not responding"
-     echo "For more information run command"
-     echo "occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $vmaddress "
-     exit 1
-fi          
 
 
 ########
@@ -1041,7 +1059,7 @@ else
    echo "No restart needed"
 fi
 
-#vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $vmaddress | grep occi.networkinterface.address| awk '{print $3}' | head -1 )
+vmip=$(occi --endpoint $endpoint --auth x509 --user-cred $usercred -s --voms --action describe --resource $vmaddress | grep occi.networkinterface.address| awk '{print $3}' | head -1 )
 echo ""
 echo "---------------------------------------------------------------------"
 echo "Your new Chipster server is now running in a virtual machine with ID:" 
@@ -1062,5 +1080,3 @@ echo ""
 echo "  http://${vmip}:8081"
 echo ""
 exit 0
-
-
