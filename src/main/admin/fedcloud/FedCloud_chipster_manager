@@ -1,11 +1,9 @@
 #!/bin/bash 
 #
 #
-
 ##Instructions for using occi
 ##https://wiki.egi.eu/wiki/Fedcloud-tf:CLI_Environment
 ##https://wiki.egi.eu/wiki/HOWTO11
-
 # openjdk needed for vomsproxyinit
 # export PATH=/etc/alternatives/java_sdk_openjdk/bin:${PATH}
 #
