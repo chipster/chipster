@@ -184,6 +184,22 @@ public class Spreadsheet extends Visualisation {
 			}
 		}
 
+		// mothur files hack, use first row as title
+		if (rowData.length > 0 &&  (
+				data.isContentTypeCompatitible("text/mothur-oligos") || 
+				data.isContentTypeCompatitible("text/mothur-count"))) {
+			// use the first row as column titles 
+			for (int i = 0; i < rowData[0].length; i++) {
+				columnTitles[i] = String.valueOf(rowData[0][i]);
+			}
+
+			// 'remove' the first row from actual data
+			Object[][] rowDataWithoutTitleRow = new Object[rowData.length -1][];
+			System.arraycopy(rowData, 1, rowDataWithoutTitleRow, 0, rowData.length - 1);
+			rowData = rowDataWithoutTitleRow;
+			rowCount--;
+		}
+		
 		// Create the table component
 		table = new ExtendedJXTable(data);
 		DefaultTableModel tableModel = new DefaultTableModel(rowData, columnTitles) {			
@@ -313,7 +329,12 @@ public class Spreadsheet extends Visualisation {
 
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
-		return bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES) || bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITHOUT_COLUMN_NAMES) ||
+		return bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES) || 
+				bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITHOUT_COLUMN_NAMES) ||
+				bean.isContentTypeCompatitible("text/mothur-oligos") ||
+				bean.isContentTypeCompatitible("text/mothur-names") ||
+				bean.isContentTypeCompatitible("text/mothur-groups") ||
+				bean.isContentTypeCompatitible("text/mothur-stability") ||
 				bean.isContentTypeCompatitible("text/mothur-count");
 	}
 
