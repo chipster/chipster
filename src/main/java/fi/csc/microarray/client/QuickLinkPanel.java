@@ -19,6 +19,7 @@ import org.jdesktop.swingx.JXHyperlink;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.module.Module;
 import fi.csc.microarray.module.basic.BasicModule;
+import fi.csc.microarray.module.chipster.KielipankkiModule;
 import fi.csc.microarray.util.LinkUtil;
 import fi.csc.microarray.util.Strings;
 
@@ -119,7 +120,9 @@ public class QuickLinkPanel extends JPanel {
 
 		c.insets.set(0, 10, 0, 0);
 		
-		addLink("*** to get familiar with " + Session.getSession().getPrimaryModule().getDisplayName(), exampleLink, VisualConstants.EXAMPLE_SESSION_ICON, c, this);
+		if (!(Session.getSession().getPrimaryModule() instanceof KielipankkiModule)) {
+			addLink("*** to get familiar with " + Session.getSession().getPrimaryModule().getDisplayName(), exampleLink, VisualConstants.EXAMPLE_SESSION_ICON, c, this);
+		}
 	
 		String cloudSessionsString = "*** to continue working on previous sessions. You can also *** from the server.";
 		String localSessionsString = "*** to continue working on previous sessions.";

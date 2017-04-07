@@ -163,7 +163,9 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			fileMenu.add(getLoadLocalSessionMenuItem(true));
 			fileMenu.add(getSaveLocalSessionMenuItem());
 			fileMenu.addSeparator();
-			fileMenu.add(getOpenExampleSessionMenuItem());
+			if (!(Session.getSession().getPrimaryModule() instanceof KielipankkiModule)) {
+				fileMenu.add(getOpenExampleSessionMenuItem());
+			}
 			if (application.getSessionManager().areCloudSessionsEnabled()) {
 				fileMenu.addSeparator();
 				fileMenu.add(getLoadSessionMenuItem(true));
