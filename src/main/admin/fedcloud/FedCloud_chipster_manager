@@ -837,7 +837,7 @@ done
 
 EOF
 
-#If we use old volume data is not owerrided and file syste is not made
+#If we use old volume data is not overrided and file system is not made
 if [[ $new_volume -eq 1 ]]
 then 
   cat >> /tmp/chipster_server_startup_$$.sh <<EOF
@@ -881,6 +881,7 @@ EOF
 fi
 
 cat >> /tmp/chipster_server_startup_$$.sh <<EOF
+cd /opt/chipster ; sudo bash configure.sh edit client set client/enable-cloud-sessions true >> /opt/chipster/webstart/web-root/building.html
 sudo systemctl restart chipster 2>&1 >> /opt/chipster/webstart/web-root/building.html 
 sudo systemctl restart chipster-comp 2>&1 >> /opt/chipster/webstart/web-root/building.html
 n=1
