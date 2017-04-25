@@ -137,6 +137,7 @@ read yon
 if [[ $yon == "y" ]]
 then
   echo "Deleting volume $volume"
+  echo "occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $volume -a delete"
   occi --endpoint $endpoint --auth x509 --user-cred $usercred --voms -r $volume -a delete
 fi  
 
@@ -845,13 +846,20 @@ then
   sudo mount /dev/vdb /mnt/data   2>&1 >>  /home/ubuntu/startup.log
   sudo mv /mnt/data_old/* /mnt/data/
   sudo rm -rf /mnt/data_old
-
+  # use data volume for db-root to be able to preserve cloud sessions
+  sudo mv /opt/chipster/fileserver/db-root /mnt/data/db-root
+  sudo ln -s /mnt/data/db-root  /opt/chipster/fileserver/db-root
 EOF
 
 else
   cat >> /tmp/chipster_server_startup_$$.sh <<EOF
   sudo mount /dev/vdb /mnt/data   2>&1 >>  /home/ubuntu/startup.log
   sudo rm -rf /mnt/data_old
+  # use data volume for db-root to be able to preserve cloud sessions
+  sudo rm -rf /opt/chipster/fileserver/db-root
+  echo "Old file borker log:"   
+  ls -l /mnt/data/db-root/db-root/ChipsterFilebrokerMetadataDatabase/log
+  sudo ln -s /mnt/data/db-root  /opt/chipster/fileserver/db-root
 
 EOF
 
@@ -861,7 +869,7 @@ cat >> /tmp/chipster_server_startup_$$.sh <<EOF
 
 sleep 5
 sudo chown -R chipster:chipster /mnt/data   2>&1 >> /home/ubuntu/startup.log 
-sudo rm -rf /opt/chipster/fileserver/db-root/ChipsterFilebrokerMetadataDatabase  2>&1 >>  /home/ubuntu/startup.log 
+#sudo rm -rf /opt/chipster/fileserver/db-root/ChipsterFilebrokerMetadataDatabase  2>&1 >>  /home/ubuntu/startup.log 
 sleep 5
 cd /opt/chipster 
 sudo bash ./configure.sh auto   2>&1 >>  /home/ubuntu/startup.log 
@@ -891,7 +899,7 @@ do
   if [[ \$check -ne 0 ]]
   then
     sleep 30 
-    sudo rm -rf /opt/chipster/fileserver/db-root/ChipsterFilebrokerMetadataDatabase
+    #sudo rm -rf /opt/chipster/fileserver/db-root/ChipsterFilebrokerMetadataDatabase
     sudo systemctl restart chipster 2>&1 >> /opt/chipster/webstart/web-root/building.html  
     sudo systemctl restart chipster-comp  2>&1 >> /opt/chipster/webstart/web-root/building.html
     let "n++"
