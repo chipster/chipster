@@ -162,7 +162,7 @@ public class SessionLoaderImpl2 {
 		}
 	}
 
-	private SessionType parseXml(InputStream metadataStream) throws JAXBException, SAXException, ZipException {
+	public static SessionType parseXml(InputStream metadataStream) throws JAXBException, SAXException, ZipException {
 		if (metadataStream == null) {
 			throw new ZipException("session file corrupted, entry " + UserSession.SESSION_DATA_FILENAME + " was missing");
 		}
