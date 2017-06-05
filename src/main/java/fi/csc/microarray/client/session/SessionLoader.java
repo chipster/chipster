@@ -1,16 +1,20 @@
 package fi.csc.microarray.client.session;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 import de.schlichtherle.truezip.zip.ZipFile;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.XmlUtil;
 import fi.csc.microarray.util.ZipUtils;
 
@@ -48,19 +52,15 @@ public class SessionLoader {
 	public void loadSession() throws Exception {
 		
 		ZipFile zipFile = null;
-		InputStreamReader metadataReader = null;
 		String version = Integer.toString(UserSession.SESSION_VERSION);
 		try {
 			// get the session.xml zip entry (only if a file, remote sessions are always latest version)
 			if (sessionFile != null) {
 				zipFile = new ZipFile(sessionFile);
-				metadataReader = new InputStreamReader(zipFile.getInputStream(zipFile.getEntry(UserSession.SESSION_DATA_FILENAME)));
-				Document doc = XmlUtil.parseReader(metadataReader);
-				version = doc.getDocumentElement().getAttribute("format-version");
+				version = getSessionVersion(zipFile.getInputStream(zipFile.getEntry(UserSession.SESSION_DATA_FILENAME)));
 			}
 
 		} finally {
-			IOUtils.closeIfPossible(metadataReader);
 			ZipUtils.closeIfPossible(zipFile);
 		}
 		
@@ -82,6 +82,13 @@ public class SessionLoader {
 			impl.loadSession();
 			sessionNotes = impl.getSessionNotes();
 			unfinishedJobs = impl.getUnfinishedOperations();
+		}
+	}
+
+	public static String getSessionVersion(InputStream inputStream) throws SAXException, IOException, ParserConfigurationException {
+		try (InputStreamReader metadataReader = new InputStreamReader(inputStream)) {
+			Document doc = XmlUtil.parseReader(metadataReader);
+			return doc.getDocumentElement().getAttribute("format-version");
 		}
 	}
 
