@@ -8,31 +8,20 @@ import fi.csc.microarray.description.SADLParser.ParseException;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FilenameFilter;
 import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.PathMatcher;
-import java.nio.file.Paths;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ToolChecker {
-	private static String errorMessage;
-
-
 	/**
 	 * Parses the arguments' names of a R script.
 	 * @param rPath, path to R script.
