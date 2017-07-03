@@ -8,6 +8,7 @@ import fi.csc.microarray.description.SADLParser.ParseException;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.io.File;
@@ -54,7 +55,7 @@ public class ToolChecker {
 	/**
 	 * Parses the arguments's names from a given manual page.
 	 * @param documenationPath, path of the manual.
-	 * @return Parameters found in the manual in a String Set.
+	 * @return Parameters found in the manual as a Set of Strings. Returns null if the file was not found.
 	 */
 	private Set<String> parseHTML(String documentationPath) {
 		File documentation = new File(documentationPath);
@@ -71,16 +72,42 @@ public class ToolChecker {
 			}
 			return parametersList;			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			System.err.println("File not found: " + documentationPath);
 			e.printStackTrace();
 		}
 		return null;
 	}
+	/**
+	 * Updates manuals parameters according to new Parameters.
+	 * @param newParameters, the string that is displayed on the manual.
+	 * @param documentationPath, the path of the documentation
+	 */
+	private void writeParameters(Set<String> newParameters, String documentationPath) {
+		File documentation = new File(documentationPath);
+		Document doc;
+		try {
+			doc = Jsoup.parse(documentation, "UTF-8");
+			Elements parameters = doc.select("h3:contains(Parameters) + ul");
+			parameters.html("");
+			// Modify parameters
+			for (String p: newParameters) {
+				parameters.prepend("<li>" + p + "</li>" );
+			}
+			// Write file
+			FileWriter newFile = new FileWriter(documentation, false);
+			newFile.write(doc.outerHtml());
+			newFile.close();
+			System.out.println(doc.outerHtml());
+						
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+				
+	}
 		
 	/**
-	 * Returns null if there is a manual that has the same name as rScriptPath and manual has all the parameters.
-	 * If there is no manual, it prints the Script's name.
+	 * Returns null if there is a manual that has the same name as rScriptPath and manual has all the parameters, else returns an error message.
+	 * If there is no manual, it prints the Script's name. Calls parametersError
 	 * @param rScriptPath, path of R script.
 	 * @param manualDir, manual directory.
 	 * @return
@@ -97,9 +124,9 @@ public class ToolChecker {
 	}
 	 
 	/**
-	 * Assumes that the script and manual has the same name, except file extension.
-	 * Returns null if the parameters are valid.
-	 * If parameters do not match returns a error string
+	 * Assumes that the script and manual has the same name, except the file extension.
+	 * Returns null if the parameters are valid. Calls parseR and parseHTML to obtain parameters.
+	 * If parameters do not match returns an error string, white space errors are ignored
 	 * @param filePath
 	 * @param manualDir
 	 * @return
@@ -109,26 +136,36 @@ public class ToolChecker {
 		fileName = fileName.substring(0,fileName.lastIndexOf('.'));		
 		Set<String> manualParameters = parseHTML(manualDir + '/' + fileName + ".html");		
 		Set<String> rParameters = parseR(filePath.toString());
+		Set<String> filteredRParameters = new HashSet<String>();
+		for (String p : rParameters){
+			// Filter white space
+			filteredRParameters.add(p.replaceAll("\\s+", " ").trim().replaceAll("\\.", ""));
+		}
+		
 		if (manualParameters.isEmpty()) {
 			if (rParameters.isEmpty()) {
 				return null;
 			} else {
+				//writeParameters(filteredRParameters, manualDir + '/'+ fileName + ".html");
 				return ("No parameters in manual" + "\n");
 			}
 		}
-		else if (manualParameters.containsAll(rParameters)) {
+		else if (manualParameters.containsAll(filteredRParameters)) {
 			return null;
 		} else {
-			Set<String> rCopy = new HashSet<String>(rParameters);
-			rParameters.removeAll(manualParameters);
+			//writeParameters(filteredRParameters, manualDir + '/'+ fileName + ".html");
+			Set<String> rCopy = new HashSet<String>(filteredRParameters);
+			System.err.println(filteredRParameters.toString());
+			System.err.println(manualParameters.toString());
+			filteredRParameters.removeAll(manualParameters);
 			manualParameters.removeAll(rCopy);
-			return ("Script's parameters mismatches: " + rParameters.toString() + "\n" 
+			return ("Script's parameters mismatches: " + filteredRParameters.toString() + "\n" 
 					+ "Manual's parameters mismatches: " + manualParameters.toString() + "\n");
 		}
 	}
 
 	/**
-	 * Calls search manual and verifyParameters for each R script in the directory.
+	 * Calls manualError for each R script in the directory.
 	 * Prints out is the manual OK or not.
 	 * @param rDirPath, path of the R script directory
 	 */
@@ -141,12 +178,13 @@ public class ToolChecker {
 		if(directoryListing != null) {
 			for (File child : directoryListing) {
 				if (child.isFile()) {
+					//TODO replace hard coded
 					errorMessage = manualError(child.toPath(), "/home/aoikari/git/chipster-tools/manual");
 					if (errorMessage == null) {
 		        		System.out.println("Manual is OK: " + child.toString());
 		        		++ok;
 					} else {
-		        		System.err.println("MANUAL IS NOT OK: " + child.toString() + "\n" + errorMessage );
+		        		System.out.println("MANUAL IS NOT OK: " + child.toString() + "\n" + errorMessage );
 		        		++error;
 		        	}					
 				}				
@@ -157,7 +195,8 @@ public class ToolChecker {
 		System.out.println("Manuals OK: " + ok + " Manuals not OK: " + error);		
 	}
 		
-	public static void main(String[] args) {		
+	public static void main(String[] args) {
+		// TODO: remove hard coded paths
 		new ToolChecker().scanDir("/home/aoikari/git/chipster-tools/tools/ngs/R");		
 	}
 }
