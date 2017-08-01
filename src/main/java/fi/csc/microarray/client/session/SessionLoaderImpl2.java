@@ -22,6 +22,7 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.io.WriterOutputStream;
+import org.xml.sax.SAXException;
 
 import de.schlichtherle.truezip.zip.ZipFile;
 import fi.csc.microarray.client.ClientApplication;
@@ -153,25 +154,31 @@ public class SessionLoaderImpl2 {
 			
 			// validate
 			//ClientSession.getSchema().newValidator().validate(new StreamSource(metadataStream));
-			if (metadataStream == null) {
-				throw new ZipException("session file corrupted, entry " + UserSession.SESSION_DATA_FILENAME + " was missing");
-			}
-			
-			// parse the metadata xml to java objects using jaxb
-			Unmarshaller unmarshaller = UserSession.getJAXBContext().createUnmarshaller();
-			unmarshaller.setSchema(UserSession.getSchema());
-			NonStoppingValidationEventHandler validationEventHandler = new NonStoppingValidationEventHandler();
-			unmarshaller.setEventHandler(validationEventHandler);
-			this.sessionType = unmarshaller.unmarshal(new StreamSource(metadataStream), SessionType.class).getValue();
-			
-			if (validationEventHandler.hasEvents()) {
-				throw new JAXBException("Invalid session file:\n" + validationEventHandler.getValidationEventsAsString());
-			}
+			this.sessionType = parseXml(metadataStream);
 		}
 		finally {
 			ZipUtils.closeIfPossible(zipFile);
 			IOUtils.closeIfPossible(zipStream);
 		}
+	}
+
+	public static SessionType parseXml(InputStream metadataStream) throws JAXBException, SAXException, ZipException {
+		if (metadataStream == null) {
+			throw new ZipException("session file corrupted, entry " + UserSession.SESSION_DATA_FILENAME + " was missing");
+		}
+		
+		// parse the metadata xml to java objects using jaxb
+		Unmarshaller unmarshaller = UserSession.getJAXBContext().createUnmarshaller();
+		unmarshaller.setSchema(UserSession.getSchema());
+		NonStoppingValidationEventHandler validationEventHandler = new NonStoppingValidationEventHandler();
+		unmarshaller.setEventHandler(validationEventHandler);
+		SessionType sessionType = unmarshaller.unmarshal(new StreamSource(metadataStream), SessionType.class).getValue();
+		
+		if (validationEventHandler.hasEvents()) {
+			throw new JAXBException("Invalid session file:\n" + validationEventHandler.getValidationEventsAsString());
+		}
+		
+		return sessionType;
 	}
 
 	private void createFolders() {
