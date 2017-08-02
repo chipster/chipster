@@ -1,4 +1,4 @@
-##depends:git, python
+##depends:none
 
 # ZIFA
 cd ${TMPDIR_PATH}/
