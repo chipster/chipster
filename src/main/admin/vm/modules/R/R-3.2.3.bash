@@ -45,13 +45,16 @@ cd ${TMPDIR_PATH}/
 # 4. extract the data with tar to TOOLS_PATH
 # 5. remove the tmp dir
 
-mkdir tmpR
-cd tmpR
-curl -L http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.2.3-vmbin/R-3.2.3_ubuntu-16.04_2017-05-09.tar.lz4 -o curl_out
-lz4 -d curl_out lz4_out
-tar -xf lz4_out -C ${TOOLS_PATH}/
-cd ..
-rm -rf tmpR
+#mkdir tmpR
+#cd tmpR
+#curl -L http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.2.3-vmbin/R-3.2.3_ubuntu-16.04_2017-05-09.tar.lz4 -o curl_out
+#lz4 -d curl_out lz4_out
+#tar -xf lz4_out -C ${TOOLS_PATH}/
+#cd ..
+#rm -rf tmpR
+
+lz4 -d /mnt/artefacts/downloads/R-3.2.3_ubuntu-16.04_2017-05-09.tar.lz4 |tar x -C ${TOOLS_PATH}/
+
 
 #wget https://raw.githubusercontent.com/chipster/chipster-tools/master/tools/admin/R-3.2.3/install-libs.R
 #wget https://raw.githubusercontent.com/chipster/chipster-tools/master/tools/admin/R/smip.R
