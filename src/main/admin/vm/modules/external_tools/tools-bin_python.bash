@@ -45,3 +45,7 @@
   ln -s ${TOOLS_PATH}/Python-2.7.12/bin/htseq-count ${TOOLS_PATH}/htseq/htseq-count
   ln -s ${TOOLS_PATH}/Python-2.7.12/bin/htseq-count_chr ${TOOLS_PATH}/htseq/htseq-count_chr
 
+# ZIFA
+# Requires: scipy, pandas, numpy,  scikits.learn, matplotlib, pandas
+# Some of these modules are already installed, but lets still list all the requirements for ZIFA
+  ${TOOLS_PATH}/Python-2.7.12/bin/pip install numpy scipy pandas scikits.learn matplotlib pandas
