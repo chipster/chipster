@@ -419,7 +419,7 @@
 		</entry>
 		
 		<entry entryKey="purge-jobs-older-than" type="int" description="Purge jobs older than this from the jobmanager database, in days">
-			<value>90</value>
+			<value>30</value>
 		</entry>
 	</configuration-module>
 

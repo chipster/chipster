@@ -97,4 +97,17 @@ public class ResourceMonitor {
 		}
 		return monitor.getMaxMem();
 	}
+	
+	public Long getCurrentMem(Process process) {
+		// return null if monitoring is disabled (this.monitors is still initialized) 
+		ProcessResourceMonitor monitor = monitors.get(process);
+		if (monitor == null) {
+			return null;
+		}
+		return monitor.getCurrentMem();
+	}
+	
+	public Long getCurrentMem() {		
+		return monitors.values().stream().mapToLong(m -> m.getCurrentMem()).sum();		
+	}
 }
