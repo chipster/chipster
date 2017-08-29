@@ -84,6 +84,7 @@ public class ProcessUtils {
 		private Long pid;
 		private HashSet<Long> allPids = new HashSet<>();
 		private Long maxMem;
+		private Long currentMem;
 		private Process javaProcess;
 		
 		public ProcessResourceMonitor(Process javaProcess) {
@@ -93,6 +94,10 @@ public class ProcessUtils {
 			return maxMem;
 		}
 
+		public Long getCurrentMem() {
+			return currentMem;
+		}
+		
 		public void update() throws IOException {
 			if (pid == null) {
 				this.pid = ProcessUtils.getPid(javaProcess);
@@ -101,9 +106,9 @@ public class ProcessUtils {
 			if (pid != null) {
 				// remember all pids, even if child process ends and grandchild's ppid will be set to 1
 				allPids.addAll(getChildren(pid, true));
-				Long mem = getTotalMemory(allPids);
-				if (this.maxMem == null || mem > this.maxMem) {
-					this.maxMem = mem;
+				currentMem = getTotalMemory(allPids);
+				if (this.maxMem == null || currentMem > this.maxMem) {
+					this.maxMem = currentMem;
 				}
 				logger.debug("pid " + pid + " mem " + maxMem + " pid count " + allPids.size());
 			}
