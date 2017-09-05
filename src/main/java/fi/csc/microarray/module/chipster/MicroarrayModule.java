@@ -144,6 +144,7 @@ public class MicroarrayModule implements Module {
 		manager.plugContentType("text/mothur-stability", true, false, "Mothur stability file", VisualConstants.ICON_TYPE_TEXT, "files");
 		manager.plugContentType("text/mothur-count", true, false, "Mothur count table file", VisualConstants.ICON_TYPE_TABLE, "count_table");
 		manager.plugContentType("text/sff", true, false, "sff file", VisualConstants.ICON_TYPE_TEXT, "sff");
+		manager.plugContentType("application/robj", true, false, "R objects", VisualConstants.ICON_TYPE_BINARY, "robj");
 	}
 	
 

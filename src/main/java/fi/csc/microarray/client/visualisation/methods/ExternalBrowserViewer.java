@@ -28,11 +28,12 @@ public class ExternalBrowserViewer extends Visualisation {
 	}
 
 	/**
-	 * @return always true (you can dump anything into external web browser)
+	 * @return almost always true (you can dump anything into external web browser)
 	 */
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
-		return true;
+		// there is no point to open saved R sesisons in the browser
+		return !bean.isContentTypeCompatitible("application/robj");
 	}
 
 	@Override
