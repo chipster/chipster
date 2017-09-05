@@ -250,11 +250,16 @@ public class Spreadsheet extends Visualisation {
 		});
 
 		// Make visible and activate
+		String summary = "";
 		if (rowCount == Integer.MAX_VALUE) {
-			panel.add(new JLabel("Showing only the first " + rowData.length + " rows of table"), BorderLayout.NORTH);
+			summary += "Showing only the first " + rowData.length + " rows of table";
 		} else {
-			panel.add(new JLabel("Showing " + rowData.length + " rows of " + rowCount), BorderLayout.NORTH);
+			summary += "Showing " + rowData.length + " rows of " + rowCount;
 		}
+		
+		summary += " and all " + rowData[0].length + " columns";
+		
+		panel.add(new JLabel(summary), BorderLayout.NORTH);
 		panel.add(tableScroller, BorderLayout.CENTER);
 		table.updateSelectionsFromApplication();
 		table.sendEvents(true);
