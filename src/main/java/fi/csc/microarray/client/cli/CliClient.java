@@ -387,7 +387,7 @@ public class CliClient {
 			listSessions(yaml);
 			
 		} else if (isCommand(CMD_DELETE_SESSION)) {
-			deleteSession(nameSpace.getString(ARG_DATASET));			
+			deleteSession(nameSpace.getString(ARG_SESSION));			
 			
 		} else if (isCommand(CMD_PRINT)) {
 			String dataset = nameSpace.getString(ARG_DATASET);
