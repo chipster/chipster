@@ -192,7 +192,7 @@ public class SessionSaver {
 	 * @throws IOException
 	 * @throws JAXBException
 	 */
-	private void gatherMetadata(boolean saveData, boolean skipLocalLocations) throws IOException, JAXBException {
+	private void gatherMetadata(boolean saveData, boolean skipOtherLocations) throws IOException, JAXBException {
 		// xml schema object factory and xml root
 		this.factory = new ObjectFactory();
 		this.sessionType = factory.createSessionType();
@@ -204,7 +204,7 @@ public class SessionSaver {
 		generateIdsRecursively(dataManager.getRootFolder());
 
 		// gather meta data
-		saveMetadataRecursively(dataManager.getRootFolder(), saveData, skipLocalLocations);
+		saveMetadataRecursively(dataManager.getRootFolder(), saveData, skipOtherLocations);
 		
 		// save session notes
 		sessionType.setNotes(sessionNotes);
@@ -409,14 +409,14 @@ public class SessionSaver {
 		return id.toString();
 	}
 
-	private void saveMetadataRecursively(DataFolder folder, boolean saveData, boolean skipLocalLocations) throws IOException {
+	private void saveMetadataRecursively(DataFolder folder, boolean saveData, boolean skipOtherLocations) throws IOException {
 		
 		String folderId = reversedItemIdMap.get(folder);
 		saveDataFolderMetadata(folder, folderId);
 		
 		for (DataItem data : folder.getChildren()) {
 			if (data instanceof DataFolder) {
-				saveMetadataRecursively((DataFolder)data, saveData, skipLocalLocations);
+				saveMetadataRecursively((DataFolder)data, saveData, skipOtherLocations);
 				
 			} else {
 				DataBean bean = (DataBean)data;
@@ -438,7 +438,7 @@ public class SessionSaver {
 				}
 				
 				// store metadata
-				saveDataBeanMetadata(bean, zipEntryUrl, folderId, skipLocalLocations);
+				saveDataBeanMetadata(bean, zipEntryUrl, folderId, skipOtherLocations);
 
 			}
 		}
@@ -478,7 +478,7 @@ public class SessionSaver {
 	}	
 	
 	
-	private void saveDataBeanMetadata(DataBean bean, URL zipEntryUrl, String folderId, boolean skipLocalLocations) {
+	private void saveDataBeanMetadata(DataBean bean, URL zipEntryUrl, String folderId, boolean skipOtherLocations) {
 		String beanId = reversedItemIdMap.get(bean);
 		DataType dataType = factory.createDataType();
 	
@@ -520,15 +520,18 @@ public class SessionSaver {
 			dataType.setCreationTime(dateToXMLGregorian(bean.getDate()));
 		}
 		
-		// write all URL's
-		for (ContentLocation location : Session.getSession().getDataManager().getContentLocationsForDataBeanSaving(bean)) {
-			if (skipLocalLocations && location.getMethod().isLocal()) {
-				continue; // do not save local locations to remote sessions
+		/* Write all content locations if saving a light-weight session (which is assumed to be opened 
+		 * on the same machine. Skip all content locations if saving a zip or cloud session, because 
+		 * the data is already saved and it might be opened on a different computer, which may not have
+		 * access to same files or servers.
+		 */
+		if (!skipOtherLocations) {
+			for (ContentLocation location : Session.getSession().getDataManager().getContentLocationsForDataBeanSaving(bean)) {
+				LocationType locationType = new LocationType();
+				locationType.setMethod(location.getMethod().toString());
+				locationType.setUrl(location.getUrl().toString());
+				dataType.getLocation().add(locationType);
 			}
-			LocationType locationType = new LocationType();
-			locationType.setMethod(location.getMethod().toString());
-			locationType.setUrl(location.getUrl().toString());
-			dataType.getLocation().add(locationType);
 		}
 		
 		// write newly created URL inside session files, if exists

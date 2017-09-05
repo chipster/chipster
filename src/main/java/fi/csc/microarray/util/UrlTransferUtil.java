@@ -183,12 +183,23 @@ public class UrlTransferUtil {
 			} else {
 				KeyAndTrustManager.configureForCACertificates(connection);
 			}
-			long contentLength = connection.getContentLengthLong();
+			
+			if (connection instanceof HttpURLConnection) {
+				HttpURLConnection httpConnection = (HttpURLConnection) connection;
+				// check the response code first because the content length may be the length of the error message
+				if (httpConnection.getResponseCode() >= 200 && httpConnection.getResponseCode() < 300) {
+					long contentLength = connection.getContentLengthLong();
 
-			if (contentLength >= 0) {
-				return contentLength;
+					if (contentLength >= 0) {
+						return contentLength;
+					} else {
+						throw new IOException("content length not available: " + connection.getContent());
+					}					
+				} else {
+					throw new IOException("content length not available: " + httpConnection.getResponseCode() + " " + httpConnection.getResponseMessage());
+				}
 			} else {
-				throw new IOException("content length not available: " + connection.getContent());
+				throw new IOException("the remote content location isn't using http or https protocol: " + url);
 			}
 		} finally {
 			IOUtils.disconnectIfPossible(connection);

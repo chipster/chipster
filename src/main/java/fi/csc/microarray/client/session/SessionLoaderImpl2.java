@@ -48,6 +48,7 @@ import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.filebroker.FileBrokerClient;
+import fi.csc.microarray.filebroker.FileBrokerClient.FileBrokerArea;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.ZipUtils;
 
@@ -247,7 +248,19 @@ public class SessionLoaderImpl2 {
 						url = new URL(sessionFile.toURI().toURL(), "#" + url.getRef());
 					}
 
-					dataManager.addContentLocationForDataBean(dataBean, StorageMethod.valueOfConverted(location.getMethod()), url);
+					try {
+						dataManager.addContentLocationForDataBean(dataBean, StorageMethod.valueOfConverted(location.getMethod()), url);
+					} catch (IOException e) {
+						if (Session.getSession().getServiceAccessor().getFileBrokerClient().isAvailable(dataId, dataType.getSize(), dataType.getChecksum(), FileBrokerArea.STORAGE)) {
+							Session.getSession().getApplication().reportExceptionThreadSafely(new Exception(
+									"File " + name + "isn't anymore available in " + url + " but there "
+											+ "is a copy of it on the Chipster server. Using the copy "
+											+ "on the server from now on.", e));
+							logger.warn("content location " + url + " of the databean " + name + " is not available, but found the file from the file-broker storage");							
+						} else {
+							throw e;
+						}																
+					}
 				}
 				
 				// Set file size from metadata. If there are external
