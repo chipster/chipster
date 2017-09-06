@@ -9,4 +9,4 @@ source ../installation_files/functions.bash
   unzip hisat2-2.1.0-Linux_x86_64.zip -d ${TOOLS_PATH}/
   rm -f hisat2-2.1.0-Linux_x86_64.zip
   cd ${TOOLS_PATH}
-  ln -s hisat2-2.1.0-Linux_x86_64 hisat2
+  ln -s hisat2-2.1.0 hisat2
