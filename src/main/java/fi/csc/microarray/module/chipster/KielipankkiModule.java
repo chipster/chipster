@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.GraphicsEnvironment;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
@@ -175,8 +176,7 @@ public class KielipankkiModule implements Module {
 
 	@Override
 	public List<Boolean> flagLinkableColumns(Table columns, DataBean data) {
-		LinkedList<Boolean> flags = new LinkedList<Boolean>();
-		return flags;
+		return Collections.nCopies(columns.getColumnCount(), false);
 	}
 
 	@Override
