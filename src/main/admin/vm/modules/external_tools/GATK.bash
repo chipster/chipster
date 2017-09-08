@@ -13,8 +13,8 @@ ln -s GenomeAnalysisTK-3.8-0-ge9d806836 GATK
 
 # GATK4
 cd ${TMPDIR_PATH}/
-wget https://software.broadinstitute.org/gatk/download/auth?package=BETA -O gatk-4.beta.3.zip
-unzip gatk-4.beta.3.zip -d ${TOOLS_PATH}
+wget https://github.com/broadinstitute/gatk/releases/download/4.beta.4/gatk-4.beta.4.zip
+unzip gatk-4.beta.4.zip -d ${TOOLS_PATH}
 cd ${TOOLS_PATH}
-ln -s gatk-4.beta.3-SNAPSHOT GATK4
+ln -s gatk-4.beta.4 GATK4
   
