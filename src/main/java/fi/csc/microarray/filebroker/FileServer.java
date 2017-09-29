@@ -257,7 +257,7 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 			return true;
 		
 		case CommandMessage.COMMAND_REMOVE_SESSION:
-			handleRemoveSessionRequest(endpoint, (CommandMessage)msg);
+			handleRemoveSessionRequest(endpoint, (CommandMessage)msg, false);
 			return true;
 				
 		case CommandMessage.COMMAND_MOVE_FROM_CACHE_TO_STORAGE:			
@@ -593,7 +593,7 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 		}					
 	}
 
-	private void handleRemoveSessionRequest(MessagingEndpoint endpoint, final CommandMessage requestMessage) throws JMSException {
+	private void handleRemoveSessionRequest(MessagingEndpoint endpoint, final CommandMessage requestMessage, boolean isAdmin) throws JMSException {
 
 		// parse request
 		String sessionId = requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID);
@@ -606,14 +606,14 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 				sessionId = IOUtils.getFilenameWithoutPath(url);
 			}
 					
-			if (metadataServer.isUsernameAllowedToRemoveSession(requestMessage.getUsername(), sessionId)) {
+			if (isAdmin || metadataServer.isUsernameAllowedToRemoveSession(requestMessage.getUsername(), sessionId)) {
 
 				removeSession(sessionId);			
 				reply = new SuccessMessage(true);
 				
 			} else {
 				
-				reply = new SuccessMessage(false, "user it not allowed to remove the session");
+				reply = new SuccessMessage(false, "user is not allowed to remove the session");
 			}
 			
 		} catch (Exception e) {
@@ -800,7 +800,7 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 				}
 
 				else if (msg instanceof CommandMessage && CommandMessage.COMMAND_REMOVE_SESSION.equals(((CommandMessage)msg).getCommand())) {
-					handleRemoveSessionRequest(jmsEndpoint, (CommandMessage)msg);
+					handleRemoveSessionRequest(jmsEndpoint, (CommandMessage)msg, true);
 				}
 				
 				else if (msg instanceof CommandMessage && CommandMessage.COMMAND_GET_STATUS_REPORT.equals(((CommandMessage)msg).getCommand())) {
