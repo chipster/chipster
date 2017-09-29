@@ -595,33 +595,45 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 
 	private void handleRemoveSessionRequest(MessagingEndpoint endpoint, final CommandMessage requestMessage, boolean isAdmin) throws JMSException {
 
-		// parse request
-		String sessionId = requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID);
+		// run in other thread because removing lot of big files has been taking relatively 
+		// long time in proudction, 1 minute or so
+		longRunningTaskExecutor.execute(new Runnable() {
+
+			@Override
+			public void run() {
+				// parse request
+				String sessionId = requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID);
+				
+				SuccessMessage reply;
+				try {
+					// if no uuid, try to get url, which was the old way
+					if (sessionId == null) {
+						URL url = new URL(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_URL));
+						sessionId = IOUtils.getFilenameWithoutPath(url);
+					}
+							
+					if (isAdmin || metadataServer.isUsernameAllowedToRemoveSession(requestMessage.getUsername(), sessionId)) {
 		
-		SuccessMessage reply;
-		try {
-			// if no uuid, try to get url, which was the old way
-			if (sessionId == null) {
-				URL url = new URL(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_URL));
-				sessionId = IOUtils.getFilenameWithoutPath(url);
-			}
+						removeSession(sessionId);			
+						reply = new SuccessMessage(true);
+						
+					} else {
+						
+						reply = new SuccessMessage(false, "user is not allowed to remove the session");
+					}
 					
-			if (isAdmin || metadataServer.isUsernameAllowedToRemoveSession(requestMessage.getUsername(), sessionId)) {
-
-				removeSession(sessionId);			
-				reply = new SuccessMessage(true);
-				
-			} else {
-				
-				reply = new SuccessMessage(false, "user is not allowed to remove the session");
+				} catch (Exception e) {
+					reply = new SuccessMessage(false, e);
+				}
+		
+				// send
+				try {
+					endpoint.replyToMessage(requestMessage, reply);
+				} catch (JMSException e) {
+					logger.error("could not send reply message", e);
+				}
 			}
-			
-		} catch (Exception e) {
-			reply = new SuccessMessage(false, e);
-		}
-
-		// send
-		endpoint.replyToMessage(requestMessage, reply);		
+		});
 	}
 
 	protected void removeSession(String sessionId) throws SQLException {
