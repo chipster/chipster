@@ -133,6 +133,7 @@ public class MicroarrayModule implements Module {
 		manager.plugContentType("text/bed", true, false, "BED file", VisualConstants.ICON_TYPE_TEXT, "bed");
 		manager.plugContentType("text/gtf", true, false, "Gene Transfer Format file", VisualConstants.ICON_TYPE_TEXT, "gtf", "gff", "gff2", "gff3");
 		manager.plugContentType("chemical/x-fasta", true, false, "FASTA", VisualConstants.ICON_TYPE_TEXT, "fasta", "fa", "fna", "fsa", "mpfa");
+		manager.plugContentType("chemical/x-fai", true, false, "FAI", VisualConstants.ICON_TYPE_TEXT, "fai");
 		manager.plugContentType("text/fastq", true, false, "FASTQ", VisualConstants.ICON_TYPE_TEXT, "fastq", "fq");
 		manager.plugContentType("application/gzip", true, true, "Gzip file", VisualConstants.ICON_TYPE_BINARY, "gz");
 		manager.plugContentType("text/vcf", true, false, "Variant Call Format", VisualConstants.ICON_TYPE_TEXT, "vcf");
