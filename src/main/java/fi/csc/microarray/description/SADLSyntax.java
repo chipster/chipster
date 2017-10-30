@@ -144,6 +144,11 @@ public class SADLSyntax {
 		STRING,
 		
 		/**
+		 * A character string that is allowed to contain any characters
+		 */
+		UNCHECKED_STRING,
+		
+		/**
 		 * Enumeration from a set of given values (specified as this type is referred). 
 		 */
 		ENUM,

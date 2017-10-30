@@ -26,7 +26,7 @@ import fi.csc.microarray.comp.ToolDescription.ParameterDescription;
  */
 public class JobMessage extends PayloadMessage implements GenericJobMessage {
 
-	public static interface ParameterSecurityPolicy {
+	public static abstract class ParameterSecurityPolicy {
 		/**
 		 * Checks that given value is valid from a security point of view. Comp jobs
 		 * implement this to provide context dependent checking. Typically validity depends
@@ -34,7 +34,19 @@ public class JobMessage extends PayloadMessage implements GenericJobMessage {
 		 * 
 		 * @return true iff is valid
 		 */
-		public boolean isValueValid(String value, ParameterDescription parameterDescription);
+		public abstract boolean isValueValid(String value, ParameterDescription parameterDescription);
+		
+		/**
+		 * Most comp jobs don't support UNCHECKED_STRING parameter
+		 * 
+		 * By overriding this method the subclass promises to handle this type safely.
+		 * 
+		 * @see fi.csc.microarray.comp.python.PythonCompJob#transformVariable(ParameterDescription, String)
+		 * 
+		 */
+		public boolean allowUncheckedParameters() {
+			return false;
+		}
 	}
 	
 	@SuppressWarnings("serial")

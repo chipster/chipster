@@ -43,9 +43,16 @@ public class JobMessageUtils {
 		Iterator<ParameterDescription> descriptionIterator = description.getParameters().iterator();
 		for (String parameter : parameters) {
 			ParameterDescription parameterDescription = descriptionIterator.next();
-			if (!securityPolicy.isValueValid(parameter, parameterDescription)) {
-				throw new ParameterValidityException("illegal value for parameter " + parameterDescription.getName() + ": " + parameter);
-			}
+			
+			if (parameterDescription.isChecked()) {
+				if (!securityPolicy.isValueValid(parameter, parameterDescription)) {
+					throw new ParameterValidityException("illegal value for parameter " + parameterDescription.getName() + ": " + parameter);					
+				}
+			} else {
+				if (!securityPolicy.allowUncheckedParameters()) {
+					throw new UnsupportedOperationException("unchecked parameters are not allowed");					
+				}
+			}			
 		}
 		
 		// Everything was ok, return the parameters

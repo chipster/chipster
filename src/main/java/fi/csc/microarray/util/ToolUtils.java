@@ -15,7 +15,7 @@ public class ToolUtils {
 	/*
 	 * Allow only word characters and a few special characters in dataset names.
 	 */
-	public static String NAME_PATTERN = "[\\w+\\-_:\\.,() ]*";
+	public static String NAME_PATTERN = "[\\p{L}\\p{N}+\\-_:\\.,() ]*";
 	
 	/**
 	 * 

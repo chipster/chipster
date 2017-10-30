@@ -124,7 +124,9 @@ public abstract class Parameter implements Cloneable {
 			parameter = new InputSelectParameter(name.getID(), name.getDisplayName(), description, initValue);
 			break;
 
+		// client doesn't care if the string is checked or not	
 		case STRING:
+		case UNCHECKED_STRING:
 			parameter = new StringParameter(name.getID(), name.getDisplayName(), description, initValue);
 			break;
 			

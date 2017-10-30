@@ -7,7 +7,7 @@ import fi.csc.microarray.messaging.message.JobMessage.ParameterSecurityPolicy;
 
 public abstract class JavaCompJobBase extends OnDiskCompJobBase {
 
-	public static class JavaParameterSecurityPolicy implements ParameterSecurityPolicy {
+	public static class JavaParameterSecurityPolicy extends ParameterSecurityPolicy {
 		
 		private static final int MAX_VALUE_LENGTH = 10000;
 		

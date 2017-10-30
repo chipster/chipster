@@ -45,7 +45,7 @@ public class PythonCompJob extends OnDiskCompJobBase {
 	 * @see PythonCompJob#transformVariable(ParameterDescription, String)
 	 *
 	 */
-	public static class PythonParameterSecurityPolicy implements ParameterSecurityPolicy {
+	public static class PythonParameterSecurityPolicy extends ParameterSecurityPolicy {
 		
 		private static final int MAX_VALUE_LENGTH = 1000;
 		
@@ -92,10 +92,13 @@ public class PythonCompJob extends OnDiskCompJobBase {
 				
 				// Text value must still match specified pattern
 				return value.matches(TEXT_VALUE_PATTERN);
-			}
-			
+			}			
 		}
-
+		
+		public boolean allowUncheckedParameters() {
+			// we promise to handle unchecked parameters safely, see the method transformVariable()
+			return true;
+		}
 	}
 	
 	public static PythonParameterSecurityPolicy PARAMETER_SECURITY_POLICY = new PythonParameterSecurityPolicy();
@@ -414,7 +417,13 @@ public class PythonCompJob extends OnDiskCompJobBase {
 		
 		// Escape strings and such
 		if (!param.isNumeric()) {
-			value = STRING_DELIMETER + value + STRING_DELIMETER; 
+			if (param.isChecked()) {
+				value = STRING_DELIMETER + value + STRING_DELIMETER;
+			} else {
+				// we promised to handle this safely when we implemented the method 
+				// ParameterSecurityPolicy.allowUncheckedParameters()
+				value = STRING_DELIMETER + toUnicodeEscapes(value) + STRING_DELIMETER;
+			}
 		}
 		
 		// If numeric, check for empty value
@@ -430,7 +439,28 @@ public class PythonCompJob extends OnDiskCompJobBase {
 		return (name + " = " + value);
 	}
 
-
+	/**
+	 * Convert a string to unicode escape characters
+	 * 
+	 * Python script allows string literals as unicode hex values, when escaped with
+	 * "\" and "u" (16 bit, 4 character hex) or \U (32 bit, 8 character hex). The back slash has to
+	 * be escaped too with an additional backslash.   
+	 * 
+	 * @param input
+	 * @return
+	 */
+	public static String toUnicodeEscapes(String input) {
+		String escapedValue = "";
+		for (int i = 0; i < input.length(); i++) {
+			// get the unicode value of the character (even if it wouldn't fit in the char type)
+			int codePoint = Character.codePointAt(input, i);
+			// convert to 8 character hex with leading zeroes
+			String hex = String.format("%08X", codePoint);
+			// escape for python code
+			escapedValue += "\\U" + hex;
+		}
+		return escapedValue;
+	}
 
 	@Override
 	protected void cancelRequested() {

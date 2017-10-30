@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import fi.csc.microarray.description.SADLDescription.Name;
+import fi.csc.microarray.description.SADLSyntax.ParameterType;
 
 
 /**
@@ -25,16 +26,25 @@ public class ToolDescription {
 
 		private String name;
 		private String comment;
-		private boolean numeric;
+		private ParameterType type;
 		
-		public ParameterDescription(String name, String comment, boolean numeric) {
+		public ParameterDescription(String name, String comment, ParameterType type) {
 			this.name = name;
 			this.comment = comment;
-			this.numeric = numeric;
+			this.type = type;
 		}
 
 		public boolean isNumeric() {
-			return numeric;
+			return type.isNumeric();
+		}
+		
+		/**
+		 * Return true if this parameter is checked by the normal security policy
+		 * 
+		 * @return
+		 */
+		public boolean isChecked() {
+			return this.type != ParameterType.UNCHECKED_STRING;
 		}
 
 		public String getComment() {

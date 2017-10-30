@@ -37,7 +37,7 @@ public class ToolDescriptionGenerator {
 		}
 		
 		for (Parameter parameter : source.getParameters()) {
-			description.addParameter(new ToolDescription.ParameterDescription(parameter.getName().getID(), parameter.getDescription(), parameter.getType().isNumeric()));
+			description.addParameter(new ToolDescription.ParameterDescription(parameter.getName().getID(), parameter.getDescription(), parameter.getType()));
 		}
 		
 		return description;

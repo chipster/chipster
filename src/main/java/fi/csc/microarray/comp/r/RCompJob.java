@@ -45,7 +45,7 @@ public class RCompJob extends OnDiskCompJobBase {
 	 * @see RCompJob#transformVariable(String, String, boolean)
 	 *
 	 */
-	public static class RParameterSecurityPolicy implements ParameterSecurityPolicy {
+	public static class RParameterSecurityPolicy extends ParameterSecurityPolicy {
 		
 		private static final int MAX_VALUE_LENGTH = 1000;
 		
