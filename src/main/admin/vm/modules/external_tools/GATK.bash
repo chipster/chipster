@@ -5,16 +5,16 @@
 #  ln -s GenomeAnalysisTKLite-2.1-11-gfb37f33 ${TOOLS_PATH}/GenomeAnalysisTK2
 
 # GATK 3.8
-cd ${TMPDIR_PATH}/
-wget https://software.broadinstitute.org/gatk/download/auth?package=GATK -O GenomeAnalysisTK-.tar
-tar xf GenomeAnalysisTK-.tar -C ${TOOLS_PATH}/
-cd ${TOOLS_PATH}
-ln -s GenomeAnalysisTK-3.8-0-ge9d806836 GATK
+#cd ${TMPDIR_PATH}/
+#wget https://software.broadinstitute.org/gatk/download/auth?package=GATK -O GenomeAnalysisTK-.tar
+#tar xf GenomeAnalysisTK-.tar -C ${TOOLS_PATH}/
+#cd ${TOOLS_PATH}
+#ln -s GenomeAnalysisTK-3.8-0-ge9d806836 GATK
 
 # GATK4
 cd ${TMPDIR_PATH}/
-wget https://github.com/broadinstitute/gatk/releases/download/4.beta.4/gatk-4.beta.4.zip
-unzip gatk-4.beta.4.zip -d ${TOOLS_PATH}
+wget  https://github.com/broadinstitute/gatk/releases/download/4.beta.5/gatk-4.beta.5.zip
+unzip gatk-4.beta.5.zip -d ${TOOLS_PATH}
 cd ${TOOLS_PATH}
-ln -s gatk-4.beta.4 GATK4
+ln -s gatk-4.beta.5 GATK4
   
