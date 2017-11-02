@@ -280,8 +280,6 @@ public class AnnotationManager {
 			
 			String path = file.toURI().getPath();//decode url, e.g. convert %20 to space
 			
-			System.out.println(path + " " + path.substring(path.indexOf(ANNOTATIONS) + ANNOTATIONS.length()));
-			
 			// don't accept files in other directories
 			if (!path.contains(ANNOTATIONS)) {
 				continue;
