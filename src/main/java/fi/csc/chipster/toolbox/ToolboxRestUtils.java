@@ -17,7 +17,6 @@ public class ToolboxRestUtils {
 	public static String asJson(Object obj) throws JsonGenerationException, JsonMappingException, IOException {
 		// using Jackson library
 		StringWriter writer = new StringWriter();
-		// support for LocalDateTime
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.writeValue(writer, obj);
 		return writer.toString();
@@ -48,7 +47,6 @@ public class ToolboxRestUtils {
 			boolean failOnUnknownProperties) throws JsonParseException, JsonMappingException, IOException {
 		// using Jackson library
 		StringReader reader = new StringReader(json);
-		// support for LocalDateTime
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, failOnUnknownProperties);
 		return mapper.readValue(reader, mapper.getTypeFactory().constructCollectionType(collectionType, itemType));
