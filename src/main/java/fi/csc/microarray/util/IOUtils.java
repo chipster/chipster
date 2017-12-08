@@ -273,7 +273,7 @@ public class IOUtils {
 		try {
 			// no static way to do this, see http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4851466
 			// openConnection does not really open the connection
-			new URL("http://chipster.csc.fi").openConnection().setDefaultUseCaches(false);
+			new URL("https://chipster.csc.fi").openConnection().setDefaultUseCaches(false);
 		} catch (Exception e) {
 			
 		}

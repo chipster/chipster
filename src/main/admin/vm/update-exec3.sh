@@ -8,6 +8,6 @@ echo "installation to the latest version."
 echo ""
 echo "Please download the latest virtual machine from http://chipster.github.io/chipster/"
 echo ""
-echo "For more information, see also http://chipster.csc.fi"
+echo "For more information, see also https://chipster.csc.fi"
 
 exit 0

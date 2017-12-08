@@ -200,7 +200,7 @@ public class SequenceModule implements Module {
 
 	@Override
 	public String getManualHome() {
-		return "http://chipster.csc.fi/embster/manual";
+		return "https://chipster.csc.fi/embster/manual";
 	}
 
 	@Override

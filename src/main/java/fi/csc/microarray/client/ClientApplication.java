@@ -896,7 +896,7 @@ public abstract class ClientApplication {
 				InputStream input = null;
 				try {
 					
-					URL url = new URL("http://chipster.csc.fi/announcements/client.txt");
+					URL url = new URL("https://chipster.csc.fi/announcements/client.txt");
 
 					URLConnection connection = url.openConnection();
 					connection.setUseCaches(false);
