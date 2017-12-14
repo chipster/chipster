@@ -237,7 +237,7 @@ public class RCompJob extends OnDiskCompJobBase {
 			return;
 		}
 		for (ToolDescription.ParameterDescription param : toolDescription.getParameters()) {
-			String value = new String(parameterValues.get(i));
+			String value = parameterValues.get(i);
 			String rSnippet = transformVariable(param.getName(), value, param.isNumeric());
 			logger.debug("added parameter (" +  rSnippet + ")");
 			inputReaders.add(new BufferedReader(new StringReader(rSnippet)));
