@@ -71,6 +71,10 @@ public class RCompJob extends OnDiskCompJobBase {
 		 *  @see ParameterSecurityPolicy#isValueValid(String, ParameterDescription)
 		 */
 		public boolean isValueValid(String value, ParameterDescription parameterDescription) {
+			// unset parameters are fine
+			if (value == null) {
+				return true;
+			}
 			
 			// Check parameter size (DOS protection)
 			if (value.length() > MAX_VALUE_LENGTH) {
@@ -411,7 +415,11 @@ public class RCompJob extends OnDiskCompJobBase {
 		
 		// Escape strings and such
 		if (!isNumeric) {
-			value = STRING_DELIMETER + value + STRING_DELIMETER; 
+			if (value != null) {
+				value = STRING_DELIMETER + value + STRING_DELIMETER;
+			} else {
+				value = "NULL";
+			}
 		}
 		
 		// If numeric, check for empty value

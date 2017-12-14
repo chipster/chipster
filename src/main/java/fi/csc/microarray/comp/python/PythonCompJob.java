@@ -72,6 +72,11 @@ public class PythonCompJob extends OnDiskCompJobBase {
 		 */
 		public boolean isValueValid(String value, ParameterDescription parameterDescription) {
 			
+			// unset parameters are fine
+			if (value == null) {
+				return true;
+			}
+			
 			// Check parameter size (DOS protection)
 			if (value.length() > MAX_VALUE_LENGTH) {
 				return false;
@@ -237,7 +242,7 @@ public class PythonCompJob extends OnDiskCompJobBase {
 			return;
 		}
 		for (ToolDescription.ParameterDescription param : toolDescription.getParameters()) {
-			String value = new String(parameterValues.get(i));
+			String value = parameterValues.get(i);
 			String pythonSnippet = transformVariable(param, value);
 			logger.debug("added parameter (" +  pythonSnippet + ")");
 			inputReaders.add(new BufferedReader(new StringReader(pythonSnippet)));
@@ -417,8 +422,10 @@ public class PythonCompJob extends OnDiskCompJobBase {
 		
 		// Escape strings and such
 		if (!param.isNumeric()) {
-			if (param.isChecked()) {
-				value = STRING_DELIMETER + value + STRING_DELIMETER;
+			if ( value == null) {
+				value = "None";
+			} else if (param.isChecked()) {				
+				value = STRING_DELIMETER + value + STRING_DELIMETER;				
 			} else {
 				// we promised to handle this safely when we implemented the method 
 				// ParameterSecurityPolicy.allowUncheckedParameters()
