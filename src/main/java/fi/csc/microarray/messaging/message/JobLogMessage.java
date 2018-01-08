@@ -6,7 +6,8 @@
 package fi.csc.microarray.messaging.message;
 
 import java.text.DateFormat;
-import java.text.ParseException;
+import java.time.Instant;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -82,14 +83,13 @@ public class JobLogMessage extends ChipsterMessage {
 		
 		this.jobId = from.getString(KEY_JOB_ID);
 		try {
-			DateFormat df = DateFormat.getDateTimeInstance();
 			if (from.getString(KEY_START_TIME) != null) {
-				this.startTime = df.parse(from.getString(KEY_START_TIME));
+				this.startTime = Date.from(Instant.parse(from.getString(KEY_START_TIME)));
 			}
 			if (from.getString(KEY_END_TIME) != null) {
-				this.endTime = df.parse(from.getString(KEY_END_TIME));
+				this.endTime = Date.from(Instant.parse(from.getString(KEY_END_TIME)));
 			}
-		} catch (ParseException e) {
+		} catch (DateTimeParseException e) {
 			throw new JMSException(e.toString());
 		}
 		this.errorMessage = from.getString(KEY_ERROR_MESSAGE);
@@ -106,12 +106,11 @@ public class JobLogMessage extends ChipsterMessage {
 		mapMessage.setString(KEY_STATE_DETAIL, this.stateDetail);
 		mapMessage.setString(KEY_JOB_ID, this.jobId);		
 		
-		DateFormat df = DateFormat.getDateTimeInstance();
 		if (this.startTime != null) {
-			mapMessage.setString(KEY_START_TIME, df.format(this.startTime));
+			mapMessage.setString(KEY_START_TIME, this.startTime.toInstant().toString());
 		}
 		if (this.endTime != null) {
-			mapMessage.setString(KEY_END_TIME, df.format(this.endTime));
+			mapMessage.setString(KEY_END_TIME, this.endTime.toInstant().toString());
 		}
 		
 		mapMessage.setString(KEY_ERROR_MESSAGE, this.errorMessage);
@@ -263,14 +262,13 @@ public class JobLogMessage extends ChipsterMessage {
 		
 		this.jobId = map.get(KEY_JOB_ID);
 		try {
-			DateFormat df = DateFormat.getDateTimeInstance();
 			if (map.get(KEY_START_TIME) != null) {
-				this.startTime = df.parse(map.get(KEY_START_TIME));
+				this.startTime = Date.from(Instant.parse(map.get(KEY_START_TIME)));
 			}
 			if (map.get(KEY_END_TIME) != null) {
-				this.endTime = df.parse(map.get(KEY_END_TIME));
+				this.endTime = Date.from(Instant.parse(map.get(KEY_END_TIME)));
 			}
-		} catch (ParseException e) {
+		} catch (DateTimeParseException e) {
 			throw new JMSException(e.toString());
 		}
 		this.errorMessage = map.get(KEY_ERROR_MESSAGE);
