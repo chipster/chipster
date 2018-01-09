@@ -5,7 +5,6 @@
  */
 package fi.csc.microarray.messaging.message;
 
-import java.text.DateFormat;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.Date;
@@ -228,19 +227,17 @@ public class JobLogMessage extends ChipsterMessage {
 	public HashMap<String, Object> toMap() {
 		HashMap<String, Object> map = new HashMap<>();
 		
-		DateFormat df = DateFormat.getDateTimeInstance();
-		
 		map.put(KEY_OPERATION, getOperation());
 		map.put(KEY_STATE, getState().name());
 		map.put(KEY_STATE_DETAIL, getStateDetail());
 		map.put(KEY_JOB_ID, getJobId());
 		
 		if (startTime != null) {
-			map.put(KEY_START_TIME, df.format(getStartTime()));
+			map.put(KEY_START_TIME, startTime.toInstant().toString());
 		}
 		
 		if (endTime != null) {
-			map.put(KEY_END_TIME, df.format(getEndTime()));
+			map.put(KEY_END_TIME, endTime.toInstant().toString());
 		}
 		
 		map.put(KEY_ERROR_MESSAGE, getErrorMessage());
