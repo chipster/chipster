@@ -25,6 +25,21 @@
 <runtimes>
 
 	<runtime>
+		<name>R-3.4.3</name>
+		<handler>
+			<class>fi.csc.microarray.comp.r.RJobFactory</class> 
+			<parameter>
+				<name>command</name>
+				<value>/opt/chipster/tools/R-3.4.3/bin/R</value>
+			</parameter>
+			<parameter>
+				<name>commandParameters</name>
+				<value>--vanilla --quiet</value>
+			</parameter>
+		</handler>
+	</runtime>
+
+	<runtime>
 		<name>R-3.3.2</name>
 		<handler>
 			<class>fi.csc.microarray.comp.r.RJobFactory</class> 
