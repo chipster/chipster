@@ -9,3 +9,4 @@ source ../installation_files/functions.bash
   tar xf tagcleaner-standalone-0.16.tar.gz -C ${TOOLS_PATH}/
   rm -f tagcleaner-standalone-0.16.tar.gz
   ln -s tagcleaner-standalone-0.16 ${TOOLS_PATH}/tagcleaner
+  chmod a+x ${TOOLS_PATH}/tagcleaner/tagcleaner.pl
