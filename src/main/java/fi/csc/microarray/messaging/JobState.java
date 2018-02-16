@@ -23,4 +23,13 @@ public enum JobState {
 	SCHEDULED,
 	WAITING,
 	EXPIRED_WAITING; 
+
+	public boolean isFinished() {
+		return ordinal() == COMPLETED.ordinal() ||
+				ordinal() == FAILED.ordinal() ||
+				ordinal() == FAILED_USER_ERROR.ordinal() ||
+				ordinal() == ERROR.ordinal() ||
+				ordinal() == CANCELLED.ordinal() ||
+				ordinal() == TIMEOUT.ordinal();
+	}
 }
