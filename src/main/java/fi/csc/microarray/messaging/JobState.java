@@ -4,6 +4,8 @@
  */
 package fi.csc.microarray.messaging;
 
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Taavi Hupponen
@@ -24,12 +26,29 @@ public enum JobState {
 	WAITING,
 	EXPIRED_WAITING; 
 
+	static List<JobState> finished = Arrays.asList(
+			COMPLETED, 
+			FAILED, 
+			FAILED_USER_ERROR,
+			ERROR,
+			CANCELLED,
+			TIMEOUT,
+			EXPIRED_WAITING);
+
+	static List<JobState> finishedByComp = Arrays.asList(
+			COMPLETED, 
+			FAILED, 
+			FAILED_USER_ERROR,
+			ERROR,
+			TIMEOUT);
+	
 	public boolean isFinished() {
-		return ordinal() == COMPLETED.ordinal() ||
-				ordinal() == FAILED.ordinal() ||
-				ordinal() == FAILED_USER_ERROR.ordinal() ||
-				ordinal() == ERROR.ordinal() ||
-				ordinal() == CANCELLED.ordinal() ||
-				ordinal() == TIMEOUT.ordinal();
+		return finished.contains(this);
 	}
+
+	public boolean isFinishedByComp() {
+		return finishedByComp.contains(this);
+	}
+
+
 }

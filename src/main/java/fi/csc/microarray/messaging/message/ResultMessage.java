@@ -32,7 +32,6 @@ public class ResultMessage extends PayloadMessage {
 	private static final String KEY_ERROR_MESSAGE = "errorMessage";
 	private static final String KEY_OUTPUT_TEXT = "outputText";
 	private static final String KEY_SOURCE_CODE = "sourceCode";
-	private static final String KEY_HEARTBEAT = "heartbeat";
 	
 	private String jobId;
 	private JobState state;
@@ -40,9 +39,6 @@ public class ResultMessage extends PayloadMessage {
 	private String errorMessage;
 	private String outputText;
 	private String sourceCode;
-	private boolean heartbeat;
-	
-	
 
 	public ResultMessage(String jobId, JobState state, String stateDetail, String errorMessage,
 			String outputText, 
@@ -67,7 +63,6 @@ public class ResultMessage extends PayloadMessage {
 		this.errorMessage = genericReply.getErrorMessage();
 		this.outputText = genericReply.getOutputText();
 		this.sourceCode = genericReply.getSourceCode();
-		this.heartbeat = genericReply.isHeartbeat();
 		
 		for (String outputName : genericReply.getOutputNames()) {
 			this.addPayload(outputName, genericReply.getDatasetId(outputName), genericReply.getDatasetName(outputName));
@@ -83,7 +78,6 @@ public class ResultMessage extends PayloadMessage {
 		this.errorMessage = from.getString(KEY_ERROR_MESSAGE);
 		this.outputText = from.getString(KEY_OUTPUT_TEXT);
 		this.sourceCode = from.getString(KEY_SOURCE_CODE);
-		this.heartbeat = from.getBoolean(KEY_HEARTBEAT);
 	}
 
 	public void marshal(MapMessage mapMessage) throws JMSException {
@@ -95,7 +89,6 @@ public class ResultMessage extends PayloadMessage {
 		mapMessage.setString(KEY_ERROR_MESSAGE, this.errorMessage);
 		mapMessage.setString(KEY_OUTPUT_TEXT, this.outputText);
 		mapMessage.setString(KEY_SOURCE_CODE, this.sourceCode);
-		mapMessage.setBoolean(KEY_HEARTBEAT, heartbeat);
 	}
 	
 	/**
@@ -164,13 +157,6 @@ public class ResultMessage extends PayloadMessage {
 		this.jobId = jobId;
 	}
 
-	public void setHeartbeat(boolean isHeartbeat) {
-		this.heartbeat = isHeartbeat;
-	}
-	
-	public boolean isHeartbeat() {
-		return this.heartbeat;
-	}
 }
 	
 

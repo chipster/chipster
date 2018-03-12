@@ -141,7 +141,6 @@ public class JobManager extends MonitoredNodeBase implements MessagingListener, 
 						resultMessage = new ResultMessage();
 						resultMessage.setJobId(jobId);
 						resultMessage.setState(JobState.RUNNING);
-						resultMessage.setHeartbeat(false);
 					}
 
 				// job not found	

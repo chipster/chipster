@@ -21,7 +21,7 @@ public class SortVcf extends JavaCompJobBase {
 	
 	@Override
 	protected void execute() { 
-		updateStateToClient(JobState.RUNNING, "sorting");
+		updateState(JobState.RUNNING, "sorting");
 
 
 		try {
@@ -41,7 +41,7 @@ public class SortVcf extends JavaCompJobBase {
 			return;
 		}
 
-		updateStateToClient(JobState.RUNNING, "sorting finished");
+		updateState(JobState.RUNNING, "sorting finished");
 	}
 }
 

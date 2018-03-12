@@ -57,12 +57,12 @@ public abstract class OnDiskCompJobBase extends CompJob {
 		cancelCheck();
 		super.preExecute();
 
-		updateStateDetailToClient("transferring input data");
+		updateState(JobState.RUNNING, "transferring input data");
 
 		// create directories for the job
 		if (!this.jobDir.mkdir()) {
-			outputMessage.setErrorMessage("Creating job working directory failed.");
-			updateState(JobState.ERROR, "");
+			this.setErrorMessage("Creating job working directory failed.");
+			updateState(JobState.ERROR);
 			return;
 		}
 
@@ -78,9 +78,9 @@ public abstract class OnDiskCompJobBase extends CompJob {
 			resultHandler.getToolboxClient().getToolboxModules(this.jobToolboxDir);
 
 		} catch (Exception e) {
-			outputMessage.setErrorMessage("Transferring input data and tools to computing service failed.");
-			outputMessage.setOutputText(Exceptions.getStackTrace(e));
-			updateState(JobState.ERROR, "");
+			this.setErrorMessage("Transferring input data and tools to computing service failed.");
+			this.setOutputText(Exceptions.getStackTrace(e));
+			updateState(JobState.ERROR);
 			return;
 		}			
 	}
@@ -93,7 +93,7 @@ public abstract class OnDiskCompJobBase extends CompJob {
 	@Override
 	protected void postExecute() throws JobCancelledException {
 	    // update job state on the client side
-		updateStateDetailToClient("transferring output data");
+		updateState(JobState.RUNNING, "transferring output data");
 		cancelCheck();
 
 		// pass output files to result message
@@ -114,9 +114,9 @@ public abstract class OnDiskCompJobBase extends CompJob {
 			    // if output is required there should be at least one
 			    if (!fileDescription.isOptional() && describedFiles.length == 0) {
                     logger.error("required output file set not found");
-                    outputMessage.setErrorMessage("Required output file set " +
+                    this.setErrorMessage("Required output file set " +
                             fileDescription.getFileName().getID() + " is missing.");
-                    updateState(JobState.ERROR, "");
+                    updateState(JobState.ERROR);
                     return;
 			    }
 			} else {
@@ -132,9 +132,9 @@ public abstract class OnDiskCompJobBase extends CompJob {
 				nameMap = ToolUtils.parseOutputDescription(new File(jobDataDir, outputsFilename));
 			} catch (IOException | MicroarrayException e) {
 				logger.warn("couldn't parse " + outputsFilename);
-				outputMessage.setErrorMessage("couldn't parse " + outputsFilename);
-				outputMessage.setOutputText(Exceptions.getStackTrace(e));
-                updateState(JobState.ERROR, "");
+				this.setErrorMessage("could not parse " + outputsFilename);
+				this.setOutputText(Exceptions.getStackTrace(e));
+                updateState(JobState.ERROR);
 			}
 			
 			// add all described files to the result message
@@ -145,31 +145,31 @@ public abstract class OnDiskCompJobBase extends CompJob {
 	            	String nameInSessionDb = nameInClient != null? nameInClient : outputFile.getName();
 	                String dataId = resultHandler.getFileBrokerClient().addFile(UUID.fromString(inputMessage.getJobId()), inputMessage.getSessionId(), FileBrokerArea.CACHE, outputFile, null, nameInSessionDb);
 	                // put dataId to result message
-	                outputMessage.addDataset(outputFile.getName(), dataId, nameInClient);
+	                this.addOutputDataset(outputFile.getName(), dataId, nameInClient);
 	                logger.debug("transferred output file: " + fileDescription.getFileName());
 
 	            } catch (FileNotFoundException e) {
 	                // required output file not found
 	                if (!fileDescription.isOptional()) {
 	                    logger.error("required output file not found", e);
-	                    outputMessage.setErrorMessage("Required output file is missing.");
-	                    outputMessage.setOutputText(Exceptions.getStackTrace(e));
-	                    updateState(JobState.ERROR, "");
+	                    this.setErrorMessage("Required output file is missing.");
+	                    this.appendOutputText(Exceptions.getStackTrace(e));
+	                    updateState(JobState.ERROR);
 	                    return;
 	                }
 	                
 	            } catch (NotEnoughDiskSpaceException nedse) {
 	            	logger.warn("not enough disk space for result file in filebroker");
-	            	outputMessage.setErrorMessage("There was not enough disk space for the result file in the Chipster server. Please try again later.");
+	            	this.setErrorMessage("There was not enough disk space for the result file in the Chipster server. Please try again later.");
 	            	updateState(JobState.FAILED_USER_ERROR, "not enough disk space for results");
 	            }
 	            
 	            catch (Exception e) {
 	                // TODO continue or return? also note the super.postExecute()
 	                logger.error("could not put file to file broker", e);
-	                outputMessage.setErrorMessage("Could not send output file.");
-	                outputMessage.setOutputText(Exceptions.getStackTrace(e));
-	                updateState(JobState.ERROR, "");
+	                this.setErrorMessage("Could not send output file.");
+	                this.setOutputText(Exceptions.getStackTrace(e));
+	                updateState(JobState.ERROR);
 	                return;
 	            }
 			}

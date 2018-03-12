@@ -21,7 +21,7 @@ public class PreprocessNGSSingle extends JavaCompJobBase {
 	
 	@Override
 	protected void execute() { 
-		updateStateToClient(JobState.RUNNING, "preprocessing");
+		updateState(JobState.RUNNING, "preprocessing");
 
 
 		try {
@@ -37,7 +37,7 @@ public class PreprocessNGSSingle extends JavaCompJobBase {
 				@Override
 				public void stateChanged(SamBamUtilState newState) {
 					// update detail state
-					updateStateDetailToClient("preprocess: " + newState.getState());
+					updateState(JobState.RUNNING, "preprocess: " + newState.getState());
 				}
 
 			});
@@ -50,6 +50,6 @@ public class PreprocessNGSSingle extends JavaCompJobBase {
 			return;
 		}
 
-		updateStateToClient(JobState.RUNNING, "preprocessing finished");
+		updateState(JobState.RUNNING, "preprocessing finished");
 	}
 }

@@ -255,18 +255,14 @@
 			<value>36000</value>
 		</entry>
 		
-		<entry entryKey="r-timeout" type="int" description="deprecated, timeout for a single R script, seconds">
-			<value>2592000</value> <!-- 30 days -->
+		<entry entryKey="job-timeout" type="int" description="timeout for a single job in comp, seconds">
+			<value>604800</value> <!-- 7 days -->
 		</entry>
 		
 		<entry entryKey="timeout-check-interval" type="int" description="receive, schedule timeout check interval, milliseconds">
 			<value>1000</value>
 		</entry>
 		
-		<entry entryKey="job-heartbeat-interval" type="int" description="job status repeat interval, milliseconds">
-			<value>15000</value>
-		</entry>
-
 		<entry entryKey="comp-available-interval" type="int" description="send comp available frequency, milliseconds">
 			<value>60000</value>
 		</entry>

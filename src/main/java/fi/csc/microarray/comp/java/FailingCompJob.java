@@ -7,9 +7,9 @@ public class FailingCompJob extends JavaCompJobBase {
 
 	@Override
 	protected void execute() throws JobCancelledException {
-		outputMessage.setErrorMessage("This job always fails.");
-		outputMessage.setOutputText("There's no way around this.");
-		updateState(JobState.FAILED, "");
+		this.setErrorMessage("This job always fails.");
+		this.setOutputText("There's no way around this.");
+		updateState(JobState.FAILED);
 	}
 
 

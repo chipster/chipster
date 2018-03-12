@@ -22,7 +22,7 @@ public class TestJavaTool extends JavaCompJobBase {
 
 	@Override
 	protected void execute() throws JobCancelledException {
-		updateStateDetailToClient("Java tool running");
+		updateState(JobState.RUNNING, "Java tool running");
 		
 		File inputFile = new File(jobDataDir, "input.tsv");
 		File outputFile = new File(jobDataDir, "output.tsv");
@@ -36,9 +36,9 @@ public class TestJavaTool extends JavaCompJobBase {
 			commentWriter.close();
 
 		} catch (Exception ioe) {
-			outputMessage.setErrorMessage("Running Java job failed.");
-			outputMessage.setOutputText(Exceptions.getStackTrace(ioe));
-			updateState(JobState.FAILED, "");
+			this.setErrorMessage("Running Java job failed.");
+			this.setOutputText(Exceptions.getStackTrace(ioe));
+			updateState(JobState.FAILED);
 		}
 		updateState(JobState.RUNNING, "Java tool finished");
 	}

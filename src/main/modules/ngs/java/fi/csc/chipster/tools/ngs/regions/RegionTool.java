@@ -19,7 +19,7 @@ public abstract class RegionTool extends JavaCompJobBase {
 	@Override
 	protected void execute() { 
 		try {
-			updateStateToClient(JobState.RUNNING, "preprocessing");
+			updateState(JobState.RUNNING, "preprocessing");
 
 			// Parse inputs
 			RegionOperations tool = new RegionOperations();
@@ -47,13 +47,11 @@ public abstract class RegionTool extends JavaCompJobBase {
 			}
 			
 		} catch (Exception e) {
+			this.setOutputText(Exceptions.getStackTrace(e));
 			updateState(JobState.FAILED, e.getMessage());
-			outputMessage.setOutputText(Exceptions.getStackTrace(e));
 			return;
 		}
-		updateStateToClient(JobState.RUNNING, "preprocessing finished");
+		updateState(JobState.RUNNING, "preprocessing finished");
 	}
-	
-
 
 }

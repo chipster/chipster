@@ -6,79 +6,79 @@
 	<classpathentry kind="src" path="src/test/java"/>
 	<classpathentry kind="src" path="src/main/workflows"/>
 	<classpathentry kind="src" path="src/main/modules/ngs/java"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/core-renderer.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/spring.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/concurrent.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/antlr-3.0b7.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/antlr-2.7.7.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/stringtemplate-3.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/commons-pool-1.3.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/commons-daemon.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/looks-2.1.4.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/eclipse-icons.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/commons-logging-1.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/saaj-api.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/saaj-impl.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/activation.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/cron4j-1.1.5.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jakarta-regexp-1.5.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/activemq-all-5.10.0.jar" sourcepath="ext/lib-src/activemq-parent-5.10.0-source-release.zip"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/batik-awt-util.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/batik-dom.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/batik-svg-dom.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/batik-svggen.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/batik-util.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/batik-xml.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/icepdf-core.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/icepdf-viewer.jar" sourcepath="ext/lib-src/ICEpdf-4.1.4-src.zip"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jcommon-1.0.9.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jfreechart-1.0.5.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/viski-chipster-1.0.1.jar" sourcepath="ext/lib-src/viski-1.0.0-src.zip"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jgraph-5.12.2.1.jar" sourcepath="ext/lib-src/jgraph-5.12.1.0-lgpl-src.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/swingx-1.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/mail.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/commons-io-2.2.jar" sourcepath="ext/lib-src/commons-io-2.2-sources.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/h2-1.3.163.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/snakeyaml-1.11.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/miglayout-4.0-swing.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/hamcrest-core-1.3.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/bsh-2.0b4.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jemboss-new.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/junit-4.11.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/joda-time-2.3.jar" sourcepath="ext/lib-src/joda-time-2.3-sources.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/derby.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/commons-lang3-3.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/truezip-samples-7.7.6-jar-with-dependencies.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/gson-2.3.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jcommander-1.30.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/log4j-api-jar-2.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/log4j-core-jar-2.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-alpn-client-9.2.10.v20150310.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-alpn-server-9.2.10.v20150310.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-annotations-9.2.10.v20150310.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-cdi-9.2.10.v20150310.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-client-9.2.10.v20150310.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-continuation-9.2.10.v20150310.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-deploy-9.2.10.v20150310.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-http-9.2.10.v20150310.jar" sourcepath="ext/lib-src/jetty-9.2.10-src.zip"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-io-9.2.10.v20150310.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-jaas-9.2.10.v20150310.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-jaspi-9.2.10.v20150310.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-jmx-9.2.10.v20150310.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-jndi-9.2.10.v20150310.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-plus-9.2.10.v20150310.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-proxy-9.2.10.v20150310.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-quickstart-9.2.10.v20150310.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-rewrite-9.2.10.v20150310.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-schemas-3.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-security-9.2.10.v20150310.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-server-9.2.10.v20150310.jar" sourcepath="ext/lib-src/jetty-9.2.10-src.zip"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-servlet-9.2.10.v20150310.jar" sourcepath="ext/lib-src/jetty-9.2.10-src.zip"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-servlets-9.2.10.v20150310.jar" sourcepath="ext/lib-src/jetty-9.2.10-src.zip"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-util-9.2.10.v20150310.jar" sourcepath="ext/lib-src/jetty-9.2.10-src.zip"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-webapp-9.2.10.v20150310.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-xml-9.2.10.v20150310.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/servlet-api-3.1.jar" sourcepath="ext/lib-src/servlet-api-3.1-src.zip"/>
+	<classpathentry kind="lib" path="ext/lib/core-renderer.jar"/>
+	<classpathentry kind="lib" path="ext/lib/spring.jar"/>
+	<classpathentry kind="lib" path="ext/lib/concurrent.jar"/>
+	<classpathentry kind="lib" path="ext/lib/antlr-3.0b7.jar"/>
+	<classpathentry kind="lib" path="ext/lib/antlr-2.7.7.jar"/>
+	<classpathentry kind="lib" path="ext/lib/stringtemplate-3.0.jar"/>
+	<classpathentry kind="lib" path="ext/lib/commons-pool-1.3.jar"/>
+	<classpathentry kind="lib" path="ext/lib/commons-daemon.jar"/>
+	<classpathentry kind="lib" path="ext/lib/looks-2.1.4.jar"/>
+	<classpathentry kind="lib" path="ext/lib/eclipse-icons.jar"/>
+	<classpathentry kind="lib" path="ext/lib/commons-logging-1.1.jar"/>
+	<classpathentry kind="lib" path="ext/lib/saaj-api.jar"/>
+	<classpathentry kind="lib" path="ext/lib/saaj-impl.jar"/>
+	<classpathentry kind="lib" path="ext/lib/activation.jar"/>
+	<classpathentry kind="lib" path="ext/lib/cron4j-1.1.5.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jakarta-regexp-1.5.jar"/>
+	<classpathentry kind="lib" path="ext/lib/activemq-all-5.10.0.jar" sourcepath="ext/lib-src/activemq-parent-5.10.0-source-release.zip"/>
+	<classpathentry kind="lib" path="ext/lib/batik-awt-util.jar"/>
+	<classpathentry kind="lib" path="ext/lib/batik-dom.jar"/>
+	<classpathentry kind="lib" path="ext/lib/batik-svg-dom.jar"/>
+	<classpathentry kind="lib" path="ext/lib/batik-svggen.jar"/>
+	<classpathentry kind="lib" path="ext/lib/batik-util.jar"/>
+	<classpathentry kind="lib" path="ext/lib/batik-xml.jar"/>
+	<classpathentry kind="lib" path="ext/lib/icepdf-core.jar"/>
+	<classpathentry kind="lib" path="ext/lib/icepdf-viewer.jar" sourcepath="ext/lib-src/ICEpdf-4.1.4-src.zip"/>
+	<classpathentry kind="lib" path="ext/lib/jcommon-1.0.9.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jfreechart-1.0.5.jar"/>
+	<classpathentry kind="lib" path="ext/lib/viski-chipster-1.0.1.jar" sourcepath="ext/lib-src/viski-1.0.0-src.zip"/>
+	<classpathentry kind="lib" path="ext/lib/jgraph-5.12.2.1.jar" sourcepath="ext/lib-src/jgraph-5.12.1.0-lgpl-src.jar"/>
+	<classpathentry kind="lib" path="ext/lib/swingx-1.0.jar"/>
+	<classpathentry kind="lib" path="ext/lib/mail.jar"/>
+	<classpathentry kind="lib" path="ext/lib/commons-io-2.2.jar" sourcepath="ext/lib-src/commons-io-2.2-sources.jar"/>
+	<classpathentry kind="lib" path="ext/lib/h2-1.3.163.jar"/>
+	<classpathentry kind="lib" path="ext/lib/snakeyaml-1.11.jar"/>
+	<classpathentry kind="lib" path="ext/lib/miglayout-4.0-swing.jar"/>
+	<classpathentry kind="lib" path="ext/lib/hamcrest-core-1.3.jar"/>
+	<classpathentry kind="lib" path="ext/lib/bsh-2.0b4.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jemboss-new.jar"/>
+	<classpathentry kind="lib" path="ext/lib/junit-4.11.jar"/>
+	<classpathentry kind="lib" path="ext/lib/joda-time-2.3.jar" sourcepath="ext/lib-src/joda-time-2.3-sources.jar"/>
+	<classpathentry kind="lib" path="ext/lib/derby.jar"/>
+	<classpathentry kind="lib" path="ext/lib/commons-lang3-3.1.jar"/>
+	<classpathentry kind="lib" path="ext/lib/truezip-samples-7.7.6-jar-with-dependencies.jar"/>
+	<classpathentry kind="lib" path="ext/lib/gson-2.3.1.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jcommander-1.30.jar"/>
+	<classpathentry kind="lib" path="ext/lib/log4j-api-jar-2.2.jar"/>
+	<classpathentry kind="lib" path="ext/lib/log4j-core-jar-2.2.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jetty-alpn-client-9.2.10.v20150310.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jetty-alpn-server-9.2.10.v20150310.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jetty-annotations-9.2.10.v20150310.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jetty-cdi-9.2.10.v20150310.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jetty-client-9.2.10.v20150310.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jetty-continuation-9.2.10.v20150310.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jetty-deploy-9.2.10.v20150310.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jetty-http-9.2.10.v20150310.jar" sourcepath="ext/lib-src/jetty-9.2.10-src.zip"/>
+	<classpathentry kind="lib" path="ext/lib/jetty-io-9.2.10.v20150310.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jetty-jaas-9.2.10.v20150310.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jetty-jaspi-9.2.10.v20150310.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jetty-jmx-9.2.10.v20150310.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jetty-jndi-9.2.10.v20150310.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jetty-plus-9.2.10.v20150310.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jetty-proxy-9.2.10.v20150310.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jetty-quickstart-9.2.10.v20150310.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jetty-rewrite-9.2.10.v20150310.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jetty-schemas-3.1.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jetty-security-9.2.10.v20150310.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jetty-server-9.2.10.v20150310.jar" sourcepath="ext/lib-src/jetty-9.2.10-src.zip"/>
+	<classpathentry kind="lib" path="ext/lib/jetty-servlet-9.2.10.v20150310.jar" sourcepath="ext/lib-src/jetty-9.2.10-src.zip"/>
+	<classpathentry kind="lib" path="ext/lib/jetty-servlets-9.2.10.v20150310.jar" sourcepath="ext/lib-src/jetty-9.2.10-src.zip"/>
+	<classpathentry kind="lib" path="ext/lib/jetty-util-9.2.10.v20150310.jar" sourcepath="ext/lib-src/jetty-9.2.10-src.zip"/>
+	<classpathentry kind="lib" path="ext/lib/jetty-webapp-9.2.10.v20150310.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jetty-xml-9.2.10.v20150310.jar"/>
+	<classpathentry kind="lib" path="ext/lib/servlet-api-3.1.jar" sourcepath="ext/lib-src/servlet-api-3.1-src.zip"/>
 	<classpathentry kind="lib" path="ext/lib/dom4j-jar-1.6.1.jar"/>
 	<classpathentry kind="lib" path="ext/lib/antlr-jar-2.7.7.jar"/>
 	<classpathentry kind="lib" path="ext/lib/jandex-jar-1.1.0.Final.jar"/>
@@ -112,8 +112,10 @@
 	<classpathentry kind="lib" path="ext/lib/commons-math3-3.6.1.jar"/>
 	<classpathentry kind="lib" path="ext/lib/htsjdk-2.6.1.jar" sourcepath="ext/lib-src/htsjdk-2.6.1-2.zip"/>
 	<classpathentry kind="lib" path="ext/lib/jsoup-1.10.3.jar"/>
+	<classpathentry kind="lib" path="ext/lib/reactive-streams-1.0.2.jar"/>
+	<classpathentry kind="lib" path="ext/lib/rxjava-2.1.10.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/argparse4j-0.4.3.jar" sourcepath="ext/lib-src/argparse4j-0.4.3-sources.jar"/>
+	<classpathentry kind="lib" path="ext/lib/argparse4j-0.4.3.jar" sourcepath="ext/lib-src/argparse4j-0.4.3-sources.jar"/>
 	<classpathentry kind="lib" path="ext/lib/hibernate-c3p0-jar-4.3.8.Final.jar"/>
 	<classpathentry kind="lib" path="ext/lib/hibernate-commons-annotations-jar-4.0.5.Final.jar"/>
 	<classpathentry kind="lib" path="ext/lib/hibernate-core-jar-4.3.8.Final.jar"/>

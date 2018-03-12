@@ -1,5 +1,6 @@
 package fi.csc.microarray.messaging.message;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -28,7 +29,8 @@ public class GenericResultMessage {
 	private String errorMessage;
 	private String outputText;
 	private String sourceCode;
-	private boolean heartbeat;
+	private Instant startTime;
+	private Instant endTime;
 	
 	private Map<String, String> ids = new HashMap<String, String>();
 	private Map<String, String> names = new HashMap<String, String>();
@@ -112,15 +114,7 @@ public class GenericResultMessage {
 	public void setJobId(String jobId) {
 		this.jobId = jobId;
 	}
-
-	public void setHeartbeat(boolean isHeartbeat) {
-		this.heartbeat = isHeartbeat;
-	}
 	
-	public boolean isHeartbeat() {
-		return this.heartbeat;
-	}
-
 	public void addDataset(String outputName, String id, String name) {
 		ids.put(outputName, id);
 		names.put(outputName, name);
@@ -140,6 +134,24 @@ public class GenericResultMessage {
 	public String getDatasetName(String outputName) {
 		return names.get(outputName);
 	}
+
+	public Instant getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(Instant startTime) {
+		this.startTime = startTime;
+	}
+
+	public Instant getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(Instant endTime) {
+		this.endTime = endTime;
+	}
+
+
 }
 	
 

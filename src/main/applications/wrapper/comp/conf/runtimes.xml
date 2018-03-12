@@ -87,7 +87,7 @@
 			</parameter>
 			<parameter>
 				<name>commandParameters</name>
-				<value></value>
+				<value>-u</value>
 			</parameter>
 		</handler>
 	</runtime>

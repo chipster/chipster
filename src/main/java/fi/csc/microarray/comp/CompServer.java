@@ -73,7 +73,6 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 	private int offerDelay;
 	private int timeoutCheckInterval;
 	@SuppressWarnings("unused")
-	private int heartbeatInterval;
 	private int compAvailableInterval;
 	private boolean sweepWorkDir;
 	private int maxJobs;
@@ -110,8 +109,6 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 	private LinkedHashMap<String, CompJob> scheduledJobs = new LinkedHashMap<String, CompJob>();
 	private LinkedHashMap<String, CompJob> runningJobs = new LinkedHashMap<String, CompJob>();
 	private Timer timeoutTimer;
-	@SuppressWarnings("unused")
-	private Timer heartbeatTimer;
 	private Timer compAvailableTimer;
 	private String localFilebrokerPath;
 	private String overridingFilebrokerIp;
@@ -138,7 +135,6 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 		this.scheduleTimeout = configuration.getInt("comp", "schedule-timeout");
 		this.offerDelay = configuration.getInt("comp", "offer-delay");
 		this.timeoutCheckInterval = configuration.getInt("comp", "timeout-check-interval");
-		this.heartbeatInterval = configuration.getInt("comp", "job-heartbeat-interval");
 		this.compAvailableInterval = configuration.getInt("comp", "comp-available-interval");
 		this.sweepWorkDir= configuration.getBoolean("comp", "sweep-work-dir");
 		this.maxJobs = configuration.getInt("comp", "max-jobs");
@@ -172,11 +168,6 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 		// initialize timeout checker
 		timeoutTimer = new Timer(true);
 		timeoutTimer.schedule(new TimeoutTimerTask(), timeoutCheckInterval, timeoutCheckInterval);
-		
-		heartbeatTimer = new Timer(true);
-
-		// disable heartbeat for jobs for now
-		//heartbeatTimer.schedule(new JobHeartbeatTask(), heartbeatInterval, heartbeatInterval);
 		
 		compAvailableTimer = new Timer(true);
 		compAvailableTimer.schedule(new CompAvailableTask(), compAvailableInterval, compAvailableInterval);
@@ -359,8 +350,8 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 					job.getInputMessage().getToolId().replaceAll("\"", "") + delimiter + 
 					job.getState() + delimiter + 
 					job.getInputMessage().getUsername() + delimiter + 
-					job.getExecutionStartTime().toString()	+ delimiter + 
-					job.getExecutionEndTime().toString() + delimiter + 
+					job.getStartTime().toString()	+ delimiter + 
+					job.getEndTime().toString() + delimiter + 
 					hostname + delimiter + 
 					ProcessUtils.humanFriendly(resourceMonitor.getMaxMem(job.getProcess())));
 		} catch (Exception e) {
@@ -410,7 +401,7 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 		String hostname = getHost();
 		
 		// current jobs in admin-web may not have starTime yet
-		Date startTime = job.getExecutionStartTime();
+		Date startTime = Date.from(job.getStartTime());
 		if (startTime == null) {
 			startTime = job.getScheduleTime();
 		}
@@ -424,7 +415,7 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 				job.getStateDetail(),
 				job.getId(),
 				startTime,
-				job.getExecutionEndTime(),
+				Date.from(job.getEndTime()),
 				job.getResultMessage().getErrorMessage(),
 				job.getResultMessage().getOutputText(),
 				job.getInputMessage().getUsername(),
@@ -707,20 +698,7 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 			}
 		}
 	}
-	
-	public class JobHeartbeatTask extends TimerTask {
-
-		@Override
-		public void run() {
-			synchronized (jobsLock) {
-				for (CompJob job : getAllJobs()) {
-					job.updateStateToClient();
-				}
-			}
-		}	
-	}
-
-	
+		
 	public class CompAvailableTask extends TimerTask {
 
 		@Override

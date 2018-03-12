@@ -1,9 +1,12 @@
 package fi.csc.microarray.comp;
 
+import java.time.Instant;
 import java.util.Date;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
+import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.message.GenericJobMessage;
 import fi.csc.microarray.messaging.message.GenericResultMessage;
@@ -55,9 +58,8 @@ import fi.csc.microarray.util.Exceptions;
  */
 public abstract class CompJob implements Runnable {
 
-	public static String SCRIPT_SUCCESSFUL_STRING = "script-finished-succesfully";
-	public static String SCRIPT_FAILED_STRING = "script-finished-unsuccesfully";	
-	public final String CHIPSTER_NOTE_TOKEN = "CHIPSTER-NOTE:"; 
+	public static String SCRIPT_SUCCESSFUL_STRING = "chipster-script-finished-succesfully";
+	public static final String CHIPSTER_NOTE_TOKEN = "CHIPSTER-NOTE:"; 
 
 	private static final Logger logger = Logger.getLogger(CompJob.class);
 	
@@ -67,19 +69,22 @@ public abstract class CompJob implements Runnable {
 
 	private Date receiveTime;
 	private Date scheduleTime;
-	private Date executionStartTime;
-	private Date executionEndTime;
+	
+	private int jobTimeout;
+	
+	
 
 	private boolean constructed = false;
 
 	private JobState state;
 	private String stateDetail;
 	private boolean toBeCanceled = false;
-	protected GenericResultMessage outputMessage;
+	private GenericResultMessage outputMessage;
 	
 	public CompJob() {
-		this.state = JobState.NEW;
-		this.stateDetail = "new job created.";
+		outputMessage = new GenericResultMessage();
+		this.state = JobState.NEW; // updateState would check old state -> NPE
+		this.jobTimeout = DirectoryLayout.getInstance().getConfiguration().getInt("comp", "job-timeout");
 	}
 	
 
@@ -90,10 +95,7 @@ public abstract class CompJob implements Runnable {
 		this.resultHandler = resultHandler;
 		
 		// initialize result message
-		outputMessage = new GenericResultMessage();
 		outputMessage.setJobId(this.getId());
-		outputMessage.setState(this.state);
-		outputMessage.setStateDetail(this.stateDetail);
 	}
 	
 	
@@ -103,18 +105,19 @@ public abstract class CompJob implements Runnable {
 	 */
 	public void run() {
 		try {
+			this.outputMessage.setStartTime(Instant.now());
+			updateState(JobState.RUNNING, "initialising");
+			
 			if (!constructed) {
 				throw new IllegalStateException("you must call construct(...) first");
 			}
-
+			
 			// before execute
 			preExecute();
 
 			// execute
 			if (this.getState() == JobState.RUNNING) {
-				this.setExecutionStartTime(new Date());
 				execute();
-				this.setExecutionEndTime(new Date());
 			}
 
 			// after execute
@@ -122,30 +125,20 @@ public abstract class CompJob implements Runnable {
 				postExecute();
 			}
 
-			// successful job
+			// successful job, failed states are set when they happen 
 			if (this.getState() == JobState.RUNNING) {
-				// update state and send results
-				this.state = JobState.COMPLETED;
-				this.stateDetail = "";
+				updateState(JobState.COMPLETED, "");
 			}
-			
-			// send the result message 
-			// for the unsuccessful jobs, the state has been set by the subclass
-			outputMessage.setState(this.state);
-			outputMessage.setStateDetail(this.stateDetail);
-			resultHandler.sendResultMessage(inputMessage, outputMessage);
-			
 		} 
-		// job cancelled, do nothing
+
+		// job was cancelled, do nothing, state has already been set when calling cancel()
 		catch (JobCancelledException jce) {
-			this.setExecutionEndTime(new Date());
 			logger.debug("job cancelled: " + this.getId());
 		} 
 		
 		
 		// something unexpected happened
 		catch (Throwable e) {
-			this.setExecutionEndTime(new Date());
 			updateState(JobState.ERROR, "running tool failed");
 			outputMessage.setErrorMessage("Running tool failed.");
 			outputMessage.setOutputText(Exceptions.getStackTrace(e));
@@ -168,55 +161,31 @@ public abstract class CompJob implements Runnable {
 	public String getId() {
 		return this.inputMessage.getJobId();
 	}
+
+	
+	
+	public synchronized void updateState(JobState newState) {
+		updateState(newState, "");
+	}
+
 	
 	public synchronized void updateState(JobState newState, String stateDetail) {
 
-		// don't allow new state changes, if this is cancelled already
-		if (getState() == JobState.CANCELLED) {
+		// ignore if jos is cancelled already
+		if (this.state == JobState.CANCELLED) {
 			return;
 		}
 		
-		// update state
-		this.state = newState;
-		this.stateDetail = stateDetail;
-	}
-
-	/**
-	 * Updates the state detail and also sends the state and the detail 
-	 * to the client.
-	 * 
-	 * @param newStateDetail
-	 */
-	public synchronized void updateStateDetailToClient(String newStateDetail) {
-
-		// job may continue for some time before it checks if it's cancelled
-		if (getState() == JobState.CANCELLED) {
+		// should not try to update state if already finished
+		if (this.state.isFinished()) {
+			logger.warn("trying to update state for already finished job, old state: " + this.state.toString() + 
+					"new state: " + newState.toString());
 			return;
 		}
-
-		// update state
-		this.stateDetail = newStateDetail;
-
-		// send notification message
-		outputMessage.setState(this.state);
-		outputMessage.setStateDetail(this.stateDetail);
-		resultHandler.sendResultMessage(inputMessage, outputMessage);
-	}
-
-
-	public synchronized void updateStateToClient() {
-		this.updateStateToClient(this.state, this.stateDetail, true);
-	}
-	
-	public synchronized void updateStateToClient(JobState newState, String stateDetail) {
-		this.updateStateToClient(newState, stateDetail, false);
-	}
-
-	public synchronized void updateStateToClient(JobState newState, String stateDetail, boolean isHeartbeat) {
 		
-		// job may continue for some time before it checks if it's cancelled
-		if (getState() == JobState.CANCELLED) {
-			return;
+		// set end time if new state is finished
+		if (newState.isFinished()) {
+			this.outputMessage.setEndTime(Instant.now());
 		}
 		
 		// update state
@@ -226,10 +195,11 @@ public abstract class CompJob implements Runnable {
 		// send notification message
 		outputMessage.setState(this.state);
 		outputMessage.setStateDetail(this.stateDetail);
-		outputMessage.setHeartbeat(isHeartbeat);
 		resultHandler.sendResultMessage(inputMessage, outputMessage);
-	}	
+
+	}
 	
+		
 	public JobState getState() {
 		return this.state;
 	}
@@ -249,8 +219,8 @@ public abstract class CompJob implements Runnable {
 	
 	
 	/**
-	 * Check if the job should be canceled (cancel() has been called), and if needed
-	 * updates the state and cancels the job by throwing the cancellation exception.
+	 * Check if the job should be canceled (cancel() has been called)
+	 * cancels the job by throwing the cancellation exception.
 	 * 
 	 * Should be called by subclasses in situations where it is safe to cancel the job.
 	 * 
@@ -279,10 +249,6 @@ public abstract class CompJob implements Runnable {
 	
 	
 	protected void preExecute() throws JobCancelledException {
-		if (!constructed) {
-			throw new IllegalStateException("you must call construct(...) first");
-		}
-		updateStateToClient(JobState.RUNNING, "initialising");
 	}
 	
 	protected void postExecute()  throws JobCancelledException {
@@ -321,28 +287,41 @@ public abstract class CompJob implements Runnable {
 	}
 
 
-	public Date getExecutionStartTime() {
-		return executionStartTime;
+	public Instant getStartTime() {
+		return outputMessage.getStartTime();
 	}
 
-
-	public void setExecutionStartTime(Date executionStartTime) {
-		this.executionStartTime = executionStartTime;
+	public Instant getEndTime() {
+		return outputMessage.getEndTime();
 	}
-
-
-	public Date getExecutionEndTime() {
-		return executionEndTime;
-	}
-
-
-	public void setExecutionEndTime(Date executionEndTime) {
-		this.executionEndTime = executionEndTime;
-	}
-
 
 	public String getStateDetail() {
 		return this.stateDetail;
+	}
+	
+	public void setSourceCode(String source) {
+		this.outputMessage.setSourceCode(source);
+	}
+	
+	public String getErrorMessage() {
+		return this.outputMessage.getErrorMessage();
+	}
+	
+	public void setErrorMessage(String message) {
+		this.outputMessage.setErrorMessage(message);
+	}
+	
+	public void setOutputText(String output) {
+		this.outputMessage.setOutputText(output);
+	}
+	
+	public void appendOutputText(String s) {
+		String currentOutput = this.outputMessage.getOutputText();
+		if (currentOutput != null) {
+			this.outputMessage.setOutputText(currentOutput + "\n" + s);
+		} else {
+			this.outputMessage.setOutputText(s);
+		}
 	}
 	
 	public ToolDescription getToolDescription() {
@@ -355,4 +334,48 @@ public abstract class CompJob implements Runnable {
 	public Process getProcess() {
 		return null;
 	}
+	
+	protected int getTimeout() {
+		return this.jobTimeout;
+	}
+
+	protected void addOutputDataset(String outputName, String id, String name) {
+		outputMessage.addDataset(outputName, id, name);
+	}
+
+	
+	protected static String getErrorMessage(String screenOutput, String errorMessageToken, String removeLastLineToken) {
+
+		// find the error token
+		int errorTokenStartIndex = screenOutput.lastIndexOf(errorMessageToken);
+
+		if (errorTokenStartIndex != -1) {
+			String errorMessage = screenOutput.substring(errorTokenStartIndex);
+
+			// remove the line that contains the error token
+			errorMessage = StringUtils.substringAfter(errorMessage, errorMessageToken);
+
+			// remove last line if contains last line to remove token
+			if (removeLastLineToken != null) {
+				errorMessage = StringUtils.substringBeforeLast(errorMessage, removeLastLineToken);
+			}
+
+			return errorMessage.trim();
+		} else {
+			return null;
+		}
+	}
+
+	protected static String getChipsterNote(String errorMessage) {
+		// check for chipster note
+		if (errorMessage.contains(CHIPSTER_NOTE_TOKEN)) {
+			return errorMessage.substring(errorMessage.indexOf(CHIPSTER_NOTE_TOKEN) + CHIPSTER_NOTE_TOKEN.length())
+					.trim();
+		} else {
+			return null;
+		}
+	}
+
+	
+	
 }

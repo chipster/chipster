@@ -30,7 +30,7 @@ public class SortTsv extends JavaCompJobBase {
 	
 	@Override
 	protected void execute() { 
-		updateStateToClient(JobState.RUNNING, "sorting");
+		updateState(JobState.RUNNING, "sorting");
 
 		try {
 			// files
@@ -54,7 +54,7 @@ public class SortTsv extends JavaCompJobBase {
 			return;
 		}
 
-		updateStateToClient(JobState.RUNNING, "sorting finished");
+		updateState(JobState.RUNNING, "sorting finished");
 	}
 	
 	private static void sort(File inputFile, File outputFile, int chrColumn) throws MalformedURLException, IOException, URISyntaxException, Exception {

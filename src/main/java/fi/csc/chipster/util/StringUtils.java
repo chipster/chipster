@@ -9,4 +9,13 @@ public class StringUtils {
 	    return original.substring(0, 1).toUpperCase() + original.substring(1);
 	}
 	
+	public static String removeLastLine(String s) {
+		int i = s.lastIndexOf("\n");
+		if (i != -1) {
+			return s.substring(0, i);
+		} else {
+			return s;
+		}
+	}
+	
 }

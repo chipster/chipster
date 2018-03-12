@@ -44,7 +44,7 @@ public class DownloadFile extends JavaCompJobBase {
 	
 	@Override
 	protected void execute() { 
-		updateStateToClient(JobState.RUNNING, "downloading");
+		updateState(JobState.RUNNING, "downloading");
 
 		try {
 			// file 
@@ -104,6 +104,6 @@ public class DownloadFile extends JavaCompJobBase {
 			return;
 		}
 
-		updateStateToClient(JobState.RUNNING, "download finished");
+		updateState(JobState.RUNNING, "download finished");
 	}
 }
