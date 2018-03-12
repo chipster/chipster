@@ -31,11 +31,12 @@ public class PythonJobFactory extends InterpreterJobFactory {
 	}
 
 	@Override
-	public CompJob createCompJob(GenericJobMessage message, ToolboxTool tool, ResultCallback resultHandler) throws CompException {
+	public CompJob createCompJob(GenericJobMessage message, ToolboxTool tool, ResultCallback resultHandler,
+			int jobTimeout) throws CompException {
 		ToolDescription description = createToolDescription(tool);
 		
 		PythonCompJob analysisJob = new PythonCompJob();
-		analysisJob.construct(message, description, resultHandler);
+		analysisJob.construct(message, description, resultHandler, jobTimeout);
 		analysisJob.setProcessPool(this.processPool);
 		return analysisJob;
 	}

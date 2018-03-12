@@ -25,12 +25,13 @@ public class RJobFactory extends InterpreterJobFactory {
 	}
 
 	@Override
-	public CompJob createCompJob(GenericJobMessage message, ToolboxTool tool, ResultCallback resultHandler) throws CompException {
+	public CompJob createCompJob(GenericJobMessage message, ToolboxTool tool, ResultCallback resultHandler,
+			int jobTimeout) throws CompException {
 
 		ToolDescription description = createToolDescription(tool);
 		
 		RCompJob analysisJob = new RCompJob();
-		analysisJob.construct(message, description, resultHandler);
+		analysisJob.construct(message, description, resultHandler, jobTimeout);
 		analysisJob.setProcessPool(this.processPool);
 		return analysisJob;
 	}

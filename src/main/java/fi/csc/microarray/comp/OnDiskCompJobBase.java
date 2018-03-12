@@ -39,8 +39,9 @@ public abstract class OnDiskCompJobBase extends CompJob {
 	protected File jobToolboxDir;
 	
 	@Override
-	public void construct(GenericJobMessage inputMessage, ToolDescription toolDescription, ResultCallback resultHandler) {
-		super.construct(inputMessage, toolDescription, resultHandler);
+	public void construct(GenericJobMessage inputMessage, ToolDescription toolDescription, 
+			ResultCallback resultHandler, int jobTimeout) {
+		super.construct(inputMessage, toolDescription, resultHandler, jobTimeout);
 		this.jobDir = new File(resultHandler.getWorkDir(), getId());
 		this.jobDataDir = new File(this.jobDir, JOB_DATA_DIR_NAME);
 		this.jobToolboxDir = new File(this.jobDir, JOB_TOOLBOX_DIR_NAME);

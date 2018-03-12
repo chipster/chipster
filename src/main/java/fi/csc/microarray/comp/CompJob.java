@@ -6,7 +6,6 @@ import java.util.Date;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.message.GenericJobMessage;
 import fi.csc.microarray.messaging.message.GenericResultMessage;
@@ -84,15 +83,16 @@ public abstract class CompJob implements Runnable {
 	public CompJob() {
 		outputMessage = new GenericResultMessage();
 		this.state = JobState.NEW; // updateState would check old state -> NPE
-		this.jobTimeout = DirectoryLayout.getInstance().getConfiguration().getInt("comp", "job-timeout");
 	}
 	
 
-	public void construct(GenericJobMessage inputMessage, ToolDescription analysis, ResultCallback resultHandler) {
+	public void construct(GenericJobMessage inputMessage, ToolDescription analysis,
+			ResultCallback resultHandler, int jobTimeout) {
 		this.constructed = true;
 		this.toolDescription = analysis;
 		this.inputMessage = inputMessage;
 		this.resultHandler = resultHandler;
+		this.jobTimeout = jobTimeout;
 		
 		// initialize result message
 		outputMessage.setJobId(this.getId());

@@ -113,6 +113,8 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 	private String localFilebrokerPath;
 	private String overridingFilebrokerIp;
 	
+	private int jobTimeout;
+	
 	volatile private boolean stopGracefully;
 	private String moduleFilterName;
 	private String moduleFilterMode;
@@ -143,6 +145,7 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 		this.moduleFilterName = configuration.getString("comp", "module-filter-name");
 		this.moduleFilterMode = configuration.getString("comp", "module-filter-mode");
 		this.monitoringInterval = configuration.getInt("comp", "resource-monitoring-interval");
+		this.jobTimeout = configuration.getInt("comp", "job-timeout");
 		
 		logger = Logger.getLogger(CompServer.class);
 		loggerJobs = Logger.getLogger("jobs");
@@ -547,7 +550,7 @@ public class CompServer extends MonitoredNodeBase implements MessagingListener, 
 		// get factory from runtime and create the job instance
 		CompJob job;
 		try {
-			job = runtime.getJobFactory().createCompJob(jobMessage, toolboxTool, this);
+			job = runtime.getJobFactory().createCompJob(jobMessage, toolboxTool, this, jobTimeout);
 			
 		} catch (CompException e) {
 			logger.warn("could not create job for " + jobMessage.getToolId(), e);

@@ -78,7 +78,8 @@ public abstract class InterpreterJobFactory implements JobFactory {
 	}
 
 	@Override
-	public abstract CompJob createCompJob(GenericJobMessage message, ToolboxTool tool, ResultCallback resultHandler) throws CompException;
+	public abstract CompJob createCompJob(GenericJobMessage message, ToolboxTool tool, 
+			ResultCallback resultHandler, int jobTimeout) throws CompException;
 
 	protected abstract String getStringDelimeter();
 	protected abstract String getVariableNameSeparator();
