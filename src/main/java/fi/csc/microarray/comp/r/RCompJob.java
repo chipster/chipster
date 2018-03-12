@@ -287,7 +287,7 @@ public class RCompJob extends OnDiskCompJobBase {
 		try {
 			// release the process (don't recycle)
 			if (process != null) {
-				processPool.releaseProcess(process, false);
+				processPool.releaseProcess(process);
 			}
 		} catch (Exception e) {
 			logger.error("error when releasing process. ", e);

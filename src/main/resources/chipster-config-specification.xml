@@ -234,27 +234,7 @@
 		<entry entryKey="sweep-work-dir" type="boolean" description="should job specific temporary directory be sweeped after job execution">
 			<value>true</value>
 		</entry>
-		
-		<entry entryKey="r-process-pool-size-min" type="int" description="number of processes always available if possible">
-			<value>5</value>int" 
-		</entry>
-		
-		<entry entryKey="r-process-pool-size-max" type="int" description="max number of processes controlled by this pool (available and in use together)">
-			<value>20</value>
-		</entry>
-		
-		<entry entryKey="r-process-pool-timeout" type="int" description="timeout for waiting for a process to become available, seconds">
-			<value>360</value>
-		</entry>
-
-		<entry entryKey="r-process-pool-process-use-count-max" type="int" description="used when deciding whether a process should be recycled">
-			<value>10</value>
-		</entry>
-
-		<entry entryKey="r-process-pool-process-lifetime-max" type="int" description="used when deciding whether a process should be recycled, seconds">
-			<value>36000</value>
-		</entry>
-		
+				
 		<entry entryKey="job-timeout" type="int" description="timeout for a single job in comp, seconds">
 			<value>604800</value> <!-- 7 days -->
 		</entry>

@@ -7,7 +7,6 @@ import java.util.HashMap;
 import org.apache.log4j.Logger;
 
 import fi.csc.chipster.toolbox.ToolboxTool;
-import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.messaging.message.GenericJobMessage;
 
@@ -44,33 +43,9 @@ public abstract class InterpreterJobFactory implements JobFactory {
 		}
 		this.interpreterCommand = command;
 		this.toolDir = parameters.get("toolDir");
-	
-		// initialize process pool
-		int poolSizeMin = 5;
-		int poolSizeMax = 20;
-		int poolTimeout = 360;
-		int processUseCountMax = 10;
-		int processLifetimeMax = 36_000;
-
+			
 		try {
-			// TODO fix R specificity
-			Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
-
-			poolSizeMin = configuration.getInt("comp", "r-process-pool-size-min");
-			poolSizeMax = configuration.getInt("comp", "r-process-pool-size-max");
-			poolTimeout = configuration.getInt("comp", "r-process-pool-timeout");
-			processUseCountMax = configuration.getInt("comp", "r-process-pool-process-use-count-max");
-			processLifetimeMax = configuration.getInt("comp", "r-process-pool-process-lifetime-max");
-		} catch (IllegalStateException e) {
-			// DirectoryLayout isn't configured in RestCompServer
-			// use above hard coded values for now, because this class is still in the old chipster project
-			// and we can't use the new Config class here		
-			logger.info("process pool config missing, using hard coded defaults (" + e.getMessage() + ")");
-		}
-		
-		try {
-			processPool = new ProcessPool(new File(parameters.get("workDir")), interpreterCommand, poolSizeMin, poolSizeMax, 
-				poolTimeout, processUseCountMax, processLifetimeMax);
+			processPool = new ProcessPool(new File(parameters.get("workDir")), interpreterCommand);
 		} catch (Exception e) {
 			logger.warn("disabling handler " + this.getClass().getSimpleName() + ": " + e.getMessage());
 			this.isDisabled = true;
