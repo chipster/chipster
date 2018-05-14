@@ -48,4 +48,4 @@
 # ZIFA
 # Requires: scipy, pandas, numpy,  scikits.learn, matplotlib, pandas
 # Some of these modules are already installed, but lets still list all the requirements for ZIFA
-  ${TOOLS_PATH}/Python-2.7.12/bin/pip install numpy scipy pandas scikits.learn matplotlib pandas
+# ${TOOLS_PATH}/Python-2.7.12/bin/pip install numpy scipy pandas scikits.learn matplotlib pandas
