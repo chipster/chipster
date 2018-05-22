@@ -16,19 +16,6 @@
 
 # Python tools
 #
-# MACS
-  ${TOOLS_PATH}/Python-2.7.12/bin/pip install MACS==1.4.2
-  mkdir ${TOOLS_PATH}/macs/
-  ln -s ${TOOLS_PATH}/Python-2.7.12/bin/macs14 ${TOOLS_PATH}/macs/macs14
-  
-# MACS2
-  ${TOOLS_PATH}/Python-2.7.12/bin/pip install numpy
-  ${TOOLS_PATH}/Python-2.7.12/bin/pip install MACS2==2.1.1.20160309
-  ln -s ${TOOLS_PATH}/Python-2.7.12/bin/macs2 ${TOOLS_PATH}/macs/macs2
-
-# RSeQC
-  ${TOOLS_PATH}/Python-2.7.12/bin/pip install RSeQC==2.6.4
-  ln -s Python-2.7.12/bin ${TOOLS_PATH}/rseqc
 
 # HTSeq
   ${TOOLS_PATH}/Python-2.7.12/bin/pip install matplotlib
@@ -44,6 +31,23 @@
   ln -s ${TOOLS_PATH}/Python-2.7.12/bin/htseq-qa ${TOOLS_PATH}/htseq/htseq-qa
   ln -s ${TOOLS_PATH}/Python-2.7.12/bin/htseq-count ${TOOLS_PATH}/htseq/htseq-count
   ln -s ${TOOLS_PATH}/Python-2.7.12/bin/htseq-count_chr ${TOOLS_PATH}/htseq/htseq-count_chr
+
+# MACS
+  ${TOOLS_PATH}/Python-2.7.12/bin/pip install MACS==1.4.2
+  mkdir ${TOOLS_PATH}/macs/
+  ln -s ${TOOLS_PATH}/Python-2.7.12/bin/macs14 ${TOOLS_PATH}/macs/macs14
+  
+# MACS2
+  ${TOOLS_PATH}/Python-2.7.12/bin/pip install numpy
+  ${TOOLS_PATH}/Python-2.7.12/bin/pip install MACS2==2.1.1.20160309
+  ln -s ${TOOLS_PATH}/Python-2.7.12/bin/macs2 ${TOOLS_PATH}/macs/macs2
+
+# MultiQC
+  ${TOOLS_PATH}/Python-2.7.12/bin/pip install multiqc
+  
+# RSeQC
+  ${TOOLS_PATH}/Python-2.7.12/bin/pip install RSeQC==2.6.4
+  ln -s Python-2.7.12/bin ${TOOLS_PATH}/rseqc
 
 # ZIFA
 # Requires: scipy, pandas, numpy,  scikits.learn, matplotlib, pandas
