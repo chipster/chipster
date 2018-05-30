@@ -1,4 +1,4 @@
-##depends:conda.bash
+##depends:conda
 
 CONDA_PATH=("/opt/chipster/tools/miniconda3")
 export PATH=${PATH}:${CONDA_PATH}/bin
