@@ -41,8 +41,8 @@ export EMBOSS_PATH=${TOOLS_PATH}/EMBOSS-${EMBOSS_VERSION}
 export EMBOSS_OPTIONS="--prefix=${EMBOSS_PATH}"
 
 # nic.funet.fi service endpoint
-export NIC_MIRROR=bio.nic.funet.fi
-#NIC_MIRROR=www.nic.funet.fi
+#export NIC_MIRROR=bio.nic.funet.fi
+export NIC_MIRROR=www.nic.funet.fi
 
 # tmpdir for parallel
 export paralleldir="/mnt/parallel/"
