@@ -9,7 +9,7 @@ conda config --add channels conda-forge
 conda config --add channels bioconda
 conda create -n chipster_tools -y
 
-cat << EOF > conda_execute
+cat << EOF > $CONDA_PATH/conda_execute
 #!/bin/bash
 
 conda_path=("$CONDA_PATH")
