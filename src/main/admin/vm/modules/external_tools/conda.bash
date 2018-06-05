@@ -22,6 +22,7 @@ source activate \$c_env
 \$c_tool \$@
 EOF
 
+chmod u+x $CONDA_PATH/conda_execute
 
 # minimap
 CONDA_PATH=("/opt/chipster/tools/miniconda3")
