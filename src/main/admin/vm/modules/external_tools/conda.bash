@@ -5,8 +5,11 @@ wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
 CONDA_PATH=("/opt/chipster/tools/miniconda3")
 bash Miniconda3-latest-Linux-x86_64.sh -b -p $CONDA_PATH 
 export PATH=${PATH}:${CONDA_PATH}/bin
+conda config --add channels defaults
 conda config --add channels conda-forge
 conda config --add channels bioconda
+
+mv $HOME/.condarc $CONDA_PATH
 conda create -n chipster_tools -y
 
 cat << EOF > $CONDA_PATH/conda_execute
