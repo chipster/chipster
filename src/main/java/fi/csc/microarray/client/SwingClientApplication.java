@@ -1692,6 +1692,13 @@ public class SwingClientApplication extends ClientApplication {
 						ChipsterDialog.showDialog(this, info, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true);
 						return;
 					}
+					
+					// check that the file is not from the newer Chipster
+					if (UserSession.isNewerSessionFile(selectedFile)) {
+						DialogInfo info = new DialogInfo(Severity.INFO, "Could not open session file.", "File '" + selectedFile.getName() + "' is from newer Chipster version. Please use https://chipster.rahtiapp.fi to open it.", "", Type.MESSAGE);
+						ChipsterDialog.showDialog(this, info, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true);
+						return;
+					}
 
 					// check that the file is a session file
 					if (!UserSession.isValidSessionFile(selectedFile)) {

@@ -56,11 +56,32 @@ public class UserSession {
 			return false;
 		}
 
-		// is it a zip?
+		return zipContains(file, SESSION_DATA_FILENAME);
+	}
+	
+	public static boolean isNewerSessionFile(File file) {
+		if (file == null) {
+			return false;
+		}
+		
+		// does the file exist?
+		if (!file.exists()) {
+			return false;
+		}
+
+		// correct extension?
+		if (!file.getName().endsWith("." + SESSION_FILE_EXTENSION)) {
+			return false;
+		}
+
+		return zipContains(file, "session.json");
+	}
+	
+	public static boolean zipContains(File file, String entry) {
 		ZipFile zipFile = null;
 		try {
 			try {
-				 zipFile= new ZipFile(file);
+				 zipFile = new ZipFile(file);
 			} catch (ZipException e) {
 				return false;
 			} catch (IOException e) {
@@ -68,9 +89,11 @@ public class UserSession {
 			}
 
 			// does it contain the session metadata file
-			if (zipFile.getEntry(SESSION_DATA_FILENAME) == null) {
-				return false;
+			if (zipFile.getEntry(entry) != null) {
+				return true;
 			}
+			
+			return false;
 		
 		} finally {
 			if (zipFile != null) {
@@ -81,10 +104,7 @@ public class UserSession {
 				}
 			}
 		}
-
-		return true;
 	}
-	
 	
     public static boolean validateMetadataFile() throws IOException, SAXException  {
 
