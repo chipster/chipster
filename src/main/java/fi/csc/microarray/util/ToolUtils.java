@@ -38,6 +38,9 @@ public class ToolUtils {
 			
 			for (String input : nameMap.keySet()) {
 				String name = nameMap.get(input);
+				if (name == null) {
+					throw new IllegalArgumentException("Dataset name of input '" + input + "' is null. Please rename the dataset.");
+				}
 				if (!name.matches(NAME_PATTERN)) {
 					throw new IllegalArgumentException("Dataset name " + name + " contains illegal characters. Please rename the dataset.");
 				}

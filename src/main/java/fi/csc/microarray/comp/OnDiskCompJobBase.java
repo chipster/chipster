@@ -81,6 +81,7 @@ public abstract class OnDiskCompJobBase extends CompJob {
 		} catch (Exception e) {
 			this.setErrorMessage("Transferring input data and tools to computing service failed.");
 			this.setOutputText(Exceptions.getStackTrace(e));
+			logger.error("transferring input data and tools failed", e);
 			updateState(JobState.ERROR);
 			return;
 		}			
