@@ -14,8 +14,6 @@ source ../installation_files/functions.bash
   wget_retry -nv  http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/mothur/Mothur-1.40.5.zip
   unzip -q Mothur-1.40.5.zip
   mv mothur ${TOOLS_PATH}/mothur-1.40.5
-    
-  curl -s http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/mothur/mothur-data.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
   mkdir -p ${TOOLS_PATH}/mothur-silva-reference/
   curl -s http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/mothur/silva/v102.tar.lz4  | lz4 -d | tar -x -C ${TOOLS_PATH}/mothur-silva-reference/
