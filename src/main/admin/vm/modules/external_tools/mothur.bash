@@ -9,7 +9,8 @@ source ../installation_files/functions.bash
   wget_retry -nv  https://github.com/mothur/mothur/releases/download/v1.39.5/Mothur.linux_64.noReadLine.zip
   unzip -q Mothur.linux_64.noReadLine.zip
   mv mothur ${TOOLS_PATH}/mothur-1.39.5
-  ln -s mothur-1.39.5 ${TOOLS_PATH}/mothur
+  ln -s ${TOOLS_PATH}/mothur-1.39.5 ${TOOLS_PATH}/mothur
+  rm -rf  __MACOSX
   
   wget_retry -nv  http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/mothur/Mothur-1.40.5.zip
   unzip -q Mothur-1.40.5.zip
