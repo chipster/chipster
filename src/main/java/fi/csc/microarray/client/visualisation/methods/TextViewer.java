@@ -12,6 +12,7 @@ import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.module.basic.BasicModule;
 
 public class TextViewer extends Visualisation {
 
@@ -34,7 +35,9 @@ public class TextViewer extends Visualisation {
 
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
-		return bean.isContentTypeCompatitible("text/plain", "chemical/x-fasta", "chemical/x-fai", "text/wig", "text/bed", "text/fastq", "text/gtf", "text/vcf", "text/qual", "text/mothur-oligos", "text/mothur-names", "text/mothur-groups", "text/mothur-stability", "text/mothur-count", "text/sff");
+		return bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES) || 
+				bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITHOUT_COLUMN_NAMES) ||
+				bean.isContentTypeCompatitible("text/plain", "chemical/x-fasta", "chemical/x-fai", "text/wig", "text/bed", "text/fastq", "text/gtf", "text/vcf", "text/qual", "text/mothur-oligos", "text/mothur-names", "text/mothur-groups", "text/mothur-stability", "text/mothur-count", "text/sff");
 	}
 	
 	public static JTextPane makeTxtPane(String txt) {
