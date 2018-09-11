@@ -53,7 +53,6 @@ public class RemoteSessionAccessory extends JPanel implements ActionListener, Pr
 			+ "<ul>"
 			+ "<li><strong>no backups</strong></li>"
 			+ "<li>use for <strong>temporary storage</strong> while working with your data</li>"
-			+ "<li>beta, may be disabled in the future</li>"
 			+ "</ul>"
 
 			+ "<p>Please <strong>store a copy of your valuable data also elsewhere!</strong><br/>"
@@ -64,7 +63,7 @@ public class RemoteSessionAccessory extends JPanel implements ActionListener, Pr
 	private JLabel diskUsageTitle = new JLabel("Total disk usage");
 	private JLabel disclaimerTitle = new JLabel("No backups");
 	private JLabel previewLabel = new JLabel(" ");
-	private JLabel cloudTitle = new JLabel("Cloud sessions (BETA)");
+	private JLabel cloudTitle = new JLabel("Cloud sessions");
 	private JLabel temporaryTitle = new JLabel("Temporary only");
 	
 	private JButton removeButton = new JButton("Delete");
