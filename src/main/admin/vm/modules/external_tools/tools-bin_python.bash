@@ -44,6 +44,7 @@
 
 # MultiQC
   ${TOOLS_PATH}/Python-2.7.12/bin/pip install multiqc
+  ln -s Python-2.7.12/bin ${TOOLS_PATH}/multiqc
   
 # RSeQC
   ${TOOLS_PATH}/Python-2.7.12/bin/pip install RSeQC==2.6.4
