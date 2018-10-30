@@ -13,8 +13,8 @@
 
 # GATK4
 cd ${TMPDIR_PATH}/
-wget https://github.com/broadinstitute/gatk/releases/download/4.0.4.0/gatk-4.0.4.0.zip
-unzip gatk-4.0.4.0.zip -d ${TOOLS_PATH}
+wget https://github.com/broadinstitute/gatk/releases/download/4.0.11.0/gatk-4.0.11.0.zip
+unzip gatk-4.0.11.0.zip -d ${TOOLS_PATH}
 cd ${TOOLS_PATH}
-ln -s gatk-4.0.4.0 GATK4
+ln -s gatk-4.0.11.0 GATK4
   
