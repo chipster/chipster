@@ -31,27 +31,39 @@
   wget_retry -O ${TOOLS_PATH}/${PYTHON}/lib/python2.7/site-packages/HTSeq/scripts/count_chr.py http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/htseq/count_chr_v2.py
   # make links
   mkdir -p ${TOOLS_PATH}/htseq/
-  ln -s ${TOOLS_PATH}/${PYTHON}/bin/htseq-qa ${TOOLS_PATH}/htseq/htseq-qa
-  ln -s ${TOOLS_PATH}/${PYTHON}/bin/htseq-count ${TOOLS_PATH}/htseq/htseq-count
-  ln -s ${TOOLS_PATH}/${PYTHON}/bin/htseq-count_chr ${TOOLS_PATH}/htseq/htseq-count_chr
+  cd ${TOOLS_PATH}/htseq/
+  ln -s ../${PYTHON}/bin/htseq-qa htseq-qa
+  ln -s ../${PYTHON}/bin/htseq-count htseq-count
+  ln -s ../${PYTHON}/bin/htseq-count_chr htseq-count_chr
+  cd ${TMPDIR_PATH}
 
 # MACS
   ${TOOLS_PATH}/${PYTHON}/bin/pip install MACS==1.4.2
   mkdir ${TOOLS_PATH}/macs/
-  ln -s ${TOOLS_PATH}/${PYTHON}/bin/macs14 ${TOOLS_PATH}/macs/macs14
+  cd ${TOOLS_PATH}/macs/
+  ln -s ../${PYTHON}/bin/macs14 macs14
+  cd ${TMPDIR_PATH}
   
 # MACS2
   ${TOOLS_PATH}/${PYTHON}/bin/pip install numpy
   ${TOOLS_PATH}/${PYTHON}/bin/pip install MACS2==2.1.1.20160309
-  ln -s ${TOOLS_PATH}/${PYTHON}/bin/macs2 ${TOOLS_PATH}/macs/macs2
+  cd ${TOOLS_PATH}/macs/
+  ln -s ../${PYTHON}/bin/macs2 macs2
+  cd ${TMPDIR_PATH}
 
 # MultiQC
   ${TOOLS_PATH}/${PYTHON}/bin/pip install multiqc
-  ln -s ${PYTHON}/bin ${TOOLS_PATH}/multiqc
+  mkdir ${TOOLS_PATH}/multiqc
+  cd ${TOOLS_PATH}/multiqc
+  ln -s ../${PYTHON}/bin multiqc
+  cd ${TMPDIR_PATH}
   
 # RSeQC
   ${TOOLS_PATH}/${PYTHON}/bin/pip install RSeQC==2.6.4
-  ln -s ${PYTHON}/bin ${TOOLS_PATH}/rseqc
+  mkdir ${TOOLS_PATH}/rseqc
+  cd ${TOOLS_PATH}/rseqc
+  ln -s ../${PYTHON}/bin rseqc
+  cd ${TMPDIR_PATH}
 
 # ZIFA
 # Requires: scipy, pandas, numpy,  scikits.learn, matplotlib, pandas
