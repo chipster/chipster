@@ -27,8 +27,14 @@ EOF
 
 chmod u+x $CONDA_PATH/conda_execute
 
-# minimap
-CONDA_PATH=("/opt/chipster/tools/miniconda3")
-export PATH=${PATH}:${CONDA_PATH}/bin
+# Activate conda
+#CONDA_PATH=("/opt/chipster/tools/miniconda3")
+#export PATH=${PATH}:${CONDA_PATH}/bin
 source activate chipster_tools
+
+# minimap
 conda install minimap2=2.9 -y
+
+# weasyprint
+conda install -c jlmenut weasyprint
+pip install -U html5lib=="0.9999999"
