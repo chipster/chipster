@@ -355,7 +355,7 @@ public class PythonCompJob extends OnDiskCompJobBase {
 	private synchronized void onScreenOutputUpdate(String screenOutput) {
 		if (!this.getState().isFinished()) {
 			this.setOutputText(screenOutput);
-			updateState(JobState.RUNNING, "running R");
+			updateState(JobState.RUNNING, "running Python");
 		}
 	}
 
@@ -368,14 +368,12 @@ public class PythonCompJob extends OnDiskCompJobBase {
 			}
 
 			// add output to result message
-			// remove the first line (setwd(...))
-			String cleanedOutput = screenOutput.substring(screenOutput.indexOf(("\n")));
-			this.setOutputText(cleanedOutput);
+			this.setOutputText(screenOutput);
 
 			// for a failed job, get error message from screen output
 			boolean noteFound = false;
 			if (state == JobState.FAILED) {
-				String errorMessage = getErrorMessage(cleanedOutput, ERROR_MESSAGE_TOKEN, null);
+				String errorMessage = getErrorMessage(screenOutput, ERROR_MESSAGE_TOKEN, null);
 
 				// check if error message contains chipster note
 				if (errorMessage != null && !errorMessage.isEmpty()) {
