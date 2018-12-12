@@ -165,7 +165,10 @@ public class SADLSyntax {
 		
 		/**
 		 * Name of input, for choosing from multiple input datasets.
+		 * 
+		 * @deprecated Use input bindings instead. Not implemented in the new web app due to not being used in the tools. 
 		 */
+		@Deprecated 
 		INPUT_SEL;
 
 		public static boolean isValid(String typeName) {
