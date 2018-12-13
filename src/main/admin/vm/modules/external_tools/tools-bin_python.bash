@@ -52,7 +52,7 @@
     
 # RSeQC
   ${TOOLS_PATH}/${PYTHON}/bin/pip install RSeQC==2.6.4
-  ln -s ../${PYTHON}/bin ${TOOLS_PATH}/rseqc
+  ln -s ./${PYTHON}/bin ${TOOLS_PATH}/rseqc
 
 # ZIFA
 # Requires: scipy, pandas, numpy,  scikits.learn, matplotlib, pandas
