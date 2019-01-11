@@ -409,7 +409,8 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 			storeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_FILE_ID_LIST, Strings.delimit(dataIds, "\t"));
 			
 			filebrokerTopic.sendReplyableMessage(storeRequestMessage, replyListener);
-			ParameterMessage reply = replyListener.waitForReply(QUICK_POLL_OPERATION_TIMEOUT, TimeUnit.SECONDS);
+			// x4 because customer getting frequently null responses 
+			ParameterMessage reply = replyListener.waitForReply(4 * QUICK_POLL_OPERATION_TIMEOUT, TimeUnit.SECONDS);
 			
 			if (reply == null) {
 				throw new JMSException("failed to save session metadata remotely: reply was null");
