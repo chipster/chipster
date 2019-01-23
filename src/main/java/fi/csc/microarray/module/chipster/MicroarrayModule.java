@@ -837,4 +837,15 @@ public class MicroarrayModule implements Module {
 	@Override
 	public void updateUIDefaults(UIDefaults defaults) {
 	}
+
+
+	@Override
+	public String getTsvRowName() {
+		return "Gene";
+	}
+	
+	@Override
+	public String getTsvColumnName() {
+		return "Chip";
+	}
 }

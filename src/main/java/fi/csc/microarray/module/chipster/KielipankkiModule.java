@@ -7,7 +7,6 @@ import java.awt.GraphicsEnvironment;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -35,10 +34,13 @@ import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.features.Table;
+import fi.csc.microarray.databeans.features.bio.IdentifierProvider;
+import fi.csc.microarray.databeans.features.bio.NormalisedExpressionProvider;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.DbSession;
 import fi.csc.microarray.module.Module;
 import fi.csc.microarray.module.basic.BasicModule;
+import fi.csc.microarray.module.chipster.MicroarrayModule.VisualisationMethods;
 
 /**
  * Client module for The Language Bank of Finland called Kielipankki
@@ -53,15 +55,14 @@ public class KielipankkiModule implements Module {
 	
 	public static class TypeTags {
 	}
-	
-	public static class VisualisationMethods {
-	}
 
 	public void plugContentTypes(DataManager manager) {
 	}
 	
 
 	public void plugFeatures(DataManager manager) {
+		manager.plugFeatureFactory("/normalised-expression", new NormalisedExpressionProvider());
+		manager.plugFeatureFactory("/identifier", new IdentifierProvider());;
 	}
 
 	public void plugModifiers(DataManager manager) {
@@ -107,6 +108,11 @@ public class KielipankkiModule implements Module {
 	@Override
 	public VisualisationMethod[] getVisualisationMethods() {
 		return new VisualisationMethod[] {
+				VisualisationMethods.HISTOGRAM,
+				VisualisationMethods.SCATTERPLOT,
+				VisualisationMethods.SCATTERPLOT3D,
+				VisualisationMethods.EXPRESSION_PROFILE,
+				VisualisationMethods.VENN_DIAGRAM,
 		};
 	}
 
@@ -186,6 +192,16 @@ public class KielipankkiModule implements Module {
 
 	@Override
 	public void addTypeTags(DataBean data) throws MicroarrayException, IOException {
+		try (Table chips = data.queryFeatures("/column/chip.*").asTable()) {
+
+			if (chips != null && chips.getColumnCount() > 0) {
+				data.addTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
+			}
+			
+			if (data.queryFeatures("/identifier").exists()) {
+				data.addTypeTag(MicroarrayModule.TypeTags.GENENAMES);
+			}
+		}
 	}
 
 	@Override
@@ -236,5 +252,15 @@ public class KielipankkiModule implements Module {
 			logger.error("font loading error", e);
 			System.err.println("font loading error: " + e);
 		}
+	}
+	
+	@Override
+	public String getTsvRowName() {
+		return "Rows";
+	}
+	
+	@Override
+	public String getTsvColumnName() {
+		return "Columns";
 	}
 }

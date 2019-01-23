@@ -32,6 +32,7 @@ import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.ui.TextAnchor;
 
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
@@ -52,6 +53,8 @@ public class Histogram extends ChipVisualisation {
 	private JButton updateButton;
 	private JComboBox chipBox;
 	private DataBean data;
+	
+	private String nameOfItems = Session.getSession().getPrimaryModule().getTsvColumnName();
 
 	@Override
 	public JComponent getVisualisation(DataBean data) throws Exception {
@@ -130,7 +133,7 @@ public class Histogram extends ChipVisualisation {
 			c.anchor = GridBagConstraints.NORTHWEST;
 			c.weightx = 1.0;
 			c.fill = GridBagConstraints.HORIZONTAL;
-			paramPanel.add(new JLabel("Chip to visualise: "), c);
+			paramPanel.add(new JLabel(nameOfItems + " to visualise: "), c);
 			c.gridy++;
 			paramPanel.add(chipBox, c);
 			c.gridy++;

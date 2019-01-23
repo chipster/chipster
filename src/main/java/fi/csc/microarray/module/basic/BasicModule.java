@@ -247,4 +247,14 @@ public class BasicModule implements Module {
 	@Override
 	public void updateUIDefaults(UIDefaults defaults) {
 	}
+
+	@Override
+	public String getTsvRowName() {
+		return "Row";
+	}
+
+	@Override
+	public String getTsvColumnName() {
+		return "Column";
+	}
 }

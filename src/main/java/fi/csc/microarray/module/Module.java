@@ -238,5 +238,9 @@ public interface Module {
 	public Icon getIconFor(DataBean data);
 
 	public void updateUIDefaults(UIDefaults defaults);
+
+	public String getTsvRowName();
+
+	public String getTsvColumnName();
 	
 }

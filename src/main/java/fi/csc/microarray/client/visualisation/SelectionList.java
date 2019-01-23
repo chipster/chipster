@@ -35,7 +35,8 @@ public class SelectionList extends JPanel {
 	private ClientApplication application = Session.getSession().getApplication();
 
 	private JLabel countLabel;
-	private String nameOfItems = "Genes";
+	// add "s" for plural
+	private String nameOfItems = Session.getSession().getPrimaryModule().getTsvRowName() + "s";
 
 	public SelectionList() {
 
