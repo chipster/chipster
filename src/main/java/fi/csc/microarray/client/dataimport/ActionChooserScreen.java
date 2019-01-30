@@ -88,6 +88,7 @@ public class ActionChooserScreen implements ActionListener, DialogCloseListener 
 	private DefaultTableModel tableModel;
 
 	private ImportSession importSession;
+	private JButton copyButton;
 
 	public ActionChooserScreen(ImportSession importSession) {
 		SwingClientApplication.setPlastic3DLookAndFeel(dialog);
@@ -120,14 +121,16 @@ public class ActionChooserScreen implements ActionListener, DialogCloseListener 
 		JPanel buttonPanel = new JPanel();
 		okButton = new JButton("  OK  ");
 		cancelButton = new JButton("Cancel");
+		copyButton = new JButton("Apply first action to all");
 
 		okButton.addActionListener(this);
 		cancelButton.addActionListener(this);
+		copyButton.addActionListener(this);
 
 		JLabel sameSettingsLabel = new JLabel("<html><p>" + "When using Import tool to import more than one files, only define the contents of the first file and then apply the same settings for the rest of the files." + "</p></html>", JLabel.LEFT);
 		sameSettingsLabel.setVerticalTextPosition(JLabel.TOP);
 		//sameSettingsLabel.setPreferredSize(new Dimension(550, 40));
-
+		
 		sameSettingsCheckBox = new JCheckBox("Define file structure once and apply the same settings to all files");
 		sameSettingsCheckBox.setEnabled(true);
 		sameSettingsCheckBox.setSelected(true);
@@ -141,6 +144,8 @@ public class ActionChooserScreen implements ActionListener, DialogCloseListener 
 		g.weightx = 0.0;
 
 		g.insets = new Insets(5, 5, 10, 5);
+		buttonPanel.add(copyButton, g);
+		g.gridy++;
 		buttonPanel.add(sameSettingsCheckBox, g);
 		g.insets = new Insets(5, 0, 10, 5);
 		g.gridy++;
@@ -299,7 +304,18 @@ public class ActionChooserScreen implements ActionListener, DialogCloseListener 
 		} else if (e.getSource() == cancelButton) {
 			// Close the frame
 			dialog.dispose();
-		}
+		} else if (e.getSource() == copyButton) {
+			ImportItem first = importSession.getItemAtIndex(0);
+			if (first != null) {
+				Action firstAction = first.getAction();
+				if (firstAction != null) {
+					for (int row = 0; row < importSession.getItemCount(); row++) {
+						ImportItem item = importSession.getItemAtIndex(row);
+						table.setValueAt(firstAction, row, 2);
+					}
+				}
+			}
+		}		
 	}
 
 	public void dialogClosed(boolean okSelected) {
