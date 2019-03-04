@@ -73,6 +73,8 @@ public class PythonCompJob extends OnDiskCompJobBase {
 		 * should be kept as simple as possible.
 		 * 
 		 * Interpretation: Only word characters and some special symbols are allowed.
+		 *
+		 * This regex should be the same as the one used on client side validation
 		 */
 		public static String TEXT_VALUE_PATTERN = "[\\p{L}\\p{N}\\-+_:\\.,*() ]*";
 
