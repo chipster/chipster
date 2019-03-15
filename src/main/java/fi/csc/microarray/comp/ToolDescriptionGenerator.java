@@ -33,7 +33,7 @@ public class ToolDescriptionGenerator {
 		}
 		
 		for (Output output : source.getOutputs()) {
-			description.addOutputFile(output.getName(), output.isOptional());
+			description.addOutputFile(output.getName(), output.isOptional(), output.isMeta());
 		}
 		
 		for (Parameter parameter : source.getParameters()) {

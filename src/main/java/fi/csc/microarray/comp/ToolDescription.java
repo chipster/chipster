@@ -62,6 +62,7 @@ public class ToolDescription {
 	public static class OutputDescription {
         private Name fileName;
         private boolean optional;
+        private boolean meta;
 
         public Name getFileName() {
             return fileName;
@@ -70,10 +71,15 @@ public class ToolDescription {
         public boolean isOptional() {
             return optional;
         }
-	    
-	    public OutputDescription(Name fileName, boolean optional) {
+
+        public boolean isMeta() {
+            return meta;
+        }
+
+	    public OutputDescription(Name fileName, boolean optional, boolean meta) {
 	        this.fileName = fileName;
 	        this.optional = optional;
+	        this.meta = meta;
 	    }
 	}
 	
@@ -197,8 +203,8 @@ public class ToolDescription {
 		inputFiles.add(new InputDescription(fileName));
 	}
 	
-	public void addOutputFile(Name fileName, boolean optional) {
-		outputFiles.add(new OutputDescription(fileName, optional));
+	public void addOutputFile(Name fileName, boolean optional, boolean meta) {
+		outputFiles.add(new OutputDescription(fileName, optional, meta));
 	}
 
 	public void setSourceCode(String sourceCode) {

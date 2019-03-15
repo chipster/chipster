@@ -64,6 +64,16 @@ public interface FileBrokerClient {
 	public abstract String addFile(UUID jobId, UUID sessionId, FileBrokerArea area, File file, CopyProgressListener progressListener, String datsetName) throws FileBrokerException, IOException;
 
 	/**
+	 * 
+	 * @see #addFile(String, FileBrokerArea, InputStream, long, CopyProgressListener, String)
+	 * 
+	 */
+	public default String addFile(UUID jobId, UUID sessionId, FileBrokerArea area, File file, CopyProgressListener progressListener, String datsetName, boolean isMetaOutput, File phenodataFile) throws FileBrokerException, IOException {
+		return this.addFile(jobId, sessionId, area, file, progressListener, datsetName);
+	}
+
+	
+	/**
 	 *  Get the InputStream for a file from the FileBroker.
 	 *  
 	 *  If payload is not available right a way, wait for a while for
