@@ -9,5 +9,7 @@ wget "https://api.bintray.com/content/basespace/BaseSpaceCLI-EarlyAccess-BIN/lat
 wget https://api.bintray.com/content/basespace/BaseSpace-Copy-BIN/\$latest/linux/bscp?bt_package=develop -O  ${TOOLS_PATH}/BaseSpace_cli-0.10.7/bin/bs-cp
 
 cd ${TOOLS_PATH}
-ln -s BaseSpace_cli-0.10.7 bs
+ln -s BaseSpace_cli-0.10.7 basespace
 
+chmod a+x ${TOOLS_PATH}/basespace/bin/bs
+chmod a+x ${TOOLS_PATH}/basespace/bin/bs-cp
