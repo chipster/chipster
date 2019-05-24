@@ -119,6 +119,6 @@
 	<classpathentry kind="lib" path="ext/lib/hibernate-commons-annotations-jar-4.0.5.Final.jar"/>
 	<classpathentry kind="lib" path="ext/lib/hibernate-core-jar-4.3.8.Final.jar"/>
 	<classpathentry kind="lib" path="ext/lib/hibernate-jpa-2.1-api-jar-1.0.0.Final.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.launching.macosx.MacOSXType/java8"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/java8"/>
 	<classpathentry kind="output" path="bin/eclipse"/>
 </classpath>
