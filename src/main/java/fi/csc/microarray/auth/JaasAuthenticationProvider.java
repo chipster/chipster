@@ -25,11 +25,18 @@ public class JaasAuthenticationProvider implements AuthenticationProvider {
 	private static final Logger logger = Logger.getLogger(JaasAuthenticationProvider.class);
 	
 	public JaasAuthenticationProvider() throws IOException {
-		initialize(true);
+		File jaasConfigFile = new File(DirectoryLayout.getInstance().getConfDir() + File.separator + CONFIG_FILE);
+		
+		if (!jaasConfigFile.exists()) {
+			logger.info("JAAS config file " + jaasConfigFile + " does not exist, JAAS authentication provider failed.");
+			throw new FileNotFoundException(jaasConfigFile + " not found");			
+		}
+		
+		initialize(jaasConfigFile.getPath());
 	}
 	
-	public JaasAuthenticationProvider(boolean legacyConfiguration) throws IOException {
-		initialize(legacyConfiguration);
+	public JaasAuthenticationProvider(String confPath) throws IOException {
+		initialize(confPath);
 	}
 	
 	public boolean authenticate(String username, char[] password) {
@@ -96,31 +103,9 @@ public class JaasAuthenticationProvider implements AuthenticationProvider {
 	}
 	
 	
-	/**
-	 * If the jaas.config file does not exist in the working directory, create it using
-	 * the jaas.config.default.
-	 * 
-	 * Set the java.security.auth.loing.config property as the path to the workdir/jaas.config.
-	 * @param b 
-	 * 
-	 * @throws IOException
-	 */
-	private void initialize(boolean legacyConfiguration) throws IOException {
-		
-		File jaasConfigFile;
-		if (legacyConfiguration) {
-			jaasConfigFile = new File(DirectoryLayout.getInstance().getConfDir() + File.separator + CONFIG_FILE);
-		} else {
-			jaasConfigFile = new File("conf" + File.separator + CONFIG_FILE);
-		}
-		
-		// if config file does not exist in the work dir, create it using the defaults
-		if (!jaasConfigFile.exists()) {
-			logger.info("JAAS config file " + jaasConfigFile + " does not exist, JAAS authentication provider failed.");
-			throw new FileNotFoundException(jaasConfigFile + " not found");			
-		}
+	private void initialize(String confPath) throws IOException {		
 
 		// set location of the config
-		System.setProperty("java.security.auth.login.config", jaasConfigFile.getPath());
+		System.setProperty("java.security.auth.login.config", confPath);
 	}
 }
