@@ -53,7 +53,7 @@ cd ${TMPDIR_PATH}/
 #cd ..
 #rm -rf tmpR
 
-lz4 -d /mnt/artefacts/downloads/R-3.2.3_ubuntu-16.04_2017-05-09.tar.lz4 |tar x -C ${TOOLS_PATH}/
+lz4 -d /mnt/artefacts/downloads/R-3.2.3_ubuntu-16.04_2019-07-30.tar.lz4 |tar x -C ${TOOLS_PATH}/
 
 
 #wget https://raw.githubusercontent.com/chipster/chipster-tools/master/tools/admin/R-3.2.3/install-libs.R
