@@ -38,3 +38,7 @@ conda install minimap2=2.9 -y
 # weasyprint
 conda install -c jlmenut weasyprint -y
 pip install -U html5lib=="0.9999999"
+
+# umap for Seurat
+conda install -c conda-forge umap-learn
+pip install umap-learn
