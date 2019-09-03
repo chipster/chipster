@@ -1,19 +1,22 @@
 package fi.csc.microarray.description;
 
 /**
- * <p>SADL (Simple Analysis Description Language) is a simple language for 
- * describing analysis operations so that they can be used in the Chipster system. Operations
- * have names and are categorised. They have both inputs and parameters. Inputs are data
- * files (large) and parameters are values (small) that user gives when calling the 
- * operation. Operations produce outputs (data files) and output text i.e. what they write
- * to sysout.</p>
- *    
- * <p>Syntax defination is below. It is in the form of rewrite rules.
- * First rule in the list is the initial rule where rewriting is started. 
- * Quoted texts are snippets of SADL. For example, TOOL is a term
- * that is rewritten using the given rules, but "TOOL" is a string that
- * should be found in the source code. Operators ?, +, * and | have their
- * common semantics.</p>
+ * <p>
+ * SADL (Simple Analysis Description Language) is a simple language for
+ * describing analysis operations so that they can be used in the Chipster
+ * system. Operations have names and are categorised. They have both inputs and
+ * parameters. Inputs are data files (large) and parameters are values (small)
+ * that user gives when calling the operation. Operations produce outputs (data
+ * files) and output text i.e. what they write to sysout.
+ * </p>
+ * 
+ * <p>
+ * Syntax defination is below. It is in the form of rewrite rules. First rule in
+ * the list is the initial rule where rewriting is started. Quoted texts are
+ * snippets of SADL. For example, TOOL is a term that is rewritten using the
+ * given rules, but "TOOL" is a string that should be found in the source code.
+ * Operators ?, +, * and | have their common semantics.
+ * </p>
  * 
  * <pre>
  * -> TOOL+
@@ -36,13 +39,23 @@ package fi.csc.microarray.description;
  * TOKEN -> any single token produced by tokeniser
  * </pre>
  * 
- * <p>There is special handling for the NAME tokens: they are tokenized normally, but parser emits a different type of name 
- * if the token contains SADLSyntax.NAME_SET_DESIGNATOR (meaning that we are dealing with name set instead of single name).</p>
+ * <p>
+ * There is special handling for the NAME tokens: they are tokenized normally,
+ * but parser emits a different type of name if the token contains
+ * SADLSyntax.NAME_SET_DESIGNATOR (meaning that we are dealing with name set
+ * instead of single name).
+ * </p>
  * 
- * <p>TOKEN refers to any single token produced by tokeniser (SADLTokeniser). Tokens can be keywords, operators, 
- * strings, quoted string or strings in parentheses. String in parentheses are strongly recommended for descriptions.</p>  
- *  
- * <p>Below is an example of a SADL snippet.</p>
+ * <p>
+ * TOKEN refers to any single token produced by tokeniser (SADLTokeniser).
+ * Tokens can be keywords, operators, strings, quoted string or strings in
+ * parentheses. String in parentheses are strongly recommended for descriptions.
+ * </p>
+ * 
+ * <p>
+ * Below is an example of a SADL snippet.
+ * </p>
+ * 
  * <pre>
  * TOOL util-test.R: "Test tool" (Just a test analysis for development. These descriptions are sometimes very
  * long and might get hard to read.)
@@ -57,7 +70,7 @@ package fi.csc.microarray.description;
  * PARAMETER method: "The enumeration" TYPE [option1: "First option", option2: "Second option", option3: "Third option"] FROM 1 TO 2 DEFAULT option1, option2 (which options are selected)
  * PARAMETER genename: "Gene name" TYPE STRING DEFAULT at_something (which gene we are interested in)
  * PARAMETER key: "Key column" TYPE COLUMN_SEL (which column we use as a key)
- * </pre>  
+ * </pre>
  * 
  * @see fi.csc.microarray.description.SADLTokeniser
  * @see fi.csc.microarray.description.SADLParser
@@ -89,21 +102,22 @@ public class SADLSyntax {
 	public static final String COMMENT_CLOSE = ")";
 	public static final String QUOTE = "\"";
 	public static final String ESCAPE = "\\";
-	
+
 	public static class InputType {
 		private String name;
-		
+
 		public InputType() {
 			// for Jackson
 		}
-		
+
 		public InputType(String name) {
 			this.name = name;
 		}
+
 		public String getName() {
 			return name;
 		}
-		
+
 		@Override
 		public boolean equals(Object obj) {
 			if (this == obj)
@@ -121,54 +135,59 @@ public class SADLSyntax {
 			return true;
 		}
 	}
-	
+
 	public static enum ParameterType {
 		/**
 		 * Integer number.
 		 */
 		INTEGER,
-		
+
 		/**
 		 * Decimal number.
 		 */
 		DECIMAL,
-		
+
 		/**
 		 * Integer between 0 and 100 (inclusive).
+		 * 
+		 * @deprecated Use INTEGER or DECIMAL instead. Not implemented in the new web
+		 *             app due to not being used in the tools.
 		 */
+		@Deprecated
 		PERCENT,
-		
+
 		/**
 		 * A character string.
 		 */
 		STRING,
-		
+
 		/**
 		 * A character string that is allowed to contain any characters
 		 */
 		UNCHECKED_STRING,
-		
+
 		/**
-		 * Enumeration from a set of given values (specified as this type is referred). 
+		 * Enumeration from a set of given values (specified as this type is referred).
 		 */
 		ENUM,
-		
+
 		/**
 		 * Name of input matrix column, for choosing columns from inputs.
 		 */
 		COLUMN_SEL,
-		
+
 		/**
 		 * Name of metainput matrix column, for choosing columns from metainputs.
 		 */
 		METACOLUMN_SEL,
-		
+
 		/**
 		 * Name of input, for choosing from multiple input datasets.
 		 * 
-		 * @deprecated Use input bindings instead. Not implemented in the new web app due to not being used in the tools. 
+		 * @deprecated Use input bindings instead. Not implemented in the new web app
+		 *             due to not being used in the tools.
 		 */
-		@Deprecated 
+		@Deprecated
 		INPUT_SEL;
 
 		public static boolean isValid(String typeName) {
@@ -179,7 +198,7 @@ public class SADLSyntax {
 			}
 			return false;
 		}
-		
+
 		public boolean isNumeric() {
 			return this == INTEGER || this == DECIMAL || this == PERCENT;
 		}
