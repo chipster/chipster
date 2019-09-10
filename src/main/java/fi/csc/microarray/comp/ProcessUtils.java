@@ -99,25 +99,19 @@ public class ProcessUtils {
 		}
 		
 		public void update() throws IOException {
-			logger.info("ProcessResourceMonitor update()");
 			if (pid == null) {
 				this.pid = ProcessUtils.getPid(javaProcess);
-				logger.info("own pid " + this.pid + " " + getCommand(this.pid));
 				allPids.add(pid);
-			}			
+			}
+			
 			if (pid != null) {
 				// remember all pids, even if child process ends and grandchild's ppid will be set to 1
-				for (Long child : getChildren(pid, true)) {
-					if (!allPids.contains(child)) {
-						logger.info("found a new child process " + child + " " + getCommand(child));
-						allPids.add(child);
-					}
-				}
+				allPids.addAll(getChildren(pid, true));
 				currentMem = getTotalMemory(allPids);
 				if (this.maxMem == null || currentMem > this.maxMem) {
 					this.maxMem = currentMem;
 				}
-				logger.info("pid " + pid + " mem " + maxMem + " pid count " + allPids.size());
+				logger.debug("pid " + pid + " mem " + maxMem + " pid count " + allPids.size());
 			}
 		}
 	}
@@ -164,7 +158,6 @@ public class ProcessUtils {
 	
 	private static Long getMemory(long pid) throws IOException {		
 		Long kilobytes = getPsLong("rss", pid);
-		logger.info("pid " + pid + ", mem " + kilobytes + " kB");
 		if (kilobytes == null) {
 			return null;
 		}
@@ -222,13 +215,18 @@ public class ProcessUtils {
 		}
 		Class<?> clazz = process.getClass();
 		try {
-			if (clazz.getName().equals("java.lang.UNIXProcess")) {
+			logger.info("process class " + clazz.getName());
+			// UNIXProcess in Java 8, ProcessImpl since then. There is a API for this since Java 9, but the
+			// old Chipster is still using Java 8
+			if (clazz.getName().equals("java.lang.UNIXProcess") || clazz.getName().equals("java.lang.ProcessImpl")) {
 				Field pidField = clazz.getDeclaredField("pid");
 				pidField.setAccessible(true);
 				Object value = pidField.get(process);
 				if (value instanceof Integer) {
 					return ((Integer) value).longValue();
 				}
+			} else {
+				logger.info("unkonwn process class " + clazz.getName() + ". Process monitoring is disabled");
 			}
 		} catch (SecurityException | NoSuchFieldException | IllegalArgumentException | IllegalAccessException e) {
 			logger.error("failed to get the pid of the process", e);
