@@ -99,18 +99,25 @@ public class ProcessUtils {
 		}
 		
 		public void update() throws IOException {
+			logger.info("ProcessResourceMonitor update()");
 			if (pid == null) {
 				this.pid = ProcessUtils.getPid(javaProcess);
+				logger.info("own pid " + this.pid + " " + getCommand(this.pid));
 				allPids.add(pid);
-			}
+			}			
 			if (pid != null) {
 				// remember all pids, even if child process ends and grandchild's ppid will be set to 1
-				allPids.addAll(getChildren(pid, true));
+				for (Long child : getChildren(pid, true)) {
+					if (!allPids.contains(child)) {
+						logger.info("found a new child process " + child + " " + getCommand(child));
+						allPids.add(child);
+					}
+				}
 				currentMem = getTotalMemory(allPids);
 				if (this.maxMem == null || currentMem > this.maxMem) {
 					this.maxMem = currentMem;
 				}
-				logger.debug("pid " + pid + " mem " + maxMem + " pid count " + allPids.size());
+				logger.info("pid " + pid + " mem " + maxMem + " pid count " + allPids.size());
 			}
 		}
 	}
@@ -157,6 +164,7 @@ public class ProcessUtils {
 	
 	private static Long getMemory(long pid) throws IOException {		
 		Long kilobytes = getPsLong("rss", pid);
+		logger.info("pid " + pid + ", mem " + kilobytes + " kB");
 		if (kilobytes == null) {
 			return null;
 		}
