@@ -81,6 +81,7 @@ public class PythonCompJob extends OnDiskCompJobBase {
 		/**
 		 * @see ParameterSecurityPolicy#isValueValid(String, ParameterDescription)
 		 */
+		@Override
 		public boolean isValueValid(String value, ParameterDescription parameterDescription) {
 
 			// unset parameters are fine
@@ -111,7 +112,8 @@ public class PythonCompJob extends OnDiskCompJobBase {
 			}
 		}
 
-		public boolean allowUncheckedParameters() {
+		@Override
+		public boolean allowUncheckedParameters(ToolDescription toolDescription) {
 			// we promise to handle unchecked parameters safely, see the method
 			// transformVariable()
 			return true;
@@ -426,6 +428,5 @@ public class PythonCompJob extends OnDiskCompJobBase {
 		}
 		return escapedValue;
 	}
-
 
 }

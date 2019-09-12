@@ -43,8 +43,8 @@ public class RCompJob extends OnDiskCompJobBase {
 	public static final String ERROR_MESSAGE_TOKEN = "Error: ";
 	public static final String LAST_LINE_TO_REMOVE_TOKEN = "Execution halted";
 
-	private static final Pattern SUCCESS_STRING_PATTERN = Pattern.compile("^\\[.*\\] \"" + SCRIPT_SUCCESSFUL_STRING + "\"$");
-
+	private static final Pattern SUCCESS_STRING_PATTERN = Pattern
+			.compile("^\\[.*\\] \"" + SCRIPT_SUCCESSFUL_STRING + "\"$");
 
 	/**
 	 * Checks that parameter values are safe to insert into R code. Should closely
@@ -83,6 +83,7 @@ public class RCompJob extends OnDiskCompJobBase {
 		/**
 		 * @see ParameterSecurityPolicy#isValueValid(String, ParameterDescription)
 		 */
+		@Override
 		public boolean isValueValid(String value, ParameterDescription parameterDescription) {
 			// unset parameters are fine
 			if (value == null) {

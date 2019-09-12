@@ -26,7 +26,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.exception.MicroarrayException;
@@ -36,15 +35,13 @@ public class KeyAndTrustManager {
 	/**
 	 * Logger for this class
 	 */
-	private static final Logger logger = Logger
-			.getLogger(KeyAndTrustManager.class);
+	private static final Logger logger = Logger.getLogger(KeyAndTrustManager.class);
 
 	private static boolean initialised;
 
 	/**
-	 * SSLSocketFactory with a truststore containing Chipster server's
-	 * self-signed certificate, or null when the server has a certificate signed
-	 * by a CA.
+	 * SSLSocketFactory with a truststore containing Chipster server's self-signed
+	 * certificate, or null when the server has a certificate signed by a CA.
 	 */
 	private static SocketFactoryCache selfSignedFactoryCache;
 
@@ -54,13 +51,12 @@ public class KeyAndTrustManager {
 	 */
 	private static SSLSocketFactory caFactory;
 
-	private static SocketFactoryCache trustAllFactoryCache;
+	private static SocketFactoryCache _trustAllFactoryCache; // use getter for this
 
 	private static String protocol = "TLS";
 
-	public static String getClientTrustStore(Configuration configuration,
-			String password) throws NoSuchAlgorithmException,
-			CertificateException, FileNotFoundException, IOException,
+	public static String getClientTrustStore(Configuration configuration, String password)
+			throws NoSuchAlgorithmException, CertificateException, FileNotFoundException, IOException,
 			KeyStoreException {
 
 		String trustStoreFilename = configuration.getString("security", "client-truststore");
@@ -73,15 +69,10 @@ public class KeyAndTrustManager {
 		String brokerHost = configuration.getString("messaging", "broker-host");
 		// it is assumed that a trust store is located next to the configuration
 		// file on a server
-		URL remoteTrustStore = new URL(configuration.getConfigRootURL()
-				+ trustStoreFilename);
+		URL remoteTrustStore = new URL(configuration.getConfigRootURL() + trustStoreFilename);
 		// there must be a separate local file for each installation
-		File localTrustStore = new File(DirectoryLayout.getInstance()
-				.getSecurityDir()
-				+ File.separator
-				+ brokerHost
-				+ "-"
-				+ trustStoreFilename);
+		File localTrustStore = new File(DirectoryLayout.getInstance().getSecurityDir() + File.separator + brokerHost
+				+ "-" + trustStoreFilename);
 
 		// Check if proper keystore file exists
 		if (!localTrustStore.exists()) {
@@ -92,7 +83,8 @@ public class KeyAndTrustManager {
 			File downloadTemp = File.createTempFile(localTrustStore.getName(), "", localTrustStore.getParentFile());
 			FileUtils.copyURLToFile(remoteTrustStore, downloadTemp);
 			if (!downloadTemp.renameTo(localTrustStore)) {
-				logger.info("renaming keystore file failed, maybe other client is running at the same time? (error ignored)");
+				logger.info(
+						"renaming keystore file failed, maybe other client is running at the same time? (error ignored)");
 			}
 		}
 
@@ -100,15 +92,14 @@ public class KeyAndTrustManager {
 	}
 
 	/**
-	 * Configure system to use SSL. Sets system wide properties so that Chipster
-	 * key store is used. Initialises key store if needed.
+	 * Configure system to use SSL. Sets system wide properties so that Chipster key
+	 * store is used. Initialises key store if needed.
 	 * 
 	 * @throws KeyManagementException
 	 * @throws MicroarrayException
 	 */
-	public static void initialiseTrustStore() throws NoSuchAlgorithmException,
-			CertificateException, FileNotFoundException, IOException,
-			KeyStoreException, KeyManagementException {
+	public static void initialiseTrustStore() throws NoSuchAlgorithmException, CertificateException,
+			FileNotFoundException, IOException, KeyStoreException, KeyManagementException {
 
 		if (!initialised) {
 
@@ -150,13 +141,12 @@ public class KeyAndTrustManager {
 						trustStore.load(inputStream, password.toCharArray());
 					}
 
-					TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+					TrustManagerFactory tmf = TrustManagerFactory
+							.getInstance(TrustManagerFactory.getDefaultAlgorithm());
 					tmf.init(trustStore);
 					selfSignedFactoryCache = new SocketFactoryCache(tmf.getTrustManagers(), protocol);
 				}
 			}
-
-			trustAllFactoryCache = new SocketFactoryCache(new TrustManager[] { new TrustAllX509TrustManager() }, protocol);
 
 			if (!configuration.getBoolean("security", "verify-hostname")) {
 				// Accept all hostnames (do not try to match certificate
@@ -168,10 +158,9 @@ public class KeyAndTrustManager {
 		}
 	}
 
-	private static SSLSocketFactory getSocketFactory(
-			TrustManager[] trustManagers) throws NoSuchAlgorithmException,
-			KeyManagementException {
-		
+	private static SSLSocketFactory getSocketFactory(TrustManager[] trustManagers)
+			throws NoSuchAlgorithmException, KeyManagementException {
+
 		SSLContext ctx = SSLContext.getInstance("TLS");
 		ctx.init(null, trustManagers, null);
 		return ctx.getSocketFactory();
@@ -191,10 +180,9 @@ public class KeyAndTrustManager {
 	 * @throws NoSuchAlgorithmException
 	 * @throws MicroarrayException
 	 */
-	public static SslContextFactory createSslContextFactory(String keyStore,
-			String keyStorePassword, String[] protocols)
-			throws NoSuchAlgorithmException, CertificateException,
-			FileNotFoundException, KeyStoreException, IOException {
+	public static SslContextFactory createSslContextFactory(String keyStore, String keyStorePassword,
+			String[] protocols) throws NoSuchAlgorithmException, CertificateException, FileNotFoundException,
+			KeyStoreException, IOException {
 
 		// Initialise SslContextFactory to use the keystore
 		SslContextFactory sslContextFactory = new SslContextFactory(keyStore);
@@ -205,8 +193,8 @@ public class KeyAndTrustManager {
 	}
 
 	/**
-	 * Make URLConnection to trust file broker's self-signed certificate also
-	 * when using web-start.
+	 * Make URLConnection to trust file broker's self-signed certificate also when
+	 * using web-start.
 	 * 
 	 * @param connection
 	 */
@@ -215,7 +203,8 @@ public class KeyAndTrustManager {
 		if (selfSignedFactoryCache != null) {
 			if (connection instanceof HttpsURLConnection) {
 				try {
-					((HttpsURLConnection) connection).setSSLSocketFactory(selfSignedFactoryCache.getSocketFactoryForThisThread());
+					((HttpsURLConnection) connection)
+							.setSSLSocketFactory(selfSignedFactoryCache.getSocketFactoryForThisThread());
 				} catch (KeyManagementException | NoSuchAlgorithmException e) {
 					// client can't fix these
 					new RuntimeException(e);
@@ -225,11 +214,15 @@ public class KeyAndTrustManager {
 	}
 
 	public static void configureForCACertificates(URLConnection connection) {
-		if (connection instanceof HttpsURLConnection) {
+
+		// caFactory stored by old chipster when initialising jms stuff and
+		// replacing it with the one configured for our own certificates
+		//
+		// in new chipster no need to configure certificates
+		if (connection instanceof HttpsURLConnection && caFactory != null) {
 			/*
 			 * Sharing caFactory between many threads may cause problems (see
-			 * SocketFactoryCache), but I'm not sure how to make new instances
-			 * safely.
+			 * SocketFactoryCache), but I'm not sure how to make new instances safely.
 			 */
 			((HttpsURLConnection) connection).setSSLSocketFactory(caFactory);
 		}
@@ -237,9 +230,10 @@ public class KeyAndTrustManager {
 
 	public static void configureForTrustAllCertificates(URLConnection connection)
 			throws NoSuchAlgorithmException, KeyManagementException {
-		
+
 		if (connection instanceof HttpsURLConnection) {
-			((HttpsURLConnection) connection).setSSLSocketFactory(trustAllFactoryCache.getSocketFactoryForThisThread());
+			((HttpsURLConnection) connection)
+					.setSSLSocketFactory(getTrustAllSocketFactoryCache().getSocketFactoryForThisThread());
 			((HttpsURLConnection) connection).setHostnameVerifier(new TrustAllHostnameVerifier());
 		}
 	}
@@ -249,13 +243,11 @@ public class KeyAndTrustManager {
 			return new X509Certificate[0];
 		}
 
-		public void checkClientTrusted(
-				java.security.cert.X509Certificate[] certs, String authType) {
-			throw new NotImplementedException();
+		public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {
+			throw new UnsupportedOperationException();
 		}
 
-		public void checkServerTrusted(
-				java.security.cert.X509Certificate[] certs, String authType) {
+		public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {
 		}
 	}
 
@@ -263,5 +255,13 @@ public class KeyAndTrustManager {
 		public boolean verify(String string, SSLSession ssls) {
 			return true;
 		}
+	}
+
+	private static SocketFactoryCache getTrustAllSocketFactoryCache() {
+		if (_trustAllFactoryCache == null) {
+			_trustAllFactoryCache = new SocketFactoryCache(new TrustManager[] { new TrustAllX509TrustManager() },
+					protocol);
+		}
+		return _trustAllFactoryCache;
 	}
 }
