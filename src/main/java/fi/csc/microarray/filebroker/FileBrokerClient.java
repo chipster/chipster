@@ -68,7 +68,7 @@ public interface FileBrokerClient {
 	 * @see #addFile(String, FileBrokerArea, InputStream, long, CopyProgressListener, String)
 	 * 
 	 */
-	public default String addFile(UUID jobId, UUID sessionId, FileBrokerArea area, File file, CopyProgressListener progressListener, String datsetName, boolean isMetaOutput, File phenodataFile) throws FileBrokerException, IOException {
+	public default String addFile(UUID jobId, UUID sessionId, FileBrokerArea area, File file, CopyProgressListener progressListener, String datsetName, boolean isMetaOutput, File phenodataFile, String jobOutputId) throws FileBrokerException, IOException {
 		return this.addFile(jobId, sessionId, area, file, progressListener, datsetName);
 	}
 

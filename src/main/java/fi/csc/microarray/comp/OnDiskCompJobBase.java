@@ -103,7 +103,7 @@ public abstract class OnDiskCompJobBase extends CompJob {
 				phenodataFile = new File(jobDataDir, outputDescription.getFileName().getID());
 			}
 		}
-
+		
 		// pass output files to result message
 		List<OutputDescription> outputFiles = toolDescription.getOutputFiles();
 		for (OutputDescription fileDescription : outputFiles) {
@@ -152,9 +152,10 @@ public abstract class OnDiskCompJobBase extends CompJob {
 					File phenodataFileForThisOutput = outputFile.getName().endsWith(".tsv") ? phenodataFile : null;
 					String nameInClient = nameMap.get(outputFile.getName());
 					String nameInSessionDb = nameInClient != null ? nameInClient : outputFile.getName();
+
 					String dataId = resultHandler.getFileBrokerClient().addFile(
 							UUID.fromString(inputMessage.getJobId()), inputMessage.getSessionId(), FileBrokerArea.CACHE,
-							outputFile, null, nameInSessionDb, fileDescription.isMeta(), phenodataFileForThisOutput);
+							outputFile, null, nameInSessionDb, fileDescription.isMeta(), phenodataFileForThisOutput, outputFile.getName());
 					// put dataId to result message
 					this.addOutputDataset(outputFile.getName(), dataId, nameInClient);
 					logger.debug("transferred output file: " + fileDescription.getFileName());
