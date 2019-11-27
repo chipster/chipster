@@ -1,0 +1,7 @@
+/conf/
+/logs/
+/security/
+/build/
+/.gradle/
+/bin/
+/.reload/

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- 
+
+PLEASE NOTE!
+
+When developing / debugging, copy log4j2.xml to log4j2-test.xml and make development / debugging
+related modifications there.
+
+If log4j2-test.xml is present, it takes precedence over log4j2.xml. Log4j2-test.xml is excluded 
+when building the jar and it is also ignored in git.
+
+The idea with this approach is to make it easy to make logging config changes when debugging or
+developing, without having to worry about committing them accidentally. 
+
+ -->
+
+
+<!--  level of the log4j2 internal logging -->
+<Configuration status="error">
+  <Appenders>
+    <Console name="Console" target="SYSTEM_OUT">
+    	<!--  Detailed pattern for fine tuning logging (with packages and log levels) -->
+      	<!--  <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>  -->
+      	<!--  A concise pattern for everything else -->
+     	<PatternLayout pattern="[%d] %p: %m (in %C{1}:%L)%n" />
+
+    </Console>
+
+    <Console name="WarnConsole" target="SYSTEM_OUT">
+    	<!--  Detailed pattern for fine tuning logging (with packages and log levels) -->
+      	<!--  <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>  -->
+      	<!--  A concise pattern for everything else -->
+      	<PatternLayout pattern="[%d] %p: %m (in %C{1}:%L)%n" />
+      	<ThresholdFilter level="warn"/>
+    </Console>
+
+
+     <File name="WarnFile" fileName="logs/error.log">
+      <PatternLayout>
+        <Pattern>[%d] %m (in %C{1}:%L)%n</Pattern>
+      </PatternLayout>
+      	<ThresholdFilter level="warn"/>
+    </File>
+  
+     <File name="chipster" fileName="logs/chipster.log">
+      <PatternLayout>
+        <Pattern>[%d] %m (in %C{1}:%L)%n</Pattern>
+      </PatternLayout>
+    </File>
+
+     <File name="toolbox" fileName="logs/toolbox.log">
+      <PatternLayout>
+        <Pattern>[%d] %m (in %C{1}:%L)%n</Pattern>
+      </PatternLayout>
+    </File>
+
+
+  
+  </Appenders>
+  <Loggers>
+    <!--  hide initialization messages of MLog -->
+    <!--  <Logger name="com.mchange.v2" level="warn" /> -->
+    <!--  logging level of c3p0 connection pool -->
+    <Logger name="com.mchange.v2.c3p0" level="info" />
+    <Logger name="com.mchange.v2.resourcepool" level="debug" />
+
+    <Logger name="org.eclipse.jetty" level="warn" />
+    
+    <!--  log from libraries only when something is wrong -->
+    <Logger name="org.glassfish.grizzly" level="warn" />
+    <Logger name="org.hibernate" level="warn" />
+    <!--  Log sql query parameter values -->
+    <!--  <Logger name="org.hibernate.type" level="trace" /> -->
+    
+    <!--  if this is enabled in the code, we really want to see it's logs -->
+    <Logger name="org.glassfish.jersey.filter.LoggingFilter" level="info" />
+    
+    <!--  default level for our code -->
+    <Logger name="fi.csc.chipster" level="info" additivity="false">
+    	<AppenderRef ref="chipster"/>
+ 		<AppenderRef ref="Console"/>
+ 		<AppenderRef ref="WarnFile"/>
+     </Logger>
+
+    <!--  ServerLauncher logs to console 
+    <Logger name="fi.csc.chipster.rest.ServerLauncher" level="info" >
+ 		<AppenderRef ref="Console"/>
+ 	</Logger>	-->
+
+
+    <Logger name="fi.csc.chipster.toolbox" level="info" >
+ 		<AppenderRef ref="toolbox"/>
+ 	</Logger>	
+
+        
+    <!--  We want to hide these when running tests, but the TestServerLauncher 
+    is only able to modify existing loggers. Without this it will get the 
+    logger for fi.csc.chipster and disable it. -->
+    <Logger name="fi.csc.chipster.rest.websocket" level="info" />
+    
+    <!--  info level by default so that we see if new libraries have anything interesting to say. Set a higher level for noisy libraries above. -->
+    <Root level="info">
+      <AppenderRef ref="Console"/>
+    </Root>
+  </Loggers>
+</Configuration>
