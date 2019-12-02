@@ -1,5 +1,4 @@
-name: Ant CI
-
+name: Ant and Gradle build
 on: [push]
 
 jobs:
