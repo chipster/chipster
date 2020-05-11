@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -75,83 +76,140 @@ import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.Strings;
 
 public class MicroarrayModule implements Module {
-	
+
 	public static class TypeTags {
-		public static final TypeTag PHENODATA  = new TypeTag("phenodata", "Chipster compatible phenodata");
-		public static final TypeTag RAW_AFFYMETRIX_EXPRESSION_VALUES  = new TypeTag("raw-arrymetrix-expression-values", "must be in CEL format (text or binary)");
-		public static final TypeTag RAW_EXPRESSION_VALUES  = new TypeTag("raw-expression-values", "");
-		public static final TypeTag NORMALISED_EXPRESSION_VALUES = new TypeTag("normalised-expression-values", "must have columns following name pattern \"chip.*\"");
+		public static final TypeTag PHENODATA = new TypeTag("phenodata", "Chipster compatible phenodata");
+		public static final TypeTag RAW_AFFYMETRIX_EXPRESSION_VALUES = new TypeTag("raw-arrymetrix-expression-values",
+				"must be in CEL format (text or binary)");
+		public static final TypeTag RAW_EXPRESSION_VALUES = new TypeTag("raw-expression-values", "");
+		public static final TypeTag NORMALISED_EXPRESSION_VALUES = new TypeTag("normalised-expression-values",
+				"must have columns following name pattern \"chip.*\"");
 		public static final TypeTag GENENAMES = new TypeTag("genenames", "must have column \" \" or \"identifier\"");
-		public static final TypeTag SIGNIFICANT_EXPRESSION_FOLD_CHANGES = new TypeTag("significant-expression-fold-changes", "must have columns following name patterns \"FC.*\" and \"p.*\"");
-		public static final TypeTag EXPRESSION_PRIMARY_COMPONENTS_GENEWISE = new TypeTag("expression-primary-components-genewise", "");
-		public static final TypeTag EXPRESSION_PRIMARY_COMPONENTS_CHIPWISE = new TypeTag("expression-primary-components-chipwise", "");
+		public static final TypeTag SIGNIFICANT_EXPRESSION_FOLD_CHANGES = new TypeTag(
+				"significant-expression-fold-changes",
+				"must have columns following name patterns \"FC.*\" and \"p.*\"");
+		public static final TypeTag EXPRESSION_PRIMARY_COMPONENTS_GENEWISE = new TypeTag(
+				"expression-primary-components-genewise", "");
+		public static final TypeTag EXPRESSION_PRIMARY_COMPONENTS_CHIPWISE = new TypeTag(
+				"expression-primary-components-chipwise", "");
 		public static final TypeTag ORDERED_GENOMIC_ENTITIES = new TypeTag("ordered-genomic-entities", "");
-		public static final TypeTag CLUSTERED_EXPRESSION_VALUES = new TypeTag("clustered-expression-values", "must have column \"cluster\"");
-		public static final TypeTag SOM_CLUSTERED_EXPRESSION_VALUES = new TypeTag("som-clustered-expression-values", "must have columns \"colours\", \"distance2first\", \"cluster\", \"griddim\"");
-		public static final TypeTag BAM_FILE  = new TypeTag("bam-file", "");
-		public static final TypeTag FASTA_FILE  = new TypeTag("fasta-file", "");
-		public static final TypeTag GTF_FILE  = new TypeTag("gtf-file", "");
-		public static final TypeTag TABLE_WITH_HASH_HEADER = new TypeTag("table-with-hash-header", "header rows start with #");
-		public static final TypeTag TABLE_WITH_DOUBLE_HASH_HEADER = new TypeTag("table-with-double-hash-header", "header rows start with ##");
-		public static final TypeTag CHROMOSOME_IN_FIRST_TABLE_COLUMN = new TypeTag("chromosome-in-first-table-column", "first column of table is chromosome");
-		public static final TypeTag CHROMOSOME_IN_SECOND_TABLE_COLUMN = new TypeTag("chromosome-in-second-table-column", "second column of table is chromosome");
-		public static final TypeTag START_POSITION_IN_SECOND_TABLE_COLUMN = new TypeTag("start-position-in-second-table-column", "second column of table is start position");
-		public static final TypeTag START_POSITION_IN_THIRD_TABLE_COLUMN = new TypeTag("start-position-in-third-table-column", "third column of table is start position");
-		public static final TypeTag START_POSITION_IN_FOURTH_TABLE_COLUMN = new TypeTag("start-position-in-fourth-table-column", "fourth column of table is start position");
-		public static final TypeTag END_POSITION_IN_THIRD_TABLE_COLUMN = new TypeTag("end-position-in-third-table-column", "third column of table is end position");
-		public static final TypeTag END_POSITION_IN_FOURTH_TABLE_COLUMN = new TypeTag("end-position-in-fourth-table-column", "fourth column of table is end position");
-		public static final TypeTag END_POSITION_IN_FIFTH_TABLE_COLUMN = new TypeTag("end-position-in-fifth-table-column", "fifth column of table is end position");
+		public static final TypeTag CLUSTERED_EXPRESSION_VALUES = new TypeTag("clustered-expression-values",
+				"must have column \"cluster\"");
+		public static final TypeTag SOM_CLUSTERED_EXPRESSION_VALUES = new TypeTag("som-clustered-expression-values",
+				"must have columns \"colours\", \"distance2first\", \"cluster\", \"griddim\"");
+		public static final TypeTag BAM_FILE = new TypeTag("bam-file", "");
+		public static final TypeTag FASTA_FILE = new TypeTag("fasta-file", "");
+		public static final TypeTag FASTA_GZ_FILE = new TypeTag("fasta-gz-file", "");
+		public static final TypeTag GTF_FILE = new TypeTag("gtf-file", "");
+		public static final TypeTag GTF_GZ_FILE = new TypeTag("gtf-gz-file", "");
+		public static final TypeTag TABLE_WITH_HASH_HEADER = new TypeTag("table-with-hash-header",
+				"header rows start with #");
+		public static final TypeTag TABLE_WITH_DOUBLE_HASH_HEADER = new TypeTag("table-with-double-hash-header",
+				"header rows start with ##");
+		public static final TypeTag CHROMOSOME_IN_FIRST_TABLE_COLUMN = new TypeTag("chromosome-in-first-table-column",
+				"first column of table is chromosome");
+		public static final TypeTag CHROMOSOME_IN_SECOND_TABLE_COLUMN = new TypeTag("chromosome-in-second-table-column",
+				"second column of table is chromosome");
+		public static final TypeTag START_POSITION_IN_SECOND_TABLE_COLUMN = new TypeTag(
+				"start-position-in-second-table-column", "second column of table is start position");
+		public static final TypeTag START_POSITION_IN_THIRD_TABLE_COLUMN = new TypeTag(
+				"start-position-in-third-table-column", "third column of table is start position");
+		public static final TypeTag START_POSITION_IN_FOURTH_TABLE_COLUMN = new TypeTag(
+				"start-position-in-fourth-table-column", "fourth column of table is start position");
+		public static final TypeTag END_POSITION_IN_THIRD_TABLE_COLUMN = new TypeTag(
+				"end-position-in-third-table-column", "third column of table is end position");
+		public static final TypeTag END_POSITION_IN_FOURTH_TABLE_COLUMN = new TypeTag(
+				"end-position-in-fourth-table-column", "fourth column of table is end position");
+		public static final TypeTag END_POSITION_IN_FIFTH_TABLE_COLUMN = new TypeTag(
+				"end-position-in-fifth-table-column", "fifth column of table is end position");
 		public static final TypeTag CNA = new TypeTag("cna-data", "data file produced by cna tools");
 		public static final TypeTag MOTHUR_OLIGOS = new TypeTag("Mothur oligos data", "Mothur oligos data");
 		public static final TypeTag MOTHUR_NAMES = new TypeTag("Mothur names data", "Mothur names data");
 		public static final TypeTag MOTHUR_GROUPS = new TypeTag("Mothur groups data", "Mothur groups data");
+		public static final TypeTag MOTHUR_GROUPS_GZ = new TypeTag("Mothur groups data gzip",
+				"Mothur groups data gzip");
 		public static final TypeTag MOTHUR_STABILITY = new TypeTag("Mothur stability data", "Mothur stability data");
 		public static final TypeTag MOTHUR_COUNT = new TypeTag("Mothur count table", "Mothur count table");
-	}
-	
-	public static class VisualisationMethods {
-		public static VisualisationMethod ARRAY_LAYOUT = new VisualisationMethod("Array layout", ArrayLayout.class, VisualConstants.ARRAY_MENUICON, 100, 0.0009);
-		public static VisualisationMethod HISTOGRAM = new VisualisationMethod("Histogram", Histogram.class, VisualConstants.HISTOGRAM_MENUICON, 70, 0.024);
-		public static VisualisationMethod HEATMAP = new VisualisationMethod("Heatmap", Heatmap.class, VisualConstants.HEATMAP_MENUICON, 100, 0.0009);
-		public static VisualisationMethod SCATTERPLOT = new VisualisationMethod("Scatterplot", Scatterplot.class, VisualConstants.SCATTER_MENUICON, 79, 0.039);
-		public static VisualisationMethod SCATTERPLOT3D = new VisualisationMethod("3D Scatterplot", Scatterplot3D.class, VisualConstants.SCATTER3D_MENUICON, 78, 0.082);
-		public static VisualisationMethod SCATTERPLOT3DPCA = new VisualisationMethod("3D Scatterplot for PCA", Scatterplot3DPCA.class, VisualConstants.SCATTER3DPCA_MENUICON, 77, 0.082);
-		public static VisualisationMethod VOLCANOPLOT = new VisualisationMethod("Volcano plot", Volcanoplot.class, VisualConstants.VOLCANO_MENUICON, 80, 0.039); 
-		public static VisualisationMethod SOM = new VisualisationMethod("SOM", SOM.class, VisualConstants.SOM_MENUICON, 59, 0.034);
-		public static VisualisationMethod HIERARCHICAL = new VisualisationMethod("Hierarchical clustering", HierarchicalClustering.class, VisualConstants.HC_MENUICON, 60, 0.09);
-		public static VisualisationMethod EXPRESSION_PROFILE = new VisualisationMethod("Expression profile", ExpressionProfile.class, VisualConstants.PROFILE_MENUICON, 90, 0.1);
-		public static VisualisationMethod CLUSTERED_PROFILES = new VisualisationMethod("Clustered profiles", ClusteredProfiles.class, VisualConstants.PROFILES_MENUICON, 89, 0.087);
-		public static VisualisationMethod VENN_DIAGRAM = new VisualisationMethod("Venn-diagram", VennDiagram.class, VisualConstants.VENN_MENUICON, 50, -1);
-		public static VisualisationMethod GBROWSER = new VisualisationMethod("Genome browser", ChipsterGBrowserVisualisation.class, VisualConstants.GB_MENUICON, 90, -1, "genomeBrowser.html");
-		public static VisualisationMethod SAMBAM_VIEWER = new VisualisationMethod("BAM viewer", SamBamViewer.class, VisualConstants.TEXT_MENUICON, 100, -1);
-		public static VisualisationMethod PHENODATA = new VisualisationMethod("Phenodata editor", PhenodataEditor.class, VisualConstants.PHENODATA_MENUICON, 105, 0, "visualisation-phenodata.html");
+		public static final TypeTag MOTHUR_COUNT_GZ = new TypeTag("Mothur count table gzip", "Mothur count table gzip");
 	}
 
+	public static class VisualisationMethods {
+		public static VisualisationMethod ARRAY_LAYOUT = new VisualisationMethod("Array layout", ArrayLayout.class,
+				VisualConstants.ARRAY_MENUICON, 100, 0.0009);
+		public static VisualisationMethod HISTOGRAM = new VisualisationMethod("Histogram", Histogram.class,
+				VisualConstants.HISTOGRAM_MENUICON, 70, 0.024);
+		public static VisualisationMethod HEATMAP = new VisualisationMethod("Heatmap", Heatmap.class,
+				VisualConstants.HEATMAP_MENUICON, 100, 0.0009);
+		public static VisualisationMethod SCATTERPLOT = new VisualisationMethod("Scatterplot", Scatterplot.class,
+				VisualConstants.SCATTER_MENUICON, 79, 0.039);
+		public static VisualisationMethod SCATTERPLOT3D = new VisualisationMethod("3D Scatterplot", Scatterplot3D.class,
+				VisualConstants.SCATTER3D_MENUICON, 78, 0.082);
+		public static VisualisationMethod SCATTERPLOT3DPCA = new VisualisationMethod("3D Scatterplot for PCA",
+				Scatterplot3DPCA.class, VisualConstants.SCATTER3DPCA_MENUICON, 77, 0.082);
+		public static VisualisationMethod VOLCANOPLOT = new VisualisationMethod("Volcano plot", Volcanoplot.class,
+				VisualConstants.VOLCANO_MENUICON, 80, 0.039);
+		public static VisualisationMethod SOM = new VisualisationMethod("SOM", SOM.class, VisualConstants.SOM_MENUICON,
+				59, 0.034);
+		public static VisualisationMethod HIERARCHICAL = new VisualisationMethod("Hierarchical clustering",
+				HierarchicalClustering.class, VisualConstants.HC_MENUICON, 60, 0.09);
+		public static VisualisationMethod EXPRESSION_PROFILE = new VisualisationMethod("Expression profile",
+				ExpressionProfile.class, VisualConstants.PROFILE_MENUICON, 90, 0.1);
+		public static VisualisationMethod CLUSTERED_PROFILES = new VisualisationMethod("Clustered profiles",
+				ClusteredProfiles.class, VisualConstants.PROFILES_MENUICON, 89, 0.087);
+		public static VisualisationMethod VENN_DIAGRAM = new VisualisationMethod("Venn-diagram", VennDiagram.class,
+				VisualConstants.VENN_MENUICON, 50, -1);
+		public static VisualisationMethod GBROWSER = new VisualisationMethod("Genome browser",
+				ChipsterGBrowserVisualisation.class, VisualConstants.GB_MENUICON, 90, -1, "genomeBrowser.html");
+		public static VisualisationMethod SAMBAM_VIEWER = new VisualisationMethod("BAM viewer", SamBamViewer.class,
+				VisualConstants.TEXT_MENUICON, 100, -1);
+		public static VisualisationMethod PHENODATA = new VisualisationMethod("Phenodata editor", PhenodataEditor.class,
+				VisualConstants.PHENODATA_MENUICON, 105, 0, "visualisation-phenodata.html");
+	}
+
+	private HashMap<TypeTag, String[]> gzipCompatibleTypesExtensionsMap = new HashMap<TypeTag, String[]>();
+
 	public void plugContentTypes(DataManager manager) {
-		manager.plugContentType("application/x-treeview", true, false, "Newick formatted tree from clustering", VisualConstants.ICON_TYPE_TEXT, "tre");
-		manager.plugContentType("application/cel", true, false, "Affymetrix CEL", VisualConstants.ICON_TYPE_RAWDATA, "cel");
+		manager.plugContentType("application/x-treeview", true, false, "Newick formatted tree from clustering",
+				VisualConstants.ICON_TYPE_TEXT, "tre");
+		manager.plugContentType("application/cel", true, false, "Affymetrix CEL", VisualConstants.ICON_TYPE_RAWDATA,
+				"cel");
 		manager.plugContentType("text/bed", true, false, "BED file", VisualConstants.ICON_TYPE_TEXT, "bed");
-		manager.plugContentType("text/gtf", true, false, "Gene Transfer Format file", VisualConstants.ICON_TYPE_TEXT, "gtf", "gff", "gff2", "gff3");
-		manager.plugContentType("chemical/x-fasta", true, false, "FASTA", VisualConstants.ICON_TYPE_TEXT, "fasta", "fa", "fna", "fsa", "mpfa");
+		manager.plugContentType("text/gtf", true, false, "Gene Transfer Format file", VisualConstants.ICON_TYPE_TEXT,
+				"gtf", "gff", "gff2", "gff3");
+		manager.plugContentType("chemical/x-fasta", true, false, "FASTA", VisualConstants.ICON_TYPE_TEXT, "fasta", "fa",
+				"fna", "fsa", "mpfa");
 		manager.plugContentType("chemical/x-fai", true, false, "FAI", VisualConstants.ICON_TYPE_TEXT, "fai");
 		manager.plugContentType("text/fastq", true, false, "FASTQ", VisualConstants.ICON_TYPE_TEXT, "fastq", "fq");
 		manager.plugContentType("application/gzip", true, true, "Gzip file", VisualConstants.ICON_TYPE_BINARY, "gz");
 		manager.plugContentType("text/vcf", true, false, "Variant Call Format", VisualConstants.ICON_TYPE_TEXT, "vcf");
-		manager.plugContentType("application/bam", true, false, "Binary sequence Alignment/Map format", VisualConstants.ICON_TYPE_TEXT, "bam");
+		manager.plugContentType("application/bam", true, false, "Binary sequence Alignment/Map format",
+				VisualConstants.ICON_TYPE_TEXT, "bam");
 		manager.plugContentType("text/qual", true, false, "Quality file", VisualConstants.ICON_TYPE_TEXT, "qual");
-		manager.plugContentType("text/mothur-oligos", true, false, "Mothur oligos file", VisualConstants.ICON_TYPE_TEXT, "oligos");
-		manager.plugContentType("text/mothur-names", true, false, "Mothur names file", VisualConstants.ICON_TYPE_TEXT, "names");
-		manager.plugContentType("text/mothur-groups", true, false, "Mothur groups file", VisualConstants.ICON_TYPE_TEXT, "groups");
-		manager.plugContentType("text/mothur-stability", true, false, "Mothur stability file", VisualConstants.ICON_TYPE_TEXT, "files");
-		manager.plugContentType("text/mothur-count", true, false, "Mothur count table file", VisualConstants.ICON_TYPE_TABLE, "count_table");
+		manager.plugContentType("text/mothur-oligos", true, false, "Mothur oligos file", VisualConstants.ICON_TYPE_TEXT,
+				"oligos");
+		manager.plugContentType("text/mothur-names", true, false, "Mothur names file", VisualConstants.ICON_TYPE_TEXT,
+				"names");
+		manager.plugContentType("text/mothur-groups", true, false, "Mothur groups file", VisualConstants.ICON_TYPE_TEXT,
+				"groups");
+		manager.plugContentType("text/mothur-stability", true, false, "Mothur stability file",
+				VisualConstants.ICON_TYPE_TEXT, "files");
+		manager.plugContentType("text/mothur-count", true, false, "Mothur count table file",
+				VisualConstants.ICON_TYPE_TABLE, "count_table");
 		manager.plugContentType("text/sff", true, false, "sff file", VisualConstants.ICON_TYPE_TEXT, "sff");
 		manager.plugContentType("application/robj", true, false, "R objects", VisualConstants.ICON_TYPE_BINARY, "robj");
+
+		// plug gzip compatible types
+		plugGzipCompatibleType(TypeTags.FASTA_GZ_FILE, manager.getContentType("chemical/x-fasta").getExtensions());
+		plugGzipCompatibleType(TypeTags.GTF_GZ_FILE, manager.getContentType("text/gtf").getExtensions());
+		plugGzipCompatibleType(TypeTags.MOTHUR_COUNT_GZ, manager.getContentType("text/mothur-count").getExtensions());
+		plugGzipCompatibleType(TypeTags.MOTHUR_GROUPS_GZ, manager.getContentType("text/mothur-groups").getExtensions());
+
 	}
-	
 
 	public void plugFeatures(DataManager manager) {
 		manager.plugFeatureFactory("/normalised-expression", new NormalisedExpressionProvider());
-		manager.plugFeatureFactory("/identifier", new IdentifierProvider());;
+		manager.plugFeatureFactory("/identifier", new IdentifierProvider());
+		;
 		manager.plugFeatureFactory("/clusters/som", new SomClusterProvider());
 		manager.plugFeatureFactory("/clusters/hierarchical", new HierarchicalClusterProvider());
 	}
@@ -195,61 +253,50 @@ public class MicroarrayModule implements Module {
 
 	@Override
 	public boolean isWorkflowCompatible(DataBean data) {
-		// TODO replace inclusive check with exclusive: check for raw expression data and other illegal types
+		// TODO replace inclusive check with exclusive: check for raw expression data
+		// and other illegal types
 //		return ChipsterInputTypes.GENE_EXPRS.isTypeOf(data);
 		return true;
 	}
 
 	@Override
 	public VisualisationMethod[] getVisualisationMethods() {
-		return new VisualisationMethod[] {
-				VisualisationMethods.PHENODATA,
-				VisualisationMethods.ARRAY_LAYOUT,
-				VisualisationMethods.HEATMAP,
-				VisualisationMethods.HISTOGRAM,
-				VisualisationMethods.SCATTERPLOT,
-				VisualisationMethods.SCATTERPLOT3D,
-				VisualisationMethods.SCATTERPLOT3DPCA,
-				VisualisationMethods.VOLCANOPLOT,
-				VisualisationMethods.SOM,
-				VisualisationMethods.HIERARCHICAL,
-				VisualisationMethods.EXPRESSION_PROFILE,
-				VisualisationMethods.CLUSTERED_PROFILES,
-				VisualisationMethods.VENN_DIAGRAM,
-				VisualisationMethods.SAMBAM_VIEWER,
-				VisualisationMethods.GBROWSER
-		};
+		return new VisualisationMethod[] { VisualisationMethods.PHENODATA, VisualisationMethods.ARRAY_LAYOUT,
+				VisualisationMethods.HEATMAP, VisualisationMethods.HISTOGRAM, VisualisationMethods.SCATTERPLOT,
+				VisualisationMethods.SCATTERPLOT3D, VisualisationMethods.SCATTERPLOT3DPCA,
+				VisualisationMethods.VOLCANOPLOT, VisualisationMethods.SOM, VisualisationMethods.HIERARCHICAL,
+				VisualisationMethods.EXPRESSION_PROFILE, VisualisationMethods.CLUSTERED_PROFILES,
+				VisualisationMethods.VENN_DIAGRAM, VisualisationMethods.SAMBAM_VIEWER, VisualisationMethods.GBROWSER };
 	}
 
 	@Override
 	public List<DbSession> getExampleSessions(boolean isStandalone) throws JMSException, Exception {
-		
-		 List<DbSession> sessions = Session.getSession().getServiceAccessor().getFileBrokerClient().listPublicRemoteSessions();
-		 
+
+		List<DbSession> sessions = Session.getSession().getServiceAccessor().getFileBrokerClient()
+				.listPublicRemoteSessions();
+
 		return sessions;
 	}
 
 	@Override
 	public String[][] getRepositoryWorkflows() {
-		return new String[][] { 
-				{ "Gene expression analysis", "/gene-expression-analysis.bsh" }, 
+		return new String[][] { { "Gene expression analysis", "/gene-expression-analysis.bsh" },
 				{ "Protein expression analysis", "/protein-expression-analysis.bsh" },
-				{ "miRNA expression analysis", "/mirna-expression-analysis.bsh" }
-		};
+				{ "miRNA expression analysis", "/mirna-expression-analysis.bsh" } };
 	}
-	
-	
+
 	/**
-	 * Selects the proper source dataset ie. the dataset that is not a hidden phenodata dataset.
+	 * Selects the proper source dataset ie. the dataset that is not a hidden
+	 * phenodata dataset.
 	 */
 	public static DataBean getProperSource(DataBean dataBean) {
-		
+
 		if (dataBean == null || dataBean.getLinkTargets(Link.DERIVATION).size() == 0) {
 			return null;
-			
+
 		} else if (dataBean.getLinkTargets(Link.DERIVATION).size() == 1) {
 			return dataBean.getLinkTargets(Link.DERIVATION).iterator().next();
-			
+
 		} else {
 			LinkedList<DataBean> sourceCollector = new LinkedList<DataBean>();
 			for (DataBean source : dataBean.getLinkTargets(Link.DERIVATION)) {
@@ -260,17 +307,17 @@ public class MicroarrayModule implements Module {
 			if (sourceCollector.size() == 0 || sourceCollector.size() > 1) {
 				return null; // no definite source was found
 			}
-			
+
 			return sourceCollector.getFirst(); // return the one and only proper source
 		}
 	}
-	
+
 	/**
 	 * Gets the operation history of this dataset as a chronological list
-	 * (implemented as vector) of DataSetHistoryWrapper objects, which
-	 * practically are DataSets with a slightly altered toString output.
-	 * The list will contain all the datasets on the workflow, starting
-	 * from raw data and ending at current dataset.
+	 * (implemented as vector) of DataSetHistoryWrapper objects, which practically
+	 * are DataSets with a slightly altered toString output. The list will contain
+	 * all the datasets on the workflow, starting from raw data and ending at
+	 * current dataset.
 	 * 
 	 * @return The chronologically ascending list of dataset history wrappers.
 	 */
@@ -281,37 +328,40 @@ public class MicroarrayModule implements Module {
 		}
 		list.add(dataBean);
 		return list.toArray(new DataBean[0]);
-	}	
-
+	}
 
 	@Override
 	public boolean isMetadata(DataBean data) {
 		// FIXME how this should actually work in the new type system?
 		return data.queryFeatures("/phenodata").exists();
 	}
-	
+
 	@Override
-	public void preProcessInputMetadata(Operation oper, DataBean metadataInput) throws MicroarrayException, IOException {
-		
-		// R can't handle spaces in column titles. Terminate job if there are any white space characters.
-		
+	public void preProcessInputMetadata(Operation oper, DataBean metadataInput)
+			throws MicroarrayException, IOException {
+
+		// R can't handle spaces in column titles. Terminate job if there are any white
+		// space characters.
+
 		try (Table table = metadataInput.queryFeatures("/column/*").asTable()) {
 
 			Pattern pattern = Pattern.compile("\\s"); // whitespace characters: space, tab and new line
-			for (String column : table.getColumnNames()) {						
+			for (String column : table.getColumnNames()) {
 				Matcher matcher = pattern.matcher(column);
-				if (matcher.find()) { 
-					throw new MicroarrayException("Phenodata columnn titles must not contain white space characters (space, tab and new line)");
+				if (matcher.find()) {
+					throw new MicroarrayException(
+							"Phenodata columnn titles must not contain white space characters (space, tab and new line)");
 				}
 			}
 		}
 	}
 
 	@Override
-	public void postProcessOutputMetadata(OperationRecord oper, DataBean metadataOutput) throws MicroarrayException, IOException {
-		
+	public void postProcessOutputMetadata(OperationRecord oper, DataBean metadataOutput)
+			throws MicroarrayException, IOException {
+
 		// FIXME how this should actually work in the new type system?
-		
+
 		// if original names are not already contained in the phenodata
 		if (!metadataOutput.queryFeatures("/column/" + PhenodataEditor.PHENODATA_NAME_COLUMN).exists()) {
 			// augment phenodata with original dataset names (using parameter bindings)
@@ -320,7 +370,7 @@ public class MicroarrayModule implements Module {
 			EditableTable editableTable = tableEditor.getEditable();
 			LinkedList<String> newColumn = new LinkedList<String>();
 			newColumn.addAll(Arrays.asList(Strings.repeatToArray("", editableTable.getRowCount())));
-			editableTable.addColumn(PhenodataEditor.PHENODATA_NAME_COLUMN, 1, newColumn); // add after sample column 
+			editableTable.addColumn(PhenodataEditor.PHENODATA_NAME_COLUMN, 1, newColumn); // add after sample column
 			for (int ri = 0; ri < editableTable.getRowCount(); ri++) {
 				String sample = editableTable.getValue(PhenodataEditor.PHENODATA_SAMPLE_COLUMN, ri);
 				boolean correctRowFound = false;
@@ -360,16 +410,17 @@ public class MicroarrayModule implements Module {
 			tableEditor.write();
 		}
 
-		// if chip descriptions (visualisation view names) are not already contained in the phenodata
+		// if chip descriptions (visualisation view names) are not already contained in
+		// the phenodata
 		if (!metadataOutput.queryFeatures("/column/" + PhenodataEditor.PHENODATA_DESCRIPTION_COLUMN).exists()) {
 			// copy original dataset names
 			TableBeanEditor tableEditor = new TableBeanEditor(metadataOutput);
 			EditableTable editableTable = tableEditor.getEditable();
 			LinkedList<String> newColumn = new LinkedList<String>();
 			newColumn.addAll(Arrays.asList(Strings.repeatToArray("", editableTable.getRowCount())));
-			editableTable.addColumn(PhenodataEditor.PHENODATA_DESCRIPTION_COLUMN, newColumn); 
+			editableTable.addColumn(PhenodataEditor.PHENODATA_DESCRIPTION_COLUMN, newColumn);
 			for (int ri = 0; ri < editableTable.getRowCount(); ri++) {
-				String sample = editableTable.getValue(PhenodataEditor.PHENODATA_NAME_COLUMN, ri);										
+				String sample = editableTable.getValue(PhenodataEditor.PHENODATA_NAME_COLUMN, ri);
 				editableTable.setValue(PhenodataEditor.PHENODATA_DESCRIPTION_COLUMN, ri, sample);
 			}
 			tableEditor.write();
@@ -387,8 +438,8 @@ public class MicroarrayModule implements Module {
 	}
 
 	/**
-	 * Generates nice context link panel for quickly using genome browser. If not in standalone
-	 * mode, null is returned. 
+	 * Generates nice context link panel for quickly using genome browser. If not in
+	 * standalone mode, null is returned.
 	 */
 	@SuppressWarnings("serial")
 	@Override
@@ -431,14 +482,15 @@ public class MicroarrayModule implements Module {
 			link = new JXHyperlink(new AbstractAction() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					application.setVisualisationMethod(MicroarrayModule.VisualisationMethods.GBROWSER, null, application.getSelectionManager().getSelectedDataBeans(), FrameType.MAIN);
+					application.setVisualisationMethod(MicroarrayModule.VisualisationMethods.GBROWSER, null,
+							application.getSelectionManager().getSelectedDataBeans(), FrameType.MAIN);
 				}
 			});
 			link.setText("Open genome browser");
 
-
 		} else if (selectedDataCount < application.getDataManager().databeans().size()) {
-			// Not all datasets are selected, they might be visualisable when selected, so suggest it
+			// Not all datasets are selected, they might be visualisable when selected, so
+			// suggest it
 			link = new JXHyperlink(new AbstractAction() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -449,23 +501,29 @@ public class MicroarrayModule implements Module {
 					// Check if selection can be visualised
 					boolean canVisualise = false;
 					try {
-						canVisualise = MicroarrayModule.VisualisationMethods.GBROWSER.getVisualiser(null).canVisualise(application.getSelectionManager().getSelectedDataBeans());
+						canVisualise = MicroarrayModule.VisualisationMethods.GBROWSER.getVisualiser(null)
+								.canVisualise(application.getSelectionManager().getSelectedDataBeans());
 					} catch (Exception e1) {
 						// ignore
 					}
 
 					if (canVisualise) {
-						// Use invokeLater so that visualisation system can process events from selectAllItems 
-						// before this. Otherwise the system is not synchronized and the visualisation panel
+						// Use invokeLater so that visualisation system can process events from
+						// selectAllItems
+						// before this. Otherwise the system is not synchronized and the visualisation
+						// panel
 						// does not update.
 						SwingUtilities.invokeLater(new Runnable() {
 							@Override
 							public void run() {
-								application.setVisualisationMethod(MicroarrayModule.VisualisationMethods.GBROWSER, null, application.getSelectionManager().getSelectedDataBeans(), FrameType.MAIN);
+								application.setVisualisationMethod(MicroarrayModule.VisualisationMethods.GBROWSER, null,
+										application.getSelectionManager().getSelectedDataBeans(), FrameType.MAIN);
 							}
 						});
 					} else {
-						application.showDialog("Cannot open genome browser", "Currect dataset selection cannot be visualised in genome browser", "Unselect improper datasets to open genome browser.", Severity.INFO, true);
+						application.showDialog("Cannot open genome browser",
+								"Currect dataset selection cannot be visualised in genome browser",
+								"Unselect improper datasets to open genome browser.", Severity.INFO, true);
 					}
 				}
 			});
@@ -502,16 +560,16 @@ public class MicroarrayModule implements Module {
 	@Override
 	public List<Boolean> flagLinkableColumns(Table columns, DataBean data) {
 		LinkedList<Boolean> flags = new LinkedList<Boolean>();
-		
-		flags.add(data.hasTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_FIRST_TABLE_COLUMN)); //0
-		flags.add(data.hasTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_SECOND_TABLE_COLUMN) ||
-				data.hasTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_SECOND_TABLE_COLUMN));  //1
-		flags.add(data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_THIRD_TABLE_COLUMN) ||
-				data.hasTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_THIRD_TABLE_COLUMN)); //2
-		flags.add(data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FOURTH_TABLE_COLUMN)||
-				data.hasTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_FOURTH_TABLE_COLUMN)); //3
-		flags.add(data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FIFTH_TABLE_COLUMN)); //4
-		
+
+		flags.add(data.hasTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_FIRST_TABLE_COLUMN)); // 0
+		flags.add(data.hasTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_SECOND_TABLE_COLUMN)
+				|| data.hasTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_SECOND_TABLE_COLUMN)); // 1
+		flags.add(data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_THIRD_TABLE_COLUMN)
+				|| data.hasTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_THIRD_TABLE_COLUMN)); // 2
+		flags.add(data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FOURTH_TABLE_COLUMN)
+				|| data.hasTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_FOURTH_TABLE_COLUMN)); // 3
+		flags.add(data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FIFTH_TABLE_COLUMN)); // 4
+
 		for (int i = 4; i < columns.getColumnCount(); i++) {
 			flags.add(false);
 		}
@@ -520,35 +578,34 @@ public class MicroarrayModule implements Module {
 
 	@Override
 	public IntegratedEntity createLinkableEntity(Table columns, DataBean data) {
-		
+
 		IntegratedEntity entity = new IntegratedEntity();
-		
+
 		final String CHR_KEY = "chromosome";
 		final String START_KEY = "start";
 		final String END_KEY = "end";
-		
-		
-		//Chromosome
+
+		// Chromosome
 		int chrColumn = -1;
-		
+
 		if (data.hasTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_FIRST_TABLE_COLUMN)) {
 			chrColumn = 0;
 		}
 		if (data.hasTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_SECOND_TABLE_COLUMN)) {
 			chrColumn = 1;
 		}
-		
+
 		if (chrColumn != -1) {
 			entity.put(CHR_KEY, columns.getStringValue(columns.getColumnNames()[chrColumn]));
 		}
-		
-		//Start
+
+		// Start
 		int startColumn = -1;
-		
+
 		if (data.hasTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_SECOND_TABLE_COLUMN)) {
 			startColumn = 1;
 		}
-		
+
 		if (data.hasTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_THIRD_TABLE_COLUMN)) {
 			startColumn = 2;
 		}
@@ -560,10 +617,10 @@ public class MicroarrayModule implements Module {
 		if (startColumn != -1) {
 			entity.put(START_KEY, columns.getStringValue(columns.getColumnNames()[startColumn]));
 		}
-		
-		//End
+
+		// End
 		int endColumn = -1;
-		
+
 		if (data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_THIRD_TABLE_COLUMN)) {
 			endColumn = 2;
 		}
@@ -571,14 +628,14 @@ public class MicroarrayModule implements Module {
 		if (data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FOURTH_TABLE_COLUMN)) {
 			endColumn = 3;
 		}
-		
+
 		if (data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FIFTH_TABLE_COLUMN)) {
 			endColumn = 4;
 		}
-		
+
 		if (endColumn != -1) {
 			entity.put(END_KEY, columns.getStringValue(columns.getColumnNames()[endColumn]));
-		}		
+		}
 
 		return entity;
 	}
@@ -589,38 +646,39 @@ public class MicroarrayModule implements Module {
 		if (data.isContentTypeCompatitible("application/cel")) {
 			data.addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
 		}
-		
+
 		if (data.isContentTypeCompatitible("text/tab", "application/cel", "text/csv")) {
 			data.addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
 		}
-		
+
 		if (data.isContentTypeCompatitible("text/tab")) {
 			BufferedReader in = null;
 			try {
-				in = new BufferedReader(new InputStreamReader(Session.getSession().getDataManager().getContentStream(data, DataNotAvailableHandling.EXCEPTION_ON_NA)));
+				in = new BufferedReader(new InputStreamReader(Session.getSession().getDataManager()
+						.getContentStream(data, DataNotAvailableHandling.EXCEPTION_ON_NA)));
 				String headerLine = in.readLine();
 				String contentLine = in.readLine();
-				
-				if (headerLine != null && contentLine != null) {						
-					
-					List<String> chrColumns = Arrays.asList(new String[] { "chr", "SEQNAMES", "chromosome"});
-					List<String> startColumns = Arrays.asList(new String[] { "start", "START"});
-					List<String> endColumns = Arrays.asList(new String[] { "end", "END"});											
+
+				if (headerLine != null && contentLine != null) {
+
+					List<String> chrColumns = Arrays.asList(new String[] { "chr", "SEQNAMES", "chromosome" });
+					List<String> startColumns = Arrays.asList(new String[] { "start", "START" });
+					List<String> endColumns = Arrays.asList(new String[] { "end", "END" });
 
 					String[] split = headerLine.split("\t");
-					
+
 					int shiftHeader = 0;
-					
-					//TableColumnProvider has this check already, but can we use Feature api here?
+
+					// TableColumnProvider has this check already, but can we use Feature api here?
 					if (split.length == contentLine.split("\t").length - 1) {
 						shiftHeader = 1;
 					}
-					
+
 					for (int i = 0; i < split.length; i++) {
 						String column = split[i];
-					
+
 						if (chrColumns.contains(column)) {
-							switch(i + shiftHeader) {
+							switch (i + shiftHeader) {
 							case 0:
 								data.addTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_FIRST_TABLE_COLUMN);
 								break;
@@ -630,17 +688,17 @@ public class MicroarrayModule implements Module {
 							}
 						}
 						if (startColumns.contains(column)) {
-							switch(i + shiftHeader) {
+							switch (i + shiftHeader) {
 							case 1:
 								data.addTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_SECOND_TABLE_COLUMN);
 								break;
-							case 2:									
+							case 2:
 								data.addTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_THIRD_TABLE_COLUMN);
 								break;
 							}
 						}
 						if (endColumns.contains(column)) {
-							switch(i + shiftHeader) {
+							switch (i + shiftHeader) {
 							case 2:
 								data.addTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_THIRD_TABLE_COLUMN);
 								break;
@@ -649,36 +707,34 @@ public class MicroarrayModule implements Module {
 								break;
 							}
 						}
-						
-						if (column.contains("loss.freq") ||
-							column.contains("gain.freq") ||
-							column.startsWith("flag.") || 
-							column.startsWith("segmented.")) {
-							
+
+						if (column.contains("loss.freq") || column.contains("gain.freq") || column.startsWith("flag.")
+								|| column.startsWith("segmented.")) {
+
 							if (!data.hasTypeTag(MicroarrayModule.TypeTags.CNA)) {
 								data.addTypeTag(MicroarrayModule.TypeTags.CNA);
 							}
-						}							
-					}						 
+						}
+					}
 				}
-				
+
 			} catch (IOException e) {
 				throw new RuntimeException(e);
-				
+
 			} finally {
 				IOUtils.closeIfPossible(in);
-			}				
+			}
 		}
 
 		if (data.isContentTypeCompatitible("text/gtf")) {
 			data.addTypeTag(MicroarrayModule.TypeTags.GTF_FILE);
 			data.addTypeTag(BasicModule.TypeTags.TABLE_WITHOUT_COLUMN_NAMES);
 			data.addTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_FIRST_TABLE_COLUMN);
-			data.addTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_FOURTH_TABLE_COLUMN);				
-			data.addTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FIFTH_TABLE_COLUMN);				
+			data.addTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_FOURTH_TABLE_COLUMN);
+			data.addTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FIFTH_TABLE_COLUMN);
 			addTypeTagIfHashHeader(data);
 		}
-		
+
 		if (data.isContentTypeCompatitible("text/vcf")) {
 			data.addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
 			addTypeTagIfDoubleHashHeader(data);
@@ -688,9 +744,9 @@ public class MicroarrayModule implements Module {
 
 		if (data.isContentTypeCompatitible("text/bed")) {
 			data.addTypeTag(BasicModule.TypeTags.TABLE_WITHOUT_COLUMN_NAMES);
-			
+
 			data.addTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_FIRST_TABLE_COLUMN);
-			data.addTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_SECOND_TABLE_COLUMN);				
+			data.addTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_SECOND_TABLE_COLUMN);
 			data.addTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_THIRD_TABLE_COLUMN);
 
 			if (readFirstLine(data).startsWith("track")) {
@@ -701,31 +757,35 @@ public class MicroarrayModule implements Module {
 		if (data.isContentTypeCompatitible("application/bam")) {
 			data.addTypeTag(MicroarrayModule.TypeTags.BAM_FILE);
 		}
-		
-		if (data.isContentTypeCompatitible("chemical/x-fasta")) {
-            data.addTypeTag(MicroarrayModule.TypeTags.FASTA_FILE);
-		}
-		
-        // mothur
-        if (data.isContentTypeCompatitible("text/mothur-oligos")) {
-                data.addTypeTag(MicroarrayModule.TypeTags.MOTHUR_OLIGOS);
-        }
-        if (data.isContentTypeCompatitible("text/mothur-names")) {
-                data.addTypeTag(MicroarrayModule.TypeTags.MOTHUR_NAMES);
-        }
-        if (data.isContentTypeCompatitible("text/mothur-groups")) {
-                data.addTypeTag(MicroarrayModule.TypeTags.MOTHUR_GROUPS);
-        }
-        if (data.isContentTypeCompatitible("text/mothur-stability")) {
-            data.addTypeTag(MicroarrayModule.TypeTags.MOTHUR_STABILITY);
-        }
-        if (data.isContentTypeCompatitible("text/mothur-count")) {
-            data.addTypeTag(MicroarrayModule.TypeTags.MOTHUR_COUNT);
-        }
 
-        
+		if (data.isContentTypeCompatitible("chemical/x-fasta")) {
+			data.addTypeTag(MicroarrayModule.TypeTags.FASTA_FILE);
+		}
+
+		// mothur
+		if (data.isContentTypeCompatitible("text/mothur-oligos")) {
+			data.addTypeTag(MicroarrayModule.TypeTags.MOTHUR_OLIGOS);
+		}
+		if (data.isContentTypeCompatitible("text/mothur-names")) {
+			data.addTypeTag(MicroarrayModule.TypeTags.MOTHUR_NAMES);
+		}
+		if (data.isContentTypeCompatitible("text/mothur-groups")) {
+			data.addTypeTag(MicroarrayModule.TypeTags.MOTHUR_GROUPS);
+		}
+		if (data.isContentTypeCompatitible("text/mothur-stability")) {
+			data.addTypeTag(MicroarrayModule.TypeTags.MOTHUR_STABILITY);
+		}
+		if (data.isContentTypeCompatitible("text/mothur-count")) {
+			data.addTypeTag(MicroarrayModule.TypeTags.MOTHUR_COUNT);
+		}
+
+		// add type tags for gzip compatible types
+		if (data.getName().endsWith(".gz") || data.getName().endsWith(".gzip")) {
+			addGzipCompatibleTypeTags(data);
+		}
+
 		// Rest of the tags are set only when this module is primary
-		
+
 		if (!(Session.getSession().getPrimaryModule() instanceof MicroarrayModule)) {
 			return;
 		}
@@ -740,22 +800,25 @@ public class MicroarrayModule implements Module {
 
 			} else if (chips != null && chips.getColumnCount() > 0) {
 				data.addTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
-			} 
+			}
 
 			if (data.queryFeatures("/identifier").exists()) {
 				data.addTypeTag(MicroarrayModule.TypeTags.GENENAMES);
-			} 
-
+			}
 
 			// Tag additional typing information
 			if (data.queryFeatures("/phenodata").exists()) {
 				data.addTypeTag(MicroarrayModule.TypeTags.PHENODATA);
 			}
 
-			if (	(data.queryFeatures("/column/p.*").exists() && data.queryFeatures("/column/FC*").exists()) ||
-					(data.queryFeatures("/column/pvalue*").exists() && data.queryFeatures("/column/log2FoldChange*").exists()) || // NGS deseq file
-					(data.queryFeatures("/column/PValue*").exists() && data.queryFeatures("/column/logFC*").exists())) { // NGS edgeR file
-				
+			if ((data.queryFeatures("/column/p.*").exists() && data.queryFeatures("/column/FC*").exists())
+					|| (data.queryFeatures("/column/pvalue*").exists()
+							&& data.queryFeatures("/column/log2FoldChange*").exists())
+					|| // NGS deseq file
+					(data.queryFeatures("/column/PValue*").exists() && data.queryFeatures("/column/logFC*").exists())) { // NGS
+																															// edgeR
+																															// file
+
 				data.addTypeTag(MicroarrayModule.TypeTags.SIGNIFICANT_EXPRESSION_FOLD_CHANGES);
 			}
 
@@ -772,37 +835,41 @@ public class MicroarrayModule implements Module {
 			}
 
 			// Finally, set NGS related tags
-			if (data.isContentTypeCompatitible("text/bed") 
-					|| (data.isContentTypeCompatitible("application/octet-stream")) && (data.getName().contains(".bam-summary")) 
-					|| (data.isContentTypeCompatitible("application/octet-stream")) && (data.getName().endsWith(".bam") || data.getName().endsWith(".sam"))
-					|| (data.isContentTypeCompatitible("application/octet-stream")) && (data.getName().endsWith(".bai"))) {
+			if (data.isContentTypeCompatitible("text/bed")
+					|| (data.isContentTypeCompatitible("application/octet-stream"))
+							&& (data.getName().contains(".bam-summary"))
+					|| (data.isContentTypeCompatitible("application/octet-stream"))
+							&& (data.getName().endsWith(".bam") || data.getName().endsWith(".sam"))
+					|| (data.isContentTypeCompatitible("application/octet-stream"))
+							&& (data.getName().endsWith(".bai"))) {
 
 				data.addTypeTag(MicroarrayModule.TypeTags.ORDERED_GENOMIC_ENTITIES);
 
 			} else if (data.isContentTypeCompatitible("text/tab")) {
 
 				// require .tsv to have columns for genomic coordinates
-				String line = readFirstLine(data); 
-				if (line != null && line.contains("chr") && line.contains("start") && line.contains("end")) { 
+				String line = readFirstLine(data);
+				if (line != null && line.contains("chr") && line.contains("start") && line.contains("end")) {
 					data.addTypeTag(MicroarrayModule.TypeTags.ORDERED_GENOMIC_ENTITIES);
 				}
 
 			}
 		}
 	}
-	
+
 	private String readFirstLine(DataBean data) {
 
 		BufferedReader reader = null;
 		try {
-			InputStream stream = Session.getSession().getDataManager().getContentStream(data, DataNotAvailableHandling.NULL_ON_NA);
+			InputStream stream = Session.getSession().getDataManager().getContentStream(data,
+					DataNotAvailableHandling.NULL_ON_NA);
 			if (stream != null) {
 				reader = new BufferedReader(new InputStreamReader(stream));
 				return reader.readLine();
 			} else {
 				return "";
 			}
-			
+
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		} finally {
@@ -833,19 +900,35 @@ public class MicroarrayModule implements Module {
 		}
 	}
 
-
 	@Override
 	public void updateUIDefaults(UIDefaults defaults) {
 	}
-
 
 	@Override
 	public String getTsvRowName() {
 		return "Gene";
 	}
-	
+
 	@Override
 	public String getTsvColumnName() {
 		return "Chip";
 	}
+
+	private void plugGzipCompatibleType(TypeTag typeTag, String[] extensions) {
+		// does not add the .gz to the extension
+		gzipCompatibleTypesExtensionsMap.put(typeTag, extensions);
+	}
+
+	private void addGzipCompatibleTypeTags(DataBean data) {
+		gzipCompatibleTypesExtensionsMap.forEach((typeTag, extensions) -> {
+			for (String extension : extensions) {
+				if (data.getName().endsWith("." + extension + ".gz")
+						|| data.getName().endsWith("." + extension + ".gzip")) {
+					data.addTypeTag(typeTag);
+					break;
+				}
+			}
+		});
+	}
+
 }
