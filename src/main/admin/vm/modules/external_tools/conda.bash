@@ -1,6 +1,15 @@
 ##depends:none
 
 #Miniconda3 installation:
+
+echo $-
+shopt
+
+set +u
+
+echo $-
+shopt
+
 wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
 CONDA_PATH=("/opt/chipster/tools/miniconda3")
 bash Miniconda3-latest-Linux-x86_64.sh -b -p $CONDA_PATH 
