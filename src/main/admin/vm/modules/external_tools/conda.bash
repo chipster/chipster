@@ -3,12 +3,11 @@
 #Miniconda3 installation:
 
 echo $-
-shopt
 
+# conda installation doesn't work with 'set -u' https://github.com/conda/conda/issues/9966
 set +u
 
 echo $-
-shopt
 
 wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
 CONDA_PATH=("/opt/chipster/tools/miniconda3")
