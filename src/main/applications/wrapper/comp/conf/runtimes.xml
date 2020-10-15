@@ -55,7 +55,7 @@
 	<runtime>
 		<name>R-3.6.1-single-cell</name>
 		<handler>
-			<class>fi.csc.chipster.comp.r.RJobFactory</class> 
+			<class>fi.csc.microarray.comp.r.RJobFactory</class> 
 			<parameter>
 				<name>command</name>
 				<value>/opt/chipster/tools/R-3.6.1-single-cell/bin/R</value>
