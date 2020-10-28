@@ -44,7 +44,7 @@ echo "Installation files redy, proceed to installation"
 
 
 # Set execution trace
-set -x
+#set -x
 
 # Set exit on error
 set -e

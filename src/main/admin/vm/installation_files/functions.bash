@@ -137,4 +137,6 @@ read_dirs() {
 
 export -f read_dirs
 
+set -e
+
 	
