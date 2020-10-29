@@ -40,7 +40,7 @@ for i in "${folders[@]}"; do
 	source installation_files/generate_installation_file.bash $i/ inst_files/$i.bash
 done
 
-echo "Installation files redy, proceed to installation"
+echo "Installation files ready, proceed to installation"
 
 
 # Set execution trace

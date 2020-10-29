@@ -2,7 +2,6 @@
 
 # Installation functions
 
-
 # Function to install one module
 # It uses flagfiles to check if module is already installed
 
@@ -45,10 +44,15 @@ if [[ "$force" == "0" ]]; then
 		sha256sum $1 > $flagfile
 	fi
 else
-	# Install module
 	(
-	
-		bash -veu $1
+    	# Install module
+		echo "** Install $1"
+		if bash -eu $1; then
+			echo "** Install $1 done"
+		else
+			echo "** Install $1 FAILED"
+			exit 1
+		fi
 	)
 	
 	#If installed correctly, make sha256sum & flagfile
