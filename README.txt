@@ -1,13 +1,14 @@
-Chipster v3 has reached end-of-life
------------------------
+# Chipster v3 has reached end-of-life
 
 Up to version 3.x Chipster was a desktop application requiring Java Web Start. 
-Chipster version 4 is a Web application which runs on your browser. 
+Chipster version 4 is a web application which runs on your browser. 
 
 Here are some links to get started with the new Chipster v4:
 - Main website: [https://chipster.csc.fi]
 - Installation instructions: [https://github.com/chipster/chipster-openshift/tree/k3s/k3s]
 - Source code: [https://github.com/chipster]
+
+# Build instructions
 
 Chipster Source Package
 -----------------------
