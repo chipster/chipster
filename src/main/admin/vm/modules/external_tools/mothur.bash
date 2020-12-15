@@ -29,4 +29,4 @@ curl -s http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/mothur/silv
 ln -s v132 ${TOOLS_PATH}/mothur-silva-reference/silva
 
 mkdir -p ${TOOLS_PATH}/mothur-unite-reference/
-curl -s https://a3s.fi/bundle-builds/mothur-UNITEv8_2020-10-28.tar.lz4  | lz4 -d | tar -x -C ${TOOLS_PATH}/mothur-unite-reference/
+curl -s https://a3s.fi/bundle-builds/mothur-UNITEv8_2020-12-15.tar.lz4  | lz4 -d | tar -x -C ${TOOLS_PATH}/mothur-unite-reference/
